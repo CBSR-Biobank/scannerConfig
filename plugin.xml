@@ -9,8 +9,13 @@
                id="edu.ualberta.med.scannerconfig.menu"
                label="Scanner">
             <command
+                  commandId="edu.ualberta.med.scannerconfig.menu.commands.source"
+                  label="Select Source"
+                  style="push">
+            </command>
+            <command
                   commandId="edu.ualberta.med.scannerconfig.menu.commands.settings"
-                  label="Settings"
+                  label="Configuration"
                   style="push">
             </command>
          </menu>
@@ -22,6 +27,11 @@
             defaultHandler="edu.ualberta.med.scannerconfig.ScannerSettingsHandler"
             id="edu.ualberta.med.scannerconfig.menu.commands.settings"
             name="Settings">
+      </command>
+      <command
+            defaultHandler="edu.ualberta.med.scannerconfig.SelectSourceHandler"
+            id="edu.ualberta.med.scannerconfig.menu.commands.source"
+            name="Select Source">
       </command>
    </extension>
 

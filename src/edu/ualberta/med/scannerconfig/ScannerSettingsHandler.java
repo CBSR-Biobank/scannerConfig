@@ -12,6 +12,7 @@ public class ScannerSettingsHandler extends AbstractHandler implements IHandler 
         ConfigDialog configDialog = new ConfigDialog(PlatformUI.getWorkbench()
             .getActiveWorkbenchWindow().getShell(), SWT.NONE);
         configDialog.open();
+        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().setFocus();
         return null;
     }
 }

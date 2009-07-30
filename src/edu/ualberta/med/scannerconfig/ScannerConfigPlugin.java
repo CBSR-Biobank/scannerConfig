@@ -18,6 +18,11 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 	 * The constructor
 	 */
 	public ScannerConfigPlugin() {
+        String osname = System.getProperty("os.name");
+        if (osname.startsWith("Windows")) {
+            System.loadLibrary("scanlib");
+        }
+		
 	}
 
 	/*
