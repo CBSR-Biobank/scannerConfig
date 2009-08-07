@@ -1,7 +1,12 @@
+
 package edu.ualberta.med.scannerconfig;
 
 import java.io.File;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -21,7 +26,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import edu.ualberta.med.scanlib.ScanLib;
-import edu.ualberta.med.scanlib.ScanLibFactory;
 
 public class ConfigDialog extends org.eclipse.swt.widgets.Dialog {
 
@@ -41,10 +45,15 @@ public class ConfigDialog extends org.eclipse.swt.widgets.Dialog {
     private Label labels[];
     private Label platelabels[];
 
-    private Group[] groups;
+    private Group [] groups;
+
+    private int scanlibReturn;
+
+    private ScanLib scanLib;
 
     public ConfigDialog(Shell parent, int style) {
         super(parent, style);
+        scanLib = ScanLib.getInstance();
     }
 
     public void open() {
@@ -54,16 +63,15 @@ public class ConfigDialog extends org.eclipse.swt.widgets.Dialog {
                 | SWT.APPLICATION_MODAL);
             GridLayout dialogShellLayout = new GridLayout();
             dialogShellLayout.makeColumnsEqualWidth = true;
-            groups = new Group[3 + ConfigSettings.PLATENUM + 2];
-            platesText = new Text[ConfigSettings.PLATENUM + 1][4];// left,top,right,bottom
-            labels = new Label[ConfigSettings.PLATENUM * 5 + 10 + 1];
-            platelabels = new Label[ConfigSettings.PLATENUM * 4];
+            groups = new Group [3 + ConfigSettings.PLATENUM + 2];
+            platesText = new Text [ConfigSettings.PLATENUM + 1] [4];// left,top,right,bottom
+            labels = new Label [ConfigSettings.PLATENUM * 5 + 10 + 1];
+            platelabels = new Label [ConfigSettings.PLATENUM * 4];
             int label_it = 0;
             int groups_it = 0;
             dialogShell.setLayout(dialogShellLayout);
             dialogShell.setText("Scanner Configuration");
-            dialogShell
-                .setFont(new Font(Display.getDefault(), "Tahoma", 10, 0));
+            dialogShell.setFont(new Font(Display.getDefault(), "Tahoma", 10, 0));
             {
                 groups[++groups_it] = new Group(dialogShell, SWT.NONE);
                 RowLayout group1Layout = new RowLayout(
@@ -211,70 +219,70 @@ public class ConfigDialog extends org.eclipse.swt.widgets.Dialog {
                     buttonPreview.setText("Edit");
                     if (plate < ConfigSettings.getInstance().getPlatemode()) {
                         switch (plate + 1) {// TODO find a better way of doing
-                        // this (BELOW)
-                        case (1):
-                            buttonPreview.addMouseListener(new MouseAdapter() {
-                                @Override
-                                public void mouseUp(MouseEvent evt) {
-                                    buttonPlateImageDialog(1);
-                                }
-                            });
-                            break;
-                        case (2):
-                            buttonPreview.addMouseListener(new MouseAdapter() {
-                                @Override
-                                public void mouseUp(MouseEvent evt) {
-                                    buttonPlateImageDialog(2);
-                                }
-                            });
-                            break;
-                        case (3):
-                            buttonPreview.addMouseListener(new MouseAdapter() {
-                                @Override
-                                public void mouseUp(MouseEvent evt) {
-                                    buttonPlateImageDialog(3);
-                                }
-                            });
-                            break;
-                        case (4):
-                            buttonPreview.addMouseListener(new MouseAdapter() {
-                                @Override
-                                public void mouseUp(MouseEvent evt) {
-                                    buttonPlateImageDialog(4);
-                                }
-                            });
-                            break;
-                        default:
-                            break;
+                            // this (BELOW)
+                            case (1):
+                                buttonPreview.addMouseListener(new MouseAdapter() {
+                                    @Override
+                                    public void mouseUp(MouseEvent evt) {
+                                        buttonPlateImageDialog(1);
+                                    }
+                                });
+                                break;
+                            case (2):
+                                buttonPreview.addMouseListener(new MouseAdapter() {
+                                    @Override
+                                    public void mouseUp(MouseEvent evt) {
+                                        buttonPlateImageDialog(2);
+                                    }
+                                });
+                                break;
+                            case (3):
+                                buttonPreview.addMouseListener(new MouseAdapter() {
+                                    @Override
+                                    public void mouseUp(MouseEvent evt) {
+                                        buttonPlateImageDialog(3);
+                                    }
+                                });
+                                break;
+                            case (4):
+                                buttonPreview.addMouseListener(new MouseAdapter() {
+                                    @Override
+                                    public void mouseUp(MouseEvent evt) {
+                                        buttonPlateImageDialog(4);
+                                    }
+                                });
+                                break;
+                            default:
+                                break;
                         }
                     }
                 }
                 {
                     Color c;
                     switch (plate) {
-                    case (0):
-                        c = new Color(Display.getDefault(), 185, 255, 185);
-                        break;
-                    case (1):
-                        c = new Color(Display.getDefault(), 255, 185, 185);
-                        break;
-                    case (2):
-                        c = new Color(Display.getDefault(), 255, 255, 185);
-                        break;
-                    case (3):
-                        c = new Color(Display.getDefault(), 170, 255, 255);
-                        break;
-                    default:
-                        c = new Color(Display.getDefault(), 255, 255, 255);
-                        break;
+                        case (0):
+                            c = new Color(Display.getDefault(), 185, 255, 185);
+                            break;
+                        case (1):
+                            c = new Color(Display.getDefault(), 255, 185, 185);
+                            break;
+                        case (2):
+                            c = new Color(Display.getDefault(), 255, 255, 185);
+                            break;
+                        case (3):
+                            c = new Color(Display.getDefault(), 170, 255, 255);
+                            break;
+                        default:
+                            c = new Color(Display.getDefault(), 255, 255, 255);
+                            break;
                     }
                     for (int i = 0; i < 4; i++) {
-                        if (plate >= ConfigSettings.getInstance()
-                            .getPlatemode()) {
+                        if (plate >= ConfigSettings.getInstance().getPlatemode()) {
                             platesText[plate][i].setBackground(new Color(
                                 Display.getDefault(), 0, 0, 0));
                             platesText[plate][i].setEnabled(false);
-                        } else {
+                        }
+                        else {
                             platesText[plate][i].setBackground(c);
                         }
                     }
@@ -330,10 +338,10 @@ public class ConfigDialog extends org.eclipse.swt.widgets.Dialog {
             Display display = dialogShell.getDisplay();
 
             while (!dialogShell.isDisposed()) {
-                if (!display.readAndDispatch())
-                    display.sleep();
+                if (!display.readAndDispatch()) display.sleep();
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -341,8 +349,7 @@ public class ConfigDialog extends org.eclipse.swt.widgets.Dialog {
     void readPlatesIntoArray(double plateArray[][]) {
         for (int plate = 0; plate < ConfigSettings.PLATENUM; plate++) {
             for (int side = 0; side < 4; side++) {
-                plateArray[plate][side] = Double
-                    .valueOf(platesText[plate][side].getText());
+                plateArray[plate][side] = Double.valueOf(platesText[plate][side].getText());
             }
         }
     }
@@ -360,7 +367,8 @@ public class ConfigDialog extends org.eclipse.swt.widgets.Dialog {
                 platelabels[4 * i + 3].setText("     Width:");
             }
 
-        } else {
+        }
+        else {
             twainBtn.setSelection(true);
             wiaBtn.setSelection(false);
         }
@@ -371,8 +379,7 @@ public class ConfigDialog extends org.eclipse.swt.widgets.Dialog {
 
         for (int plate = 0; plate < ConfigSettings.PLATENUM; plate++) {
             for (int side = 0; side < 4; side++) {
-                platesText[plate][side].setText(String.valueOf(configSettings
-                    .getPlate(plate + 1)[side]));
+                platesText[plate][side].setText(String.valueOf(configSettings.getPlate(plate + 1)[side]));
             }
         }
         return 0;
@@ -383,39 +390,38 @@ public class ConfigDialog extends org.eclipse.swt.widgets.Dialog {
     }
 
     private void buttonPlateImageDialog(int plate) {
-        double nplates[][] = new double[ConfigSettings.PLATENUM][4];
+        double nplates[][] = new double [ConfigSettings.PLATENUM] [4];
         readPlatesIntoArray(nplates);
         if (!(new File(PlateImageDialog.alignFile).exists())
             || MessageDialog.openConfirm(dialogShell, "Re-Scan Plate Image?",
                 "If you have moved the plates since the last calibration press OK.\n"
                     + "")) {
-            ScanLibFactory.getScanLib().slScanImage(
-                (int) PlateImageDialog.alignDpi, 0, 0, 0, 0,
+            scanLib.slScanImage((int) PlateImageDialog.alignDpi, 0, 0, 0, 0,
                 PlateImageDialog.alignFile);
         }
 
         PlateImageDialog pid = new PlateImageDialog(dialogShell, SWT.NONE);
         Color c;
         switch (plate - 1) {
-        case (0):
-            c = new Color(Display.getDefault(), 0, 0xFF, 0);
-            break;
-        case (1):
-            c = new Color(Display.getDefault(), 0xFF, 0, 0);
-            break;
-        case (2):
-            c = new Color(Display.getDefault(), 0xFF, 0xFF, 0);
-            break;
-        case (3):
-            c = new Color(Display.getDefault(), 0, 0xFF, 0xFF);
-            break;
-        default:
-            c = new Color(Display.getDefault(), 0xFF, 0xFF, 0xFF);
-            break;
+            case (0):
+                c = new Color(Display.getDefault(), 0, 0xFF, 0);
+                break;
+            case (1):
+                c = new Color(Display.getDefault(), 0xFF, 0, 0);
+                break;
+            case (2):
+                c = new Color(Display.getDefault(), 0xFF, 0xFF, 0);
+                break;
+            case (3):
+                c = new Color(Display.getDefault(), 0, 0xFF, 0xFF);
+                break;
+            default:
+                c = new Color(Display.getDefault(), 0xFF, 0xFF, 0xFF);
+                break;
         }
 
-        double plateset[] = pid.open(nplates[plate - 1], twainBtn
-            .getSelection(), c);
+        double plateset[] = pid.open(nplates[plate - 1],
+            twainBtn.getSelection(), c);
 
         for (int i = 0; i < 4; i++) {
             platesText[plate - 1][i].setText(String.valueOf(plateset[i]));
@@ -434,110 +440,113 @@ public class ConfigDialog extends org.eclipse.swt.widgets.Dialog {
             ConfigSettings configSettings = ConfigSettings.getInstance();
             if (twainBtn.getSelection()) {
                 configSettingsReturn = configSettings.setDriverType("TWAIN");
-            } else if (wiaBtn.getSelection()) {
+            }
+            else if (wiaBtn.getSelection()) {
                 configSettingsReturn = configSettings.setDriverType("WIA");
-            } else {
+            }
+            else {
                 configSettingsReturn = ConfigSettings.CS_INVALID_INPUT;
             }
             switch (configSettingsReturn) {
-            case (ConfigSettings.CS_SUCCESS):
-                break;
-            case (ConfigSettings.CS_NOCHANGE):
-                break;
-            case (ConfigSettings.CS_INVALID_INPUT):
-                MessageDialog.openError(dialogShell,
-                    "configSettings.setDriverType",
-                    "Please enter a valid input");
-                return;
+                case (ConfigSettings.CS_SUCCESS):
+                    break;
+                case (ConfigSettings.CS_NOCHANGE):
+                    break;
+                case (ConfigSettings.CS_INVALID_INPUT):
+                    MessageDialog.openError(dialogShell,
+                        "configSettings.setDriverType",
+                        "Please enter a valid input");
+                    return;
 
-            case (ConfigSettings.CS_FILE_ERROR):
-                MessageDialog.openError(dialogShell,
-                    "configSettings.setDriverType",
-                    "Could not find scanlib.ini file");
-                dialogShell.dispose();
-                return;
+                case (ConfigSettings.CS_FILE_ERROR):
+                    MessageDialog.openError(dialogShell,
+                        "configSettings.setDriverType",
+                        "Could not find scanlib.ini file");
+                    dialogShell.dispose();
+                    return;
             }
 
             configSettingsReturn = configSettings.setDpi(textDpi.getText());
             switch (configSettingsReturn) {
-            case (ConfigSettings.CS_SUCCESS):
-                break;
-            case (ConfigSettings.CS_FILE_ERROR):
-                MessageDialog.openError(dialogShell, "configSettings.setDpi",
-                    "Could not find scanlib.ini file");
-                dialogShell.dispose();
-                return;
-            case (ConfigSettings.CS_INVALID_INPUT):
-                MessageDialog.openError(dialogShell, "configSettings.setDpi",
-                    "Dpi must be greater than 0 and no greater than 600");
-                return;
-            case (ConfigSettings.CS_NOCHANGE):
-                break;
-            }
-            configSettingsReturn = configSettings.setBrightness(textBrightness
-                .getText());
-            switch (configSettingsReturn) {
-            case (ConfigSettings.CS_SUCCESS):
-                int scanlibReturn = ScanLibFactory.getScanLib()
-                    .slConfigScannerBrightness(configSettings.getBrightness());
-                switch (scanlibReturn) {
-                case (ScanLib.SC_SUCCESS):
+                case (ConfigSettings.CS_SUCCESS):
                     break;
-                case (ScanLib.SC_INVALID_VALUE):
-                    this.errorMsg("Brightness: Invalid Value", scanlibReturn);
+                case (ConfigSettings.CS_FILE_ERROR):
+                    MessageDialog.openError(dialogShell,
+                        "configSettings.setDpi",
+                        "Could not find scanlib.ini file");
                     dialogShell.dispose();
                     return;
-
-                case (ScanLib.SC_INI_FILE_ERROR):
-                    this.errorMsg(
-                        "Brightness: Could not find scanlib.ini file",
-                        scanlibReturn);
-                    dialogShell.dispose();
+                case (ConfigSettings.CS_INVALID_INPUT):
+                    MessageDialog.openError(dialogShell,
+                        "configSettings.setDpi",
+                        "Dpi must be greater than 0 and no greater than 600");
                     return;
-                }
-                break;
-            case (ConfigSettings.CS_INVALID_INPUT):
-                MessageDialog.openError(dialogShell,
-                    "configSettings.setBrightness",
-                    "Brightness ranges from -1000 to 1000\n"
-                        + "Please enter a valid input value");
-                return;
-            case (ConfigSettings.CS_NOCHANGE):
-                break;
-            }
-
-            configSettingsReturn = configSettings.setContrast(textContrast
-                .getText());
-            switch (configSettingsReturn) {
-            case (ConfigSettings.CS_SUCCESS):
-                int scanlibReturn = ScanLibFactory.getScanLib()
-                    .slConfigScannerContrast(configSettings.getContrast());
-                switch (scanlibReturn) {
-                case (ScanLib.SC_SUCCESS):
+                case (ConfigSettings.CS_NOCHANGE):
                     break;
-                case (ScanLib.SC_INVALID_VALUE):
-                    this.errorMsg("Contrast: Invalid Value", scanlibReturn);
-                    dialogShell.dispose();
-                    return;
+            }
+            configSettingsReturn = configSettings.setBrightness(textBrightness.getText());
+            switch (configSettingsReturn) {
+                case (ConfigSettings.CS_SUCCESS):
+                    int scanlibReturn = scanLib.slConfigScannerBrightness(configSettings.getBrightness());
+                    switch (scanlibReturn) {
+                        case (ScanLib.SC_SUCCESS):
+                            break;
+                        case (ScanLib.SC_INVALID_VALUE):
+                            this.errorMsg("Brightness: Invalid Value",
+                                scanlibReturn);
+                            dialogShell.dispose();
+                            return;
 
-                case (ScanLib.SC_INI_FILE_ERROR):
-                    this.errorMsg("Contrast: Could not find scanlib.ini file",
-                        scanlibReturn);
-                    dialogShell.dispose();
+                        case (ScanLib.SC_INI_FILE_ERROR):
+                            this.errorMsg(
+                                "Brightness: Could not find scanlib.ini file",
+                                scanlibReturn);
+                            dialogShell.dispose();
+                            return;
+                    }
+                    break;
+                case (ConfigSettings.CS_INVALID_INPUT):
+                    MessageDialog.openError(dialogShell,
+                        "configSettings.setBrightness",
+                        "Brightness ranges from -1000 to 1000\n"
+                            + "Please enter a valid input value");
                     return;
-                }
-                break;
-            case (ConfigSettings.CS_INVALID_INPUT):
-                MessageDialog.openError(dialogShell,
-                    "configSettings.setContrast",
-                    "Contrast ranges from -1000 to 1000\n"
-                        + "Please enter a valid input value");
-                return;
-            case (ConfigSettings.CS_NOCHANGE):
-                break;
+                case (ConfigSettings.CS_NOCHANGE):
+                    break;
             }
 
-            double nplates[][] = new double[ConfigSettings.PLATENUM][4];
+            configSettingsReturn = configSettings.setContrast(textContrast.getText());
+            switch (configSettingsReturn) {
+                case (ConfigSettings.CS_SUCCESS):
+                    int scanlibReturn = scanLib.slConfigScannerContrast(configSettings.getContrast());
+                    switch (scanlibReturn) {
+                        case (ScanLib.SC_SUCCESS):
+                            break;
+                        case (ScanLib.SC_INVALID_VALUE):
+                            this.errorMsg("Contrast: Invalid Value",
+                                scanlibReturn);
+                            dialogShell.dispose();
+                            return;
+
+                        case (ScanLib.SC_INI_FILE_ERROR):
+                            this.errorMsg(
+                                "Contrast: Could not find scanlib.ini file",
+                                scanlibReturn);
+                            dialogShell.dispose();
+                            return;
+                    }
+                    break;
+                case (ConfigSettings.CS_INVALID_INPUT):
+                    MessageDialog.openError(dialogShell,
+                        "configSettings.setContrast",
+                        "Contrast ranges from -1000 to 1000\n"
+                            + "Please enter a valid input value");
+                    return;
+                case (ConfigSettings.CS_NOCHANGE):
+                    break;
+            }
+
+            double nplates[][] = new double [ConfigSettings.PLATENUM] [4];
             readPlatesIntoArray(nplates);
 
             for (int plate = 0; plate < ConfigSettings.PLATENUM; plate++) {
@@ -546,95 +555,110 @@ public class ConfigDialog extends org.eclipse.swt.widgets.Dialog {
                     nplates[plate][3]);
                 if (setPlateReturn == ConfigSettings.CS_SUCCESS
                     || setPlateReturn == ConfigSettings.CS_CLEARDATA) {
-                    int scanlibReturn = ScanLibFactory.getScanLib()
-                        .slConfigPlateFrame(plate + 1,
-                            configSettings.getPlate(plate + 1)[0],
-                            configSettings.getPlate(plate + 1)[1],
-                            configSettings.getPlate(plate + 1)[2],
-                            configSettings.getPlate(plate + 1)[3]);
+                    int scanlibReturn = scanLib.slConfigPlateFrame(plate + 1,
+                        configSettings.getPlate(plate + 1)[0],
+                        configSettings.getPlate(plate + 1)[1],
+                        configSettings.getPlate(plate + 1)[2],
+                        configSettings.getPlate(plate + 1)[3]);
                     switch (scanlibReturn) {
-                    case (ScanLib.SC_SUCCESS):
-                        break;
-                    case (ScanLib.SC_INI_FILE_ERROR):
-                        this
-                            .errorMsg(
+                        case (ScanLib.SC_SUCCESS):
+                            break;
+                        case (ScanLib.SC_INI_FILE_ERROR):
+                            this.errorMsg(
                                 "ConfigPlateFrame: Could not find scanlib.ini file",
                                 scanlibReturn);
-                        dialogShell.dispose();
-                        return;
+                            dialogShell.dispose();
+                            return;
                     }
 
                     if (setPlateReturn == ConfigSettings.CS_SUCCESS) {
-                        scanlibReturn = ScanLibFactory.getScanLib()
-                            .slCalibrateToPlate(configSettings.getDpi(),
-                                plate + 1);
-                        if (scanlibReturn != ScanLib.SC_SUCCESS) {
-                            ScanLibFactory.getScanLib().slConfigPlateFrame(
-                                plate + 1, 0, 0, 0, 0);
-                            dialogShell.redraw();
-                        }
-                        switch (scanlibReturn) {
-
-                        case (ScanLib.SC_SUCCESS):
-                            MessageDialog.openInformation(dialogShell,
-                                "Successful Calibration", String.format(
-                                    "Plate %d has been successfully setup",
-                                    plate + 1));
-                            break;
-                        case (ScanLib.SC_INVALID_DPI):
-                            this.errorMsg("Calibratation: Invalid Dpi",
-                                scanlibReturn);
-                            return;
-                        case (ScanLib.SC_INVALID_PLATE_NUM):
-                            this.errorMsg(
-                                "Calibratation: Invalid Plate Number",
-                                scanlibReturn);
-                            dialogShell.dispose();
-                            return;
-
-                        case (ScanLib.SC_INI_FILE_ERROR):
-                            this
-                                .errorMsg(
-                                    "Calibratation: Plate dimensions not found inside scanlib.ini",
-                                    scanlibReturn);
-                            dialogShell.dispose();
-                            return;
-                        case (ScanLib.SC_CALIBRATOR_ERROR):
-                            this
-                                .errorMsg(
-                                    "Calibration: Could not find 8 rows and 12 columns",
-                                    scanlibReturn);
-                            for (int i = 0; i < 4; i++) {
-                                platesText[plate][i].setBackground(new Color(
-                                    Display.getDefault(), 0x44, 0x44, 0x44));
-                            }
-                            return;
-                        case (ScanLib.SC_CALIBRATOR_NO_REGIONS):
-                            this
-                                .errorMsg(
-                                    "menuConfigurationWidgetSelected, Calibratation",
-                                    scanlibReturn);
-                            return;
-                        case (ScanLib.SC_FAIL):
-                            this.errorMsg("Calibratation: Failed to scan",
-                                scanlibReturn);
-                            dialogShell.dispose();
-                            return;
-
-                        }
+                        calibrateToPlate(plate + 1);
                     }
-                } else if (setPlateReturn == ConfigSettings.CS_INVALID_INPUT) {
-                    MessageDialog
-                        .openError(dialogShell, "configSettings.setPlate",
-                            "Please enter a valid input");
+                }
+                else if (setPlateReturn == ConfigSettings.CS_INVALID_INPUT) {
+                    MessageDialog.openError(dialogShell,
+                        "configSettings.setPlate", "Please enter a valid input");
                     return;
                 }
 
             }
             dialogShell.dispose();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             MessageDialog.openError(dialogShell, "Error", e.getMessage());
         }
 
+    }
+
+    private void calibrateToPlate(final int plate) {
+        Job job = new Job("Calibration") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                monitor.beginTask("Calibrating to plate " + (plate + 1)
+                    + " ...", 100);
+
+                scanlibReturn = scanLib.slCalibrateToPlate(
+                    ConfigSettings.getInstance().getDpi(), plate + 1);
+
+                Display.getDefault().asyncExec(new Runnable() {
+                    public void run() {
+                        if (scanlibReturn != ScanLib.SC_SUCCESS) {
+                            scanLib.slConfigPlateFrame(plate + 1, 0, 0, 0, 0);
+                            // dialogShell.redraw();
+                        }
+
+                        switch (scanlibReturn) {
+                            case (ScanLib.SC_SUCCESS):
+                                MessageDialog.openInformation(dialogShell,
+                                    "Successful Calibration", String.format(
+                                        "Plate %d has been successfully setup",
+                                        plate + 1));
+                                break;
+                            case (ScanLib.SC_INVALID_DPI):
+                                ConfigDialog.this.errorMsg(
+                                    "Calibratation: Invalid Dpi", scanlibReturn);
+                                break;
+                            case (ScanLib.SC_INVALID_PLATE_NUM):
+                                ConfigDialog.this.errorMsg(
+                                    "Calibratation: Invalid Plate Number",
+                                    scanlibReturn);
+                                dialogShell.dispose();
+                                break;
+
+                            case (ScanLib.SC_INI_FILE_ERROR):
+                                ConfigDialog.this.errorMsg(
+                                    "Calibratation: Plate dimensions not found inside scanlib.ini",
+                                    scanlibReturn);
+                                dialogShell.dispose();
+                                break;
+                            case (ScanLib.SC_CALIBRATOR_ERROR):
+                                ConfigDialog.this.errorMsg(
+                                    "Calibration: Could not find 8 rows and 12 columns",
+                                    scanlibReturn);
+                                for (int i = 0; i < 4; i++) {
+                                    platesText[plate][i].setBackground(new Color(
+                                        Display.getDefault(), 0x44, 0x44, 0x44));
+                                }
+                                break;
+                            case (ScanLib.SC_CALIBRATOR_NO_REGIONS):
+                                ConfigDialog.this.errorMsg(
+                                    "menuConfigurationWidgetSelected, Calibratation",
+                                    scanlibReturn);
+                                break;
+                            case (ScanLib.SC_FAIL):
+                                ConfigDialog.this.errorMsg(
+                                    "Calibratation: Failed to scan",
+                                    scanlibReturn);
+                                dialogShell.dispose();
+                                break;
+                        }
+                    }
+                });
+
+                monitor.done();
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
     }
 }
