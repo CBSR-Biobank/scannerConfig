@@ -2,37 +2,45 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="menu:org.eclipse.ui.main.menu">
-         <menu
-               id="edu.ualberta.med.scannerconfig.menu"
-               label="Scanner">
-            <command
-                  commandId="edu.ualberta.med.scannerconfig.menu.commands.source"
-                  label="Select Source"
-                  style="push">
-            </command>
-            <command
-                  commandId="edu.ualberta.med.scannerconfig.menu.commands.settings"
-                  label="Configuration"
-                  style="push">
-            </command>
-         </menu>
-      </menuContribution>
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="edu.ualberta.med.scannerconfig.preferences.PreferenceInitializer">
+      </initializer>
    </extension>
-   <extension
-         point="org.eclipse.ui.commands">
-      <command
-            defaultHandler="edu.ualberta.med.scannerconfig.ScannerSettingsHandler"
-            id="edu.ualberta.med.scannerconfig.menu.commands.settings"
-            name="Settings">
-      </command>
-      <command
-            defaultHandler="edu.ualberta.med.scannerconfig.SelectSourceHandler"
-            id="edu.ualberta.med.scannerconfig.menu.commands.source"
-            name="Select Source">
-      </command>
+   <extension point="org.eclipse.ui.preferencePages">
+    <page id="Scanner"
+        name="Scanner"
+            class="edu.ualberta.med.scannerconfig.preferences.Scanner">
+    </page>
+    <page
+          category="Scanner"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Pallet1"
+          id="BioSampleScan.page1"
+          name="Pallet 1 Position">
+    </page> 
+    <page
+          category="Scanner"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Pallet2"
+          id="BioSampleScan.page2"
+          name="Pallet 2 Position">
+    </page> 
+    <page
+          category="Scanner"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Pallet3"
+          id="BioSampleScan.page3"
+          name="Pallet 3 Position">
+    </page> 
+    <page
+          category="Scanner"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Pallet4"
+          id="BioSampleScan.page4"
+          name="Pallet 4 Position">
+    </page> 
+    <page
+          category="Scanner"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Pallet5"
+          id="BioSampleScan.page5"
+          name="Pallet 5 Position">
+    </page> 
    </extension>
-
 </plugin>
