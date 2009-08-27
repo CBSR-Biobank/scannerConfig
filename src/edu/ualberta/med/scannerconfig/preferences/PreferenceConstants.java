@@ -4,12 +4,6 @@ public class PreferenceConstants {
 
     public static final String SCANNER_DPI = "scanner.dpi";
 
-    public static final String SCANNER_DPI_300 = "scanner.dpi.300";
-
-    public static final String SCANNER_DPI_400 = "scanner.dpi.400";
-
-    public static final String SCANNER_DPI_600 = "scanner.dpi.600";
-
     public static final String SCANNER_BRIGHTNESS = "scanner.brightness";
 
     public static final String SCANNER_CONTRAST = "scanner.contrast";
