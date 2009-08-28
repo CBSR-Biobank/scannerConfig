@@ -20,7 +20,15 @@ public class Scanner extends FieldEditorPreferencePage implements
     @Override
     public void createFieldEditors() {
         RadioGroupFieldEditor rgFe = new RadioGroupFieldEditor(
-            PreferenceConstants.SCANNER_DPI, "DPI", 3, new String[][] {
+            PreferenceConstants.SCANNER_DRV_TYPE, "Driver Type", 2,
+            new String[][] {
+                { "WIA", PreferenceConstants.SCANNER_DRV_TYPE_WIA },
+                { "TWAIN", PreferenceConstants.SCANNER_DRV_TYPE_TWAIN } },
+            getFieldEditorParent(), true);
+        addField(rgFe);
+
+        rgFe = new RadioGroupFieldEditor(PreferenceConstants.SCANNER_DPI,
+            "DPI", 3, new String[][] {
                 { "300", PreferenceConstants.SCANNER_DPI_300 },
                 { "400", PreferenceConstants.SCANNER_DPI_400 },
                 { "600", PreferenceConstants.SCANNER_DPI_600 } },
@@ -37,13 +45,6 @@ public class Scanner extends FieldEditorPreferencePage implements
             "Contrast", getFieldEditorParent());
         intFe.setValidRange(-1000, 1000);
         addField(intFe);
-
-        rgFe = new RadioGroupFieldEditor(PreferenceConstants.SCANNER_DRV_TYPE,
-            "Driver Type", 2, new String[][] {
-                { "WIA", PreferenceConstants.SCANNER_DRV_TYPE_WIA },
-                { "TWAIN", PreferenceConstants.SCANNER_DRV_TYPE_TWAIN } },
-            getFieldEditorParent(), true);
-        addField(rgFe);
     }
 
     @Override

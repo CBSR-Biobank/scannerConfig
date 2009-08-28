@@ -1,8 +1,9 @@
-
 package edu.ualberta.med.scannerconfig;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import edu.ualberta.med.scanlib.ScanCell;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -56,6 +57,11 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
      */
     public static ScannerConfigPlugin getDefault() {
         return plugin;
+    }
+
+    public static ScanCell[][] scan(int plateNum) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
