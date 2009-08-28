@@ -65,6 +65,7 @@ public class DoubleFieldEditor extends StringFieldEditor {
      * (non-Javadoc) Method declared on StringFieldEditor. Checks whether the
      * entered String is a valid integer or not.
      */
+    @Override
     protected boolean checkState() {
 
         Text text = getTextControl();
@@ -94,6 +95,7 @@ public class DoubleFieldEditor extends StringFieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     protected void doLoad() {
         Text text = getTextControl();
         if (text != null) {
@@ -107,6 +109,7 @@ public class DoubleFieldEditor extends StringFieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     protected void doLoadDefault() {
         Text text = getTextControl();
         if (text != null) {
@@ -120,6 +123,7 @@ public class DoubleFieldEditor extends StringFieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
+    @Override
     protected void doStore() {
         Text text = getTextControl();
         if (text != null) {

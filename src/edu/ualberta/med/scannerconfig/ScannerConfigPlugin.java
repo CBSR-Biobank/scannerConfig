@@ -4,6 +4,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import edu.ualberta.med.scanlib.ScanCell;
+import edu.ualberta.med.scanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -33,6 +35,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
      * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
      * )
      */
+    @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
@@ -45,6 +48,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
      * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
      * )
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
         plugin = null;
         super.stop(context);
@@ -59,9 +63,15 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         return plugin;
     }
 
-    public static ScanCell[][] scan(int plateNum) {
-        // TODO Auto-generated method stub
-        return null;
+    public static ScanCell[][] scan(int plateNumber) throws Exception {
+        String dpiString = getDefault().getPreferenceStore().getString(
+            PreferenceConstants.SCANNER_DPI);
+        int dpi = Integer.valueOf(dpiString);
+        int res = ScanLib.getInstance().slDecodePlate(dpi, plateNumber);
+        if (res < ScanLib.SC_SUCCESS) {
+            throw new Exception("Could not decode image. Return code is: "
+                + res);
+        }
+        return ScanCell.getScanLibResults();
     }
-
 }
