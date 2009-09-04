@@ -22,8 +22,8 @@ public class Scanner extends FieldEditorPreferencePage implements
         RadioGroupFieldEditor rgFe = new RadioGroupFieldEditor(
             PreferenceConstants.SCANNER_DRV_TYPE, "Driver Type", 2,
             new String[][] {
-                { "WIA", PreferenceConstants.SCANNER_DRV_TYPE_WIA },
-                { "TWAIN", PreferenceConstants.SCANNER_DRV_TYPE_TWAIN } },
+                { "TWAIN", PreferenceConstants.SCANNER_DRV_TYPE_TWAIN },
+                { "WIA", PreferenceConstants.SCANNER_DRV_TYPE_WIA } },
             getFieldEditorParent(), true);
         addField(rgFe);
 
