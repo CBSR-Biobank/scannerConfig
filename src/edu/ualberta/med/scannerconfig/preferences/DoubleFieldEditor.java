@@ -1,7 +1,6 @@
 package edu.ualberta.med.scannerconfig.preferences;
 
 import org.eclipse.jface.preference.StringFieldEditor;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
@@ -42,8 +41,7 @@ public class DoubleFieldEditor extends StringFieldEditor {
         init(name, labelText);
         setTextLimit(textLimit);
         setEmptyStringAllowed(false);
-        setErrorMessage(JFaceResources
-            .getString("IntegerFieldEditor.errorMessage"));//$NON-NLS-1$
+        setErrorMessage("Invalid value");
         createControl(parent);
     }
 
@@ -56,9 +54,7 @@ public class DoubleFieldEditor extends StringFieldEditor {
     public void setValidRange(double min, double max) {
         minValidValue = min;
         maxValidValue = max;
-        setErrorMessage(JFaceResources.format(
-            "DoubleFieldEditor.errorMessageRange", //$NON-NLS-1$
-            new Object[] { new Double(min), new Double(max) }));
+        setErrorMessage("Invalid value");
     }
 
     /*
@@ -67,7 +63,6 @@ public class DoubleFieldEditor extends StringFieldEditor {
      */
     @Override
     protected boolean checkState() {
-
         Text text = getTextControl();
 
         if (text == null) {
