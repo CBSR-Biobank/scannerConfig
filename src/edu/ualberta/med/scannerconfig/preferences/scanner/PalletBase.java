@@ -2,6 +2,7 @@ package edu.ualberta.med.scannerconfig.preferences.scanner;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -9,20 +10,19 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
+import edu.ualberta.med.scannerconfig.ScannerRegion;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
+import edu.ualberta.med.scannerconfig.widgets.PalletImageWidget;
 
 public class PalletBase extends FieldEditorPreferencePage implements
     IWorkbenchPreferencePage {
 
     protected int palletId;
-
-    private Text position;
 
     public PalletBase(int palletId) {
         super(GRID);
@@ -77,26 +77,34 @@ public class PalletBase extends FieldEditorPreferencePage implements
         comp.setLayout(new GridLayout(1, false));
         comp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-        Canvas canvas = new Canvas(comp, SWT.BORDER | SWT.V_SCROLL
-            | SWT.H_SCROLL | SWT.NO_REDRAW_RESIZE | SWT.NO_BACKGROUND);
+        Canvas canvas = new Canvas(comp, SWT.BORDER);
+        canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-        position = new Text(comp, SWT.BORDER);
-        position.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true,
-            false));
+        Color c;
 
-        Display display = parent.getDisplay();
+        switch (palletId) {
+        case 1:
+            c = new Color(Display.getDefault(), 0, 0xFF, 0);
+            break;
+        case 2:
+            c = new Color(Display.getDefault(), 0xFF, 0, 0);
+            break;
+        case 3:
+            c = new Color(Display.getDefault(), 0xFF, 0xFF, 0);
+            break;
+        case 4:
+            c = new Color(Display.getDefault(), 0, 0xFF, 0xFF);
+            break;
+        case 5:
+            c = new Color(Display.getDefault(), 0, 0, 0xFF);
+            break;
+        default:
+            c = new Color(Display.getDefault(), 0xFF, 0xFF, 0xFF);
+            break;
+        }
 
-        // paintSurface = new PaintSurface(canvas, position, new Color(display,
-        // 255, 255, 255));
-        // canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-        //
-        // toolSettings = new ToolSettings();
-        // toolSettings.commonForegroundColor = new Color(display, 0, 0, 0);
-        // toolSettings.commonBackgroundColor = new Color(display, 255, 255,
-        // 255);
-        //
-        // tool.data = new RectangleTool(toolSettings, paintSurface);
-        // paintSurface.setPaintSession((PaintTool) tool.data);
+        PalletImageWidget w = new PalletImageWidget(comp, SWT.NONE, canvas,
+            new ScannerRegion("" + palletId, 0, 0, 0, 0), c);
 
         return comp;
     }
