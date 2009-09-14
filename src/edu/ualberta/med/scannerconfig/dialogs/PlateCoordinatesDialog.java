@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import edu.ualberta.med.scannerconfig.Region;
+import edu.ualberta.med.scannerconfig.ScannerRegion;
 
 public class PlateCoordinatesDialog extends Dialog {
 
@@ -25,11 +25,11 @@ public class PlateCoordinatesDialog extends Dialog {
 
     private ComboViewer plateComboViewer;
 
-    private Region[] regions;
+    private ScannerRegion[] regions;
 
     private Text[] coordTexts;
 
-    protected PlateCoordinatesDialog(Shell parentShell, Region[] regions) {
+    protected PlateCoordinatesDialog(Shell parentShell, ScannerRegion[] regions) {
         super(parentShell);
         this.regions = regions;
         coordTexts = new Text[regions.length];
@@ -71,7 +71,7 @@ public class PlateCoordinatesDialog extends Dialog {
         plateComboViewer.setLabelProvider(new LabelProvider() {
             @Override
             public String getText(Object element) {
-                return ((Region) element).name;
+                return ((ScannerRegion) element).name;
             }
         });
         plateComboViewer.setInput(regions);

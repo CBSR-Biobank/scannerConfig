@@ -1,6 +1,6 @@
 package edu.ualberta.med.scannerconfig;
 
-public class Region {
+public class ScannerRegion {
 
     public String name;
 
@@ -12,11 +12,11 @@ public class Region {
 
     public double bottom;
 
-    public Region() {
+    public ScannerRegion() {
         left = top = right = bottom = 0;
     }
 
-    public Region(String name, double left, double top, double right,
+    public ScannerRegion(String name, double left, double top, double right,
         double bottom) {
         this.name = name;
         this.left = left;

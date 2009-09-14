@@ -2,15 +2,14 @@ package edu.ualberta.med.scannerconfig.preferences.scanner;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -23,11 +22,7 @@ public class PalletBase extends FieldEditorPreferencePage implements
 
     protected int palletId;
 
-    private int mousePosX;
-
-    private int mousePosY;
-
-    private Label position;
+    private Text position;
 
     public PalletBase(int palletId) {
         super(GRID);
@@ -56,10 +51,6 @@ public class PalletBase extends FieldEditorPreferencePage implements
 
         createCanvasComp(right);
 
-        position = new Label(right, SWT.BORDER);
-        position.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true,
-            false));
-
         Button b = new Button(right, SWT.NONE);
         b.setText("Scan");
 
@@ -86,18 +77,26 @@ public class PalletBase extends FieldEditorPreferencePage implements
         comp.setLayout(new GridLayout(1, false));
         comp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-        Canvas canvas = new Canvas(comp, SWT.BORDER);
-        canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        Canvas canvas = new Canvas(comp, SWT.BORDER | SWT.V_SCROLL
+            | SWT.H_SCROLL | SWT.NO_REDRAW_RESIZE | SWT.NO_BACKGROUND);
 
-        canvas.addMouseMoveListener(new MouseMoveListener() {
+        position = new Text(comp, SWT.BORDER);
+        position.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true,
+            false));
 
-            @Override
-            public void mouseMove(MouseEvent e) {
-                mousePosX = e.x;
-                mousePosY = e.y;
-                updatePosition();
-            }
-        });
+        Display display = parent.getDisplay();
+
+        // paintSurface = new PaintSurface(canvas, position, new Color(display,
+        // 255, 255, 255));
+        // canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        //
+        // toolSettings = new ToolSettings();
+        // toolSettings.commonForegroundColor = new Color(display, 0, 0, 0);
+        // toolSettings.commonBackgroundColor = new Color(display, 255, 255,
+        // 255);
+        //
+        // tool.data = new RectangleTool(toolSettings, paintSurface);
+        // paintSurface.setPaintSession((PaintTool) tool.data);
 
         return comp;
     }
@@ -105,10 +104,6 @@ public class PalletBase extends FieldEditorPreferencePage implements
     @Override
     public void init(IWorkbench workbench) {
 
-    }
-
-    private void updatePosition() {
-        position.setText("Position: " + mousePosX + ", " + mousePosY);
     }
 
 }
