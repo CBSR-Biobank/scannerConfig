@@ -1,5 +1,6 @@
 package edu.ualberta.med.scannerconfig.preferences.scanner;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -10,6 +11,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -24,11 +26,14 @@ public class PalletBase extends FieldEditorPreferencePage implements
 
     protected int palletId;
 
+    private Text[] textControls;
+
     public PalletBase(int palletId) {
         super(GRID);
         this.palletId = palletId;
         setPreferenceStore(ScannerConfigPlugin.getDefault()
             .getPreferenceStore());
+        textControls = new Text[4];
     }
 
     @Override
@@ -68,6 +73,7 @@ public class PalletBase extends FieldEditorPreferencePage implements
                 labels[i], getFieldEditorParent());
             fe.setValidRange(0, 20);
             addField(fe);
+            textControls[i] = fe.getTextControl(getFieldEditorParent());
         }
 
     }
@@ -80,7 +86,17 @@ public class PalletBase extends FieldEditorPreferencePage implements
         Canvas canvas = new Canvas(comp, SWT.BORDER);
         canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-        Color c;
+        ScannerRegion sr = new ScannerRegion("" + palletId, ScannerConfigPlugin
+            .getDefault().getPreferenceStore().getDouble(
+                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][0]),
+            ScannerConfigPlugin.getDefault().getPreferenceStore().getDouble(
+                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][1]),
+            ScannerConfigPlugin.getDefault().getPreferenceStore().getDouble(
+                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][2]),
+            ScannerConfigPlugin.getDefault().getPreferenceStore().getDouble(
+                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][3]));
+
+        Color c = null;
 
         switch (palletId) {
         case 1:
@@ -99,13 +115,10 @@ public class PalletBase extends FieldEditorPreferencePage implements
             c = new Color(Display.getDefault(), 0, 0, 0xFF);
             break;
         default:
-            c = new Color(Display.getDefault(), 0xFF, 0xFF, 0xFF);
-            break;
+            Assert.isTrue(false, "Invalid value for palletId: " + palletId);
         }
 
-        PalletImageWidget w = new PalletImageWidget(comp, SWT.NONE, canvas,
-            new ScannerRegion("" + palletId, 0, 0, 0, 0), c);
-
+        new PalletImageWidget(comp, SWT.NONE, canvas, sr, c, textControls);
         return comp;
     }
 

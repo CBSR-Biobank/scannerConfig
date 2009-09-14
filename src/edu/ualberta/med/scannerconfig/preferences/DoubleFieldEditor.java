@@ -123,7 +123,7 @@ public class DoubleFieldEditor extends StringFieldEditor {
         Text text = getTextControl();
         if (text != null) {
             Double i = new Double(text.getText());
-            getPreferenceStore().setValue(getPreferenceName(), i.intValue());
+            getPreferenceStore().setValue(getPreferenceName(), i.doubleValue());
         }
     }
 

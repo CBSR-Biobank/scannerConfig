@@ -14,6 +14,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Text;
 
 import edu.ualberta.med.scanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
@@ -43,13 +44,16 @@ public class PalletImageWidget extends Composite {
 
     private double height;
 
+    private Text[] textControls;
+
     // pointTopLeft: Used to determine which point the user is currently
     // adjusting.The point is either top-left or bottom-right.
 
     public PalletImageWidget(Composite parent, int style, Canvas c,
-        ScannerRegion r, final Color mycolor) {
+        ScannerRegion r, final Color mycolor, Text[] controls) {
         super(parent, style);
         region = r;
+        this.textControls = controls;
 
         isTwain = ScannerConfigPlugin.getDefault().getPreferenceStore()
             .getString(PreferenceConstants.SCANNER_DRV_TYPE).equals(
@@ -117,6 +121,10 @@ public class PalletImageWidget extends Composite {
                     }
 
                 }
+                textControls[0].setText("" + region.left);
+                textControls[1].setText("" + region.top);
+                textControls[2].setText("" + region.right);
+                textControls[3].setText("" + region.bottom);
                 canvas.redraw();
                 canvas.update();
             }
