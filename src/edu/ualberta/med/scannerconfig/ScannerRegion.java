@@ -24,4 +24,19 @@ public class ScannerRegion {
         this.right = right;
         this.bottom = bottom;
     }
+
+    public void set(ScannerRegion region) {
+        left = region.left;
+        top = region.top;
+        right = region.right;
+        bottom = region.bottom;
+
+    }
+
+    public void set(double left, double top, double right, double bottom) {
+        this.left = left;
+        this.top = top;
+        this.right = right;
+        this.bottom = bottom;
+    }
 }

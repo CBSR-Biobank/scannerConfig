@@ -175,4 +175,11 @@ public class PalletImageWidget extends Composite {
 
         canvas.update();
     }
+
+    public void assignRegion(double left, double top, double right,
+        double bottom) {
+        region.set(left, top, right, bottom);
+        canvas.redraw();
+        canvas.update();
+    }
 }

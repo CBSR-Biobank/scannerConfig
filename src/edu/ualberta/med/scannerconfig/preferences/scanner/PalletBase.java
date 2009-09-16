@@ -3,6 +3,8 @@ package edu.ualberta.med.scannerconfig.preferences.scanner;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -27,6 +29,8 @@ public class PalletBase extends FieldEditorPreferencePage implements
     protected int palletId;
 
     private Text[] textControls;
+
+    private PalletImageWidget palletImageWidget;
 
     public PalletBase(int palletId) {
         super(GRID);
@@ -74,6 +78,27 @@ public class PalletBase extends FieldEditorPreferencePage implements
             fe.setValidRange(0, 20);
             addField(fe);
             textControls[i] = fe.getTextControl(getFieldEditorParent());
+
+            textControls[i].addModifyListener(new ModifyListener() {
+                @Override
+                public void modifyText(ModifyEvent e) {
+                    try {
+                        Double left = Double.parseDouble(textControls[0]
+                            .getText());
+                        Double top = Double.parseDouble(textControls[0]
+                            .getText());
+                        Double right = Double.parseDouble(textControls[0]
+                            .getText());
+                        Double bottom = Double.parseDouble(textControls[0]
+                            .getText());
+                        if (palletImageWidget != null)
+                            palletImageWidget.assignRegion(left, top, right,
+                                bottom);
+                    } catch (NumberFormatException ex) {
+                        // do nothing
+                    }
+                }
+            });
         }
 
     }
@@ -118,7 +143,8 @@ public class PalletBase extends FieldEditorPreferencePage implements
             Assert.isTrue(false, "Invalid value for palletId: " + palletId);
         }
 
-        new PalletImageWidget(comp, SWT.NONE, canvas, sr, c, textControls);
+        palletImageWidget = new PalletImageWidget(comp, SWT.NONE, canvas, sr,
+            c, textControls);
         return comp;
     }
 
