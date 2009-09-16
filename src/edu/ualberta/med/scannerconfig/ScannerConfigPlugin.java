@@ -1,5 +1,8 @@
 package edu.ualberta.med.scannerconfig;
 
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -76,5 +79,17 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                 + ScanLib.getErrMsg(res));
         }
         return ScanCell.getScanLibResults();
+    }
+
+    /**
+     * Display an error message asynchronously
+     */
+    public static void openAsyncError(final String title, final String message) {
+        Display.getDefault().asyncExec(new Runnable() {
+            public void run() {
+                MessageDialog.openError(PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow().getShell(), title, message);
+            }
+        });
     }
 }
