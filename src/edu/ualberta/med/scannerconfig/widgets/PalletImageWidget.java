@@ -16,7 +16,6 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import edu.ualberta.med.scanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.ScannerRegion;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
@@ -25,8 +24,9 @@ public class PalletImageWidget extends Composite {
 
     private Canvas canvas;
 
-    public static final String palletImageFile = "pallets.bmp";
-    public static final double palletImageDpi = 100.0;
+    public static final String PALLET_IMAGE_FILE = "pallets.bmp";
+
+    public static final double PALLET_IMAGE_DPI = 100.0;
 
     private boolean pointTopLeft;
 
@@ -46,6 +46,8 @@ public class PalletImageWidget extends Composite {
 
     private Text[] textControls;
 
+    private long palletsFileLastModified;
+
     // pointTopLeft: Used to determine which point the user is currently
     // adjusting.The point is either top-left or bottom-right.
 
@@ -59,18 +61,18 @@ public class PalletImageWidget extends Composite {
             .getString(PreferenceConstants.SCANNER_DRV_TYPE).equals(
                 PreferenceConstants.SCANNER_DRV_TYPE_TWAIN);
 
-        File palletsFile = new File(palletImageFile);
-        if (!palletsFile.exists()) {
-            ScanLib.getInstance().slScanImage((int) palletImageDpi, 0, 0, 0, 0,
-                palletImageFile);
+        File palletsFile = new File(PalletImageWidget.PALLET_IMAGE_FILE);
+        if (palletsFile.exists()) {
+            palletsFileLastModified = palletsFile.lastModified();
+            img = new Image(getDisplay(), PALLET_IMAGE_FILE);
+            Rectangle bounds = img.getBounds();
+            imgWidth = bounds.width;
+            imgHeight = bounds.height;
+
         }
-        img = new Image(getDisplay(), palletImageFile);
-        Rectangle bounds = img.getBounds();
-        imgWidth = bounds.width;
-        imgHeight = bounds.height;
 
         canvas = c;
-        bounds = canvas.getBounds();
+        Rectangle bounds = canvas.getBounds();
         width = bounds.width;
         height = bounds.height;
 
@@ -83,15 +85,16 @@ public class PalletImageWidget extends Composite {
 
             @Override
             public void mouseDown(MouseEvent e) {
+
                 if (pointTopLeft) {
                     pointTopLeft = false;
-                    double x1 = (e.x / palletImageDpi / (width / imgWidth));
-                    double y1 = (e.y / palletImageDpi / (height / imgHeight));
+                    double x1 = (e.x / PALLET_IMAGE_DPI / (width / imgWidth));
+                    double y1 = (e.y / PALLET_IMAGE_DPI / (height / imgHeight));
                     region.left = x1;
                     region.top = y1;
                 } else {
-                    double x2 = (e.x / palletImageDpi / (width / imgWidth));
-                    double y2 = (e.y / palletImageDpi / (height / imgHeight));
+                    double x2 = (e.x / PALLET_IMAGE_DPI / (width / imgWidth));
+                    double y2 = (e.y / PALLET_IMAGE_DPI / (height / imgHeight));
                     if (isTwain) {
                         if ((x2 > region.left) && (y2 > region.left)) {
                             region.right = x2;
@@ -99,8 +102,8 @@ public class PalletImageWidget extends Composite {
                             pointTopLeft = true;
                         } else {
                             pointTopLeft = false;
-                            double x1 = (e.x / palletImageDpi / (width / imgWidth));
-                            double y1 = (e.y / palletImageDpi / (height / imgHeight));
+                            double x1 = (e.x / PALLET_IMAGE_DPI / (width / imgWidth));
+                            double y1 = (e.y / PALLET_IMAGE_DPI / (height / imgHeight));
                             region.left = x1;
                             region.top = y1;
                         }
@@ -113,20 +116,19 @@ public class PalletImageWidget extends Composite {
                         } else {
                             pointTopLeft = false;
 
-                            double x1 = (e.x / palletImageDpi / (width / imgWidth));
-                            double y1 = (e.y / palletImageDpi / (height / imgHeight));
+                            double x1 = (e.x / PALLET_IMAGE_DPI / (width / imgWidth));
+                            double y1 = (e.y / PALLET_IMAGE_DPI / (height / imgHeight));
                             region.left = x1;
                             region.top = y1;
                         }
                     }
 
                 }
+
                 textControls[0].setText("" + region.left);
                 textControls[1].setText("" + region.top);
                 textControls[2].setText("" + region.right);
                 textControls[3].setText("" + region.bottom);
-                canvas.redraw();
-                canvas.update();
             }
 
             @Override
@@ -136,14 +138,25 @@ public class PalletImageWidget extends Composite {
 
         canvas.addPaintListener(new PaintListener() {
             public void paintControl(PaintEvent e) {
+                File palletsFile = new File(PalletImageWidget.PALLET_IMAGE_FILE);
+                if (palletsFileLastModified != palletsFile.lastModified()) {
+                    palletsFileLastModified = palletsFile.lastModified();
+                    img = new Image(getDisplay(), PALLET_IMAGE_FILE);
+                    Rectangle bounds = img.getBounds();
+                    imgWidth = bounds.width;
+                    imgHeight = bounds.height;
+                }
+
                 GC gc = new GC(canvas);
                 gc.drawImage(img, 0, 0, (int) imgWidth, (int) imgHeight, 0, 0,
                     (int) width, (int) height);
                 gc.setForeground(mycolor);
-                double x1 = region.left * palletImageDpi * (width / imgWidth);
-                double y1 = region.top * palletImageDpi * (height / imgHeight);
-                double x2 = region.right * palletImageDpi * (width / imgWidth);
-                double y2 = region.bottom * palletImageDpi
+                double x1 = region.left * PALLET_IMAGE_DPI * (width / imgWidth);
+                double y1 = region.top * PALLET_IMAGE_DPI
+                    * (height / imgHeight);
+                double x2 = region.right * PALLET_IMAGE_DPI
+                    * (width / imgWidth);
+                double y2 = region.bottom * PALLET_IMAGE_DPI
                     * (height / imgHeight);
 
                 if (isTwain) {
@@ -176,10 +189,39 @@ public class PalletImageWidget extends Composite {
         canvas.update();
     }
 
-    public void assignRegion(double left, double top, double right,
-        double bottom) {
-        region.set(left, top, right, bottom);
+    public void assignRegionLeft(double left) {
+        region.left = left;
         canvas.redraw();
         canvas.update();
+    }
+
+    public void assignRegionTop(double top) {
+        region.top = top;
+        canvas.redraw();
+        canvas.update();
+    }
+
+    public void assignRegionRight(double right) {
+        region.right = right;
+        canvas.redraw();
+        canvas.update();
+    }
+
+    public void assignRegionBottom(double bottom) {
+        region.bottom = bottom;
+        canvas.redraw();
+        canvas.update();
+    }
+
+    @Override
+    public void redraw() {
+        canvas.redraw();
+        super.redraw();
+    }
+
+    @Override
+    public void update() {
+        canvas.update();
+        super.update();
     }
 }

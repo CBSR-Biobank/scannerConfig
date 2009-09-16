@@ -1,10 +1,16 @@
 package edu.ualberta.med.scannerconfig.preferences.scanner;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -16,7 +22,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.PlatformUI;
 
+import edu.ualberta.med.scanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.ScannerRegion;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
@@ -25,6 +33,9 @@ import edu.ualberta.med.scannerconfig.widgets.PalletImageWidget;
 
 public class PalletBase extends FieldEditorPreferencePage implements
     IWorkbenchPreferencePage {
+
+    // 15 minutes
+    private static final long LAST_MODIFIED_EXCEEDED_TIME_MILLIS = 15 * 60 * 1000;
 
     protected int palletId;
 
@@ -41,10 +52,21 @@ public class PalletBase extends FieldEditorPreferencePage implements
     }
 
     @Override
-    protected Control createContents(Composite parent) {
+    protected Control createContents(final Composite parent) {
         Composite top = new Composite(parent, SWT.NONE);
         top.setLayout(new GridLayout(2, false));
         top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+        File palletsFile = new File(PalletImageWidget.PALLET_IMAGE_FILE);
+        if (System.currentTimeMillis() - palletsFile.lastModified() > LAST_MODIFIED_EXCEEDED_TIME_MILLIS) {
+            palletsFile.delete();
+        }
+
+        if (!palletsFile.exists()) {
+            ScanLib.getInstance().slScanImage(
+                (int) PalletImageWidget.PALLET_IMAGE_DPI, 0, 0, 0, 0,
+                PalletImageWidget.PALLET_IMAGE_FILE);
+        }
 
         Control s = super.createContents(top);
         GridData gd = (GridData) s.getLayoutData();
@@ -62,6 +84,56 @@ public class PalletBase extends FieldEditorPreferencePage implements
 
         Button b = new Button(right, SWT.NONE);
         b.setText("Scan");
+        b.addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                BusyIndicator.showWhile(parent.getDisplay(), new Runnable() {
+                    @Override
+                    public void run() {
+                        final int result = ScanLib.getInstance().slScanImage(
+                            (int) PalletImageWidget.PALLET_IMAGE_DPI, 0, 0, 0,
+                            0, PalletImageWidget.PALLET_IMAGE_FILE);
+
+                        parent.getDisplay().asyncExec(new Runnable() {
+                            public void run() {
+                                if (result != ScanLib.SC_SUCCESS) {
+                                    MessageDialog.openError(PlatformUI
+                                        .getWorkbench()
+                                        .getActiveWorkbenchWindow().getShell(),
+                                        "Scanner error", ScanLib
+                                            .getErrMsg(result));
+                                    return;
+                                }
+
+                                File palletsFile = new File(
+                                    PalletImageWidget.PALLET_IMAGE_FILE);
+                                if (palletsFile.exists()) {
+                                    for (int i = 0; i < 4; ++i) {
+                                        textControls[i].setEnabled(true);
+                                    }
+                                    if (palletImageWidget != null) {
+                                        palletImageWidget.redraw();
+                                        palletImageWidget.update();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+
+            }
+        });
+
+        if (!palletsFile.exists()) {
+            for (int i = 0; i < 4; ++i) {
+                textControls[i].setEnabled(false);
+            }
+        }
 
         return top;
     }
@@ -82,18 +154,24 @@ public class PalletBase extends FieldEditorPreferencePage implements
             textControls[i].addModifyListener(new ModifyListener() {
                 @Override
                 public void modifyText(ModifyEvent e) {
+                    if (palletImageWidget == null)
+                        return;
                     try {
-                        Double left = Double.parseDouble(textControls[0]
-                            .getText());
-                        Double top = Double.parseDouble(textControls[0]
-                            .getText());
-                        Double right = Double.parseDouble(textControls[0]
-                            .getText());
-                        Double bottom = Double.parseDouble(textControls[0]
-                            .getText());
-                        if (palletImageWidget != null)
-                            palletImageWidget.assignRegion(left, top, right,
-                                bottom);
+                        Text source = (Text) e.getSource();
+
+                        if (source == textControls[0]) {
+                            palletImageWidget.assignRegionLeft(Double
+                                .parseDouble(source.getText()));
+                        } else if (source == textControls[1]) {
+                            palletImageWidget.assignRegionTop(Double
+                                .parseDouble(source.getText()));
+                        } else if (source == textControls[2]) {
+                            palletImageWidget.assignRegionRight(Double
+                                .parseDouble(source.getText()));
+                        } else if (source == textControls[3]) {
+                            palletImageWidget.assignRegionBottom(Double
+                                .parseDouble(source.getText()));
+                        }
                     } catch (NumberFormatException ex) {
                         // do nothing
                     }
