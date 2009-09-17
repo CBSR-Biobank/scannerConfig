@@ -16,9 +16,15 @@ public class IniValidator {
 
     public IniValidator() {
         scannerConfigPlugin = ScannerConfigPlugin.getDefault();
+
+        try {
+            loadFromFile();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public void loadFromFile() throws Exception {
+    private void loadFromFile() throws Exception {
         Wini ini;
 
         File f = new File(INI_FILE_NAME);
@@ -29,62 +35,83 @@ public class IniValidator {
 
         Ini.Section section = ini.get("scanner");
         if (section != null) {
-            setBrightness(section.get("brightness"));
-            setContrast(section.get("contrast"));
+            setBrightness(section.get("brightness", Integer.class));
+            setContrast(section.get("contrast", Integer.class));
         }
 
         for (int p = 1; p < PreferenceConstants.SCANNER_PALLET_ENABLED.length; p++) {
+            if (!scannerConfigPlugin.getPreferenceStore().getBoolean(
+                PreferenceConstants.SCANNER_PALLET_ENABLED[p - 1]))
+                continue;
+
+            ScannerRegion iniRegion = null;
+            Double left = null;
+            Double top = null;
+            Double right = null;
+            Double bottom = null;
+
             section = ini.get("plate-" + p);
             if (section != null) {
-                Double left = section.get("left", Double.class);
-                Double top = section.get("top", Double.class);
-                Double right = section.get("right", Double.class);
-                Double bottom = section.get("bottom", Double.class);
+                left = section.get("left", Double.class);
+                top = section.get("top", Double.class);
+                right = section.get("right", Double.class);
+                bottom = section.get("bottom", Double.class);
+
+                if ((left != null) && (top != null) && (right != null)
+                    && (bottom != null)) {
+                    iniRegion = new ScannerRegion("" + p, left, top, right,
+                        bottom);
+                }
             }
 
-            if ((left != null) && (top != null) && (right != null)
-                && (bottom != null)) {
-
-                setPallet(p, left.doubleValue(), top.doubleValue(), right
-                    .doubleValue(), bottom.doubleValue());
-            }
+            setPlate(p, iniRegion);
         }
     }
 
-    private void setBrightness(String iniBrightnessStr) throws Exception {
-        int iniBrightness = 1001;
+    private void setBrightness(Integer iniBrightness) throws Exception {
         int brightness = scannerConfigPlugin.getPreferenceStore().getInt(
             PreferenceConstants.SCANNER_BRIGHTNESS);
 
-        try {
-            iniBrightness = Integer.valueOf(iniBrightnessStr);
-        } catch (NumberFormatException ex) {
-            // do nothing
-        }
+        if (iniBrightness.equals(brightness))
+            return;
 
-        if (brightness != iniBrightness) {
-            int res = ScanLib.getInstance().slConfigScannerBrightness(
-                brightness);
-            if (res < ScanLib.SC_SUCCESS) {
-                throw new Exception("Brightness configuration: "
-                    + ScanLib.getErrMsg(res));
-            }
+        int res = ScanLib.getInstance().slConfigScannerBrightness(brightness);
+        if (res < ScanLib.SC_SUCCESS) {
+            throw new Exception("Brightness configuration: "
+                + ScanLib.getErrMsg(res));
         }
     }
 
-    private void setContrast(String iniContrastStr) throws Exception {
-        int iniContrast = 1001;
+    private void setContrast(Integer iniContrast) throws Exception {
         int contrast = scannerConfigPlugin.getPreferenceStore().getInt(
             PreferenceConstants.SCANNER_CONTRAST);
 
-        try {
-            iniContrast = Integer.valueOf(iniContrastStr);
-        } catch (NumberFormatException ex) {
-            // do nothing
-        }
+        if (iniContrast.equals(contrast))
+            return;
 
-        if (contrast != iniContrast) {
-            int res = ScanLib.getInstance().slConfigScannerContrast(contrast);
+        int res = ScanLib.getInstance().slConfigScannerContrast(contrast);
+        if (res < ScanLib.SC_SUCCESS) {
+            throw new Exception("Contrast cofiguration: "
+                + ScanLib.getErrMsg(res));
+        }
+    }
+
+    private void setPlate(int palletId, ScannerRegion iniRegion)
+        throws Exception {
+        ScannerRegion configRegion = new ScannerRegion("" + palletId,
+            scannerConfigPlugin.getPreferenceStore().getDouble(
+                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][0]),
+            scannerConfigPlugin.getPreferenceStore().getDouble(
+                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][0]),
+            scannerConfigPlugin.getPreferenceStore().getDouble(
+                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][0]),
+            scannerConfigPlugin.getPreferenceStore().getDouble(
+                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][0]));
+
+        if ((iniRegion == null) || !configRegion.equal(iniRegion)) {
+            int res = ScanLib.getInstance().slConfigPlateFrame(palletId,
+                configRegion.left, configRegion.top, configRegion.right,
+                configRegion.bottom);
             if (res < ScanLib.SC_SUCCESS) {
                 throw new Exception("Contrast cofiguration: "
                     + ScanLib.getErrMsg(res));
