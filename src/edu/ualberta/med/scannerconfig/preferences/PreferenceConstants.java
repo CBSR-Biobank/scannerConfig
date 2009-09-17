@@ -14,25 +14,31 @@ public class PreferenceConstants {
 
     public static final String SCANNER_DRV_TYPE_TWAIN = "scanner.drvtype.twain";
 
+    public static final String[][] SCANNER_PALLET_INFO = {
+        { "scanner.pallet.coords.enabled.1", "scanner.pallet.coords.barcode.1" },
+
+        { "scanner.pallet.coords.enabled.2", "scanner.pallet.coords.barcode.2" },
+
+        { "scanner.pallet.coords.enabled.3", "scanner.pallet.coords.barcode.3" },
+
+        { "scanner.pallet.coords.enabled.4", "scanner.pallet.coords.barcode.4" },
+
+        { "scanner.pallet.coords.enabled.5", "scanner.pallet.coords.barcode.5" } };
+
     public static final String[][] SCANNER_PALLET_COORDS = {
-        { "scanner.pallet.coords.enabled.1", "scanner.pallet.coords.left.1",
-            "scanner.pallet.coords.top.1", "scanner.pallet.coords.right.1",
-            "scanner.pallet.coords.bottom.1" },
+        { "scanner.pallet.coords.left.1", "scanner.pallet.coords.top.1",
+            "scanner.pallet.coords.right.1", "scanner.pallet.coords.bottom.1" },
 
-        { "scanner.pallet.coords.enabled.2", "scanner.pallet.coords.left.2",
-            "scanner.pallet.coords.top.2", "scanner.pallet.coords.right.2",
-            "scanner.pallet.coords.bottom.2" },
+        { "scanner.pallet.coords.left.2", "scanner.pallet.coords.top.2",
+            "scanner.pallet.coords.right.2", "scanner.pallet.coords.bottom.2" },
 
-        { "scanner.pallet.coords.enabled.3", "scanner.pallet.coords.left.3",
-            "scanner.pallet.coords.top.3", "scanner.pallet.coords.right.3",
-            "scanner.pallet.coords.bottom.3" },
+        { "scanner.pallet.coords.left.3", "scanner.pallet.coords.top.3",
+            "scanner.pallet.coords.right.3", "scanner.pallet.coords.bottom.3" },
 
-        { "scanner.pallet.coords.enabled.4", "scanner.pallet.coords.left.4",
-            "scanner.pallet.coords.top.4", "scanner.pallet.coords.right.4",
-            "scanner.pallet.coords.bottom.4" },
+        { "scanner.pallet.coords.left.4", "scanner.pallet.coords.top.4",
+            "scanner.pallet.coords.right.4", "scanner.pallet.coords.bottom.4" },
 
-        { "scanner.pallet.coords.enabled.5", "scanner.pallet.coords.left.5",
-            "scanner.pallet.coords.top.5", "scanner.pallet.coords.right.5",
-            "scanner.pallet.coords.bottom.5" } };
+        { "scanner.pallet.coords.left.5", "scanner.pallet.coords.top.5",
+            "scanner.pallet.coords.right.5", "scanner.pallet.coords.bottom.5" } };
 
 }

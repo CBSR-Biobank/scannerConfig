@@ -7,6 +7,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyEvent;
@@ -29,7 +30,6 @@ import org.eclipse.ui.PlatformUI;
 import edu.ualberta.med.scanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.ScannerRegion;
-import edu.ualberta.med.scannerconfig.dialogs.CalibrateDialog;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.widgets.PalletImageWidget;
@@ -46,12 +46,17 @@ public class PalletBase extends FieldEditorPreferencePage implements
 
     private PalletImageWidget palletImageWidget;
 
+    private boolean calibrated;
+
+    private ScannerRegion origScannerRegion;
+
     public PalletBase(int palletId) {
         super(GRID);
         this.palletId = palletId;
         setPreferenceStore(ScannerConfigPlugin.getDefault()
             .getPreferenceStore());
         textControls = new Text[4];
+        calibrated = false;
     }
 
     @Override
@@ -138,21 +143,28 @@ public class PalletBase extends FieldEditorPreferencePage implements
     @Override
     protected void createFieldEditors() {
         DoubleFieldEditor fe;
-        String[] labels = { "", "Left", "Top", "Right", "Bottom" };
+        String[] labels = { "Left", "Top", "Right", "Bottom" };
 
         addField(new BooleanFieldEditor(
-            PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][0],
-            "Enable", getFieldEditorParent()));
+            PreferenceConstants.SCANNER_PALLET_INFO[palletId - 1][0], "Enable",
+            getFieldEditorParent()));
 
-        for (int i = 1; i <= 4; ++i) {
-            fe = new DoubleFieldEditor(
-                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][i],
-                labels[i], getFieldEditorParent());
+        StringFieldEditor sfe = new StringFieldEditor(
+            PreferenceConstants.SCANNER_PALLET_INFO[palletId - 1][1],
+            "Barcode", getFieldEditorParent());
+        sfe.setEmptyStringAllowed(false);
+        sfe.setErrorMessage("Barcode cannot be empty");
+        addField(sfe);
+
+        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1];
+
+        for (int i = 0; i < 4; ++i) {
+            fe = new DoubleFieldEditor(prefsArr[i], labels[i] + ":",
+                getFieldEditorParent());
             fe.setValidRange(0, 20);
             addField(fe);
-            textControls[i - 1] = fe.getTextControl(getFieldEditorParent());
-
-            textControls[i - 1].addModifyListener(new ModifyListener() {
+            textControls[i] = fe.getTextControl(getFieldEditorParent());
+            textControls[i].addModifyListener(new ModifyListener() {
                 @Override
                 public void modifyText(ModifyEvent e) {
                     if (palletImageWidget == null)
@@ -193,16 +205,12 @@ public class PalletBase extends FieldEditorPreferencePage implements
         IPreferenceStore prefs = ScannerConfigPlugin.getDefault()
             .getPreferenceStore();
 
-        ScannerRegion sr = new ScannerRegion(
-            "" + palletId,
+        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1];
+
+        origScannerRegion = new ScannerRegion("" + palletId,
             ScannerConfigPlugin.getDefault().getPreferenceStore().getDouble(
-                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][0]),
-            prefs
-                .getDouble(PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][1]),
-            prefs
-                .getDouble(PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][2]),
-            prefs
-                .getDouble(PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][3]));
+                prefsArr[0]), prefs.getDouble(prefsArr[1]), prefs
+                .getDouble(prefsArr[2]), prefs.getDouble(prefsArr[3]));
 
         Color c = null;
 
@@ -226,8 +234,8 @@ public class PalletBase extends FieldEditorPreferencePage implements
             Assert.isTrue(false, "Invalid value for palletId: " + palletId);
         }
 
-        palletImageWidget = new PalletImageWidget(comp, SWT.NONE, canvas, sr,
-            c, textControls);
+        palletImageWidget = new PalletImageWidget(comp, SWT.NONE, canvas,
+            new ScannerRegion(origScannerRegion), c, textControls);
         return comp;
     }
 
@@ -239,16 +247,53 @@ public class PalletBase extends FieldEditorPreferencePage implements
 
     @Override
     public boolean performOk() {
-        double left = Double.valueOf(textControls[0].getText());
-        double top = Double.valueOf(textControls[1].getText());
-        double right = Double.valueOf(textControls[2].getText());
-        double bottom = Double.valueOf(textControls[3].getText());
+        super.performOk();
 
-        ScanLib.getInstance().slConfigPlateFrame(palletId, left, top, right,
-            bottom);
-        new CalibrateDialog(palletId);
-        return super.performOk();
+        if (!getPreferenceStore().getBoolean(
+            PreferenceConstants.SCANNER_PALLET_INFO[palletId - 1][0]))
+            return true;
+
+        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1];
+
+        ScannerRegion newRegion = new ScannerRegion("" + palletId,
+            getPreferenceStore().getDouble(prefsArr[0]), getPreferenceStore()
+                .getDouble(prefsArr[1]), getPreferenceStore().getDouble(
+                prefsArr[2]), getPreferenceStore().getDouble(prefsArr[3]));
+
+        if (!calibrated && !origScannerRegion.equal(newRegion)) {
+            ScanLib.getInstance().slConfigPlateFrame(palletId, newRegion.left,
+                newRegion.top, newRegion.right, newRegion.bottom);
+            calibrate();
+        }
+        return true;
 
     }
 
+    private void calibrate() {
+        String dpiString = ScannerConfigPlugin.getDefault()
+            .getPreferenceStore().getString(PreferenceConstants.SCANNER_DPI);
+
+        if (dpiString.length() == 0) {
+            ScannerConfigPlugin.openAsyncError("Preferences Error",
+                "bad value in preferences for scanner DPI");
+            return;
+        }
+
+        final int dpi = Integer.valueOf(dpiString);
+
+        BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+            public void run() {
+                int scanlibReturn = ScanLib.getInstance().slCalibrateToPlate(
+                    dpi, palletId);
+                calibrated = (scanlibReturn == ScanLib.SC_SUCCESS);
+
+                if (!calibrated) {
+                    ScannerConfigPlugin.openAsyncError("Calibration Error",
+                        ScanLib.getErrMsg(scanlibReturn));
+                    ScanLib.getInstance().slConfigPlateFrame(palletId, 0, 0, 0,
+                        0);
+                }
+            }
+        });
+    }
 }

@@ -16,6 +16,14 @@ public class ScannerRegion {
         left = top = right = bottom = 0;
     }
 
+    public ScannerRegion(ScannerRegion region) {
+        name = region.name;
+        left = region.left;
+        top = region.top;
+        right = region.right;
+        bottom = region.bottom;
+    }
+
     public ScannerRegion(String name, double left, double top, double right,
         double bottom) {
         this.name = name;
@@ -38,5 +46,10 @@ public class ScannerRegion {
         this.top = top;
         this.right = right;
         this.bottom = bottom;
+    }
+
+    public boolean equal(ScannerRegion region) {
+        return ((left == region.left) && (top == region.top)
+            && (right == region.right) && (bottom == region.bottom));
     }
 }
