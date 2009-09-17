@@ -147,7 +147,8 @@ public class PalletBase extends FieldEditorPreferencePage implements
             }
         });
 
-        if (!palletsFile.exists()) {
+        if (System.getProperty("os.name").startsWith("Windows")
+            && !palletsFile.exists()) {
             for (int i = 0; i < 4; ++i) {
                 textControls[i].setEnabled(false);
             }
@@ -220,7 +221,8 @@ public class PalletBase extends FieldEditorPreferencePage implements
 
     @Override
     public void setValid(boolean enable) {
-        super.setValid(enable);
+        if (System.getProperty("os.name").startsWith("Windows"))
+            super.setValid(enable);
         getContainer().updateButtons();
         Button applyButton = getApplyButton();
         if (applyButton != null)
