@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.widgets;
+package edu.ualberta.med.scannerconfig;
 
 import java.io.File;
 
@@ -13,14 +13,12 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 
-import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
-import edu.ualberta.med.scannerconfig.ScannerRegion;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 
-public class PalletImageWidget extends Composite {
+public class PalletImageManager {
 
     private Canvas canvas;
 
@@ -51,9 +49,8 @@ public class PalletImageWidget extends Composite {
     // pointTopLeft: Used to determine which point the user is currently
     // adjusting.The point is either top-left or bottom-right.
 
-    public PalletImageWidget(Composite parent, int style, Canvas c,
-        ScannerRegion r, final Color mycolor, Text[] controls) {
-        super(parent, style);
+    public PalletImageManager(Canvas c, ScannerRegion r, final Color mycolor,
+        Text[] controls) {
         region = r;
         this.textControls = controls;
 
@@ -61,10 +58,12 @@ public class PalletImageWidget extends Composite {
             .getString(PreferenceConstants.SCANNER_DRV_TYPE).equals(
                 PreferenceConstants.SCANNER_DRV_TYPE_TWAIN);
 
-        File palletsFile = new File(PalletImageWidget.PALLET_IMAGE_FILE);
+        File palletsFile = new File(PalletImageManager.PALLET_IMAGE_FILE);
         if (palletsFile.exists()) {
             palletsFileLastModified = palletsFile.lastModified();
-            img = new Image(getDisplay(), PALLET_IMAGE_FILE);
+            img = new Image(PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow().getShell().getDisplay(),
+                PALLET_IMAGE_FILE);
             Rectangle bounds = img.getBounds();
             imgWidth = bounds.width;
             imgHeight = bounds.height;
@@ -138,10 +137,14 @@ public class PalletImageWidget extends Composite {
 
         canvas.addPaintListener(new PaintListener() {
             public void paintControl(PaintEvent e) {
-                File palletsFile = new File(PalletImageWidget.PALLET_IMAGE_FILE);
-                if (palletsFileLastModified != palletsFile.lastModified()) {
+                File palletsFile = new File(
+                    PalletImageManager.PALLET_IMAGE_FILE);
+                if (palletsFile.exists()
+                    && (palletsFileLastModified != palletsFile.lastModified())) {
                     palletsFileLastModified = palletsFile.lastModified();
-                    img = new Image(getDisplay(), PALLET_IMAGE_FILE);
+                    img = new Image(PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getShell().getDisplay(),
+                        PALLET_IMAGE_FILE);
                     Rectangle bounds = img.getBounds();
                     imgWidth = bounds.width;
                     imgHeight = bounds.height;
@@ -211,17 +214,5 @@ public class PalletImageWidget extends Composite {
         region.bottom = bottom;
         canvas.redraw();
         canvas.update();
-    }
-
-    @Override
-    public void redraw() {
-        canvas.redraw();
-        super.redraw();
-    }
-
-    @Override
-    public void update() {
-        canvas.update();
-        super.update();
     }
 }

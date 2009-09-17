@@ -1,5 +1,6 @@
 package edu.ualberta.med.scannerconfig;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
@@ -79,6 +80,14 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                 + ScanLib.getErrMsg(res));
         }
         return ScanCell.getScanLibResults();
+    }
+
+    public boolean palletEnabled(int palletId) {
+        Assert.isTrue((palletId > 0)
+            && (palletId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
+            "pallet id is invalid: " + palletId);
+        return getPreferenceStore().getBoolean(
+            PreferenceConstants.SCANNER_PALLET_ENABLED[palletId - 1]);
     }
 
     /**

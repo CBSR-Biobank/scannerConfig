@@ -7,7 +7,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyEvent;
@@ -22,17 +21,18 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
 
 import edu.ualberta.med.scanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.PalletImageManager;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.ScannerRegion;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
-import edu.ualberta.med.scannerconfig.widgets.PalletImageWidget;
 
 public class PalletBase extends FieldEditorPreferencePage implements
     IWorkbenchPreferencePage {
@@ -44,11 +44,15 @@ public class PalletBase extends FieldEditorPreferencePage implements
 
     private Text[] textControls;
 
-    private PalletImageWidget palletImageWidget;
+    private PalletImageManager palletImageManager;
 
     private boolean calibrated;
 
     private ScannerRegion origScannerRegion;
+
+    private Label statusLabel;
+
+    private Canvas canvas;
 
     public PalletBase(int palletId) {
         super(GRID);
@@ -65,24 +69,38 @@ public class PalletBase extends FieldEditorPreferencePage implements
         top.setLayout(new GridLayout(2, false));
         top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-        File palletsFile = new File(PalletImageWidget.PALLET_IMAGE_FILE);
-        if (System.currentTimeMillis() - palletsFile.lastModified() > LAST_MODIFIED_EXCEEDED_TIME_MILLIS) {
+        File palletsFile = new File(PalletImageManager.PALLET_IMAGE_FILE);
+        if (palletsFile.exists()) {
             palletsFile.delete();
         }
 
         Control s = super.createContents(top);
         GridData gd = (GridData) s.getLayoutData();
         if (gd == null) {
-            s.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, true));
-        } else {
-            gd.verticalAlignment = SWT.BEGINNING;
+            gd = new GridData(SWT.FILL, SWT.BEGINNING, true, true);
+            s.setLayoutData(gd);
         }
+        gd.verticalAlignment = SWT.BEGINNING;
 
         Composite right = new Composite(top, SWT.NONE);
         right.setLayout(new GridLayout(1, false));
-        right.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.widthHint = 200;
+        right.setLayoutData(gd);
 
         createCanvasComp(right);
+
+        statusLabel = new Label(right, SWT.BORDER);
+        statusLabel
+            .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+
+        if (!ScannerConfigPlugin.getDefault().palletEnabled(palletId)) {
+            statusLabel.setText("pallet not enabled");
+        } else if (!palletsFile.exists()) {
+            statusLabel.setText("scan required");
+        } else {
+            statusLabel.setText("adjust settings if required");
+        }
 
         Button b = new Button(right, SWT.NONE);
         b.setText("Scan");
@@ -94,12 +112,13 @@ public class PalletBase extends FieldEditorPreferencePage implements
 
             @Override
             public void widgetSelected(SelectionEvent e) {
+                statusLabel.setText("scanning...");
                 BusyIndicator.showWhile(parent.getDisplay(), new Runnable() {
                     @Override
                     public void run() {
                         final int result = ScanLib.getInstance().slScanImage(
-                            (int) PalletImageWidget.PALLET_IMAGE_DPI, 0, 0, 0,
-                            0, PalletImageWidget.PALLET_IMAGE_FILE);
+                            (int) PalletImageManager.PALLET_IMAGE_DPI, 0, 0, 0,
+                            0, PalletImageManager.PALLET_IMAGE_FILE);
 
                         parent.getDisplay().asyncExec(new Runnable() {
                             public void run() {
@@ -113,21 +132,21 @@ public class PalletBase extends FieldEditorPreferencePage implements
                                 }
 
                                 File palletsFile = new File(
-                                    PalletImageWidget.PALLET_IMAGE_FILE);
+                                    PalletImageManager.PALLET_IMAGE_FILE);
                                 if (palletsFile.exists()) {
                                     for (int i = 0; i < 4; ++i) {
                                         textControls[i].setEnabled(true);
                                     }
-                                    if (palletImageWidget != null) {
-                                        palletImageWidget.redraw();
-                                        palletImageWidget.update();
+                                    if (palletImageManager != null) {
+                                        canvas.redraw();
+                                        canvas.update();
                                     }
                                 }
                             }
                         });
                     }
                 });
-
+                statusLabel.setText("adjust settings if required");
             }
         });
 
@@ -146,15 +165,8 @@ public class PalletBase extends FieldEditorPreferencePage implements
         String[] labels = { "Left", "Top", "Right", "Bottom" };
 
         addField(new BooleanFieldEditor(
-            PreferenceConstants.SCANNER_PALLET_INFO[palletId - 1][0], "Enable",
+            PreferenceConstants.SCANNER_PALLET_ENABLED[palletId - 1], "Enable",
             getFieldEditorParent()));
-
-        StringFieldEditor sfe = new StringFieldEditor(
-            PreferenceConstants.SCANNER_PALLET_INFO[palletId - 1][1],
-            "Barcode", getFieldEditorParent());
-        sfe.setEmptyStringAllowed(false);
-        sfe.setErrorMessage("Barcode cannot be empty");
-        addField(sfe);
 
         String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1];
 
@@ -167,22 +179,22 @@ public class PalletBase extends FieldEditorPreferencePage implements
             textControls[i].addModifyListener(new ModifyListener() {
                 @Override
                 public void modifyText(ModifyEvent e) {
-                    if (palletImageWidget == null)
+                    if (palletImageManager == null)
                         return;
                     try {
                         Text source = (Text) e.getSource();
 
                         if (source == textControls[0]) {
-                            palletImageWidget.assignRegionLeft(Double
+                            palletImageManager.assignRegionLeft(Double
                                 .parseDouble(source.getText()));
                         } else if (source == textControls[1]) {
-                            palletImageWidget.assignRegionTop(Double
+                            palletImageManager.assignRegionTop(Double
                                 .parseDouble(source.getText()));
                         } else if (source == textControls[2]) {
-                            palletImageWidget.assignRegionRight(Double
+                            palletImageManager.assignRegionRight(Double
                                 .parseDouble(source.getText()));
                         } else if (source == textControls[3]) {
-                            palletImageWidget.assignRegionBottom(Double
+                            palletImageManager.assignRegionBottom(Double
                                 .parseDouble(source.getText()));
                         }
                     } catch (NumberFormatException ex) {
@@ -194,12 +206,8 @@ public class PalletBase extends FieldEditorPreferencePage implements
 
     }
 
-    private Composite createCanvasComp(Composite parent) {
-        Composite comp = new Composite(parent, SWT.NONE);
-        comp.setLayout(new GridLayout(1, false));
-        comp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
-        Canvas canvas = new Canvas(comp, SWT.BORDER);
+    private void createCanvasComp(Composite parent) {
+        canvas = new Canvas(parent, SWT.BORDER);
         canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
         IPreferenceStore prefs = ScannerConfigPlugin.getDefault()
@@ -234,9 +242,8 @@ public class PalletBase extends FieldEditorPreferencePage implements
             Assert.isTrue(false, "Invalid value for palletId: " + palletId);
         }
 
-        palletImageWidget = new PalletImageWidget(comp, SWT.NONE, canvas,
-            new ScannerRegion(origScannerRegion), c, textControls);
-        return comp;
+        palletImageManager = new PalletImageManager(canvas, new ScannerRegion(
+            origScannerRegion), c, textControls);
     }
 
     @Override
@@ -250,7 +257,7 @@ public class PalletBase extends FieldEditorPreferencePage implements
         super.performOk();
 
         if (!getPreferenceStore().getBoolean(
-            PreferenceConstants.SCANNER_PALLET_INFO[palletId - 1][0]))
+            PreferenceConstants.SCANNER_PALLET_ENABLED[palletId - 1]))
             return true;
 
         String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1];
@@ -263,20 +270,21 @@ public class PalletBase extends FieldEditorPreferencePage implements
         if (!calibrated && !origScannerRegion.equal(newRegion)) {
             ScanLib.getInstance().slConfigPlateFrame(palletId, newRegion.left,
                 newRegion.top, newRegion.right, newRegion.bottom);
-            calibrate();
+            return calibrate();
         }
         return true;
 
     }
 
-    private void calibrate() {
+    private boolean calibrate() {
+        statusLabel.setText("configuring pallet " + palletId + "...");
         String dpiString = ScannerConfigPlugin.getDefault()
             .getPreferenceStore().getString(PreferenceConstants.SCANNER_DPI);
 
         if (dpiString.length() == 0) {
             ScannerConfigPlugin.openAsyncError("Preferences Error",
                 "bad value in preferences for scanner DPI");
-            return;
+            return false;
         }
 
         final int dpi = Integer.valueOf(dpiString);
@@ -295,5 +303,9 @@ public class PalletBase extends FieldEditorPreferencePage implements
                 }
             }
         });
+
+        statusLabel.setText(calibrated ? "configuration successful"
+            : "configuration failed, try again");
+        return calibrated;
     }
 }

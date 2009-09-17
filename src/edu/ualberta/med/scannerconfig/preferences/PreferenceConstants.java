@@ -14,16 +14,10 @@ public class PreferenceConstants {
 
     public static final String SCANNER_DRV_TYPE_TWAIN = "scanner.drvtype.twain";
 
-    public static final String[][] SCANNER_PALLET_INFO = {
-        { "scanner.pallet.coords.enabled.1", "scanner.pallet.coords.barcode.1" },
-
-        { "scanner.pallet.coords.enabled.2", "scanner.pallet.coords.barcode.2" },
-
-        { "scanner.pallet.coords.enabled.3", "scanner.pallet.coords.barcode.3" },
-
-        { "scanner.pallet.coords.enabled.4", "scanner.pallet.coords.barcode.4" },
-
-        { "scanner.pallet.coords.enabled.5", "scanner.pallet.coords.barcode.5" } };
+    public static final String[] SCANNER_PALLET_ENABLED = {
+        "scanner.pallet.coords.enabled.1", "scanner.pallet.coords.enabled.2",
+        "scanner.pallet.coords.enabled.3", "scanner.pallet.coords.enabled.4",
+        "scanner.pallet.coords.enabled.5" };
 
     public static final String[][] SCANNER_PALLET_COORDS = {
         { "scanner.pallet.coords.left.1", "scanner.pallet.coords.top.1",
