@@ -37,9 +37,6 @@ import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 public class PalletBase extends FieldEditorPreferencePage implements
     IWorkbenchPreferencePage {
 
-    // 15 minutes
-    private static final long LAST_MODIFIED_EXCEEDED_TIME_MILLIS = 15 * 60 * 1000;
-
     protected int palletId;
 
     private Text[] textControls;
@@ -197,6 +194,21 @@ public class PalletBase extends FieldEditorPreferencePage implements
                             palletImageManager.assignRegionBottom(Double
                                 .parseDouble(source.getText()));
                         }
+
+                        double left = Double.valueOf(textControls[0].getText());
+                        double top = Double.valueOf(textControls[1].getText());
+                        double right = Double
+                            .valueOf(textControls[2].getText());
+                        double bottom = Double.valueOf(textControls[3]
+                            .getText());
+
+                        ScannerRegion newRegion = new ScannerRegion(""
+                            + palletId, left, top, right, bottom);
+
+                        setValid(origScannerRegion.equal(newRegion));
+                        if (!origScannerRegion.equal(newRegion)) {
+                            statusLabel.setText("changes need to be applied");
+                        }
                     } catch (NumberFormatException ex) {
                         // do nothing
                     }
@@ -204,6 +216,15 @@ public class PalletBase extends FieldEditorPreferencePage implements
             });
         }
 
+    }
+
+    @Override
+    public void setValid(boolean enable) {
+        super.setValid(enable);
+        getContainer().updateButtons();
+        Button applyButton = getApplyButton();
+        if (applyButton != null)
+            applyButton.setEnabled(true);
     }
 
     private void createCanvasComp(Composite parent) {
@@ -253,12 +274,12 @@ public class PalletBase extends FieldEditorPreferencePage implements
     }
 
     @Override
-    public boolean performOk() {
+    public void performApply() {
         super.performOk();
 
         if (!getPreferenceStore().getBoolean(
             PreferenceConstants.SCANNER_PALLET_ENABLED[palletId - 1]))
-            return true;
+            return;
 
         String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1];
 
@@ -267,13 +288,11 @@ public class PalletBase extends FieldEditorPreferencePage implements
                 .getDouble(prefsArr[1]), getPreferenceStore().getDouble(
                 prefsArr[2]), getPreferenceStore().getDouble(prefsArr[3]));
 
-        if (!calibrated && !origScannerRegion.equal(newRegion)) {
+        if (!calibrated || !origScannerRegion.equal(newRegion)) {
             ScanLib.getInstance().slConfigPlateFrame(palletId, newRegion.left,
                 newRegion.top, newRegion.right, newRegion.bottom);
-            return calibrate();
+            calibrate();
         }
-        return true;
-
     }
 
     private boolean calibrate() {
@@ -294,6 +313,7 @@ public class PalletBase extends FieldEditorPreferencePage implements
                 int scanlibReturn = ScanLib.getInstance().slCalibrateToPlate(
                     dpi, palletId);
                 calibrated = (scanlibReturn == ScanLib.SC_SUCCESS);
+                setValid(calibrated);
 
                 if (!calibrated) {
                     ScannerConfigPlugin.openAsyncError("Calibration Error",
