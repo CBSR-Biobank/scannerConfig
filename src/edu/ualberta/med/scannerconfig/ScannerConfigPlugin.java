@@ -67,8 +67,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         return plugin;
     }
 
-    public void initialize() {
-        new IniValidator();
+    public void initialize() throws Exception {
+        IniValidator iv = new IniValidator();
+        iv.loadFromFile();
     }
 
     public static ScanCell[][] scan(int plateNumber) throws Exception {

@@ -162,9 +162,10 @@ public class PalletBase extends FieldEditorPreferencePage implements
         DoubleFieldEditor fe;
         String[] labels = { "Left", "Top", "Right", "Bottom" };
 
-        addField(new BooleanFieldEditor(
+        BooleanFieldEditor bfe = new BooleanFieldEditor(
             PreferenceConstants.SCANNER_PALLET_ENABLED[palletId - 1], "Enable",
-            getFieldEditorParent()));
+            getFieldEditorParent());
+        addField(bfe);
 
         String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1];
 

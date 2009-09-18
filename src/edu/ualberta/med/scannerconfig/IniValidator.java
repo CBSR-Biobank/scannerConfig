@@ -16,15 +16,9 @@ public class IniValidator {
 
     public IniValidator() {
         scannerConfigPlugin = ScannerConfigPlugin.getDefault();
-
-        try {
-            loadFromFile();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
-    private void loadFromFile() throws Exception {
+    public void loadFromFile() throws Exception {
         Wini ini;
 
         File f = new File(INI_FILE_NAME);
@@ -43,7 +37,7 @@ public class IniValidator {
         setBrightness(brightness);
         setContrast(contrast);
 
-        for (int p = 1; p < PreferenceConstants.SCANNER_PALLET_ENABLED.length; p++) {
+        for (int p = 1; p <= PreferenceConstants.SCANNER_PALLET_ENABLED.length; p++) {
             if (!scannerConfigPlugin.getPreferenceStore().getBoolean(
                 PreferenceConstants.SCANNER_PALLET_ENABLED[p - 1]))
                 continue;
@@ -68,7 +62,7 @@ public class IniValidator {
                 }
             }
 
-            setPlate(p, iniRegion);
+            setPlateEnabled(p, iniRegion);
         }
     }
 
@@ -100,26 +94,22 @@ public class IniValidator {
         }
     }
 
-    private void setPlate(int palletId, ScannerRegion iniRegion)
-        throws Exception {
+    private void setPlateEnabled(int palletId, ScannerRegion iniRegion) {
         ScannerRegion configRegion = new ScannerRegion("" + palletId,
             scannerConfigPlugin.getPreferenceStore().getDouble(
                 PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][0]),
             scannerConfigPlugin.getPreferenceStore().getDouble(
-                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][0]),
+                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][1]),
             scannerConfigPlugin.getPreferenceStore().getDouble(
-                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][0]),
+                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][2]),
             scannerConfigPlugin.getPreferenceStore().getDouble(
-                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][0]));
+                PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1][3]));
 
-        if ((iniRegion == null) || !configRegion.equal(iniRegion)) {
-            int res = ScanLib.getInstance().slConfigPlateFrame(palletId,
-                configRegion.left, configRegion.top, configRegion.right,
-                configRegion.bottom);
-            if (res < ScanLib.SC_SUCCESS) {
-                throw new Exception("Contrast cofiguration: "
-                    + ScanLib.getErrMsg(res));
-            }
+        if ((iniRegion == null) || !configRegion.equal(iniRegion, 0.0001)) {
+            ScannerConfigPlugin.getDefault().getPreferenceStore()
+                .setValue(
+                    PreferenceConstants.SCANNER_PALLET_ENABLED[palletId - 1],
+                    false);
         }
     }
 

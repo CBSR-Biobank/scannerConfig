@@ -52,4 +52,11 @@ public class ScannerRegion {
         return ((left == region.left) && (top == region.top)
             && (right == region.right) && (bottom == region.bottom));
     }
+
+    public boolean equal(ScannerRegion region, double epsilon) {
+        return ((Math.abs(left - region.left) <= epsilon)
+            && (Math.abs(top - region.top) <= epsilon)
+            && (Math.abs(right - region.right) < epsilon) && (Math.abs(bottom
+            - region.bottom) < epsilon));
+    }
 }
