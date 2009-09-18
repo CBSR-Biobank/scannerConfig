@@ -34,10 +34,14 @@ public class IniValidator {
         ini = new Wini(f);
 
         Ini.Section section = ini.get("scanner");
+        Integer brightness = null;
+        Integer contrast = null;
         if (section != null) {
-            setBrightness(section.get("brightness", Integer.class));
-            setContrast(section.get("contrast", Integer.class));
+            brightness = section.get("brightness", Integer.class);
+            contrast = section.get("contrast", Integer.class);
         }
+        setBrightness(brightness);
+        setContrast(contrast);
 
         for (int p = 1; p < PreferenceConstants.SCANNER_PALLET_ENABLED.length; p++) {
             if (!scannerConfigPlugin.getPreferenceStore().getBoolean(
@@ -72,7 +76,7 @@ public class IniValidator {
         int brightness = scannerConfigPlugin.getPreferenceStore().getInt(
             PreferenceConstants.SCANNER_BRIGHTNESS);
 
-        if (iniBrightness.equals(brightness))
+        if ((iniBrightness != null) && iniBrightness.equals(brightness))
             return;
 
         int res = ScanLib.getInstance().slConfigScannerBrightness(brightness);
@@ -86,7 +90,7 @@ public class IniValidator {
         int contrast = scannerConfigPlugin.getPreferenceStore().getInt(
             PreferenceConstants.SCANNER_CONTRAST);
 
-        if (iniContrast.equals(contrast))
+        if ((iniContrast != null) && iniContrast.equals(contrast))
             return;
 
         int res = ScanLib.getInstance().slConfigScannerContrast(contrast);

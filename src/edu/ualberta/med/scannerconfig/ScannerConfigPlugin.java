@@ -43,7 +43,6 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
-        new IniValidator();
     }
 
     /*
@@ -68,6 +67,10 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         return plugin;
     }
 
+    public void initialize() {
+        new IniValidator();
+    }
+
     public static ScanCell[][] scan(int plateNumber) throws Exception {
         String dpiString = getDefault().getPreferenceStore().getString(
             PreferenceConstants.SCANNER_DPI);
@@ -83,12 +86,30 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         return ScanCell.getScanLibResults();
     }
 
-    public boolean palletEnabled(int palletId) {
+    public boolean getPalletEnabled(int palletId) {
         Assert.isTrue((palletId > 0)
             && (palletId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
             "pallet id is invalid: " + palletId);
         return getPreferenceStore().getBoolean(
             PreferenceConstants.SCANNER_PALLET_ENABLED[palletId - 1]);
+    }
+
+    public int getPalletCount() {
+        int result = 0;
+        for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_ENABLED.length; ++i) {
+            if (getPreferenceStore().getBoolean(
+                PreferenceConstants.SCANNER_PALLET_ENABLED[i]))
+                ++result;
+        }
+        return result;
+    }
+
+    public static int getPalletsMax() {
+        return PreferenceConstants.SCANNER_PALLET_ENABLED.length;
+    }
+
+    public int getDpi() {
+        return getPreferenceStore().getInt(PreferenceConstants.SCANNER_DPI);
     }
 
     /**

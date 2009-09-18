@@ -91,7 +91,7 @@ public class PalletBase extends FieldEditorPreferencePage implements
         statusLabel
             .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-        if (!ScannerConfigPlugin.getDefault().palletEnabled(palletId)) {
+        if (!ScannerConfigPlugin.getDefault().getPalletEnabled(palletId)) {
             statusLabel.setText("pallet not enabled");
         } else if (!palletsFile.exists()) {
             statusLabel.setText("scan required");
