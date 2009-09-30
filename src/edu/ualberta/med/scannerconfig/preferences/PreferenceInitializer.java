@@ -7,10 +7,6 @@ import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
-    public PreferenceInitializer() {
-        // TODO Auto-generated constructor stub
-    }
-
     @Override
     public void initializeDefaultPreferences() {
         IPreferenceStore store = ScannerConfigPlugin.getDefault()
@@ -22,7 +18,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
             PreferenceConstants.SCANNER_DRV_TYPE_TWAIN);
 
         for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_ENABLED.length; i++) {
-            store.setDefault(PreferenceConstants.SCANNER_PALLET_ENABLED[i], false);
+            store.setDefault(PreferenceConstants.SCANNER_PALLET_ENABLED[i],
+                false);
         }
     }
 
