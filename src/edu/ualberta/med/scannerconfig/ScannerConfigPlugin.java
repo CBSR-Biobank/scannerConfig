@@ -113,6 +113,16 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         return getPreferenceStore().getInt(PreferenceConstants.SCANNER_DPI);
     }
 
+    public int getBrightness() {
+        return getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_BRIGHTNESS);
+    }
+
+    public int getContrast() {
+        return getPreferenceStore()
+            .getInt(PreferenceConstants.SCANNER_CONTRAST);
+    }
+
     /**
      * Display an error message asynchronously
      */

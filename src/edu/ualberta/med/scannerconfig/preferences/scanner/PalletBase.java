@@ -114,8 +114,8 @@ public class PalletBase extends FieldEditorPreferencePage implements
                     @Override
                     public void run() {
                         final int result = ScanLib.getInstance().slScanImage(
-                            (int) PalletImageManager.PALLET_IMAGE_DPI, 0, 0, 0,
-                            0, PalletImageManager.PALLET_IMAGE_FILE);
+                            (int) PalletImageManager.PALLET_IMAGE_DPI, 0, 0,
+                            20, 20, PalletImageManager.PALLET_IMAGE_FILE);
 
                         parent.getDisplay().asyncExec(new Runnable() {
                             public void run() {
