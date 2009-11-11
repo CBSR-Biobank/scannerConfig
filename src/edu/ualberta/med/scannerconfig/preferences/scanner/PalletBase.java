@@ -314,7 +314,7 @@ public class PalletBase extends FieldEditorPreferencePage implements
         BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
             public void run() {
                 int scanlibReturn = ScanLib.getInstance().slCalibrateToPlate(
-                    dpi, palletId);
+                    dpi, palletId, 0);
                 calibrated = (scanlibReturn == ScanLib.SC_SUCCESS);
                 setValid(calibrated);
 
