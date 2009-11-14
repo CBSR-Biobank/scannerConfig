@@ -79,7 +79,14 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             throw new Exception("bad value in preferences for scanner DPI");
         }
         int dpi = Integer.valueOf(dpiString);
-        int res = ScanLib.getInstance().slDecodePlate(dpi, plateNumber, 0);
+        int res = ScanLib.getInstance().slDecodePlate(
+            0,
+            dpi,
+            plateNumber,
+            ScannerConfigPlugin.getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.SCANNER_BRIGHTNESS),
+            ScannerConfigPlugin.getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.SCANNER_CONTRAST), 10, 50, 20);
         if (res < ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. "
                 + ScanLib.getErrMsg(res));

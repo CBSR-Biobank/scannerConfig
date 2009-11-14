@@ -5,7 +5,6 @@ import java.io.File;
 import org.ini4j.Ini;
 import org.ini4j.Wini;
 
-import edu.ualberta.med.scanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 
 public class IniValidator {
@@ -28,14 +27,6 @@ public class IniValidator {
         ini = new Wini(f);
 
         Ini.Section section = ini.get("scanner");
-        Integer brightness = null;
-        Integer contrast = null;
-        if (section != null) {
-            brightness = section.get("brightness", Integer.class);
-            contrast = section.get("contrast", Integer.class);
-        }
-        setBrightness(brightness);
-        setContrast(contrast);
 
         for (int p = 1; p <= PreferenceConstants.SCANNER_PALLET_ENABLED.length; p++) {
             if (!scannerConfigPlugin.getPreferenceStore().getBoolean(
@@ -63,34 +54,6 @@ public class IniValidator {
             }
 
             setPlateEnabled(p, iniRegion);
-        }
-    }
-
-    private void setBrightness(Integer iniBrightness) throws Exception {
-        int brightness = scannerConfigPlugin.getPreferenceStore().getInt(
-            PreferenceConstants.SCANNER_BRIGHTNESS);
-
-        if ((iniBrightness != null) && iniBrightness.equals(brightness))
-            return;
-
-        int res = ScanLib.getInstance().slConfigScannerBrightness(brightness);
-        if (res < ScanLib.SC_SUCCESS) {
-            throw new Exception("Brightness configuration: "
-                + ScanLib.getErrMsg(res));
-        }
-    }
-
-    private void setContrast(Integer iniContrast) throws Exception {
-        int contrast = scannerConfigPlugin.getPreferenceStore().getInt(
-            PreferenceConstants.SCANNER_CONTRAST);
-
-        if ((iniContrast != null) && iniContrast.equals(contrast))
-            return;
-
-        int res = ScanLib.getInstance().slConfigScannerContrast(contrast);
-        if (res < ScanLib.SC_SUCCESS) {
-            throw new Exception("Contrast cofiguration: "
-                + ScanLib.getErrMsg(res));
         }
     }
 

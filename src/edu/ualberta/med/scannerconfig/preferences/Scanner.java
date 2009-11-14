@@ -29,7 +29,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 
         rgFe = new RadioGroupFieldEditor(PreferenceConstants.SCANNER_DPI,
             "DPI", 5, new String[][] { { "300", "300" }, { "400", "400" },
-                { "600", "600" }, { "1200", "1200" }, { "2400", "2400" } },
+                { "600", "600" }, { "720", "720" }, { "800", "800" } },
             getFieldEditorParent(), true);
         addField(rgFe);
 

@@ -114,8 +114,15 @@ public class PalletBase extends FieldEditorPreferencePage implements
                     @Override
                     public void run() {
                         final int result = ScanLib.getInstance().slScanImage(
-                            (int) PalletImageManager.PALLET_IMAGE_DPI, 0, 0,
-                            20, 20, PalletImageManager.PALLET_IMAGE_FILE);
+                            0,
+                            (int) PalletImageManager.PALLET_IMAGE_DPI,
+                            ScannerConfigPlugin.getDefault()
+                                .getPreferenceStore().getInt(
+                                    PreferenceConstants.SCANNER_BRIGHTNESS),
+                            ScannerConfigPlugin.getDefault()
+                                .getPreferenceStore().getInt(
+                                    PreferenceConstants.SCANNER_CONTRAST), 0,
+                            0, 20, 20, PalletImageManager.PALLET_IMAGE_FILE);
 
                         parent.getDisplay().asyncExec(new Runnable() {
                             public void run() {
@@ -314,7 +321,7 @@ public class PalletBase extends FieldEditorPreferencePage implements
         BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
             public void run() {
                 int scanlibReturn = ScanLib.getInstance().slCalibrateToPlate(
-                    dpi, palletId, 0);
+                    dpi, palletId);
                 calibrated = (scanlibReturn == ScanLib.SC_SUCCESS);
                 setValid(calibrated);
 
