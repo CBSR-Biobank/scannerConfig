@@ -72,6 +72,50 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         iv.loadFromFile();
     }
 
+    public static void scanImage(double left, double top, double right,
+        double bottom, String filename) throws Exception {
+        String dpiString = getDefault().getPreferenceStore().getString(
+            PreferenceConstants.SCANNER_DPI);
+        if (dpiString.length() == 0) {
+            throw new Exception("bad value in preferences for scanner DPI");
+        }
+        int dpi = Integer.valueOf(dpiString);
+        int res = ScanLib.getInstance().slScanImage(
+            0,
+            dpi,
+            ScannerConfigPlugin.getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.SCANNER_BRIGHTNESS),
+            ScannerConfigPlugin.getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.SCANNER_CONTRAST), left, top, right,
+            bottom, filename);
+        if (res < ScanLib.SC_SUCCESS) {
+            throw new Exception("Could not decode image. "
+                + ScanLib.getErrMsg(res));
+        }
+    }
+
+    public static void scanPlate(int palletId, String filename)
+        throws Exception {
+        String dpiString = getDefault().getPreferenceStore().getString(
+            PreferenceConstants.SCANNER_DPI);
+        if (dpiString.length() == 0) {
+            throw new Exception("bad value in preferences for scanner DPI");
+        }
+        int dpi = Integer.valueOf(dpiString);
+        int res = ScanLib.getInstance().slScanPlate(
+            0,
+            dpi,
+            palletId,
+            ScannerConfigPlugin.getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.SCANNER_BRIGHTNESS),
+            ScannerConfigPlugin.getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.SCANNER_CONTRAST), filename);
+        if (res < ScanLib.SC_SUCCESS) {
+            throw new Exception("Could not decode image. "
+                + ScanLib.getErrMsg(res));
+        }
+    }
+
     public static ScanCell[][] scan(int plateNumber) throws Exception {
         String dpiString = getDefault().getPreferenceStore().getString(
             PreferenceConstants.SCANNER_DPI);
