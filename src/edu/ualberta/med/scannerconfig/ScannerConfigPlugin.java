@@ -22,6 +22,12 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     // The shared instance
     private static ScannerConfigPlugin plugin;
 
+    private static int SQUARE_DEV = 10;
+
+    private static int THRESHOLD = 50;
+
+    private static int SCAN_GAP = 20;
+
     /**
      * The constructor
      */
@@ -67,70 +73,60 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         return plugin;
     }
 
-    public void initialize() throws Exception {
-        IniValidator iv = new IniValidator();
-        iv.loadFromFile();
+    public void initialize() {
     }
 
     public static void scanImage(double left, double top, double right,
         double bottom, String filename) throws Exception {
-        String dpiString = getDefault().getPreferenceStore().getString(
+        int dpi = getDefault().getPreferenceStore().getInt(
             PreferenceConstants.SCANNER_DPI);
-        if (dpiString.length() == 0) {
-            throw new Exception("bad value in preferences for scanner DPI");
-        }
-        int dpi = Integer.valueOf(dpiString);
-        int res = ScanLib.getInstance().slScanImage(
-            0,
-            dpi,
-            ScannerConfigPlugin.getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.SCANNER_BRIGHTNESS),
-            ScannerConfigPlugin.getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.SCANNER_CONTRAST), left, top, right,
-            bottom, filename);
+        int brightness = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_BRIGHTNESS);
+        int contrast = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_CONTRAST);
+        int res = ScanLib.getInstance().slScanImage(0, dpi, brightness,
+            contrast, left, top, right, bottom, filename);
+
         if (res < ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. "
                 + ScanLib.getErrMsg(res));
         }
     }
 
-    public static void scanPlate(int palletId, String filename)
+    public static void scanPlate(int plateNumber, String filename)
         throws Exception {
-        String dpiString = getDefault().getPreferenceStore().getString(
-            PreferenceConstants.SCANNER_DPI);
-        if (dpiString.length() == 0) {
-            throw new Exception("bad value in preferences for scanner DPI");
-        }
-        int dpi = Integer.valueOf(dpiString);
-        int res = ScanLib.getInstance().slScanPlate(
-            0,
-            dpi,
-            palletId,
-            ScannerConfigPlugin.getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.SCANNER_BRIGHTNESS),
-            ScannerConfigPlugin.getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.SCANNER_CONTRAST), filename);
-        if (res < ScanLib.SC_SUCCESS) {
-            throw new Exception("Could not decode image. "
-                + ScanLib.getErrMsg(res));
-        }
+
+        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[plateNumber - 1];
+
+        ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
+            .getPreferenceStore().getDouble(prefsArr[0]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[1]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[2]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[3]));
+        scanImage(region.left, region.top, region.right, region.bottom,
+            filename);
     }
 
     public static ScanCell[][] scan(int plateNumber) throws Exception {
-        String dpiString = getDefault().getPreferenceStore().getString(
+        int dpi = getDefault().getPreferenceStore().getInt(
             PreferenceConstants.SCANNER_DPI);
-        if (dpiString.length() == 0) {
-            throw new Exception("bad value in preferences for scanner DPI");
-        }
-        int dpi = Integer.valueOf(dpiString);
-        int res = ScanLib.getInstance().slDecodePlate(
-            0,
-            dpi,
-            plateNumber,
-            ScannerConfigPlugin.getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.SCANNER_BRIGHTNESS),
-            ScannerConfigPlugin.getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.SCANNER_CONTRAST), 10, 50, 20);
+        int brightness = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_BRIGHTNESS);
+        int contrast = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_CONTRAST);
+
+        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[plateNumber - 1];
+
+        ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
+            .getPreferenceStore().getDouble(prefsArr[0]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[1]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[2]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[3]));
+
+        int res = ScanLib.getInstance().slDecodePlate(0, dpi, brightness,
+            contrast, plateNumber, region.left, region.top, region.right,
+            region.bottom, SCAN_GAP, SQUARE_DEV, THRESHOLD);
+
         if (res < ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. "
                 + ScanLib.getErrMsg(res));

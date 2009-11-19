@@ -43,8 +43,6 @@ public class PalletBase extends FieldEditorPreferencePage implements
 
     private PalletImageManager palletImageManager;
 
-    private boolean calibrated;
-
     private ScannerRegion origScannerRegion;
 
     private Label statusLabel;
@@ -57,7 +55,6 @@ public class PalletBase extends FieldEditorPreferencePage implements
         setPreferenceStore(ScannerConfigPlugin.getDefault()
             .getPreferenceStore());
         textControls = new Text[4];
-        calibrated = false;
     }
 
     @Override
@@ -204,22 +201,14 @@ public class PalletBase extends FieldEditorPreferencePage implements
                                 .parseDouble(source.getText()));
                         }
 
-                        double left = Double.valueOf(textControls[0].getText());
-                        double top = Double.valueOf(textControls[1].getText());
-                        double right = Double
-                            .valueOf(textControls[2].getText());
-                        double bottom = Double.valueOf(textControls[3]
-                            .getText());
+                        Double.valueOf(textControls[0].getText());
+                        Double.valueOf(textControls[1].getText());
+                        Double.valueOf(textControls[2].getText());
+                        Double.valueOf(textControls[3].getText());
 
-                        ScannerRegion newRegion = new ScannerRegion(""
-                            + palletId, left, top, right, bottom);
-
-                        setValid(origScannerRegion.equal(newRegion));
-                        if (!origScannerRegion.equal(newRegion)) {
-                            statusLabel.setText("changes need to be applied");
-                        }
+                        setValid(true);
                     } catch (NumberFormatException ex) {
-                        // do nothing
+                        setValid(false);
                     }
                 }
             });
@@ -229,8 +218,14 @@ public class PalletBase extends FieldEditorPreferencePage implements
 
     @Override
     public void setValid(boolean enable) {
-        if (System.getProperty("os.name").startsWith("Windows"))
-            super.setValid(enable);
+        // not sure if this is needed anymore
+        //
+        // if (System.getProperty("os.name").startsWith("Windows"))
+        // super.setValid(enable);
+        //
+        // replace with single line below for now
+        super.setValid(enable);
+
         getContainer().updateButtons();
         Button applyButton = getApplyButton();
         if (applyButton != null)
@@ -281,61 +276,5 @@ public class PalletBase extends FieldEditorPreferencePage implements
     public void init(IWorkbench workbench) {
         setPreferenceStore(ScannerConfigPlugin.getDefault()
             .getPreferenceStore());
-    }
-
-    @Override
-    public void performApply() {
-        super.performOk();
-
-        if (!getPreferenceStore().getBoolean(
-            PreferenceConstants.SCANNER_PALLET_ENABLED[palletId - 1]))
-            return;
-
-        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[palletId - 1];
-
-        ScannerRegion newRegion = new ScannerRegion("" + palletId,
-            getPreferenceStore().getDouble(prefsArr[0]), getPreferenceStore()
-                .getDouble(prefsArr[1]), getPreferenceStore().getDouble(
-                prefsArr[2]), getPreferenceStore().getDouble(prefsArr[3]));
-
-        if (!calibrated || !origScannerRegion.equal(newRegion)) {
-            ScanLib.getInstance().slConfigPlateFrame(palletId, newRegion.left,
-                newRegion.top, newRegion.right, newRegion.bottom);
-            calibrate();
-        }
-    }
-
-    private boolean calibrate() {
-        statusLabel.setText("configuring pallet " + palletId + "...");
-        String dpiString = ScannerConfigPlugin.getDefault()
-            .getPreferenceStore().getString(PreferenceConstants.SCANNER_DPI);
-
-        if (dpiString.length() == 0) {
-            ScannerConfigPlugin.openAsyncError("Preferences Error",
-                "bad value in preferences for scanner DPI");
-            return false;
-        }
-
-        final int dpi = Integer.valueOf(dpiString);
-
-        BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-            public void run() {
-                int scanlibReturn = ScanLib.getInstance().slCalibrateToPlate(
-                    dpi, palletId);
-                calibrated = (scanlibReturn == ScanLib.SC_SUCCESS);
-                setValid(calibrated);
-
-                if (!calibrated) {
-                    ScannerConfigPlugin.openAsyncError("Calibration Error",
-                        ScanLib.getErrMsg(scanlibReturn));
-                    ScanLib.getInstance().slConfigPlateFrame(palletId, 0, 0, 0,
-                        0);
-                }
-            }
-        });
-
-        statusLabel.setText(calibrated ? "configuration successful"
-            : "configuration failed, try again");
-        return calibrated;
     }
 }
