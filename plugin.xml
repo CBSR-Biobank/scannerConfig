@@ -2,6 +2,22 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+               id="edu.ualberta.med.biobank.menu.configuration"
+               label="Configuration">
+            <command
+                  commandId="edu.ualberta.med.scannerconfig.commands.selectsource"
+                  icon="icons/selectScanner.png"
+                  label="Select Scanner"
+                  style="push">
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+   <extension
          point="org.eclipse.ui.commands">
       <command
             defaultHandler="edu.ualberta.med.scannerconfig.handler.SelectSource"
