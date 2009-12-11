@@ -12,3 +12,4 @@ Bundle-ClassPath: lib/ini4j-0.5.1.jar,lib/scanlib.jar,.
 Export-Package: edu.ualberta.med.scanlib,
  edu.ualberta.med.scannerconfig,
  edu.ualberta.med.scannerconfig.preferences
+Bundle-Vendor: AICML
