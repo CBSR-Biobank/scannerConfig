@@ -34,13 +34,13 @@ public class Scanner extends FieldEditorPreferencePage implements
         addField(rgFe);
 
         IntegerFieldEditor intFe = new IntegerFieldEditor(
-            PreferenceConstants.SCANNER_BRIGHTNESS, "Brigtness",
+            PreferenceConstants.SCANNER_BRIGHTNESS, "Brigtness:",
             getFieldEditorParent());
         intFe.setValidRange(-1000, 1000);
         addField(intFe);
 
         intFe = new IntegerFieldEditor(PreferenceConstants.SCANNER_CONTRAST,
-            "Contrast", getFieldEditorParent());
+            "Contrast:", getFieldEditorParent());
         intFe.setValidRange(-1000, 1000);
         addField(intFe);
     }
