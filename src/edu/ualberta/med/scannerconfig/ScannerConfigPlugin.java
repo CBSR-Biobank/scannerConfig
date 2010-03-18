@@ -134,15 +134,15 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         return ScanCell.getScanLibResults();
     }
 
-    public boolean getPalletEnabled(int palletId) {
-        Assert.isTrue((palletId > 0)
-            && (palletId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
-            "pallet id is invalid: " + palletId);
+    public boolean getPlateEnabled(int plateId) {
+        Assert.isTrue((plateId > 0)
+            && (plateId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
+            "plate id is invalid: " + plateId);
         return getPreferenceStore().getBoolean(
-            PreferenceConstants.SCANNER_PALLET_ENABLED[palletId - 1]);
+            PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1]);
     }
 
-    public int getPalletCount() {
+    public int getPlateCount() {
         int result = 0;
         for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_ENABLED.length; ++i) {
             if (getPreferenceStore().getBoolean(
@@ -152,7 +152,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         return result;
     }
 
-    public static int getPalletsMax() {
+    public static int getPlatesMax() {
         return PreferenceConstants.SCANNER_PALLET_ENABLED.length;
     }
 

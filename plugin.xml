@@ -44,33 +44,33 @@
     </page>
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Pallet1"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate1"
           id="scannerConfig.page1"
-          name="Pallet 1 Position">
+          name="Plate 1 Position">
     </page> 
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Pallet2"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate2"
           id="scannerConfig.page2"
-          name="Pallet 2 Position">
+          name="Plate 2 Position">
     </page> 
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Pallet3"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate3"
           id="scannerConfig.page3"
-          name="Pallet 3 Position">
+          name="Plate 3 Position">
     </page> 
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Pallet4"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate4"
           id="scannerConfig.page4"
-          name="Pallet 4 Position">
+          name="Plate 4 Position">
     </page> 
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Pallet5"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate5"
           id="scannerConfig.page5"
-          name="Pallet 5 Position">
+          name="Plate 5 Position">
     </page> 
    </extension>
 </plugin>
