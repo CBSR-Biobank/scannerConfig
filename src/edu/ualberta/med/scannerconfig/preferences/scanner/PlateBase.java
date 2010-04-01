@@ -110,16 +110,20 @@ public class PlateBase extends FieldEditorPreferencePage implements
                 BusyIndicator.showWhile(parent.getDisplay(), new Runnable() {
                     @Override
                     public void run() {
+                        int brightness = ScannerConfigPlugin.getDefault()
+                            .getPreferenceStore().getInt(
+                                PreferenceConstants.SCANNER_BRIGHTNESS);
+                        int contrast = ScannerConfigPlugin.getDefault()
+                            .getPreferenceStore().getInt(
+                                PreferenceConstants.SCANNER_CONTRAST);
+                        int debugLevel = ScannerConfigPlugin.getDefault()
+                            .getPreferenceStore().getInt(
+                                PreferenceConstants.DLL_DEBUG_LEVEL);
                         final int result = ScanLib.getInstance().slScanImage(
-                            0,
+                            debugLevel,
                             (int) PlateImageManager.PALLET_IMAGE_DPI,
-                            ScannerConfigPlugin.getDefault()
-                                .getPreferenceStore().getInt(
-                                    PreferenceConstants.SCANNER_BRIGHTNESS),
-                            ScannerConfigPlugin.getDefault()
-                                .getPreferenceStore().getInt(
-                                    PreferenceConstants.SCANNER_CONTRAST), 0,
-                            0, 20, 20, PlateImageManager.PALLET_IMAGE_FILE);
+                            brightness, contrast, 0, 0, 20, 20,
+                            PlateImageManager.PALLET_IMAGE_FILE);
 
                         parent.getDisplay().asyncExec(new Runnable() {
                             public void run() {
@@ -241,10 +245,10 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
         String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[plateId - 1];
 
-        origScannerRegion = new ScannerRegion("" + plateId,
-            ScannerConfigPlugin.getDefault().getPreferenceStore().getDouble(
-                prefsArr[0]), prefs.getDouble(prefsArr[1]), prefs
-                .getDouble(prefsArr[2]), prefs.getDouble(prefsArr[3]));
+        origScannerRegion = new ScannerRegion("" + plateId, ScannerConfigPlugin
+            .getDefault().getPreferenceStore().getDouble(prefsArr[0]), prefs
+            .getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]), prefs
+            .getDouble(prefsArr[3]));
 
         Color c = null;
 
