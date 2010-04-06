@@ -9,12 +9,6 @@
                id="edu.ualberta.med.scannerconfig.menu.configuration"
                label="Configuration">
             <command
-                  commandId="edu.ualberta.med.scannerconfig.commands.selectsource"
-                  icon="icons/selectScanner.png"
-                  label="Select Scanner"
-                  style="push">
-            </command>
-            <command
                   commandId="org.eclipse.ui.window.preferences"
                   id="edu.ualberta.med.scannerconfig.menu.preferences"
                   label="Preferences"

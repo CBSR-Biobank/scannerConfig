@@ -1,7 +1,14 @@
 package edu.ualberta.med.scannerconfig;
 
+import java.net.URL;
+
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -16,17 +23,13 @@ import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
  */
 public class ScannerConfigPlugin extends AbstractUIPlugin {
 
+    public static final String IMG_SCANNER = "scanner";
+
     // The plug-in ID
     public static final String PLUGIN_ID = "scannerConfig";
 
     // The shared instance
     private static ScannerConfigPlugin plugin;
-
-    private static int SQUARE_DEV = 10;
-
-    private static int THRESHOLD = 50;
-
-    private static int SCAN_GAP = 20;
 
     /**
      * The constructor
@@ -49,6 +52,24 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
+    }
+
+    @Override
+    protected void initializeImageRegistry(ImageRegistry registry) {
+        registerImage(registry, IMG_SCANNER, "selectScanner.png");
+    }
+
+    private void registerImage(ImageRegistry registry, String key,
+        String fileName) {
+        try {
+            IPath path = new Path("icons/" + fileName);
+            URL url = FileLocator.find(getBundle(), path, null);
+            if (url != null) {
+                ImageDescriptor desc = ImageDescriptor.createFromURL(url);
+                registry.put(key, desc);
+            }
+        } catch (Exception e) {
+        }
     }
 
     /*
@@ -84,8 +105,10 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             PreferenceConstants.SCANNER_BRIGHTNESS);
         int contrast = getDefault().getPreferenceStore().getInt(
             PreferenceConstants.SCANNER_CONTRAST);
-        int res = ScanLib.getInstance().slScanImage(0, dpi, brightness,
-            contrast, left, top, right, bottom, filename);
+        int debugLevel = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.DLL_DEBUG_LEVEL);
+        int res = ScanLib.getInstance().slScanImage(debugLevel, dpi,
+            brightness, contrast, left, top, right, bottom, filename);
 
         if (res < ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. "
@@ -114,6 +137,14 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             PreferenceConstants.SCANNER_BRIGHTNESS);
         int contrast = getDefault().getPreferenceStore().getInt(
             PreferenceConstants.SCANNER_CONTRAST);
+        int debugLevel = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.DLL_DEBUG_LEVEL);
+        int edgeThresh = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.LIBDMTX_EDGE_THRESH);
+        int scanGap = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.LIBDMTX_SCAN_GAP);
+        int squareDev = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.LIBDMTX_SQUARE_DEV);
 
         String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[plateNumber - 1];
 
@@ -123,9 +154,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             .getPreferenceStore().getDouble(prefsArr[2]), getDefault()
             .getPreferenceStore().getDouble(prefsArr[3]));
 
-        int res = ScanLib.getInstance().slDecodePlate(0, dpi, brightness,
-            contrast, plateNumber, region.left, region.top, region.right,
-            region.bottom, SCAN_GAP, SQUARE_DEV, THRESHOLD);
+        int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
+            brightness, contrast, plateNumber, region.left, region.top,
+            region.right, region.bottom, scanGap, squareDev, edgeThresh);
 
         if (res < ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. "
