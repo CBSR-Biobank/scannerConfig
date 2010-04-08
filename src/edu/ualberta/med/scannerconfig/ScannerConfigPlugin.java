@@ -145,6 +145,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             PreferenceConstants.LIBDMTX_SCAN_GAP);
         int squareDev = getDefault().getPreferenceStore().getInt(
             PreferenceConstants.LIBDMTX_SQUARE_DEV);
+        int corrections = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.LIBDMTX_CORRECTIONS);
 
         String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[plateNumber - 1];
 
@@ -156,7 +158,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
             brightness, contrast, plateNumber, region.left, region.top,
-            region.right, region.bottom, scanGap, squareDev, edgeThresh);
+            region.right, region.bottom, scanGap, squareDev, edgeThresh,
+            corrections);
 
         if (res < ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. "

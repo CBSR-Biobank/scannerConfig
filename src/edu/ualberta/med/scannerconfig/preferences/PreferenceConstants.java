@@ -22,6 +22,8 @@ public class PreferenceConstants {
 
     public static final String LIBDMTX_SQUARE_DEV = "libdmtx.square_dev";
 
+    public static final String LIBDMTX_CORRECTIONS = "libdmtx.corrections";
+
     public static final String[] SCANNER_PALLET_ENABLED = {
         "scanner.plate.coords.enabled.1", "scanner.plate.coords.enabled.2",
         "scanner.plate.coords.enabled.3", "scanner.plate.coords.enabled.4",

@@ -91,6 +91,11 @@ public class Scanner extends FieldEditorPreferencePage implements
             "Decode Square Deviation:", getFieldEditorParent());
         intFe.setValidRange(0, 90);
         addField(intFe);
+
+        intFe = new IntegerFieldEditor(PreferenceConstants.LIBDMTX_CORRECTIONS,
+            "Decode Corrections:", getFieldEditorParent());
+        intFe.setValidRange(0, 100);
+        addField(intFe);
     }
 
     @Override
