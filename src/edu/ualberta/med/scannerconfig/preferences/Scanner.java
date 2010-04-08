@@ -96,6 +96,12 @@ public class Scanner extends FieldEditorPreferencePage implements
             "Decode Corrections:", getFieldEditorParent());
         intFe.setValidRange(0, 100);
         addField(intFe);
+
+        DoubleFieldEditor fe = new DoubleFieldEditor(
+            PreferenceConstants.LIBDMTX_CELL_DISTANCE, "Decode Cell Distance:",
+            getFieldEditorParent());
+        fe.setValidRange(0.0, 1.0);
+        addField(fe);
     }
 
     @Override
