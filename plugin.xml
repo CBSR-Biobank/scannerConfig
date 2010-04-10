@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="menu:org.eclipse.ui.main.menu?after=edu.ualberta.med.biobank.menu.debug">
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
          <menu
                id="edu.ualberta.med.scannerconfig.menu.configuration"
                label="Configuration">
