@@ -82,10 +82,11 @@ public class Scanner extends FieldEditorPreferencePage implements
         intFe.setValidRange(0, 100);
         addField(intFe);
 
-        intFe = new IntegerFieldEditor(PreferenceConstants.LIBDMTX_SCAN_GAP,
-            "Decode Scan Gap:", getFieldEditorParent());
-        intFe.setValidRange(0, 10000);
-        addField(intFe);
+        DoubleFieldEditor dblFe = new DoubleFieldEditor(
+            PreferenceConstants.LIBDMTX_SCAN_GAP, "Decode Scan Gap:",
+            getFieldEditorParent());
+        dblFe.setValidRange(0.0, 1.0);
+        addField(dblFe);
 
         intFe = new IntegerFieldEditor(PreferenceConstants.LIBDMTX_SQUARE_DEV,
             "Decode Square Deviation:", getFieldEditorParent());
@@ -97,11 +98,11 @@ public class Scanner extends FieldEditorPreferencePage implements
         intFe.setValidRange(0, 100);
         addField(intFe);
 
-        DoubleFieldEditor fe = new DoubleFieldEditor(
+        dblFe = new DoubleFieldEditor(
             PreferenceConstants.LIBDMTX_CELL_DISTANCE, "Decode Cell Distance:",
             getFieldEditorParent());
-        fe.setValidRange(0.0, 1.0);
-        addField(fe);
+        dblFe.setValidRange(0.0, 1.0);
+        addField(dblFe);
     }
 
     @Override

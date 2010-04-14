@@ -141,7 +141,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             PreferenceConstants.DLL_DEBUG_LEVEL);
         int edgeThresh = getDefault().getPreferenceStore().getInt(
             PreferenceConstants.LIBDMTX_EDGE_THRESH);
-        int scanGap = getDefault().getPreferenceStore().getInt(
+        double scanGap = getDefault().getPreferenceStore().getDouble(
             PreferenceConstants.LIBDMTX_SCAN_GAP);
         int squareDev = getDefault().getPreferenceStore().getInt(
             PreferenceConstants.LIBDMTX_SQUARE_DEV);
