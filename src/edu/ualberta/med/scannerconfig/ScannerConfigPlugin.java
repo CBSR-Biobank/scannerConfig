@@ -9,14 +9,19 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.services.ISourceProviderService;
 import org.osgi.framework.BundleContext;
 
 import edu.ualberta.med.scanlib.ScanCell;
 import edu.ualberta.med.scanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
+import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -52,6 +57,25 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
+
+        getPreferenceStore().addPropertyChangeListener(
+            new IPropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent event) {
+                    if (event.getProperty().startsWith(
+                        "scanner.plate.coords.enabled.")) {
+                        IWorkbenchWindow window = PlatformUI.getWorkbench()
+                            .getActiveWorkbenchWindow();
+                        ISourceProviderService service = (ISourceProviderService) window
+                            .getService(ISourceProviderService.class);
+
+                        PlateEnabledState plateEnabledSourceProvider = (PlateEnabledState) service
+                            .getSourceProvider(PlateEnabledState.PLATE_1_ENABLED);
+                        String prop = event.getProperty();
+                        plateEnabledSourceProvider.setPlateEnabled(Integer
+                            .valueOf(prop.substring(prop.length() - 1)));
+                    }
+                }
+            });
     }
 
     @Override
