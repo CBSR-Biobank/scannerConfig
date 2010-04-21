@@ -70,6 +70,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
                         PlateEnabledState plateEnabledSourceProvider = (PlateEnabledState) service
                             .getSourceProvider(PlateEnabledState.PLATE_1_ENABLED);
+                        Assert.isNotNull(plateEnabledSourceProvider);
                         String prop = event.getProperty();
                         plateEnabledSourceProvider.setPlateEnabled(Integer
                             .valueOf(prop.substring(prop.length() - 1)));
