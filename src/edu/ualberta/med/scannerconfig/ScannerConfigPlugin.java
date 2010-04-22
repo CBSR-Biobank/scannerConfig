@@ -250,4 +250,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             }
         });
     }
+
+    public static ScanCell[][] scanMultiple(int plateNum) {
+        Assert.isNotNull(null);
+        return null;
+    }
 }
