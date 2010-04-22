@@ -95,28 +95,8 @@
    </extension>
    <extension
          point="org.eclipse.core.expressions.definitions">
-      <definition id="scannerConfigPlugin.plate1Enabled">
-         <with variable="edu.ualberta.med.scannerconfig.sourceprovider.plate1Enabled">
-            <equals value="true" />
-         </with>
-      </definition>
-      <definition id="scannerConfigPlugin.plate2Enabled">
-         <with variable="edu.ualberta.med.scannerconfig.sourceprovider.plate2Enabled">
-            <equals value="true" />
-         </with>
-      </definition>
-      <definition id="scannerConfigPlugin.plate3Enabled">
-         <with variable="edu.ualberta.med.scannerconfig.sourceprovider.plate3Enabled">
-            <equals value="true" />
-         </with>
-      </definition>
-      <definition id="scannerConfigPlugin.plate4Enabled">
-         <with variable="edu.ualberta.med.scannerconfig.sourceprovider.plate4Enabled">
-            <equals value="true" />
-         </with>
-      </definition>
-      <definition id="scannerConfigPlugin.plate5Enabled">
-         <with variable="edu.ualberta.med.scannerconfig.sourceprovider.plate5Enabled">
+      <definition id="scannerConfigPlugin.platesEnabled">
+         <with variable="edu.ualberta.med.scannerconfig.sourceprovider.platesEnabled">
             <equals value="true" />
          </with>
       </definition>
