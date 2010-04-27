@@ -18,9 +18,10 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.services.ISourceProviderService;
 import org.osgi.framework.BundleContext;
 
-import edu.ualberta.med.scanlib.ScanCell;
-import edu.ualberta.med.scanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
+import edu.ualberta.med.scannerconfig.scanlib.ScanCell;
+import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.scanlib.ScanLibWin32;
 import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
 
 /**
@@ -130,10 +131,10 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             PreferenceConstants.SCANNER_CONTRAST);
         int debugLevel = getDefault().getPreferenceStore().getInt(
             PreferenceConstants.DLL_DEBUG_LEVEL);
-        int res = ScanLib.getInstance().slScanImage(debugLevel, dpi,
+        int res = ScanLibWin32.getInstance().slScanImage(debugLevel, dpi,
             brightness, contrast, left, top, right, bottom, filename);
 
-        if (res < ScanLib.SC_SUCCESS) {
+        if (res < ScanLibWin32.SC_SUCCESS) {
             throw new Exception("Could not decode image. "
                 + ScanLib.getErrMsg(res));
         }
@@ -193,6 +194,11 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         return ScanCell.getScanLibResults();
     }
 
+    public static ScanCell[][] scanMultipleDpi(int plateNum) {
+        Assert.isNotNull(null);
+        return null;
+    }
+
     public boolean getPlateEnabled(int plateId) {
         Assert.isTrue((plateId > 0)
             && (plateId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
@@ -247,10 +253,5 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                     .getActiveWorkbenchWindow().getShell(), title, message);
             }
         });
-    }
-
-    public static ScanCell[][] scanMultiple(int plateNum) {
-        Assert.isNotNull(null);
-        return null;
     }
 }

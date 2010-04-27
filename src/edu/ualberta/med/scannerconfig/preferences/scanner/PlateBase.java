@@ -27,12 +27,12 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
 
-import edu.ualberta.med.scanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.PlateImageManager;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.ScannerRegion;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
+import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
 
 public class PlateBase extends FieldEditorPreferencePage implements
     IWorkbenchPreferencePage {
