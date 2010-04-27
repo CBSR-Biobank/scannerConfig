@@ -8,7 +8,8 @@ Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-NativeCode: scanlib.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",*
-Bundle-ClassPath: lib/ini4j-0.5.1.jar,lib/scanlib.jar,.
+Bundle-ClassPath: lib/ini4j-0.5.1.jar,
+ .
 Export-Package: edu.ualberta.med.scannerconfig,
  edu.ualberta.med.scannerconfig.preferences,
  edu.ualberta.med.scannerconfig.scanlib

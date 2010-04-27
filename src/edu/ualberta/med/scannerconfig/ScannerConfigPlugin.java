@@ -194,9 +194,49 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         return ScanCell.getScanLibResults();
     }
 
-    public static ScanCell[][] scanMultipleDpi(int plateNum) {
-        Assert.isNotNull(null);
-        return null;
+    public static ScanCell[][] scanMultipleDpi(int plateNumber)
+        throws Exception {
+        int dpi1 = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_MULTIPLE_DPIS[0]);
+        int dpi2 = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_MULTIPLE_DPIS[1]);
+        int dpi3 = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_MULTIPLE_DPIS[2]);
+        int brightness = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_BRIGHTNESS);
+        int contrast = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_CONTRAST);
+        int debugLevel = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.DLL_DEBUG_LEVEL);
+        int edgeThresh = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.LIBDMTX_EDGE_THRESH);
+        double scanGap = getDefault().getPreferenceStore().getDouble(
+            PreferenceConstants.LIBDMTX_SCAN_GAP);
+        int squareDev = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.LIBDMTX_SQUARE_DEV);
+        int corrections = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.LIBDMTX_CORRECTIONS);
+        double cellDistance = getDefault().getPreferenceStore().getDouble(
+            PreferenceConstants.LIBDMTX_CELL_DISTANCE);
+
+        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[plateNumber - 1];
+
+        ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
+            .getPreferenceStore().getDouble(prefsArr[0]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[1]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[2]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[3]));
+
+        int res = ScanLib.getInstance().slDecodePlateMultipleDpi(debugLevel,
+            dpi1, dpi2, dpi3, brightness, contrast, plateNumber, region.left,
+            region.top, region.right, region.bottom, scanGap, squareDev,
+            edgeThresh, corrections, cellDistance);
+
+        if (res < ScanLib.SC_SUCCESS) {
+            throw new Exception("Could not decode image. "
+                + ScanLib.getErrMsg(res));
+        }
+        return ScanCell.getScanLibResults();
     }
 
     public boolean getPlateEnabled(int plateId) {

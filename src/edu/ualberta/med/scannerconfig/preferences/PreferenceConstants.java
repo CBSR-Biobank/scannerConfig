@@ -47,4 +47,7 @@ public class PreferenceConstants {
         { "scanner.plate.coords.left.5", "scanner.plate.coords.top.5",
             "scanner.plate.coords.right.5", "scanner.plate.coords.bottom.5" } };
 
+    public static final String[] SCANNER_MULTIPLE_DPIS = { "scanner.dpi.1",
+        "scanner.dpi.2", "scanner.dpi.3" };
+
 }
