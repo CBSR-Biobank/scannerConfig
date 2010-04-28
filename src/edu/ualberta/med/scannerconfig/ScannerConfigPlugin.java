@@ -131,6 +131,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             PreferenceConstants.SCANNER_CONTRAST);
         int debugLevel = getDefault().getPreferenceStore().getInt(
             PreferenceConstants.DLL_DEBUG_LEVEL);
+
         int res = ScanLibWin32.getInstance().slScanImage(debugLevel, dpi,
             brightness, contrast, left, top, right, bottom, filename);
 
@@ -150,6 +151,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             .getPreferenceStore().getDouble(prefsArr[1]), getDefault()
             .getPreferenceStore().getDouble(prefsArr[2]), getDefault()
             .getPreferenceStore().getDouble(prefsArr[3]));
+        regionModifyIfScannerWia(region);
         scanImage(region.left, region.top, region.right, region.bottom,
             filename);
     }
@@ -181,6 +183,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             .getPreferenceStore().getDouble(prefsArr[1]), getDefault()
             .getPreferenceStore().getDouble(prefsArr[2]), getDefault()
             .getPreferenceStore().getDouble(prefsArr[3]));
+        regionModifyIfScannerWia(region);
 
         int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
             brightness, contrast, plateNumber, region.left, region.top,
@@ -226,6 +229,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             .getPreferenceStore().getDouble(prefsArr[1]), getDefault()
             .getPreferenceStore().getDouble(prefsArr[2]), getDefault()
             .getPreferenceStore().getDouble(prefsArr[3]));
+        regionModifyIfScannerWia(region);
 
         int res = ScanLib.getInstance().slDecodePlateMultipleDpi(debugLevel,
             dpi1, dpi2, dpi3, brightness, contrast, plateNumber, region.left,
@@ -245,6 +249,17 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             "plate id is invalid: " + plateId);
         return getPreferenceStore().getBoolean(
             PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1]);
+    }
+
+    private static void regionModifyIfScannerWia(ScannerRegion region) {
+        boolean isWia = ScannerConfigPlugin.getDefault().getPreferenceStore()
+            .getString(PreferenceConstants.SCANNER_DRV_TYPE).equals(
+                PreferenceConstants.SCANNER_DRV_TYPE_WIA);
+
+        if (isWia) {
+            region.right = region.right - region.left;
+            region.bottom = region.bottom - region.top;
+        }
     }
 
     public int getPlateCount() {

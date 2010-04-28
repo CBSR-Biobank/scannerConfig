@@ -87,8 +87,6 @@ public class PlateBoundsWidget {
                     }
                 }
 
-                System.out.println(plateRect);
-
                 pointTopLeft = !pointTopLeft;
                 canvas.redraw();
                 canvas.update();
