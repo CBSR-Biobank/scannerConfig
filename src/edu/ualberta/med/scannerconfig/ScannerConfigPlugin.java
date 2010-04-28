@@ -252,14 +252,13 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     private static void regionModifyIfScannerWia(ScannerRegion region) {
-        boolean isWia = ScannerConfigPlugin.getDefault().getPreferenceStore()
-            .getString(PreferenceConstants.SCANNER_DRV_TYPE).equals(
-                PreferenceConstants.SCANNER_DRV_TYPE_WIA);
+        if (!ScannerConfigPlugin.getDefault().getPreferenceStore().getString(
+            PreferenceConstants.SCANNER_DRV_TYPE).equals(
+            PreferenceConstants.SCANNER_DRV_TYPE_WIA))
+            return;
 
-        if (isWia) {
-            region.right = region.right - region.left;
-            region.bottom = region.bottom - region.top;
-        }
+        region.right = region.right - region.left;
+        region.bottom = region.bottom - region.top;
     }
 
     public int getPlateCount() {
