@@ -27,7 +27,8 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
 
-import edu.ualberta.med.scannerconfig.PlateImageManager;
+import edu.ualberta.med.scannerconfig.IPlateBoundsListener;
+import edu.ualberta.med.scannerconfig.PlateBoundsWidget;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.ScannerRegion;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
@@ -41,7 +42,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
     private Text[] textControls;
 
-    private PlateImageManager plateImageManager;
+    private PlateBoundsWidget plateBoundsWidget;
 
     private ScannerRegion origScannerRegion;
 
@@ -63,7 +64,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
         top.setLayout(new GridLayout(2, false));
         top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-        File platesFile = new File(PlateImageManager.PALLET_IMAGE_FILE);
+        File platesFile = new File(PlateBoundsWidget.PALLET_IMAGE_FILE);
         if (platesFile.exists()) {
             platesFile.delete();
         }
@@ -121,9 +122,9 @@ public class PlateBase extends FieldEditorPreferencePage implements
                                 PreferenceConstants.DLL_DEBUG_LEVEL);
                         final int result = ScanLib.getInstance().slScanImage(
                             debugLevel,
-                            (int) PlateImageManager.PALLET_IMAGE_DPI,
+                            (int) PlateBoundsWidget.PALLET_IMAGE_DPI,
                             brightness, contrast, 0, 0, 20, 20,
-                            PlateImageManager.PALLET_IMAGE_FILE);
+                            PlateBoundsWidget.PALLET_IMAGE_FILE);
 
                         parent.getDisplay().asyncExec(new Runnable() {
                             public void run() {
@@ -137,12 +138,12 @@ public class PlateBase extends FieldEditorPreferencePage implements
                                 }
 
                                 File platesFile = new File(
-                                    PlateImageManager.PALLET_IMAGE_FILE);
+                                    PlateBoundsWidget.PALLET_IMAGE_FILE);
                                 if (platesFile.exists()) {
                                     for (int i = 0; i < 4; ++i) {
                                         textControls[i].setEnabled(true);
                                     }
-                                    if (plateImageManager != null) {
+                                    if (plateBoundsWidget != null) {
                                         canvas.redraw();
                                         canvas.update();
                                     }
@@ -186,30 +187,24 @@ public class PlateBase extends FieldEditorPreferencePage implements
             textControls[i].addModifyListener(new ModifyListener() {
                 @Override
                 public void modifyText(ModifyEvent e) {
-                    if (plateImageManager == null)
+                    if (plateBoundsWidget == null)
                         return;
                     try {
                         Text source = (Text) e.getSource();
 
                         if (source == textControls[0]) {
-                            plateImageManager.assignRegionLeft(Double
+                            plateBoundsWidget.assignRegionLeft(Double
                                 .parseDouble(source.getText()));
                         } else if (source == textControls[1]) {
-                            plateImageManager.assignRegionTop(Double
+                            plateBoundsWidget.assignRegionTop(Double
                                 .parseDouble(source.getText()));
                         } else if (source == textControls[2]) {
-                            plateImageManager.assignRegionRight(Double
+                            plateBoundsWidget.assignRegionRight(Double
                                 .parseDouble(source.getText()));
                         } else if (source == textControls[3]) {
-                            plateImageManager.assignRegionBottom(Double
+                            plateBoundsWidget.assignRegionBottom(Double
                                 .parseDouble(source.getText()));
                         }
-
-                        Double.valueOf(textControls[0].getText());
-                        Double.valueOf(textControls[1].getText());
-                        Double.valueOf(textControls[2].getText());
-                        Double.valueOf(textControls[3].getText());
-
                         setValid(true);
                     } catch (NumberFormatException ex) {
                         setValid(false);
@@ -222,12 +217,6 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
     @Override
     public void setValid(boolean enable) {
-        // not sure if this is needed anymore
-        //
-        // if (System.getProperty("os.name").startsWith("Windows"))
-        // super.setValid(enable);
-        //
-        // replace with single line below for now
         super.setValid(enable);
 
         getContainer().updateButtons();
@@ -272,8 +261,19 @@ public class PlateBase extends FieldEditorPreferencePage implements
             Assert.isTrue(false, "Invalid value for plateId: " + plateId);
         }
 
-        plateImageManager = new PlateImageManager(canvas, new ScannerRegion(
-            origScannerRegion), c, textControls);
+        plateBoundsWidget = new PlateBoundsWidget(canvas, new ScannerRegion(
+            origScannerRegion), c);
+        plateBoundsWidget.addChangeListener(new IPlateBoundsListener() {
+
+            @Override
+            public void change() {
+                ScannerRegion r = plateBoundsWidget.getPlateRetion();
+                textControls[0].setText(String.valueOf(r.left));
+                textControls[1].setText(String.valueOf(r.top));
+                textControls[2].setText(String.valueOf(r.right));
+                textControls[3].setText(String.valueOf(r.bottom));
+            }
+        });
     }
 
     @Override
