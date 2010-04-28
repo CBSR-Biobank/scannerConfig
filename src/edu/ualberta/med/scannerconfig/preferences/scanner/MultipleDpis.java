@@ -26,7 +26,7 @@ public class MultipleDpis extends FieldEditorPreferencePage implements
 
         for (int i = 0, n = PreferenceConstants.SCANNER_MULTIPLE_DPIS.length; i < n; ++i) {
             rgFe = new RadioGroupFieldEditor(
-                PreferenceConstants.SCANNER_MULTIPLE_DPIS[0], "DPI " + (i + 1),
+                PreferenceConstants.SCANNER_MULTIPLE_DPIS[i], "DPI " + (i + 1),
                 5, validDpis, getFieldEditorParent(), true);
             addField(rgFe);
         }
