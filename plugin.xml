@@ -11,7 +11,8 @@
             <command
                   commandId="org.eclipse.ui.window.preferences"
                   id="edu.ualberta.med.scannerconfig.menu.preferences"
-                  label="Preferences"
+                  icon="icons/table_lightning.png"
+                  label="Preferences..."
                   style="push">
             </command>
          </menu>
