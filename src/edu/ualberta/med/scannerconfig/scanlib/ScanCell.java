@@ -33,8 +33,9 @@ public class ScanCell {
 
     public static ScanCell[][] getScanLibResults() throws Exception {
         ScanCell[][] paletteScanned = new ScanCell[ROW_MAX][COL_MAX];
-
+        
         BufferedReader in = new BufferedReader(new FileReader("scanlib.txt"));
+        
         String str;
         while ((str = in.readLine()) != null) {
             if (str.charAt(0) == '#')

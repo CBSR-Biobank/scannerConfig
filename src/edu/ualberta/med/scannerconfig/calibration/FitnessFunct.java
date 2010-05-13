@@ -5,10 +5,18 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Date;
+import java.util.Random;
 import java.util.Scanner;
 
 import org.jgap.FitnessFunction;
 import org.jgap.IChromosome;
+
+import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
+import edu.ualberta.med.scannerconfig.ScannerRegion;
+import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
+import edu.ualberta.med.scannerconfig.scanlib.ScanCell;
+import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
 
 public class FitnessFunct extends FitnessFunction {
     /**
@@ -31,9 +39,9 @@ public class FitnessFunct extends FitnessFunction {
 
     public final static int CORRECTION_LIST[] = { 0, 1, 5, 10, 15, 20 };
 
-    public final static int BRIGHTNESS_LIST[] = { 0, 1, 5, 10, 15, 20 };
+    public final static int BRIGHTNESS_LIST[] = { -500,-250,-100,-50,-20,-10,0,10,20,50,100,250,500};
 
-    public final static int CONTRAST_LIST[] = { 0, 1, 5, 10, 15, 20 };
+    public final static int CONTRAST_LIST[] = { -500,-250,-100,-50,-20,-10,0,10,20,50,100,250,500};
 
 
     public static int getSquareDev(IChromosome chroma) {
@@ -65,15 +73,16 @@ public class FitnessFunct extends FitnessFunction {
     }
     
     public static double getAccuracy(IChromosome chroma){
-        double tubesScanned = Math.ceil(Math.log(chroma.getFitnessValue())/Math.log(1.1));
-        return (tubesScanned / (12.0*8.0+1.0))*100.0; //12x8 + CSV line
-        
+    	return (chroma.getFitnessValue()/96.00)*100.0;
+        //double tubesScanned = Math.ceil(Math.log(chroma.getFitnessValue())/Math.log(1.1));
+        //return (tubesScanned / (12.0*8.0))*100.0; //12x8 + CSV line
     }
 
     
     @Override
     protected double evaluate(IChromosome chroma) {
-        return Math.pow(1.1, scanlibCount(chroma));
+    	return scanlibCount(chroma);
+        //return Math.pow(1.1, scanlibCount(chroma));
     }
     
     
@@ -85,8 +94,7 @@ public class FitnessFunct extends FitnessFunction {
         if (scanlibFile.exists()) {
             scanlibFile.delete();
         }
-        
-        
+
         //WIA
         double gap = getGap(chroma);
         double celldist = getCellDist(chroma);
@@ -100,14 +108,25 @@ public class FitnessFunct extends FitnessFunction {
             int brightness = getBrightness(chroma);
             int contrast = getContrast(chroma);
             
-            //XXX scan and decode   
+			int tubesscanned = ScannerConfigPlugin.getTestTubesScanned(
+            		1, 600, brightness, contrast,
+            		0, threshold, gap, squareDev, 
+            		corrections,celldist);
+			
+			System.out.println("Tubes Scanned: " + tubesscanned);
+			
+			return tubesscanned;
         }
-        else{
-            //XXX decode from calibrate.bmp with the settings above
+        else{ //WIA
+            //XXX decode from calibration.bmp with the settings above
+        	int retcode = ScanLib.getInstance().slDecodeImage(
+        			0, 1, "calibration.bmp", gap, squareDev, threshold, corrections, celldist);
+        	int tubesscanned =  countTubesScanned();
+        	
+        	System.out.println("Tubes ScannedX: " + tubesscanned + " Ret: " + retcode);
+			return tubesscanned;
         }
         
-        
-        return countTubesScanned();
     }
     
     
@@ -123,12 +142,14 @@ public class FitnessFunct extends FitnessFunction {
                                 new FileReader("scanlib.txt")));
             } catch (IOException e) {
             }
-
             while (fileInput.hasNextLine()) {
                 tubesScanned++;
                 fileInput.nextLine();
             }
         }
+        if(tubesScanned > 0) //CSV line
+        	--tubesScanned;
+        
         return tubesScanned;
     }
 
