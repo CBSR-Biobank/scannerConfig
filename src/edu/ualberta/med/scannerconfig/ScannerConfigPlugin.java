@@ -297,6 +297,12 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             .getActiveWorkbenchWindow().getShell(), title, message);
     }
 
+    public static boolean openConfim(String title, String message) {
+        return MessageDialog.openConfirm(PlatformUI.getWorkbench()
+            .getActiveWorkbenchWindow().getShell(), title, message);
+    }
+
+    
     /**
      * Display an error message asynchronously
      */

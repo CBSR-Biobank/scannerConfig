@@ -11,6 +11,8 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
+import edu.ualberta.med.scannerconfig.calibration.AutoCalibrate;
+import edu.ualberta.med.scannerconfig.calibration.FitnessFunct;
 import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
 
 public class Scanner extends FieldEditorPreferencePage implements
@@ -103,6 +105,56 @@ public class Scanner extends FieldEditorPreferencePage implements
             getFieldEditorParent());
         dblFe.setValidRange(0.0, 1.0);
         addField(dblFe);
+        
+        Button autoCalibrateBtn = new Button(getFieldEditorParent(),SWT.NONE);
+        autoCalibrateBtn.setText("Automatically Calibrate");
+        autoCalibrateBtn.setImage(ScannerConfigPlugin.getDefault().getImageRegistry().get(
+            ScannerConfigPlugin.IMG_SCANNER));
+        autoCalibrateBtn.addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                
+                if(!ScannerConfigPlugin.getDefault().getPlateEnabled(1)){
+                    ScannerConfigPlugin.openError(
+                        "Auto-Calibration Requirements", 
+                        "To auto-calibrate plate 1 must be enabled and configured.");
+                    return;
+                }
+                //ASSUMING WIA
+             
+                try {
+                    AutoCalibrate autoCalibrate = new AutoCalibrate(false,10);
+                    
+                    
+                    do
+                    {
+                    for(int i=0; i < 5; i++){
+                        autoCalibrate.iterateEvolution();
+                        FitnessFunct.getSquareDev(autoCalibrate.getBestChromosome());
+                        
+                        FitnessFunct.getAccuracy(autoCalibrate.getBestChromosome());
+                        //XXX unfinished list
+                        
+                        
+                    }
+                    }while(true); //XXX user confirmation to continue;
+                    
+                    
+                    
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+               
+                
+                
+            }
+        });
+        
     }
 
     @Override
