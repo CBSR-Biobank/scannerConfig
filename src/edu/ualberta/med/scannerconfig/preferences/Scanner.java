@@ -178,7 +178,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 					}
 				}
 
-				AutoCalibrate autocalibrate = new AutoCalibrate(isTwain, 20);//10
+				AutoCalibrate autocalibrate = new AutoCalibrate(isTwain, 30);//10
 
 				if (!autocalibrate.isInitialized()) {
 					ScannerConfigPlugin
@@ -188,13 +188,16 @@ public class Scanner extends FieldEditorPreferencePage implements
 				}
 				
 				do {
-					for (int i = 0; i < 2; i++) {//5
-					    long before = System.currentTimeMillis();
+					
+					long before = System.currentTimeMillis();
+					
+					for (int i = 0; i < 1; i++) {//5
 						autocalibrate.iterateEvolution();
-						long now = System.currentTimeMillis();
-						
-						System.out.println("Iterated Evolution Step, Time Taken: "+ (now-before)/1000.0);
 					}
+					
+					long now = System.currentTimeMillis();
+					
+					System.out.println("Giant Evolution Step, Time Taken: "+ (now-before)/1000.0 + " seconds.");
 
 					if (FitnessFunct.getAccuracy(autocalibrate
 							.getBestChromosome()) > 99) {

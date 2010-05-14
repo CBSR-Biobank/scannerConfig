@@ -24,25 +24,37 @@ public class FitnessFunct extends FitnessFunction {
      */
     private static final long serialVersionUID = 1L;
 
+    //(0.33 is recommended)
+    //Accuracy:  constant between range: [0.032,0.036)
+    //Speed: very small impact (inversely proportional to speed)
+	public final static double CELLDIST_LIST[] = {0.32, 0.33, 0.34, 0.345, 0.35, 0.36};
 
-    public final static double CELLDIST_LIST[] = { 0.32, 0.325, 0.33, 0.335,
-            0.34, 0.345, 0.35, 0.355 };
+	
+	//(0.085 is recommended)
+	//Accuracy: constant between range: [0.065,0.096) , outside that range, accuracy drops fast.
+	//Speed: small impact when in-between the suggested [0.065,0.096) range. ( gap setting is directly proportional to speed)
+	public final static double GAPS_LIST[] = {0.065, 0.075, 0.085, 0.090, 0.093, 0.096};
 
-    public final static double GAPS_LIST[] = { 0.06, 0.065, 0.07, 0.075, 0.08,
-            0.085 };
+	//(5 is recommended)
+    //Accuracy: high level of impact, optimal threshold range: (0,10). 
+    //Speed: no noticeable impact
+	public final static int THRESHOLD_LIST[] = { 2,3,5,7,8}; //0-100
 
-    public final static int THRESHOLD_LIST[] = { 5, 10, 15, 20, 25, 30, 35, 40,
-            45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100 };
+	//(15 is recommended)
+	//Accuracy: constant when set to 10+ . 
+    //Speed: small impact, inversely proportional to speed.
+	public final static int SQUAREDEV_LIST[] = {10, 12, 15, 17, 18};
 
-    public final static int SQUAREDEV_LIST[] = { 1, 3, 4, 5, 6, 7, 8, 9, 10,
-            11, 12, 13, 14, 15 };
+	//(10 is recommended)
+	//Accuracy: constant when set to 5+ 
+    //Speed: no noticeable impact
+	public final static int CORRECTION_LIST[] = {5, 6, 8, 10, 12};
 
-    public final static int CORRECTION_LIST[] = { 0, 1, 5, 10, 15, 20 };
+	public final static int BRIGHTNESS_LIST[] = { -750, -500, -250, -100, -50,
+			-20, -10, 0, 10, 20, 50, 100, 250, 500, 750 };
 
-    public final static int BRIGHTNESS_LIST[] = { -500,-250,-100,-50,-20,-10,0,10,20,50,100,250,500};
-
-    public final static int CONTRAST_LIST[] = { -500,-250,-100,-50,-20,-10,0,10,20,50,100,250,500};
-
+	public final static int CONTRAST_LIST[] = { -750, -500, -250, -100, -50,
+			-20, -10, 0, 10, 20, 50, 100, 250, 500, 750 };
 
     public static int getSquareDev(IChromosome chroma) {
         return SQUAREDEV_LIST[(Integer) chroma.getGene(0).getAllele()];
@@ -113,20 +125,36 @@ public class FitnessFunct extends FitnessFunction {
             		0, threshold, gap, squareDev, 
             		corrections,celldist);
 			
-			System.out.println("TWAIN Tubes Scanned: " + tubesscanned);
+			System.out.printf("TWAIN Tubes Scanned: %02d, Return: %01d, Set: " + 
+        			"bright: %03d, contra: %03d, gap: %.3f, squdev: %02d, thres: %03d, corr: %02d, celld: %.3f\n",
+        			tubesscanned,0, brightness,contrast,gap,squareDev,threshold,corrections,celldist);
 			
 			return tubesscanned;
         }
         else{ //WIA
-        	int retcode = ScanLib.getInstance().slDecodeImage(
-        			0, 1, "calibration.bmp", gap, squareDev, threshold, corrections, celldist);
         	
+        	
+			long before = System.currentTimeMillis();
+			
+			
+			int retcode = ScanLib.getInstance().slDecodeImage(
+        			0, 1, "calibration.bmp", gap, squareDev, threshold, corrections, celldist);
+			
+			long scanTime = (System.currentTimeMillis()-before)/1000; //sec
+			
+			
         	if(retcode != ScanLib.SC_SUCCESS){
+        		System.out.printf("Scanlib: Could not decode image\n");
+        		System.out.printf("Evil Settings: " + 
+            			"gap: %.3f, squdev: %02d, thres: %03d, corr: %02d, celld: %.3f\n",
+            			gap,squareDev,threshold,corrections,celldist);
         	    return 0;
         	}
         	
         	int tubesscanned =  countTubesScanned();
-        	System.out.println("WIA Tubes Scanned: " + tubesscanned + " Ret: " + retcode);
+        	System.out.printf("WIA Tubes Scanned: %02d, Time: %04d Return: %01d, Set: " + 
+        			"gap: %.3f, squdev: %02d, thres: %03d, corr: %02d, celld: %.3f\n",
+        			tubesscanned,scanTime,retcode,gap,squareDev,threshold,corrections,celldist);
 			return tubesscanned;
         }
         
