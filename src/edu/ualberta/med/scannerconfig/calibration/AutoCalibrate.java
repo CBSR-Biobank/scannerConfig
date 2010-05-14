@@ -16,10 +16,14 @@ public class AutoCalibrate {
 	private Genotype population;
 
 	boolean Initialized;
+	String errorMsg;
 
 	public boolean isInitialized() {
 		return Initialized;
 	}
+	 public String getErrorMessage() {
+	        return errorMsg;
+	 }
 
 	public void iterateEvolution() { // Perform ~20 for success;
 		population.evolve();
@@ -32,9 +36,12 @@ public class AutoCalibrate {
 	// / initialPopulation should be 10-15
 	public AutoCalibrate(boolean TwainDriver, int initialPopulation) {
 		try {
-
+		    Configuration.reset();
+		    
 			rand = new Random((new Date()).getTime());
 			conf = new DefaultConfiguration();
+			
+			
 			fitnessFunct = new FitnessFunct();
 			conf.setFitnessFunction(fitnessFunct);
 
@@ -67,6 +74,7 @@ public class AutoCalibrate {
 			sampleChromosome = new Chromosome(conf, sampleGenes);
 			conf.setSampleChromosome(sampleChromosome);
 			conf.setPopulationSize(initialPopulation);
+			
 
 			// Time Used as Seed
 			RandomGenerator rg = new RandomGenerator() {
@@ -110,9 +118,12 @@ public class AutoCalibrate {
 			population = Genotype.randomInitialGenotype(conf);
 
 		} catch (InvalidConfigurationException e) {
+		    errorMsg = e.getMessage();
 			Initialized = false;
 			return;
 		}
+		errorMsg = "";
 		Initialized = true;
+		
 	}
 }

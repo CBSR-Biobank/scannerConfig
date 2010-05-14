@@ -343,6 +343,11 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         MessageDialog.openError(PlatformUI.getWorkbench()
             .getActiveWorkbenchWindow().getShell(), title, message);
     }
+    public static void openInformation(String title, String message) {
+        MessageDialog.openInformation(PlatformUI.getWorkbench()
+            .getActiveWorkbenchWindow().getShell(), title, message);
+    }
+
 
     public static boolean openConfim(String title, String message) {
         return MessageDialog.openConfirm(PlatformUI.getWorkbench()
@@ -353,6 +358,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     /**
      * Display an error message asynchronously
      */
+
+    
     public static void openAsyncError(final String title, final String message) {
         Display.getDefault().asyncExec(new Runnable() {
             public void run() {

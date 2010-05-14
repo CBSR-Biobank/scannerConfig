@@ -95,7 +95,7 @@ public class FitnessFunct extends FitnessFunction {
             scanlibFile.delete();
         }
 
-        //WIA
+ 
         double gap = getGap(chroma);
         double celldist = getCellDist(chroma);
         
@@ -108,22 +108,26 @@ public class FitnessFunct extends FitnessFunction {
             int brightness = getBrightness(chroma);
             int contrast = getContrast(chroma);
             
+            //TWAIN, dpi = 600, plate = 1
 			int tubesscanned = ScannerConfigPlugin.getTestTubesScanned(
             		1, 600, brightness, contrast,
             		0, threshold, gap, squareDev, 
             		corrections,celldist);
 			
-			System.out.println("Tubes Scanned: " + tubesscanned);
+			System.out.println("TWAIN Tubes Scanned: " + tubesscanned);
 			
 			return tubesscanned;
         }
         else{ //WIA
-            //XXX decode from calibration.bmp with the settings above
         	int retcode = ScanLib.getInstance().slDecodeImage(
         			0, 1, "calibration.bmp", gap, squareDev, threshold, corrections, celldist);
-        	int tubesscanned =  countTubesScanned();
         	
-        	System.out.println("Tubes ScannedX: " + tubesscanned + " Ret: " + retcode);
+        	if(retcode != ScanLib.SC_SUCCESS){
+        	    return 0;
+        	}
+        	
+        	int tubesscanned =  countTubesScanned();
+        	System.out.println("WIA Tubes Scanned: " + tubesscanned + " Ret: " + retcode);
 			return tubesscanned;
         }
         
