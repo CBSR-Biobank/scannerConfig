@@ -95,7 +95,6 @@ public class FitnessFunct extends FitnessFunction {
             scanlibFile.delete();
         }
 
- 
         double gap = getGap(chroma);
         double celldist = getCellDist(chroma);
         

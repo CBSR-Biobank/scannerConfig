@@ -40,8 +40,6 @@ public class AutoCalibrate {
 		    
 			rand = new Random((new Date()).getTime());
 			conf = new DefaultConfiguration();
-			
-			
 			fitnessFunct = new FitnessFunct();
 			conf.setFitnessFunction(fitnessFunct);
 
@@ -74,7 +72,6 @@ public class AutoCalibrate {
 			sampleChromosome = new Chromosome(conf, sampleGenes);
 			conf.setSampleChromosome(sampleChromosome);
 			conf.setPopulationSize(initialPopulation);
-			
 
 			// Time Used as Seed
 			RandomGenerator rg = new RandomGenerator() {
