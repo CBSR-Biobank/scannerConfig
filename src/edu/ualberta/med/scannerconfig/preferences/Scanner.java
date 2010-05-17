@@ -1,5 +1,6 @@
 package edu.ualberta.med.scannerconfig.preferences;
 
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,12 +11,17 @@ import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.calibration.*;
+import edu.ualberta.med.scannerconfig.imageprocessing.filters.Contrast;
+import edu.ualberta.med.scannerconfig.imageprocessing.imagelab.ImageProvider;
 import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
 
 public class Scanner extends FieldEditorPreferencePage implements
@@ -155,6 +161,8 @@ public class Scanner extends FieldEditorPreferencePage implements
 										+ "test tubes for this process.\n")) {
 				    return;
 				}
+				
+				
 				boolean isTwain = false; // TESTING WITH WIA FIRST
 
 				if (!isTwain) { // WIA

@@ -118,9 +118,12 @@ public class FitnessFunct extends FitnessFunction {
 
 			int brightness = getBrightness(chroma);
 			int contrast = getContrast(chroma);
+			
+			int dpi = ScannerConfigPlugin.getDefault().getPreferenceStore().getInt(
+		            PreferenceConstants.SCANNER_DPI);
 
-			// TWAIN, dpi = 600, plate = 1
-			int tubesscanned = ScannerConfigPlugin.getTestTubesScanned(1, 600,
+			//plate = 1
+			int tubesscanned = ScannerConfigPlugin.getTestTubesScanned(1, dpi,
 					brightness, contrast, 0, threshold, gap, squareDev,
 					corrections, celldist);
 
@@ -168,7 +171,7 @@ public class FitnessFunct extends FitnessFunction {
 
 	}
 
-	private static int countTubesScanned() {
+	public static int countTubesScanned() {
 		File scanlibFile = new File("scanlib.txt");
 		Scanner fileInput = null;
 		int tubesScanned = 0;
