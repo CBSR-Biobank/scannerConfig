@@ -4,18 +4,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Date;
-import java.util.Random;
 import java.util.Scanner;
 
 import org.jgap.FitnessFunction;
 import org.jgap.IChromosome;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
-import edu.ualberta.med.scannerconfig.ScannerRegion;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
-import edu.ualberta.med.scannerconfig.scanlib.ScanCell;
 import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
 
 public class FitnessFunct extends FitnessFunction {
@@ -118,11 +113,11 @@ public class FitnessFunct extends FitnessFunction {
 
 			int brightness = getBrightness(chroma);
 			int contrast = getContrast(chroma);
-			
-			int dpi = ScannerConfigPlugin.getDefault().getPreferenceStore().getInt(
-		            PreferenceConstants.SCANNER_DPI);
 
-			//plate = 1
+			int dpi = ScannerConfigPlugin.getDefault().getPreferenceStore()
+					.getInt(PreferenceConstants.SCANNER_DPI);
+
+			// plate = 1
 			int tubesscanned = ScannerConfigPlugin.getTestTubesScanned(1, dpi,
 					brightness, contrast, 0, threshold, gap, squareDev,
 					corrections, celldist);
