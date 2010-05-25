@@ -151,8 +151,12 @@ public class Scanner extends FieldEditorPreferencePage implements
 										+ "test tubes for this process.\n")) {
 					return;
 				}
+				boolean isTwain = false;
 
-				boolean isTwain = false; // TESTING WITH WIA FIRST
+				if (ScannerConfigPlugin.getDefault().getPreferenceStore()
+						.getString(PreferenceConstants.SCANNER_DRV_TYPE) == PreferenceConstants.SCANNER_DRV_TYPE_TWAIN) {
+					isTwain = true;
+				}
 
 				if (!isTwain) { // WIA
 
