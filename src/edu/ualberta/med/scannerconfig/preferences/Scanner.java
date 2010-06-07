@@ -1,16 +1,21 @@
 package edu.ualberta.med.scannerconfig.preferences;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -24,6 +29,10 @@ public class Scanner extends FieldEditorPreferencePage implements
 
 	private Map<String, DoubleFieldEditor> dblFieldMap = new HashMap<String, DoubleFieldEditor>();
 	private Map<String, IntegerFieldEditor> intFieldMap = new HashMap<String, IntegerFieldEditor>();
+
+	private List<Integer> possibleDpis = Arrays.asList(300, 400, 600);
+
+	private List<Integer> allowedDpis = null;
 
 	public Scanner() {
 		super(GRID);
@@ -66,10 +75,26 @@ public class Scanner extends FieldEditorPreferencePage implements
 				getFieldEditorParent(), true);
 		addField(rgFe);
 
+		// check with scanner for valid dpi's
+		if (allowedDpis == null) {
+			allowedDpis = new ArrayList<Integer>();
+
+			BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
+				public void run() {
+					for (Integer dpi : possibleDpis) {
+						allowedDpis.add(dpi);
+					}
+				}
+			});
+		}
+
+		String[][] options = new String[allowedDpis.size()][2];
+		for (int i = 0; i < allowedDpis.size(); ++i) {
+			options[i][0] = options[i][1] = allowedDpis.get(i).toString();
+		}
+
 		rgFe = new RadioGroupFieldEditor(PreferenceConstants.SCANNER_DPI,
-				"DPI", 5, new String[][] { { "300", "300" }, { "400", "400" },
-						{ "600", "600" }, { "720", "720" }, { "800", "800" } },
-				getFieldEditorParent(), true);
+				"DPI", 5, options, getFieldEditorParent(), true);
 		addField(rgFe);
 
 		IntegerFieldEditor intFe = new IntegerFieldEditor(
