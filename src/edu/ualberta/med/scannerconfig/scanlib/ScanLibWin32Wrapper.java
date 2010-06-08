@@ -17,7 +17,7 @@ public class ScanLibWin32Wrapper {
     return ScanLibWin32WrapperJNI.slSelectSourceAsDefault();
   }
 
-  public static boolean slIsValidDpi(int dpi) {
+  public static int slIsValidDpi(int dpi) {
     return ScanLibWin32WrapperJNI.slIsValidDpi(dpi);
   }
 

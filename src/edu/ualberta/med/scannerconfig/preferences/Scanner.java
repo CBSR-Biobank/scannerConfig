@@ -82,7 +82,9 @@ public class Scanner extends FieldEditorPreferencePage implements
 			BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 				public void run() {
 					for (Integer dpi : possibleDpis) {
-						allowedDpis.add(dpi);
+						if (ScanLib.getInstance().slIsValidDpi(dpi)) {
+							allowedDpis.add(dpi);
+						}
 					}
 				}
 			});

@@ -14,7 +14,7 @@ public class ScanLibWin32 extends ScanLib {
 
 	@Override
 	public boolean slIsValidDpi(int dpi) {
-		return ScanLibWin32Wrapper.slIsValidDpi(dpi);
+		return (ScanLibWin32Wrapper.slIsValidDpi(dpi) == 1);
 	}
 
 	@Override

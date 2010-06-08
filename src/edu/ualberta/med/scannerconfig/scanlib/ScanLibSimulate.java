@@ -24,7 +24,7 @@ public class ScanLibSimulate extends ScanLib {
 
 	@Override
 	public boolean slIsValidDpi(int dpi) {
-		return false;
+		return true;
 	}
 
 	@Override
