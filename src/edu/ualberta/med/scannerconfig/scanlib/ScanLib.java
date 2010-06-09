@@ -142,6 +142,17 @@ public abstract class ScanLib {
 	public abstract boolean slIsValidDpi(int dpi);
 
 	/**
+	 * 
+	 * Queries the selected scanner and determines if the driver is of type WIA
+	 * or TWAIN.
+	 * 
+	 * @return The driver types are differentiated by the driver name. This
+	 *         function returns true when the driver is of type WIA.
+	 * 
+	 */
+	public abstract boolean slIsDriverWia();
+
+	/**
 	 * Scans an image for the specified dimensions. The image is in Windows BMP
 	 * format.
 	 * 

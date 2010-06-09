@@ -178,6 +178,12 @@ public class Scanner extends FieldEditorPreferencePage implements
 		setEnableAllWidgets((ScanLib.getInstance().slIsValidDpi(300)
 				|| ScanLib.getInstance().slIsValidDpi(400) || ScanLib
 				.getInstance().slIsValidDpi(600)));
+
+		if (ScanLib.getInstance().slIsDriverWia()) {
+			System.out.println("DRIVER IS WIA");
+		} else {
+			System.out.println("DRIVER IS TWAIN");
+		}
 	}
 
 	private void setPalletImageDpi() {

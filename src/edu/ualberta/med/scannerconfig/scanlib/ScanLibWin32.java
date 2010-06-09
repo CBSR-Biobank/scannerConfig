@@ -18,6 +18,11 @@ public class ScanLibWin32 extends ScanLib {
 	}
 
 	@Override
+	public boolean slIsDriverWia() {
+		return (ScanLibWin32Wrapper.slIsDriverWia() == 1);
+	}
+
+	@Override
 	public int slScanImage(long verbose, long dpi, int brightness,
 			int contrast, double left, double top, double right, double bottom,
 			String filename) {

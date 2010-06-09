@@ -90,4 +90,9 @@ public class ScanLibSimulate extends ScanLib {
 			double cellDistance) {
 		return -1;
 	}
+
+	@Override
+	public boolean slIsDriverWia() {
+		return true;
+	}
 }
