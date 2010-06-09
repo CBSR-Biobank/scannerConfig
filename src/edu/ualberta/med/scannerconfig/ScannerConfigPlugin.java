@@ -298,7 +298,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1]);
     }
 
-    private static void regionModifyIfScannerWia(ScannerRegion region) {
+	private static void regionModifyIfScannerWia(ScannerRegion region) {
         if (!ScannerConfigPlugin.getDefault().getPreferenceStore().getString(
             PreferenceConstants.SCANNER_DRV_TYPE).equals(
             PreferenceConstants.SCANNER_DRV_TYPE_WIA))

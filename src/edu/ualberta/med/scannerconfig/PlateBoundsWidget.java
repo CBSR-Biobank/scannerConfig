@@ -1,5 +1,6 @@
 package edu.ualberta.med.scannerconfig;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 
 import org.eclipse.core.runtime.Assert;
@@ -22,7 +23,7 @@ public class PlateBoundsWidget {
 
 	public static final String PALLET_IMAGE_FILE = "plates.bmp";
 
-	public static final double PALLET_IMAGE_DPI = 300.0;
+	public static double PALLET_IMAGE_DPI = 300.0;
 
 	private boolean pointTopLeft;
 
@@ -66,12 +67,23 @@ public class PlateBoundsWidget {
 
 				getPlateRect();
 
+				
 				if (pointTopLeft) {
+					
+					if(Point2D.distance(e.x,e.y,plateRect.x+plateRect.width,plateRect.y+plateRect.height) < 20){
+						return;
+					}
+					
 					plateRect.x = e.x;
 					plateRect.y = e.y;
 					plateRect.width = 0;
 					plateRect.height = 0;
 				} else {
+					
+					if(Point2D.distance(e.x,e.y,plateRect.x,plateRect.y) < 20){
+						return;
+					}
+					
 					if (e.x > plateRect.x) {
 						plateRect.width = e.x - plateRect.x;
 					} else {
@@ -123,6 +135,8 @@ public class PlateBoundsWidget {
 						0, canvasBounds.width, canvasBounds.height);
 				gc.setForeground(mycolor);
 				gc.drawRectangle(plateRect);
+				gc.drawOval(plateRect.x-3, plateRect.y-3, 6, 6);
+				gc.drawOval(plateRect.x+plateRect.width-3, plateRect.y+plateRect.height-3, 6, 6);
 				gc.dispose();
 			}
 		});

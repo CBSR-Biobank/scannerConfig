@@ -10,19 +10,21 @@ import java.util.Map;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
+import edu.ualberta.med.scannerconfig.PlateBoundsWidget;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.calibration.AutoCalibrate;
 import edu.ualberta.med.scannerconfig.calibration.FitnessFunct;
 import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
 
 public class Scanner extends FieldEditorPreferencePage implements
 		IWorkbenchPreferencePage {
@@ -32,21 +34,35 @@ public class Scanner extends FieldEditorPreferencePage implements
 
 	private List<Integer> possibleDpis = Arrays.asList(300, 400, 600);
 
-	private List<Integer> allowedDpis = null;
+	private List<Integer> allowedDpis = new ArrayList<Integer>();
+
+	Button selectScannerBtn, autoCalibrateBtn;
+
+	RadioGroupFieldEditor driverTypeRadio;
+	AdvancedRadioGroupFieldEditor dpiRadio;
+
+	IntegerFieldEditor brightnessInputField, contrastInputField,
+			debugLevelInputField, thresholdInputField, squaredevInputField,
+			correctionsInputField;
+
+	DoubleFieldEditor scanGapDblInput, celldistDblInput;
+
+	Scanner self = null;
 
 	public Scanner() {
 		super(GRID);
+		self = this;
 		setPreferenceStore(ScannerConfigPlugin.getDefault()
 				.getPreferenceStore());
 	}
 
 	@Override
 	public void createFieldEditors() {
-		Button b = new Button(getFieldEditorParent(), SWT.NONE);
-		b.setText("Select Scanner");
-		b.setImage(ScannerConfigPlugin.getDefault().getImageRegistry().get(
-				ScannerConfigPlugin.IMG_SCANNER));
-		b.addSelectionListener(new SelectionListener() {
+		selectScannerBtn = new Button(getFieldEditorParent(), SWT.NONE);
+		selectScannerBtn.setText("Select Scanner");
+		selectScannerBtn.setImage(ScannerConfigPlugin.getDefault()
+				.getImageRegistry().get(ScannerConfigPlugin.IMG_SCANNER));
+		selectScannerBtn.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -58,14 +74,21 @@ public class Scanner extends FieldEditorPreferencePage implements
 						.slSelectSourceAsDefault();
 
 				if (scanlibReturn != ScanLib.SC_SUCCESS) {
-					ScannerConfigPlugin.openError("Source Selection Error",
-							ScanLib.getErrMsg(scanlibReturn));
+					ScannerConfigPlugin
+							.openError("Source Selection Error",
+									"Please plug in a scanner and select an appropiate source driver.");
+					// Check WIA,TWAIN
+					setEnableAllWidgets(false);
+				} else {
+					// Check WIA,TWAIN
+
+					setEnableAllWidgets(true);
 				}
 
 			}
 		});
 
-		RadioGroupFieldEditor rgFe = new RadioGroupFieldEditor(
+		driverTypeRadio = new RadioGroupFieldEditor(
 				PreferenceConstants.SCANNER_DRV_TYPE,
 				"Driver Type",
 				2,
@@ -73,329 +96,348 @@ public class Scanner extends FieldEditorPreferencePage implements
 						{ "TWAIN", PreferenceConstants.SCANNER_DRV_TYPE_TWAIN },
 						{ "WIA", PreferenceConstants.SCANNER_DRV_TYPE_WIA } },
 				getFieldEditorParent(), true);
-		addField(rgFe);
+		addField(driverTypeRadio);
 
-		// check with scanner for valid dpi's
-		if (allowedDpis == null) {
-			allowedDpis = new ArrayList<Integer>();
+		dpiRadio = new AdvancedRadioGroupFieldEditor(
+				PreferenceConstants.SCANNER_DPI, "DPI", 5, new String[][] {
+						{ "300", "300" }, { "400", "400" }, { "600", "600" } },
+				getFieldEditorParent(), true);
 
-			BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
-				public void run() {
-					for (Integer dpi : possibleDpis) {
-						if (ScanLib.getInstance().slIsValidDpi(dpi)) {
-							allowedDpis.add(dpi);
-						}
-					}
-				}
-			});
-		}
+		dpiRadio.setPropertyChangeListener(radioChangeListener);
+		addField(dpiRadio);
 
-		String[][] options = new String[allowedDpis.size()][2];
-		for (int i = 0; i < allowedDpis.size(); ++i) {
-			options[i][0] = options[i][1] = allowedDpis.get(i).toString();
-		}
-
-		rgFe = new RadioGroupFieldEditor(PreferenceConstants.SCANNER_DPI,
-				"DPI", 5, options, getFieldEditorParent(), true);
-		addField(rgFe);
-
-		IntegerFieldEditor intFe = new IntegerFieldEditor(
+		brightnessInputField = new IntegerFieldEditor(
 				PreferenceConstants.SCANNER_BRIGHTNESS, "Brightness:",
 				getFieldEditorParent());
-		intFe.setValidRange(-1000, 1000);
-		addField(intFe);
-		intFieldMap.put(intFe.getPreferenceName(), intFe);
+		brightnessInputField.setValidRange(-1000, 1000);
+		addField(brightnessInputField);
+		intFieldMap.put(brightnessInputField.getPreferenceName(),
+				brightnessInputField);
 
-		intFe = new IntegerFieldEditor(PreferenceConstants.SCANNER_CONTRAST,
-				"Contrast:", getFieldEditorParent());
-		intFe.setValidRange(-1000, 1000);
-		addField(intFe);
-		intFieldMap.put(intFe.getPreferenceName(), intFe);
+		contrastInputField = new IntegerFieldEditor(
+				PreferenceConstants.SCANNER_CONTRAST, "Contrast:",
+				getFieldEditorParent());
+		contrastInputField.setValidRange(-1000, 1000);
+		addField(contrastInputField);
+		intFieldMap.put(contrastInputField.getPreferenceName(),
+				contrastInputField);
 
-		intFe = new IntegerFieldEditor(PreferenceConstants.DLL_DEBUG_LEVEL,
+		debugLevelInputField = new IntegerFieldEditor(
+				PreferenceConstants.DLL_DEBUG_LEVEL,
 				"Decode Library Debug Level:", getFieldEditorParent());
-		intFe.setValidRange(0, 9);
-		addField(intFe);
-		intFieldMap.put(intFe.getPreferenceName(), intFe);
+		debugLevelInputField.setValidRange(0, 9);
+		addField(debugLevelInputField);
+		intFieldMap.put(debugLevelInputField.getPreferenceName(),
+				debugLevelInputField);
 
-		intFe = new IntegerFieldEditor(PreferenceConstants.LIBDMTX_EDGE_THRESH,
+		thresholdInputField = new IntegerFieldEditor(
+				PreferenceConstants.LIBDMTX_EDGE_THRESH,
 				"Decode Edge Threshold:", getFieldEditorParent());
-		intFe.setValidRange(0, 100);
-		addField(intFe);
-		intFieldMap.put(intFe.getPreferenceName(), intFe);
+		thresholdInputField.setValidRange(0, 100);
+		addField(thresholdInputField);
+		intFieldMap.put(thresholdInputField.getPreferenceName(),
+				thresholdInputField);
 
-		DoubleFieldEditor dblFe = new DoubleFieldEditor(
+		squaredevInputField = new IntegerFieldEditor(
+				PreferenceConstants.LIBDMTX_SQUARE_DEV,
+				"Decode Square Deviation:", getFieldEditorParent());
+		squaredevInputField.setValidRange(0, 90);
+		addField(squaredevInputField);
+		intFieldMap.put(squaredevInputField.getPreferenceName(),
+				squaredevInputField);
+
+		correctionsInputField = new IntegerFieldEditor(
+				PreferenceConstants.LIBDMTX_CORRECTIONS, "Decode Corrections:",
+				getFieldEditorParent());
+		correctionsInputField.setValidRange(0, 100);
+		addField(correctionsInputField);
+		intFieldMap.put(correctionsInputField.getPreferenceName(),
+				correctionsInputField);
+
+		scanGapDblInput = new DoubleFieldEditor(
 				PreferenceConstants.LIBDMTX_SCAN_GAP, "Decode Scan Gap:",
 				getFieldEditorParent());
-		dblFe.setValidRange(0.0, 1.0);
-		addField(dblFe);
-		dblFieldMap.put(PreferenceConstants.LIBDMTX_SCAN_GAP, dblFe);
+		scanGapDblInput.setValidRange(0.0, 1.0);
+		addField(scanGapDblInput);
+		dblFieldMap.put(PreferenceConstants.LIBDMTX_SCAN_GAP, scanGapDblInput);
 
-		intFe = new IntegerFieldEditor(PreferenceConstants.LIBDMTX_SQUARE_DEV,
-				"Decode Square Deviation:", getFieldEditorParent());
-		intFe.setValidRange(0, 90);
-		addField(intFe);
-		intFieldMap.put(intFe.getPreferenceName(), intFe);
-
-		intFe = new IntegerFieldEditor(PreferenceConstants.LIBDMTX_CORRECTIONS,
-				"Decode Corrections:", getFieldEditorParent());
-		intFe.setValidRange(0, 100);
-		addField(intFe);
-		intFieldMap.put(intFe.getPreferenceName(), intFe);
-
-		dblFe = new DoubleFieldEditor(
+		celldistDblInput = new DoubleFieldEditor(
 				PreferenceConstants.LIBDMTX_CELL_DISTANCE,
 				"Decode Cell Distance:", getFieldEditorParent());
-		dblFe.setValidRange(0.0, 1.0);
-		addField(dblFe);
-		dblFieldMap.put(PreferenceConstants.LIBDMTX_CELL_DISTANCE, dblFe);
+		celldistDblInput.setValidRange(0.0, 1.0);
+		addField(celldistDblInput);
+		dblFieldMap.put(PreferenceConstants.LIBDMTX_CELL_DISTANCE,
+				celldistDblInput);
 
-		Button autoCalibrateBtn = new Button(getFieldEditorParent(), SWT.NONE);
+		autoCalibrateBtn = new Button(getFieldEditorParent(), SWT.NONE);
 		autoCalibrateBtn.setText("Automatically Calibrate");
 		autoCalibrateBtn.setImage(ScannerConfigPlugin.getDefault()
 				.getImageRegistry().get(ScannerConfigPlugin.IMG_SCANNER));
-		autoCalibrateBtn.addSelectionListener(new SelectionListener() {
+		autoCalibrateBtn.addSelectionListener(calibrationListener);
 
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
+		setEnableAllWidgets((ScanLib.getInstance().slIsValidDpi(300)
+				|| ScanLib.getInstance().slIsValidDpi(400) || ScanLib
+				.getInstance().slIsValidDpi(600)));
+	}
 
-			@Override
-			public void widgetSelected(SelectionEvent e) {
+	private void setPalletImageDpi() {
+		if (allowedDpis.size() > 0) {
+			Integer smallestDpi = allowedDpis.get(0);
+			for (Integer dpi : allowedDpis)
+				if (dpi < smallestDpi)
+					smallestDpi = dpi;
 
-				if (!ScannerConfigPlugin.getDefault().getPlateEnabled(1)) {
-					ScannerConfigPlugin.openError(
-							"Auto-Calibration Requirements",
-							"Auto-Calibration is performed on Plate 1.\n"
-									+ "Please enable and configure Plate 1.\n");
-					return;
-				}
-				if (!ScannerConfigPlugin
-						.openConfim(
-								"Place Pallet on Plate 1",
-								"Please place a full pallet on Plate 1.\n"
-										+ "Note: It is recommended that you use the most difficult "
-										+ "test tubes for this process.\n")) {
-					return;
-				}
-				boolean isTwain = false;
+			PlateBoundsWidget.PALLET_IMAGE_DPI = smallestDpi;
+		} else {
+			PlateBoundsWidget.PALLET_IMAGE_DPI = 300;
+		}
+	}
 
-				if (ScannerConfigPlugin.getDefault().getPreferenceStore()
-						.getString(PreferenceConstants.SCANNER_DRV_TYPE) == PreferenceConstants.SCANNER_DRV_TYPE_TWAIN) {
-					isTwain = true;
-				}
+	private void setEnableAllWidgets(boolean enableSettings) {
 
-				if (!isTwain) { // WIA
+		/* move me in the future */
+		setPalletImageDpi();
 
-					/*
-					 * fitnessFunct uses the calibration.bmp file in wia mode.
-					 * this saves having to rescan the same image over and over.
-					 */
+		if (enableSettings) {
+			dpiRadio.setEnabledArray(new boolean[] {
+					ScanLib.getInstance().slIsValidDpi(300),
+					ScanLib.getInstance().slIsValidDpi(400),
+					ScanLib.getInstance().slIsValidDpi(600) },
+					getFieldEditorParent());
+		} else {
+			dpiRadio.setEnabled(false, getFieldEditorParent());
+		}
 
-					File calibrationImage = new File("calibration.bmp");
-					if (calibrationImage.exists()) {
-						calibrationImage.delete();
-					}
-					try {
-						ScannerConfigPlugin.scanPlate(1, "calibration.bmp");
-					} catch (Exception e1) {
-						ScannerConfigPlugin
-								.openAsyncError(
-										"Error Scanning",
-										"Failed to scan Plate 1 to file: calibration.bmp.\n"
-												+ "Please make sure Plate 1 is properly configured.");
-						return;
-					}
-				}
-
-				AutoCalibrate autocalibrate = new AutoCalibrate(isTwain, 15);// 10
-
-				if (!autocalibrate.isInitialized()) {
-					ScannerConfigPlugin
-							.openAsyncError("Auto Calibration Failed",
-									"An unexpected error occured, auto-calibration could not be started.");
-					return;
-				}
-
-				do {
-					for (int i = 0; i < 1; i++) {
-						autocalibrate.iterateEvolution();
-					}
-
-				} while (ScannerConfigPlugin.openConfim(
-						"Continue Calibrating?",
-						"Current settings discovered are able to scan "
-								+ FitnessFunct.getTubesScanned(autocalibrate
-										.getBestChromosome())
-								+ " test tubes.\n\n"
-								+ "Would you like to continue calibrating?"));
-
-				if (isTwain) {
-					// Update brightness,contrast text input boxes
-
-					if (ScannerConfigPlugin
-							.openConfim(
-									"Apply Settings?",
-									String
-											.format(
-													"\tSettings Obtained:\n\n"
-															+ "\tBrightness: %d\n"
-															+ "\tContrast: %d\n"
-															+ "\tEdge Threshold: %d\n"
-															+ "\tScan Gap: %.3f\n"
-															+ "\tSquare Deviation: %d\n"
-															+ "\tCorrections: %d\n"
-															+ "\tCell Distance: %.3f\n"
-															+ "\nWould you like to apply these settings?",
-													FitnessFunct
-															.getBrightness(autocalibrate
-																	.getBestChromosome()),
-													FitnessFunct
-															.getContrast(autocalibrate
-																	.getBestChromosome()),
-													FitnessFunct
-															.getThreshold(autocalibrate
-																	.getBestChromosome()),
-													FitnessFunct
-															.getGap(autocalibrate
-																	.getBestChromosome()),
-													FitnessFunct
-															.getSquareDev(autocalibrate
-																	.getBestChromosome()),
-													FitnessFunct
-															.getCorrections(autocalibrate
-																	.getBestChromosome()),
-													FitnessFunct
-															.getCellDist(autocalibrate
-																	.getBestChromosome())))) {
-
-						// UPDATE SETTINGS
-
-						intFieldMap.get(PreferenceConstants.SCANNER_BRIGHTNESS)
-								.setStringValue(
-										Integer.toString(FitnessFunct
-												.getBrightness(autocalibrate
-														.getBestChromosome())));
-						intFieldMap.get(PreferenceConstants.SCANNER_CONTRAST)
-								.setStringValue(
-										Integer.toString(FitnessFunct
-												.getContrast(autocalibrate
-														.getBestChromosome())));
-
-						intFieldMap
-								.get(PreferenceConstants.LIBDMTX_EDGE_THRESH)
-								.setStringValue(
-										Integer.toString(FitnessFunct
-												.getThreshold(autocalibrate
-														.getBestChromosome())));
-
-						dblFieldMap.get(PreferenceConstants.LIBDMTX_SCAN_GAP)
-								.setStringValue(
-										Double.toString(FitnessFunct
-												.getGap(autocalibrate
-														.getBestChromosome())));
-
-						intFieldMap.get(PreferenceConstants.LIBDMTX_SQUARE_DEV)
-								.setStringValue(
-										Integer.toString(FitnessFunct
-												.getSquareDev(autocalibrate
-														.getBestChromosome())));
-
-						intFieldMap
-								.get(PreferenceConstants.LIBDMTX_CORRECTIONS)
-								.setStringValue(
-										Integer.toString(FitnessFunct
-												.getCorrections(autocalibrate
-														.getBestChromosome())));
-
-						dblFieldMap.get(
-								PreferenceConstants.LIBDMTX_CELL_DISTANCE)
-								.setStringValue(
-										Double.toString(FitnessFunct
-												.getCellDist(autocalibrate
-														.getBestChromosome())));
-
-						ScannerConfigPlugin.openInformation("Settings Applied",
-								"Settings have been successfully applied.");
-					}
-				} else {
-
-					if (ScannerConfigPlugin
-							.openConfim(
-									"Apply Settings?",
-									String
-											.format(
-													"Settings Obtained:\n\n"
-															+ "Edge Threshold: %d\n"
-															+ "Scan Gap: %.3f\n"
-															+ "Square Deviation: %d\n"
-															+ "Corrections: %d\n"
-															+ "Cell Distance: %.3f\n"
-															+ "\nWould you like to apply these settings?",
-													FitnessFunct
-															.getThreshold(autocalibrate
-																	.getBestChromosome()),
-													FitnessFunct
-															.getGap(autocalibrate
-																	.getBestChromosome()),
-													FitnessFunct
-															.getSquareDev(autocalibrate
-																	.getBestChromosome()),
-													FitnessFunct
-															.getCorrections(autocalibrate
-																	.getBestChromosome()),
-													FitnessFunct
-															.getCellDist(autocalibrate
-																	.getBestChromosome())))) {
-
-						// UPDATE SETTINGS
-						intFieldMap
-								.get(PreferenceConstants.LIBDMTX_EDGE_THRESH)
-								.setStringValue(
-										Integer.toString(FitnessFunct
-												.getThreshold(autocalibrate
-														.getBestChromosome())));
-
-						dblFieldMap.get(PreferenceConstants.LIBDMTX_SCAN_GAP)
-								.setStringValue(
-										Double.toString(FitnessFunct
-												.getGap(autocalibrate
-														.getBestChromosome())));
-
-						intFieldMap.get(PreferenceConstants.LIBDMTX_SQUARE_DEV)
-								.setStringValue(
-										Integer.toString(FitnessFunct
-												.getSquareDev(autocalibrate
-														.getBestChromosome())));
-
-						intFieldMap
-								.get(PreferenceConstants.LIBDMTX_CORRECTIONS)
-								.setStringValue(
-										Integer.toString(FitnessFunct
-												.getCorrections(autocalibrate
-														.getBestChromosome())));
-
-						dblFieldMap.get(
-								PreferenceConstants.LIBDMTX_CELL_DISTANCE)
-								.setStringValue(
-										Double.toString(FitnessFunct
-												.getCellDist(autocalibrate
-														.getBestChromosome())));
-
-						ScannerConfigPlugin.openInformation("Settings Applied",
-								"Settings have been successfully applied.");
-
-					}
-
-				}
-			}
-
-		});
+		selectScannerBtn.setEnabled(true);
+		driverTypeRadio.setEnabled(enableSettings, getFieldEditorParent());
+		autoCalibrateBtn.setEnabled(enableSettings);
+		brightnessInputField.setEnabled(enableSettings, getFieldEditorParent());
+		contrastInputField.setEnabled(enableSettings, getFieldEditorParent());
+		debugLevelInputField.setEnabled(enableSettings, getFieldEditorParent());
+		thresholdInputField.setEnabled(enableSettings, getFieldEditorParent());
+		squaredevInputField.setEnabled(enableSettings, getFieldEditorParent());
+		correctionsInputField
+				.setEnabled(enableSettings, getFieldEditorParent());
+		scanGapDblInput.setEnabled(enableSettings, getFieldEditorParent());
+		celldistDblInput.setEnabled(enableSettings, getFieldEditorParent());
 
 	}
 
 	@Override
 	public void init(IWorkbench workbench) {
 	}
+
+	IPropertyChangeListener radioChangeListener = new IPropertyChangeListener() {
+		@Override
+		public void propertyChange(PropertyChangeEvent event) {
+
+		}
+	};
+
+	private SelectionListener calibrationListener = new SelectionListener() {
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+
+			if (!ScannerConfigPlugin.getDefault().getPlateEnabled(1)) {
+				ScannerConfigPlugin.openError("Auto-Calibration Requirements",
+						"Auto-Calibration is performed on Plate 1.\n"
+								+ "Please enable and configure Plate 1.\n");
+				return;
+			}
+			if (!ScannerConfigPlugin
+					.openConfim(
+							"Place Pallet on Plate 1",
+							"Please place a full pallet on Plate 1.\n"
+									+ "Note: It is recommended that you use the most difficult "
+									+ "test tubes for this process.\n")) {
+				return;
+			}
+			boolean isTwain = false;
+
+			if (ScannerConfigPlugin.getDefault().getPreferenceStore()
+					.getString(PreferenceConstants.SCANNER_DRV_TYPE) == PreferenceConstants.SCANNER_DRV_TYPE_TWAIN) {
+				isTwain = true;
+			}
+
+			if (!isTwain) { // WIA
+
+				/*
+				 * fitnessFunct uses the calibration.bmp file in wia mode. this
+				 * saves having to rescan the same image over and over.
+				 */
+
+				File calibrationImage = new File("calibration.bmp");
+				if (calibrationImage.exists()) {
+					calibrationImage.delete();
+				}
+				try {
+					ScannerConfigPlugin.scanPlate(1, "calibration.bmp");
+				} catch (Exception e1) {
+					ScannerConfigPlugin
+							.openAsyncError(
+									"Error Scanning",
+									"Failed to scan Plate 1 to file: calibration.bmp.\n"
+											+ "Please make sure Plate 1 is properly configured.");
+					return;
+				}
+			}
+
+			AutoCalibrate autocalibrate = new AutoCalibrate(isTwain, 15);// 10
+
+			if (!autocalibrate.isInitialized()) {
+				ScannerConfigPlugin
+						.openAsyncError("Auto Calibration Failed",
+								"An unexpected error occured, auto-calibration could not be started.");
+				return;
+			}
+
+			do {
+				for (int i = 0; i < 1; i++) {
+					autocalibrate.iterateEvolution();
+				}
+
+			} while (ScannerConfigPlugin.openConfim("Continue Calibrating?",
+					"Current settings discovered are able to scan "
+							+ FitnessFunct.getTubesScanned(autocalibrate
+									.getBestChromosome()) + " test tubes.\n\n"
+							+ "Would you like to continue calibrating?"));
+
+			if (isTwain) {
+				// Update brightness,contrast text input boxes
+
+				if (ScannerConfigPlugin.openConfim("Apply Settings?", String
+						.format("\tSettings Obtained:\n\n"
+								+ "\tBrightness: %d\n" + "\tContrast: %d\n"
+								+ "\tEdge Threshold: %d\n"
+								+ "\tScan Gap: %.3f\n"
+								+ "\tSquare Deviation: %d\n"
+								+ "\tCorrections: %d\n"
+								+ "\tCell Distance: %.3f\n"
+								+ "\nWould you like to apply these settings?",
+								FitnessFunct.getBrightness(autocalibrate
+										.getBestChromosome()), FitnessFunct
+										.getContrast(autocalibrate
+												.getBestChromosome()),
+								FitnessFunct.getThreshold(autocalibrate
+										.getBestChromosome()), FitnessFunct
+										.getGap(autocalibrate
+												.getBestChromosome()),
+								FitnessFunct.getSquareDev(autocalibrate
+										.getBestChromosome()), FitnessFunct
+										.getCorrections(autocalibrate
+												.getBestChromosome()),
+								FitnessFunct.getCellDist(autocalibrate
+										.getBestChromosome())))) {
+
+					// UPDATE SETTINGS
+
+					intFieldMap.get(PreferenceConstants.SCANNER_BRIGHTNESS)
+							.setStringValue(
+									Integer.toString(FitnessFunct
+											.getBrightness(autocalibrate
+													.getBestChromosome())));
+					intFieldMap.get(PreferenceConstants.SCANNER_CONTRAST)
+							.setStringValue(
+									Integer.toString(FitnessFunct
+											.getContrast(autocalibrate
+													.getBestChromosome())));
+
+					intFieldMap.get(PreferenceConstants.LIBDMTX_EDGE_THRESH)
+							.setStringValue(
+									Integer.toString(FitnessFunct
+											.getThreshold(autocalibrate
+													.getBestChromosome())));
+
+					dblFieldMap.get(PreferenceConstants.LIBDMTX_SCAN_GAP)
+							.setStringValue(
+									Double.toString(FitnessFunct
+											.getGap(autocalibrate
+													.getBestChromosome())));
+
+					intFieldMap.get(PreferenceConstants.LIBDMTX_SQUARE_DEV)
+							.setStringValue(
+									Integer.toString(FitnessFunct
+											.getSquareDev(autocalibrate
+													.getBestChromosome())));
+
+					intFieldMap.get(PreferenceConstants.LIBDMTX_CORRECTIONS)
+							.setStringValue(
+									Integer.toString(FitnessFunct
+											.getCorrections(autocalibrate
+													.getBestChromosome())));
+
+					dblFieldMap.get(PreferenceConstants.LIBDMTX_CELL_DISTANCE)
+							.setStringValue(
+									Double.toString(FitnessFunct
+											.getCellDist(autocalibrate
+													.getBestChromosome())));
+
+					ScannerConfigPlugin.openInformation("Settings Applied",
+							"Settings have been successfully applied.");
+				}
+			} else {
+
+				if (ScannerConfigPlugin.openConfim("Apply Settings?", String
+						.format("Settings Obtained:\n\n"
+								+ "Edge Threshold: %d\n" + "Scan Gap: %.3f\n"
+								+ "Square Deviation: %d\n"
+								+ "Corrections: %d\n" + "Cell Distance: %.3f\n"
+								+ "\nWould you like to apply these settings?",
+								FitnessFunct.getThreshold(autocalibrate
+										.getBestChromosome()), FitnessFunct
+										.getGap(autocalibrate
+												.getBestChromosome()),
+								FitnessFunct.getSquareDev(autocalibrate
+										.getBestChromosome()), FitnessFunct
+										.getCorrections(autocalibrate
+												.getBestChromosome()),
+								FitnessFunct.getCellDist(autocalibrate
+										.getBestChromosome())))) {
+
+					// UPDATE SETTINGS
+					intFieldMap.get(PreferenceConstants.LIBDMTX_EDGE_THRESH)
+							.setStringValue(
+									Integer.toString(FitnessFunct
+											.getThreshold(autocalibrate
+													.getBestChromosome())));
+
+					dblFieldMap.get(PreferenceConstants.LIBDMTX_SCAN_GAP)
+							.setStringValue(
+									Double.toString(FitnessFunct
+											.getGap(autocalibrate
+													.getBestChromosome())));
+
+					intFieldMap.get(PreferenceConstants.LIBDMTX_SQUARE_DEV)
+							.setStringValue(
+									Integer.toString(FitnessFunct
+											.getSquareDev(autocalibrate
+													.getBestChromosome())));
+
+					intFieldMap.get(PreferenceConstants.LIBDMTX_CORRECTIONS)
+							.setStringValue(
+									Integer.toString(FitnessFunct
+											.getCorrections(autocalibrate
+													.getBestChromosome())));
+
+					dblFieldMap.get(PreferenceConstants.LIBDMTX_CELL_DISTANCE)
+							.setStringValue(
+									Double.toString(FitnessFunct
+											.getCellDist(autocalibrate
+													.getBestChromosome())));
+
+					ScannerConfigPlugin.openInformation("Settings Applied",
+							"Settings have been successfully applied.");
+
+				}
+
+			}
+		}
+
+	};
 
 }

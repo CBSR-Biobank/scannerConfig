@@ -1,39 +1,45 @@
 package edu.ualberta.med.scannerconfig.preferences.scanner;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
+import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
 
 public class MultipleDpis extends FieldEditorPreferencePage implements
-    IWorkbenchPreferencePage {
+		IWorkbenchPreferencePage {
 
-    public MultipleDpis() {
-        super(GRID);
-        setPreferenceStore(ScannerConfigPlugin.getDefault()
-            .getPreferenceStore());
-    }
+	public MultipleDpis() {
+		super(GRID);
+		setPreferenceStore(ScannerConfigPlugin.getDefault()
+				.getPreferenceStore());
+	}
 
-    @Override
-    public void createFieldEditors() {
-        RadioGroupFieldEditor rgFe;
-        String[][] validDpis = new String[][] { { "300", "300" },
-            { "400", "400" }, { "600", "600" }, { "720", "720" },
-            { "800", "800" } };
+	@Override
+	public void createFieldEditors() {
+		AdvancedRadioGroupFieldEditor rgFe;
+		for (int i = 0; i < 3; ++i) {
+			rgFe = new AdvancedRadioGroupFieldEditor(
+					PreferenceConstants.SCANNER_MULTIPLE_DPIS[i], "DPI "
+							+ (i + 1), 5, new String[][] { { "300", "300" },
+							{ "400", "400" }, { "600", "600" } },
+					getFieldEditorParent(), true);
 
-        for (int i = 0, n = PreferenceConstants.SCANNER_MULTIPLE_DPIS.length; i < n; ++i) {
-            rgFe = new RadioGroupFieldEditor(
-                PreferenceConstants.SCANNER_MULTIPLE_DPIS[i], "DPI " + (i + 1),
-                5, validDpis, getFieldEditorParent(), true);
-            addField(rgFe);
-        }
-    }
+			rgFe.setEnabledArray(new boolean[] {
+					ScanLib.getInstance().slIsValidDpi(300),
+					ScanLib.getInstance().slIsValidDpi(400),
+					ScanLib.getInstance().slIsValidDpi(600) },
+					getFieldEditorParent());
 
-    @Override
-    public void init(IWorkbench workbench) {
-    }
+			addField(rgFe);
+		}
+	}
+
+	@Override
+	public void init(IWorkbench workbench) {
+	}
 
 }
