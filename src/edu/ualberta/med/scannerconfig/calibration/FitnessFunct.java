@@ -88,7 +88,6 @@ public class FitnessFunct extends FitnessFunction {
 	}
 
 	@Override
-	/* TODO incorporate scanning time into the fitness value */
 	protected double evaluate(IChromosome chroma) {
 		return scanlibCount(chroma);
 	}

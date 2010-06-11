@@ -76,11 +76,13 @@ public abstract class ScanLib {
 		ERROR_MSG = Collections.unmodifiableMap(aMap);
 	};
 
-	public static final int DPI_300 = 0x02;
+	public static final int CAP_IS_WIA  = 0x01;
+	
+	public static final int CAP_DPI_300 = 0x02;
 
-	public static final int DPI_400 = 0x04;
+	public static final int CAP_DPI_400 = 0x04;
 
-	public static final int DPI_600 = 0x08;
+	public static final int CAP_DPI_600 = 0x08;
 
 	private static ScanLib instance = null;
 
@@ -128,29 +130,14 @@ public abstract class ScanLib {
 	 *         user cancelled the selection dialog.
 	 */
 	public abstract int slSelectSourceAsDefault();
+	
 
 	/**
-	 * Queries the selected scanner if it supports the dpi.
-	 * 
-	 * @param dpi
-	 *            the dpi value to verify
-	 * 
-	 * @return true if the dpi is supported and false otherwise.
-	 * 
-	 * @see DPI_300, DPI_400, DPI_600
+	 * Queries the selected scanner for the driver type and supported dpi.
+	 *
+	 * @return Bit 1: Is set if driver type is WIA. Bits 2,3,4 are set if driver supports 300,400,600 dpi.
 	 */
-	public abstract boolean slIsValidDpi(int dpi);
-
-	/**
-	 * 
-	 * Queries the selected scanner and determines if the driver is of type WIA
-	 * or TWAIN.
-	 * 
-	 * @return The driver types are differentiated by the driver name. This
-	 *         function returns true when the driver is of type WIA.
-	 * 
-	 */
-	public abstract boolean slIsDriverWia();
+	public abstract int slGetScannerCapability();
 
 	/**
 	 * Scans an image for the specified dimensions. The image is in Windows BMP

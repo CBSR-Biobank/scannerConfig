@@ -2,14 +2,13 @@ package edu.ualberta.med.scannerconfig.preferences;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
-import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -32,14 +31,11 @@ public class Scanner extends FieldEditorPreferencePage implements
 	private Map<String, DoubleFieldEditor> dblFieldMap = new HashMap<String, DoubleFieldEditor>();
 	private Map<String, IntegerFieldEditor> intFieldMap = new HashMap<String, IntegerFieldEditor>();
 
-	private List<Integer> possibleDpis = Arrays.asList(300, 400, 600);
-
 	private List<Integer> allowedDpis = new ArrayList<Integer>();
 
 	Button selectScannerBtn, autoCalibrateBtn;
 
-	RadioGroupFieldEditor driverTypeRadio;
-	AdvancedRadioGroupFieldEditor dpiRadio;
+	AdvancedRadioGroupFieldEditor dpiRadio, driverTypeRadio;
 
 	IntegerFieldEditor brightnessInputField, contrastInputField,
 			debugLevelInputField, thresholdInputField, squaredevInputField,
@@ -58,37 +54,16 @@ public class Scanner extends FieldEditorPreferencePage implements
 
 	@Override
 	public void createFieldEditors() {
+
+		int scannerCap = ScanLib.getInstance().slGetScannerCapability();
+
 		selectScannerBtn = new Button(getFieldEditorParent(), SWT.NONE);
 		selectScannerBtn.setText("Select Scanner");
 		selectScannerBtn.setImage(ScannerConfigPlugin.getDefault()
 				.getImageRegistry().get(ScannerConfigPlugin.IMG_SCANNER));
-		selectScannerBtn.addSelectionListener(new SelectionListener() {
+		selectScannerBtn.addSelectionListener(scannerSelectionListener);
 
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int scanlibReturn = ScanLib.getInstance()
-						.slSelectSourceAsDefault();
-
-				if (scanlibReturn != ScanLib.SC_SUCCESS) {
-					ScannerConfigPlugin
-							.openError("Source Selection Error",
-									"Please plug in a scanner and select an appropiate source driver.");
-					// Check WIA,TWAIN
-					setEnableAllWidgets(false);
-				} else {
-					// Check WIA,TWAIN
-
-					setEnableAllWidgets(true);
-				}
-
-			}
-		});
-
-		driverTypeRadio = new RadioGroupFieldEditor(
+		driverTypeRadio = new AdvancedRadioGroupFieldEditor(
 				PreferenceConstants.SCANNER_DRV_TYPE,
 				"Driver Type",
 				2,
@@ -175,15 +150,11 @@ public class Scanner extends FieldEditorPreferencePage implements
 				.getImageRegistry().get(ScannerConfigPlugin.IMG_SCANNER));
 		autoCalibrateBtn.addSelectionListener(calibrationListener);
 
-		setEnableAllWidgets((ScanLib.getInstance().slIsValidDpi(300)
-				|| ScanLib.getInstance().slIsValidDpi(400) || ScanLib
-				.getInstance().slIsValidDpi(600)));
+		setEnableAllWidgets((scannerCap & ScanLib.CAP_DPI_300) != 0
+				|| (scannerCap & ScanLib.CAP_DPI_400) != 0
+				|| (scannerCap & ScanLib.CAP_DPI_600) != 0);
 
-		if (ScanLib.getInstance().slIsDriverWia()) {
-			System.out.println("DRIVER IS WIA");
-		} else {
-			System.out.println("DRIVER IS TWAIN");
-		}
+		// store.getInt(PreferenceConstants.SCANNER_DPI);
 	}
 
 	private void setPalletImageDpi() {
@@ -205,10 +176,12 @@ public class Scanner extends FieldEditorPreferencePage implements
 		setPalletImageDpi();
 
 		if (enableSettings) {
+
+			int scannerCap = ScanLib.getInstance().slGetScannerCapability();
 			dpiRadio.setEnabledArray(new boolean[] {
-					ScanLib.getInstance().slIsValidDpi(300),
-					ScanLib.getInstance().slIsValidDpi(400),
-					ScanLib.getInstance().slIsValidDpi(600) },
+					(scannerCap & ScanLib.CAP_DPI_300) != 0,
+					(scannerCap & ScanLib.CAP_DPI_400) != 0,
+					(scannerCap & ScanLib.CAP_DPI_600) != 0 },
 					getFieldEditorParent());
 		} else {
 			dpiRadio.setEnabled(false, getFieldEditorParent());
@@ -240,6 +213,68 @@ public class Scanner extends FieldEditorPreferencePage implements
 		}
 	};
 
+	private SelectionListener scannerSelectionListener = new SelectionListener() {
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			int scanlibReturn = ScanLib.getInstance().slSelectSourceAsDefault();
+
+			setEnableAllWidgets(false);
+
+			if (scanlibReturn != ScanLib.SC_SUCCESS) {
+				ScannerConfigPlugin
+						.openError("Source Selection Error",
+								"Please plug in a scanner and select an appropiate source driver.");
+			} else {
+
+				IPreferenceStore store = self.getPreferenceStore();
+
+				int scannerCap = ScanLib.getInstance().slGetScannerCapability();
+
+				if ((scannerCap & ScanLib.CAP_IS_WIA) != 0) {
+					store.setValue(PreferenceConstants.SCANNER_DRV_TYPE,
+							PreferenceConstants.SCANNER_DRV_TYPE_WIA);
+					driverTypeRadio.setSelectionArray(new boolean[] { false,
+							true });
+				} else {
+					store.setValue(PreferenceConstants.SCANNER_DRV_TYPE,
+							PreferenceConstants.SCANNER_DRV_TYPE_TWAIN);
+					driverTypeRadio.setSelectionArray(new boolean[] { true,
+							false });
+				}
+
+				/*
+				 * TODO Ratio Box Selecting
+				 * 
+				 * When changing the ratio box via setValue and setSelection it
+				 * does not register all the nessary components than a mouse
+				 * click creates. Some sort of additional code is missing.
+				 */
+				if ((scannerCap & ScanLib.CAP_DPI_300) != 0) {
+					dpiRadio.setSelectionArray(new boolean[] { true, false,
+							false });
+					store.setValue(PreferenceConstants.SCANNER_DPI, 300);
+
+				} else if ((scannerCap & ScanLib.CAP_DPI_400) != 0) {
+					dpiRadio.setSelectionArray(new boolean[] { false, true,
+							false });
+					store.setValue(PreferenceConstants.SCANNER_DPI, 400);
+				} else if ((scannerCap & ScanLib.CAP_DPI_600) != 0) {
+					dpiRadio.setSelectionArray(new boolean[] { false, false,
+							true });
+					store.setValue(PreferenceConstants.SCANNER_DPI, 600);
+				}
+
+				setEnableAllWidgets(true);
+			}
+
+		}
+	};
+
 	private SelectionListener calibrationListener = new SelectionListener() {
 
 		@Override
@@ -265,8 +300,8 @@ public class Scanner extends FieldEditorPreferencePage implements
 			}
 			boolean isTwain = false;
 
-			if (ScannerConfigPlugin.getDefault().getPreferenceStore()
-					.getString(PreferenceConstants.SCANNER_DRV_TYPE) == PreferenceConstants.SCANNER_DRV_TYPE_TWAIN) {
+			if (self.getPreferenceStore().getString(
+					PreferenceConstants.SCANNER_DRV_TYPE) == PreferenceConstants.SCANNER_DRV_TYPE_TWAIN) {
 				isTwain = true;
 			}
 

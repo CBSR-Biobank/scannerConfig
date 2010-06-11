@@ -13,16 +13,6 @@ public class ScanLibWin32 extends ScanLib {
 	}
 
 	@Override
-	public boolean slIsValidDpi(int dpi) {
-		return (ScanLibWin32Wrapper.slIsValidDpi(dpi) == 1);
-	}
-
-	@Override
-	public boolean slIsDriverWia() {
-		return (ScanLibWin32Wrapper.slIsDriverWia() == 1);
-	}
-
-	@Override
 	public int slScanImage(long verbose, long dpi, int brightness,
 			int contrast, double left, double top, double right, double bottom,
 			String filename) {
@@ -59,5 +49,11 @@ public class ScanLibWin32 extends ScanLib {
 		return ScanLibWin32Wrapper.slDecodeImage(verbose, plateNum, filename,
 				scanGap, squareDev, edgeThresh, corrections, cellDistance);
 	}
+
+	@Override
+	public int slGetScannerCapability() {
+		return ScanLibWin32Wrapper.slGetScannerCapability();
+	}
+
 
 }

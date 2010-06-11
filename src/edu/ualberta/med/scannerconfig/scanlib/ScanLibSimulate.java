@@ -23,11 +23,6 @@ public class ScanLibSimulate extends ScanLib {
 	}
 
 	@Override
-	public boolean slIsValidDpi(int dpi) {
-		return true;
-	}
-
-	@Override
 	public int slScanImage(long verbose, long dpi, int brightness,
 			int contrast, double left, double top, double right, double bottom,
 			String filename) {
@@ -92,7 +87,8 @@ public class ScanLibSimulate extends ScanLib {
 	}
 
 	@Override
-	public boolean slIsDriverWia() {
-		return true;
+	public int slGetScannerCapability() {
+		return 255;
 	}
+
 }

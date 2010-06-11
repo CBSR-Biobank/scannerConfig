@@ -140,6 +140,7 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 	/*
 	 * (non-Javadoc) Method declared on FieldEditor.
 	 */
+	@Override
 	protected void adjustForNumColumns(int numColumns) {
 		Control control = getLabelControl();
 		if (control != null) {
@@ -172,6 +173,7 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 	/*
 	 * (non-Javadoc) Method declared on FieldEditor.
 	 */
+	@Override
 	protected void doFillIntoGrid(Composite parent, int numColumns) {
 		if (useGroup) {
 			Control control = getRadioBoxControl(parent);
@@ -194,6 +196,7 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 	/*
 	 * (non-Javadoc) Method declared on FieldEditor.
 	 */
+	@Override
 	protected void doLoad() {
 		updateValue(getPreferenceStore().getString(getPreferenceName()));
 	}
@@ -201,6 +204,7 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 	/*
 	 * (non-Javadoc) Method declared on FieldEditor.
 	 */
+	@Override
 	protected void doLoadDefault() {
 		updateValue(getPreferenceStore().getDefaultString(getPreferenceName()));
 	}
@@ -208,6 +212,7 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 	/*
 	 * (non-Javadoc) Method declared on FieldEditor.
 	 */
+	@Override
 	protected void doStore() {
 		if (value == null) {
 			getPreferenceStore().setToDefault(getPreferenceName());
@@ -220,6 +225,7 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 	/*
 	 * (non-Javadoc) Method declared on FieldEditor.
 	 */
+	@Override
 	public int getNumberOfControls() {
 		return 1;
 	}
@@ -268,6 +274,7 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 				radio.setData(labelAndValue[1]);
 				radio.setFont(font);
 				radio.addSelectionListener(new SelectionAdapter() {
+					@Override
 					public void widgetSelected(SelectionEvent event) {
 						String oldValue = value;
 						value = (String) event.widget.getData();
@@ -342,13 +349,18 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 	/*
 	 * @see FieldEditor.setEnabled(boolean,Composite).
 	 */
+	@Override
 	public void setEnabled(boolean enabled, Composite parent) {
 		if (!useGroup) {
 			super.setEnabled(enabled, parent);
 		}
+
+		boolean boolArray[] = new boolean[radioButtons.length];
+
 		for (int i = 0; i < radioButtons.length; i++) {
-			radioButtons[i].setEnabled(enabled);
+			boolArray[i] = enabled;
 		}
+		this.setEnabledArray(boolArray, parent);
 	}
 
 	public void setEnabledArray(boolean[] enabled, Composite parent) {
@@ -364,5 +376,50 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 		for (int i = 0; i < radioButtons.length; i++) {
 			radioButtons[i].setEnabled(enabled[i]);
 		}
+
+		for (int i = 0; i < radioButtons.length; i++) {
+			if (!radioButtons[i].isEnabled() && radioButtons[i].getSelection()) {
+				radioButtons[i].setSelection(false);
+
+				for (int ii = 0; ii < radioButtons.length; ii++) {
+					if (radioButtons[ii].isEnabled()) {
+						radioButtons[ii].setSelection(true);
+						break;
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	public void setSelectionArray(boolean[] enabled) {
+
+		Assert.isTrue(enabled.length > 0);
+
+		if (!useGroup) {
+			return;
+		}
+
+		Assert.isTrue(enabled.length == radioButtons.length);
+
+		for (int i = 0; i < radioButtons.length; i++) {
+			radioButtons[i].setSelection(enabled[i]);
+		}
+
+	}
+
+	public int getRatioSelected() {
+
+		if (!useGroup) {
+			return -1;
+		}
+
+		for (int i = 0; i < radioButtons.length; i++) {
+			if (radioButtons[i].isEnabled() && radioButtons[i].getSelection()) {
+				return i;
+			}
+		}
+
+		return -1;
 	}
 }
