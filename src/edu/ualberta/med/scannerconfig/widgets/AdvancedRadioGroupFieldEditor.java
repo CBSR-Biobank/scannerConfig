@@ -15,117 +15,30 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 
-/**
- * A field editor for an enumeration type preference. The choices are presented
- * as a list of radio buttons.
- */
 public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 
-	/**
-	 * List of radio button entries of the form [label,value].
-	 */
 	private String[][] labelsAndValues;
 
-	/**
-	 * Number of columns into which to arrange the radio buttons.
-	 */
 	private int numColumns;
 
-	/**
-	 * Indent used for the first column of the radion button matrix.
-	 */
 	private int indent = HORIZONTAL_GAP;
 
-	/**
-	 * The current value, or <code>null</code> if none.
-	 */
 	private String value;
 
-	/**
-	 * The box of radio buttons, or <code>null</code> if none (before creation
-	 * and after disposal).
-	 */
 	private Composite radioBox;
 
-	/**
-	 * The radio buttons, or <code>null</code> if none (before creation and
-	 * after disposal).
-	 */
 	private Button[] radioButtons;
 
-	/**
-	 * Whether to use a Group control.
-	 */
 	private boolean useGroup;
 
-	/**
-	 * Creates a new radio group field editor
-	 */
 	protected AdvancedRadioGroupFieldEditor() {
 	}
 
-	/**
-	 * Creates a radio group field editor. This constructor does not use a
-	 * <code>Group</code> to contain the radio buttons. It is equivalent to
-	 * using the following constructor with <code>false</code> for the
-	 * <code>useGroup</code> argument.
-	 * <p>
-	 * Example usage:
-	 * 
-	 * <pre>
-	 * RadioGroupFieldEditor editor = new RadioGroupFieldEditor(
-	 * 		&quot;GeneralPage.DoubleClick&quot;, resName, 1, new String[][] {
-	 * 				{ &quot;Open Browser&quot;, &quot;open&quot; }, { &quot;Expand Tree&quot;, &quot;expand&quot; } },
-	 * 		parent);
-	 * </pre>
-	 * 
-	 * </p>
-	 * 
-	 * @param name
-	 *            the name of the preference this field editor works on
-	 * @param labelText
-	 *            the label text of the field editor
-	 * @param numColumns
-	 *            the number of columns for the radio button presentation
-	 * @param labelAndValues
-	 *            list of radio button [label, value] entries; the value is
-	 *            returned when the radio button is selected
-	 * @param parent
-	 *            the parent of the field editor's control
-	 */
 	public AdvancedRadioGroupFieldEditor(String name, String labelText,
 			int numColumns, String[][] labelAndValues, Composite parent) {
 		this(name, labelText, numColumns, labelAndValues, parent, false);
 	}
 
-	/**
-	 * Creates a radio group field editor.
-	 * <p>
-	 * Example usage:
-	 * 
-	 * <pre>
-	 * RadioGroupFieldEditor editor = new RadioGroupFieldEditor(
-	 * 		&quot;GeneralPage.DoubleClick&quot;, resName, 1, new String[][] {
-	 * 				{ &quot;Open Browser&quot;, &quot;open&quot; }, { &quot;Expand Tree&quot;, &quot;expand&quot; } },
-	 * 		parent, true);
-	 * </pre>
-	 * 
-	 * </p>
-	 * 
-	 * @param name
-	 *            the name of the preference this field editor works on
-	 * @param labelText
-	 *            the label text of the field editor
-	 * @param numColumns
-	 *            the number of columns for the radio button presentation
-	 * @param labelAndValues
-	 *            list of radio button [label, value] entries; the value is
-	 *            returned when the radio button is selected
-	 * @param parent
-	 *            the parent of the field editor's control
-	 * @param useGroup
-	 *            whether to use a Group control to contain the radio buttons
-	 */
 	public AdvancedRadioGroupFieldEditor(String name, String labelText,
 			int numColumns, String[][] labelAndValues, Composite parent,
 			boolean useGroup) {
@@ -137,9 +50,6 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 		createControl(parent);
 	}
 
-	/*
-	 * (non-Javadoc) Method declared on FieldEditor.
-	 */
 	@Override
 	protected void adjustForNumColumns(int numColumns) {
 		Control control = getLabelControl();
@@ -149,14 +59,6 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 		((GridData) radioBox.getLayoutData()).horizontalSpan = numColumns;
 	}
 
-	/**
-	 * Checks whether given <code>String[][]</code> is of "type"
-	 * <code>String[][2]</code>.
-	 * 
-	 * @param table
-	 * 
-	 * @return <code>true</code> if it is ok, and <code>false</code> otherwise
-	 */
 	private boolean checkArray(String[][] table) {
 		if (table == null) {
 			return false;
@@ -170,9 +72,6 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc) Method declared on FieldEditor.
-	 */
 	@Override
 	protected void doFillIntoGrid(Composite parent, int numColumns) {
 		if (useGroup) {
@@ -193,25 +92,16 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 
 	}
 
-	/*
-	 * (non-Javadoc) Method declared on FieldEditor.
-	 */
 	@Override
-	protected void doLoad() {
+	public void doLoad() {
 		updateValue(getPreferenceStore().getString(getPreferenceName()));
 	}
 
-	/*
-	 * (non-Javadoc) Method declared on FieldEditor.
-	 */
 	@Override
 	protected void doLoadDefault() {
 		updateValue(getPreferenceStore().getDefaultString(getPreferenceName()));
 	}
 
-	/*
-	 * (non-Javadoc) Method declared on FieldEditor.
-	 */
 	@Override
 	protected void doStore() {
 		if (value == null) {
@@ -222,21 +112,11 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 		getPreferenceStore().setValue(getPreferenceName(), value);
 	}
 
-	/*
-	 * (non-Javadoc) Method declared on FieldEditor.
-	 */
 	@Override
 	public int getNumberOfControls() {
 		return 1;
 	}
 
-	/**
-	 * Returns this field editor's radio group control.
-	 * 
-	 * @param parent
-	 *            The parent to create the radioBox in
-	 * @return the radio group control
-	 */
 	public Composite getRadioBoxControl(Composite parent) {
 		if (radioBox == null) {
 
@@ -295,12 +175,6 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 		return radioBox;
 	}
 
-	/**
-	 * Sets the indent used for the first column of the radion button matrix.
-	 * 
-	 * @param indent
-	 *            the indent (in pixels)
-	 */
 	public void setIndent(int indent) {
 		if (indent < 0) {
 			this.indent = 0;
@@ -309,12 +183,6 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 		}
 	}
 
-	/**
-	 * Select the radio button that conforms to the given value.
-	 * 
-	 * @param selectedValue
-	 *            the selected value
-	 */
 	private void updateValue(String selectedValue) {
 		this.value = selectedValue;
 		if (radioButtons == null) {
@@ -346,9 +214,6 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 		return;
 	}
 
-	/*
-	 * @see FieldEditor.setEnabled(boolean,Composite).
-	 */
 	@Override
 	public void setEnabled(boolean enabled, Composite parent) {
 		if (!useGroup) {

@@ -246,6 +246,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 					driverTypeRadio.setSelectionArray(new boolean[] { true,
 							false });
 				}
+				driverTypeRadio.doLoad();
 
 				/*
 				 * TODO Ratio Box Selecting
@@ -268,6 +269,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 							true });
 					store.setValue(PreferenceConstants.SCANNER_DPI, 600);
 				}
+				dpiRadio.doLoad();
 
 				setEnableAllWidgets(true);
 			}
