@@ -225,15 +225,17 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 		for (int i = 0; i < radioButtons.length; i++) {
 			boolArray[i] = enabled;
 		}
-		this.setEnabledArray(boolArray, parent);
+		this.setEnabledArray(boolArray, -1, parent);
 	}
 
-	public void setEnabledArray(boolean[] enabled, Composite parent) {
+	public int setEnabledArray(boolean[] enabled, int defaultSelectionIndex,
+			Composite parent) {
 
 		Assert.isTrue(enabled.length > 0);
 
 		if (!useGroup) {
 			super.setEnabled(enabled[0], parent);
+			return getRatioSelected();
 		}
 
 		Assert.isTrue(enabled.length == radioButtons.length);
@@ -242,9 +244,19 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 			radioButtons[i].setEnabled(enabled[i]);
 		}
 
+		/*
+		 * If a selected radio button is disabled, the next best radio button is
+		 * selected.
+		 */
 		for (int i = 0; i < radioButtons.length; i++) {
 			if (!radioButtons[i].isEnabled() && radioButtons[i].getSelection()) {
 				radioButtons[i].setSelection(false);
+
+				if (defaultSelectionIndex >= 0
+						&& radioButtons[defaultSelectionIndex].isEnabled()) {
+					radioButtons[defaultSelectionIndex].setSelection(true);
+					break;
+				}
 
 				for (int ii = 0; ii < radioButtons.length; ii++) {
 					if (radioButtons[ii].isEnabled()) {
@@ -255,6 +267,7 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 				break;
 			}
 		}
+		return getRatioSelected();
 	}
 
 	public void setSelectionArray(boolean[] enabled) {

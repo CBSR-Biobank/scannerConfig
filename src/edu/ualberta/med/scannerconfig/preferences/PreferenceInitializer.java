@@ -26,10 +26,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 			store.setDefault(PreferenceConstants.SCANNER_PALLET_ENABLED[i],
 					false);
 		}
-
-		store.setDefault(PreferenceConstants.SCANNER_MULTIPLE_DPIS[0], "300");
-		store.setDefault(PreferenceConstants.SCANNER_MULTIPLE_DPIS[1], "400");
-		store.setDefault(PreferenceConstants.SCANNER_MULTIPLE_DPIS[2], "600");
 	}
 
 }

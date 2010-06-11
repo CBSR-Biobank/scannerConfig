@@ -137,7 +137,8 @@ public abstract class ScanLib {
 	 * Queries the selected scanner for the driver type and supported dpi.
 	 * 
 	 * @return Bit 1: Is set if driver type is WIA. Bits 2,3,4 are set if driver
-	 *         supports 300,400,600 dpi.
+	 *         supports 300,400,600 dpi. Bit 5 is set if a proper scanner source
+	 *         is selected.
 	 */
 	public abstract int slGetScannerCapability();
 

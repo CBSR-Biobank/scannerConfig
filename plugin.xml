@@ -67,12 +67,6 @@
           id="scannerConfig.page5"
           name="Plate 5 Position">
     </page>
-    <page
-          category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.MultipleDpis"
-          id="scannerConfig.page6"
-          name="Multiple DPIs">
-    </page> 
    </extension>
    <extension
          point="org.eclipse.ui.services">

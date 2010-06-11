@@ -1,16 +1,12 @@
 package edu.ualberta.med.scannerconfig.preferences;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -30,8 +26,6 @@ public class Scanner extends FieldEditorPreferencePage implements
 
 	private Map<String, DoubleFieldEditor> dblFieldMap = new HashMap<String, DoubleFieldEditor>();
 	private Map<String, IntegerFieldEditor> intFieldMap = new HashMap<String, IntegerFieldEditor>();
-
-	private List<Integer> allowedDpis = new ArrayList<Integer>();
 
 	Button selectScannerBtn, autoCalibrateBtn;
 
@@ -78,7 +72,6 @@ public class Scanner extends FieldEditorPreferencePage implements
 						{ "300", "300" }, { "400", "400" }, { "600", "600" } },
 				getFieldEditorParent(), true);
 
-		dpiRadio.setPropertyChangeListener(radioChangeListener);
 		addField(dpiRadio);
 
 		brightnessInputField = new IntegerFieldEditor(
@@ -144,36 +137,19 @@ public class Scanner extends FieldEditorPreferencePage implements
 		dblFieldMap.put(PreferenceConstants.LIBDMTX_CELL_DISTANCE,
 				celldistDblInput);
 
+		/* TODO calibration button -- figure out what to do with it */
 		autoCalibrateBtn = new Button(getFieldEditorParent(), SWT.NONE);
 		autoCalibrateBtn.setText("Automatically Calibrate");
 		autoCalibrateBtn.setImage(ScannerConfigPlugin.getDefault()
 				.getImageRegistry().get(ScannerConfigPlugin.IMG_SCANNER));
 		autoCalibrateBtn.addSelectionListener(calibrationListener);
+		autoCalibrateBtn.setVisible(false);
+		autoCalibrateBtn.setEnabled(false);
 
-		setEnableAllWidgets((scannerCap & ScanLib.CAP_DPI_300) != 0
-				|| (scannerCap & ScanLib.CAP_DPI_400) != 0
-				|| (scannerCap & ScanLib.CAP_DPI_600) != 0);
-
-		// store.getInt(PreferenceConstants.SCANNER_DPI);
-	}
-
-	private void setPalletImageDpi() {
-		if (allowedDpis.size() > 0) {
-			Integer smallestDpi = allowedDpis.get(0);
-			for (Integer dpi : allowedDpis)
-				if (dpi < smallestDpi)
-					smallestDpi = dpi;
-
-			PlateBoundsWidget.PALLET_IMAGE_DPI = smallestDpi;
-		} else {
-			PlateBoundsWidget.PALLET_IMAGE_DPI = 300;
-		}
+		setEnableAllWidgets((scannerCap & ScanLib.CAP_IS_SCANNER) != 0);
 	}
 
 	private void setEnableAllWidgets(boolean enableSettings) {
-
-		/* move me in the future */
-		setPalletImageDpi();
 
 		if (enableSettings) {
 
@@ -181,7 +157,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 			dpiRadio.setEnabledArray(new boolean[] {
 					(scannerCap & ScanLib.CAP_DPI_300) != 0,
 					(scannerCap & ScanLib.CAP_DPI_400) != 0,
-					(scannerCap & ScanLib.CAP_DPI_600) != 0 },
+					(scannerCap & ScanLib.CAP_DPI_600) != 0 }, 0,
 					getFieldEditorParent());
 		} else {
 			dpiRadio.setEnabled(false, getFieldEditorParent());
@@ -202,17 +178,6 @@ public class Scanner extends FieldEditorPreferencePage implements
 
 	}
 
-	@Override
-	public void init(IWorkbench workbench) {
-	}
-
-	IPropertyChangeListener radioChangeListener = new IPropertyChangeListener() {
-		@Override
-		public void propertyChange(PropertyChangeEvent event) {
-
-		}
-	};
-
 	private SelectionListener scannerSelectionListener = new SelectionListener() {
 
 		@Override
@@ -222,18 +187,22 @@ public class Scanner extends FieldEditorPreferencePage implements
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			int scanlibReturn = ScanLib.getInstance().slSelectSourceAsDefault();
-
-			setEnableAllWidgets(false);
+			int scannerCap = ScanLib.getInstance().slGetScannerCapability();
 
 			if (scanlibReturn != ScanLib.SC_SUCCESS) {
-				ScannerConfigPlugin
-						.openError("Source Selection Error",
-								"Please plug in a scanner and select an appropiate source driver.");
+
+				if ((scannerCap & ScanLib.CAP_IS_SCANNER) != 0) {
+					return;
+
+				} else {
+					setEnableAllWidgets(false);
+					ScannerConfigPlugin
+							.openError("Source Selection Error",
+									"Please plug in a scanner and select an appropiate source driver.");
+				}
 			} else {
 
 				IPreferenceStore store = self.getPreferenceStore();
-
-				int scannerCap = ScanLib.getInstance().slGetScannerCapability();
 
 				if ((scannerCap & ScanLib.CAP_IS_WIA) != 0) {
 					store.setValue(PreferenceConstants.SCANNER_DRV_TYPE,
@@ -248,26 +217,26 @@ public class Scanner extends FieldEditorPreferencePage implements
 				}
 				driverTypeRadio.doLoad();
 
-				/*
-				 * TODO Ratio Box Selecting
-				 * 
-				 * When changing the ratio box via setValue and setSelection it
-				 * does not register all the nessary components than a mouse
-				 * click creates. Some sort of additional code is missing.
-				 */
 				if ((scannerCap & ScanLib.CAP_DPI_300) != 0) {
+
 					dpiRadio.setSelectionArray(new boolean[] { true, false,
 							false });
 					store.setValue(PreferenceConstants.SCANNER_DPI, 300);
+					PlateBoundsWidget.PALLET_IMAGE_DPI = 300;
 
 				} else if ((scannerCap & ScanLib.CAP_DPI_400) != 0) {
+
 					dpiRadio.setSelectionArray(new boolean[] { false, true,
 							false });
 					store.setValue(PreferenceConstants.SCANNER_DPI, 400);
+					PlateBoundsWidget.PALLET_IMAGE_DPI = 400;
+
 				} else if ((scannerCap & ScanLib.CAP_DPI_600) != 0) {
+
 					dpiRadio.setSelectionArray(new boolean[] { false, false,
 							true });
 					store.setValue(PreferenceConstants.SCANNER_DPI, 600);
+					PlateBoundsWidget.PALLET_IMAGE_DPI = 600;
 				}
 				dpiRadio.doLoad();
 
@@ -482,5 +451,11 @@ public class Scanner extends FieldEditorPreferencePage implements
 		}
 
 	};
+
+	@Override
+	public void init(IWorkbench workbench) {
+		// TODO Auto-generated method stub
+
+	}
 
 }
