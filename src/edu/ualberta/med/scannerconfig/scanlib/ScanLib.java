@@ -76,13 +76,15 @@ public abstract class ScanLib {
 		ERROR_MSG = Collections.unmodifiableMap(aMap);
 	};
 
-	public static final int CAP_IS_WIA  = 0x01;
-	
+	public static final int CAP_IS_WIA = 0x01;
+
 	public static final int CAP_DPI_300 = 0x02;
 
 	public static final int CAP_DPI_400 = 0x04;
 
 	public static final int CAP_DPI_600 = 0x08;
+
+	public static final int CAP_IS_SCANNER = 0x10;
 
 	private static ScanLib instance = null;
 
@@ -130,12 +132,12 @@ public abstract class ScanLib {
 	 *         user cancelled the selection dialog.
 	 */
 	public abstract int slSelectSourceAsDefault();
-	
 
 	/**
 	 * Queries the selected scanner for the driver type and supported dpi.
-	 *
-	 * @return Bit 1: Is set if driver type is WIA. Bits 2,3,4 are set if driver supports 300,400,600 dpi.
+	 * 
+	 * @return Bit 1: Is set if driver type is WIA. Bits 2,3,4 are set if driver
+	 *         supports 300,400,600 dpi.
 	 */
 	public abstract int slGetScannerCapability();
 
