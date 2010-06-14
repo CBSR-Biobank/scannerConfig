@@ -50,12 +50,12 @@ public class ScanLibWin32 extends ScanLib {
 				scanGap, squareDev, edgeThresh, corrections, cellDistance);
 	}
 
-	/* TODO getcap debug */
 	@Override
 	public int slGetScannerCapability() {
 
 		int cap = ScanLibWin32Wrapper.slGetScannerCapability();
 
+		/* XXX getcap Debug Code */
 		// cap = cap & (~ScanLib.CAP_DPI_600);
 
 		return cap;

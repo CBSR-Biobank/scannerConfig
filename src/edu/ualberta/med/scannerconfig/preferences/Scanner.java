@@ -186,11 +186,32 @@ public class Scanner extends FieldEditorPreferencePage implements
 
 		@Override
 		public void widgetSelected(SelectionEvent e) {
+
+			boolean anyPlateEnabled = false;
+			for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_ENABLED.length; i++) {
+				if (ScannerConfigPlugin.getDefault().getPreferenceStore()
+						.getBoolean(
+								PreferenceConstants.SCANNER_PALLET_ENABLED[i])) {
+					anyPlateEnabled = true;
+					break;
+				}
+			}
+
+			if (anyPlateEnabled) {
+				if (!ScannerConfigPlugin
+						.openConfim(
+								"Resetting Plate Configurations",
+								"By selecting a scanner you will reset all plate configurations.\nAre you sure you want to continue?")) {
+					return;
+				}
+			}
+
 			int scanlibReturn = ScanLib.getInstance().slSelectSourceAsDefault();
 			int scannerCap = ScanLib.getInstance().slGetScannerCapability();
 
 			if (scanlibReturn != ScanLib.SC_SUCCESS) {
 
+				// just stay with the last selected source
 				if ((scannerCap & ScanLib.CAP_IS_SCANNER) != 0) {
 					return;
 
@@ -216,6 +237,8 @@ public class Scanner extends FieldEditorPreferencePage implements
 							false });
 				}
 				driverTypeRadio.doLoad();
+
+				// TODO reset all plate configurations.
 
 				if ((scannerCap & ScanLib.CAP_DPI_300) != 0) {
 
@@ -454,7 +477,6 @@ public class Scanner extends FieldEditorPreferencePage implements
 
 	@Override
 	public void init(IWorkbench workbench) {
-		// TODO Auto-generated method stub
 
 	}
 
