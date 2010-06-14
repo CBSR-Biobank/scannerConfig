@@ -162,6 +162,7 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 						fireValueChanged(VALUE, oldValue, value);
 					}
 				});
+
 			}
 			radioBox.addDisposeListener(new DisposeListener() {
 				public void widgetDisposed(DisposeEvent event) {

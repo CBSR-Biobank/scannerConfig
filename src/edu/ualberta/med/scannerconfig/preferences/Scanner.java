@@ -14,12 +14,12 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import edu.ualberta.med.scannerconfig.PlateBoundsWidget;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.calibration.AutoCalibrate;
 import edu.ualberta.med.scannerconfig.calibration.FitnessFunct;
 import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
+import edu.ualberta.med.scannerconfig.widgets.PlateBoundsWidget;
 
 public class Scanner extends FieldEditorPreferencePage implements
 		IWorkbenchPreferencePage {
@@ -57,6 +57,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 				.getImageRegistry().get(ScannerConfigPlugin.IMG_SCANNER));
 		selectScannerBtn.addSelectionListener(scannerSelectionListener);
 
+		// TODO warn about driver-type changing
 		driverTypeRadio = new AdvancedRadioGroupFieldEditor(
 				PreferenceConstants.SCANNER_DRV_TYPE,
 				"Driver Type",
@@ -201,7 +202,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 				if (!ScannerConfigPlugin
 						.openConfim(
 								"Resetting Plate Configurations",
-								"By selecting a scanner you will reset all plate configurations.\nAre you sure you want to continue?")) {
+								"By selecting a scanner source you will reset all plate configurations.\nAre you sure you want to continue?")) {
 					return;
 				}
 			}

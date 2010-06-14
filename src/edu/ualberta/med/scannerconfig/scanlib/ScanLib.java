@@ -63,14 +63,16 @@ public abstract class ScanLib {
 	private static final Map<Integer, String> ERROR_MSG;
 	static {
 		Map<Integer, String> aMap = new HashMap<Integer, String>();
-		aMap.put(SC_SUCCESS, "The call to ScanLib was successful");
-		aMap.put(SC_FAIL, "Unable to scan an image");
-		aMap.put(SC_TWAIN_UAVAIL, "The TWAIN driver was not found");
-		aMap.put(SC_INVALID_DPI, "An invalid DPI value was specified");
-		aMap.put(SC_INVALID_PLATE_NUM, "The plate number used is invalid");
+		aMap.put(SC_SUCCESS, "The call to ScanLib was successful.");
+		aMap
+				.put(SC_FAIL,
+						"Unable to scan an image, please ensure a working scanner source is selected.");
+		aMap.put(SC_TWAIN_UAVAIL, "The TWAIN driver was not found.");
+		aMap.put(SC_INVALID_DPI, "An invalid DPI value was specified.");
+		aMap.put(SC_INVALID_PLATE_NUM, "The plate number used is invalid.");
 		aMap.put(SC_INVALID_VALUE,
-				"The user did not select a valid scanning source");
-		aMap.put(SC_INVALID_IMAGE, "The scanned image is invalid");
+				"The user did not select a valid scanning source.");
+		aMap.put(SC_INVALID_IMAGE, "The scanned image is invalid.");
 		aMap.put(SC_INVALID_POSITION, "Sample not found on row A or column 1.");
 		aMap.put(SC_POS_CALC_ERROR, "Could not determine aliquot positions.");
 		ERROR_MSG = Collections.unmodifiableMap(aMap);

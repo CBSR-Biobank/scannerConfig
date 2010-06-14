@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig;
+package edu.ualberta.med.scannerconfig.widgets;
 
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -16,6 +16,9 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.ui.PlatformUI;
+
+import edu.ualberta.med.scannerconfig.IPlateBoundsListener;
+import edu.ualberta.med.scannerconfig.ScannerRegion;
 
 public class PlateBoundsWidget {
 
@@ -67,23 +70,17 @@ public class PlateBoundsWidget {
 
 				getPlateRect();
 
-				
+				if (!pointTopLeft
+						&& Point2D.distance(e.x, e.y, plateRect.x, plateRect.y) < 40) {
+					pointTopLeft = true;
+				}
+
 				if (pointTopLeft) {
-					
-					if(Point2D.distance(e.x,e.y,plateRect.x+plateRect.width,plateRect.y+plateRect.height) < 20){
-						return;
-					}
-					
 					plateRect.x = e.x;
 					plateRect.y = e.y;
 					plateRect.width = 0;
 					plateRect.height = 0;
 				} else {
-					
-					if(Point2D.distance(e.x,e.y,plateRect.x,plateRect.y) < 20){
-						return;
-					}
-					
 					if (e.x > plateRect.x) {
 						plateRect.width = e.x - plateRect.x;
 					} else {
@@ -135,8 +132,9 @@ public class PlateBoundsWidget {
 						0, canvasBounds.width, canvasBounds.height);
 				gc.setForeground(mycolor);
 				gc.drawRectangle(plateRect);
-				gc.drawOval(plateRect.x-3, plateRect.y-3, 6, 6);
-				gc.drawOval(plateRect.x+plateRect.width-3, plateRect.y+plateRect.height-3, 6, 6);
+				gc.drawOval(plateRect.x - 3, plateRect.y - 3, 6, 6);
+				gc.drawOval(plateRect.x + plateRect.width - 3, plateRect.y
+						+ plateRect.height - 3, 6, 6);
 				gc.dispose();
 			}
 		});

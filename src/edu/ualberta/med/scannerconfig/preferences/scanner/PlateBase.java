@@ -28,12 +28,12 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
 
 import edu.ualberta.med.scannerconfig.IPlateBoundsListener;
-import edu.ualberta.med.scannerconfig.PlateBoundsWidget;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.ScannerRegion;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.widgets.PlateBoundsWidget;
 
 public class PlateBase extends FieldEditorPreferencePage implements
 		IWorkbenchPreferencePage {
@@ -90,11 +90,12 @@ public class PlateBase extends FieldEditorPreferencePage implements
 				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
 		if (!ScannerConfigPlugin.getDefault().getPlateEnabled(plateId)) {
-			statusLabel.setText("plate not enabled");
+			statusLabel.setText(" plate is not enabled");
 		} else if (!platesFile.exists()) {
-			statusLabel.setText("scan required");
+			statusLabel.setText(" a scan is required to configure this pallet");
 		} else {
-			statusLabel.setText("adjust settings if required");
+			statusLabel
+					.setText(" click on opposite corners to configure pallet");
 		}
 
 		Button b = new Button(right, SWT.NONE);
@@ -152,7 +153,8 @@ public class PlateBase extends FieldEditorPreferencePage implements
 						});
 					}
 				});
-				statusLabel.setText("adjust settings if required");
+				statusLabel
+						.setText(" click on opposite corners to configure pallet");
 			}
 		});
 
