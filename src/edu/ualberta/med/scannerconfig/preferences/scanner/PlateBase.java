@@ -231,6 +231,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 	private void createCanvasComp(Composite parent) {
 		canvas = new Canvas(parent, SWT.BORDER);
 		canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		canvas.setBackground(new Color(Display.getCurrent(), 255, 255, 255));
 
 		IPreferenceStore prefs = ScannerConfigPlugin.getDefault()
 				.getPreferenceStore();
