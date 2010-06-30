@@ -128,6 +128,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 								PlateBoundsWidget.PALLET_IMAGE_FILE);
 
 						parent.getDisplay().asyncExec(new Runnable() {
+							@Override
 							public void run() {
 								if (result != ScanLib.SC_SUCCESS) {
 									MessageDialog.openError(PlatformUI

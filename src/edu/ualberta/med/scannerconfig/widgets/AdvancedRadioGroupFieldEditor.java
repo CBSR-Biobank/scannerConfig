@@ -165,6 +165,7 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 
 			}
 			radioBox.addDisposeListener(new DisposeListener() {
+				@Override
 				public void widgetDisposed(DisposeEvent event) {
 					radioBox = null;
 					radioButtons = null;

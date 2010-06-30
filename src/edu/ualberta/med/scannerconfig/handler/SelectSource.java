@@ -9,13 +9,14 @@ import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
 
 public class SelectSource extends AbstractHandler implements IHandler {
-    public Object execute(ExecutionEvent event) throws ExecutionException {
-        int scanlibReturn = ScanLib.getInstance().slSelectSourceAsDefault();
+	@Override
+	public Object execute(ExecutionEvent event) throws ExecutionException {
+		int scanlibReturn = ScanLib.getInstance().slSelectSourceAsDefault();
 
-        if (scanlibReturn != ScanLib.SC_SUCCESS) {
-            ScannerConfigPlugin.openError("Source Selection Error", ScanLib
-                .getErrMsg(scanlibReturn));
-        }
-        return null;
-    }
+		if (scanlibReturn != ScanLib.SC_SUCCESS) {
+			ScannerConfigPlugin.openError("Source Selection Error",
+					ScanLib.getErrMsg(scanlibReturn));
+		}
+		return null;
+	}
 }

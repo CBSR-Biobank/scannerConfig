@@ -62,6 +62,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
 		getPreferenceStore().addPropertyChangeListener(
 				new IPropertyChangeListener() {
+					@Override
 					public void propertyChange(PropertyChangeEvent event) {
 						if (event.getProperty().startsWith(
 								"scanner.plate.coords.enabled.")) {
@@ -357,6 +358,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
 	public static void openAsyncError(final String title, final String message) {
 		Display.getDefault().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				MessageDialog.openError(PlatformUI.getWorkbench()
 						.getActiveWorkbenchWindow().getShell(), title, message);

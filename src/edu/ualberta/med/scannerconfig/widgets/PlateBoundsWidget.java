@@ -108,6 +108,7 @@ public class PlateBoundsWidget {
 		});
 
 		canvas.addPaintListener(new PaintListener() {
+			@Override
 			public void paintControl(PaintEvent e) {
 				File platesFile = new File(PlateBoundsWidget.PALLET_IMAGE_FILE);
 				if (platesFile.exists()
@@ -151,6 +152,7 @@ public class PlateBoundsWidget {
 		for (int i = 0; i < listeners.length; ++i) {
 			final IPlateBoundsListener l = (IPlateBoundsListener) listeners[i];
 			SafeRunnable.run(new SafeRunnable() {
+				@Override
 				public void run() {
 					l.change();
 				}
