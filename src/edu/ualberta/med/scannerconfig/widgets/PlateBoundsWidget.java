@@ -6,6 +6,8 @@ import java.io.File;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.PaintEvent;
@@ -13,6 +15,7 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.ui.PlatformUI;
@@ -58,6 +61,22 @@ public class PlateBoundsWidget {
 
 		pointTopLeft = true;
 
+		canvas.getParent().addControlListener(new ControlListener() {
+
+			@Override
+			public void controlMoved(ControlEvent e) {
+			}
+
+			@Override
+			public void controlResized(ControlEvent e) {
+
+				if (canvas.getSize() != null
+						&& !canvas.getSize().equals(new Point(0, 0))) {
+					pointTopLeft = true;
+				}
+			}
+		});
+
 		canvas.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
@@ -65,13 +84,14 @@ public class PlateBoundsWidget {
 
 			@Override
 			public void mouseDown(MouseEvent e) {
+
 				if (img == null)
 					return;
 
 				getPlateRect();
 
 				if (!pointTopLeft
-						&& Point2D.distance(e.x, e.y, plateRect.x, plateRect.y) < 40) {
+						&& Point2D.distance(e.x, e.y, plateRect.x, plateRect.y) < 20) {
 					pointTopLeft = true;
 				}
 
@@ -95,7 +115,6 @@ public class PlateBoundsWidget {
 						plateRect.y = e.y;
 					}
 				}
-
 				pointTopLeft = !pointTopLeft;
 				canvas.redraw();
 				canvas.update();
@@ -107,6 +126,7 @@ public class PlateBoundsWidget {
 			}
 		});
 
+		canvas.getParent().layout();
 		canvas.addPaintListener(new PaintListener() {
 			@Override
 			public void paintControl(PaintEvent e) {
@@ -126,11 +146,29 @@ public class PlateBoundsWidget {
 				getPlateRect();
 
 				Rectangle imgBounds = img.getBounds();
+
+				double imgAspectRatio = (double) imgBounds.width
+						/ (double) imgBounds.height;
+
+				Point canvasSize = canvas.getSize();
+				// wide
+				if (imgAspectRatio > 1) {
+					canvasSize.y = (int) (canvasSize.x / imgAspectRatio);
+				} else {
+					canvasSize.x = (int) (canvasSize.y * imgAspectRatio);
+				}
+				if (!canvas.getSize().equals(canvasSize)
+						&& !canvas.getSize().equals(canvas.getClientArea()))
+					canvas.setSize(canvasSize);
+
 				Rectangle canvasBounds = canvas.getBounds();
 
 				GC gc = new GC(canvas);
+
+				// width/height <= 1
 				gc.drawImage(img, 0, 0, imgBounds.width, imgBounds.height, 0,
 						0, canvasBounds.width, canvasBounds.height);
+
 				gc.setForeground(mycolor);
 				gc.drawRectangle(plateRect);
 				gc.drawOval(plateRect.x - 3, plateRect.y - 3, 6, 6);
