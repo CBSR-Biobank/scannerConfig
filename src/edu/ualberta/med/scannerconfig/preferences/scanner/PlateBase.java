@@ -113,14 +113,14 @@ public class PlateBase extends FieldEditorPreferencePage implements
 					@Override
 					public void run() {
 						int brightness = ScannerConfigPlugin.getDefault()
-								.getPreferenceStore().getInt(
-										PreferenceConstants.SCANNER_BRIGHTNESS);
+								.getPreferenceStore()
+								.getInt(PreferenceConstants.SCANNER_BRIGHTNESS);
 						int contrast = ScannerConfigPlugin.getDefault()
-								.getPreferenceStore().getInt(
-										PreferenceConstants.SCANNER_CONTRAST);
+								.getPreferenceStore()
+								.getInt(PreferenceConstants.SCANNER_CONTRAST);
 						int debugLevel = ScannerConfigPlugin.getDefault()
-								.getPreferenceStore().getInt(
-										PreferenceConstants.DLL_DEBUG_LEVEL);
+								.getPreferenceStore()
+								.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 						final int result = ScanLib.getInstance().slScanImage(
 								debugLevel,
 								(int) PlateBoundsWidget.PALLET_IMAGE_DPI,
@@ -128,6 +128,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 								PlateBoundsWidget.PALLET_IMAGE_FILE);
 
 						parent.getDisplay().asyncExec(new Runnable() {
+							@Override
 							public void run() {
 								if (result != ScanLib.SC_SUCCESS) {
 									MessageDialog.openError(PlatformUI

@@ -60,17 +60,6 @@ public class ScanLibSimulate extends ScanLib {
 		}
 	}
 
-	@Override
-	public int slDecodePlateMultipleDpi(long verbose, long dpi1, long dpi2,
-			long dpi3, int brightness, int contrast, long plateNum,
-			double left, double top, double right, double bottom,
-			double scanGap, long squareDev, long edgeThresh, long corrections,
-			double cellDistance) {
-		return slDecodePlate(verbose, dpi1, brightness, contrast, plateNum,
-				left, top, right, bottom, scanGap, squareDev, edgeThresh,
-				corrections, cellDistance);
-	}
-
 	private static String getRandomString(int maxlen) {
 		String str = new String();
 		for (int j = 0; j < maxlen; ++j) {

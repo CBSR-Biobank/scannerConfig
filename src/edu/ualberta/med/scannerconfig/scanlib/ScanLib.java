@@ -64,9 +64,8 @@ public abstract class ScanLib {
 	static {
 		Map<Integer, String> aMap = new HashMap<Integer, String>();
 		aMap.put(SC_SUCCESS, "The call to ScanLib was successful.");
-		aMap
-				.put(SC_FAIL,
-						"Unable to scan an image, please ensure a working scanner source is selected.");
+		aMap.put(SC_FAIL,
+				"Unable to scan an image, please ensure a working scanner source is selected.");
 		aMap.put(SC_TWAIN_UAVAIL, "The TWAIN driver was not found.");
 		aMap.put(SC_INVALID_DPI, "An invalid DPI value was specified.");
 		aMap.put(SC_INVALID_PLATE_NUM, "The plate number used is invalid.");
@@ -234,12 +233,6 @@ public abstract class ScanLib {
 			int contrast, long plateNum, double left, double top, double right,
 			double bottom, double scanGap, long squareDev, long edgeThresh,
 			long corrections, double cellDistance);
-
-	public abstract int slDecodePlateMultipleDpi(long verbose, long dpi1,
-			long dpi2, long dpi3, int brightness, int contrast, long plateNum,
-			double left, double top, double right, double bottom,
-			double scanGap, long squareDev, long edgeThresh, long corrections,
-			double cellDistance);
 
 	/**
 	 * From the regions specified in the INI file for the corresponding plate,

@@ -62,6 +62,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
 		getPreferenceStore().addPropertyChangeListener(
 				new IPropertyChangeListener() {
+					@Override
 					public void propertyChange(PropertyChangeEvent event) {
 						if (event.getProperty().startsWith(
 								"scanner.plate.coords.enabled.")) {
@@ -240,65 +241,19 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 		return tubesScanned;
 	}
 
-	public static ScanCell[][] scanMultipleDpi(int plateNumber)
-			throws Exception {
-		int brightness = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.SCANNER_BRIGHTNESS);
-		int contrast = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.SCANNER_CONTRAST);
-		int debugLevel = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.DLL_DEBUG_LEVEL);
-		int edgeThresh = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.LIBDMTX_EDGE_THRESH);
-		double scanGap = getDefault().getPreferenceStore().getDouble(
-				PreferenceConstants.LIBDMTX_SCAN_GAP);
-		int squareDev = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.LIBDMTX_SQUARE_DEV);
-		int corrections = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.LIBDMTX_CORRECTIONS);
-		double cellDistance = getDefault().getPreferenceStore().getDouble(
-				PreferenceConstants.LIBDMTX_CELL_DISTANCE);
-
-		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[plateNumber - 1];
-
-		ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
-				.getPreferenceStore().getDouble(prefsArr[0]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[1]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[2]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[3]));
-		regionModifyIfScannerWia(region);
-
-		int scannerCap = ScanLib.getInstance().slGetScannerCapability();
-		int dpi1 = (scannerCap & ScanLib.CAP_DPI_300) != 0 ? 300 : 0;
-		int dpi2 = (scannerCap & ScanLib.CAP_DPI_400) != 0 ? 400 : 0;
-		int dpi3 = (scannerCap & ScanLib.CAP_DPI_600) != 0 ? 600 : 0;
-
-		int res = ScanLib.getInstance().slDecodePlateMultipleDpi(debugLevel,
-				dpi1, dpi2, dpi3, brightness, contrast, plateNumber,
-				region.left, region.top, region.right, region.bottom, scanGap,
-				squareDev, edgeThresh, corrections, cellDistance);
-
-		if (res < ScanLib.SC_SUCCESS) {
-			throw new Exception("Could not decode image. "
-					+ ScanLib.getErrMsg(res));
-		}
-		return ScanCell.getScanLibResults();
-	}
-
 	public boolean getPlateEnabled(int plateId) {
-		Assert
-				.isTrue(
-						(plateId > 0)
-								&& (plateId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
-						"plate id is invalid: " + plateId);
+		Assert.isTrue(
+				(plateId > 0)
+						&& (plateId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
+				"plate id is invalid: " + plateId);
 		return getPreferenceStore().getBoolean(
 				PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1]);
 	}
 
 	private static void regionModifyIfScannerWia(ScannerRegion region) {
-		if (!ScannerConfigPlugin.getDefault().getPreferenceStore().getString(
-				PreferenceConstants.SCANNER_DRV_TYPE).equals(
-				PreferenceConstants.SCANNER_DRV_TYPE_WIA))
+		if (!ScannerConfigPlugin.getDefault().getPreferenceStore()
+				.getString(PreferenceConstants.SCANNER_DRV_TYPE)
+				.equals(PreferenceConstants.SCANNER_DRV_TYPE_WIA))
 			return;
 
 		region.right = region.right - region.left;
@@ -357,6 +312,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
 	public static void openAsyncError(final String title, final String message) {
 		Display.getDefault().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				MessageDialog.openError(PlatformUI.getWorkbench()
 						.getActiveWorkbenchWindow().getShell(), title, message);

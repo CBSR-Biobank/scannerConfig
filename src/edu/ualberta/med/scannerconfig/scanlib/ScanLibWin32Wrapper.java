@@ -29,10 +29,6 @@ public class ScanLibWin32Wrapper {
     return ScanLibWin32WrapperJNI.slDecodePlate(verbose, dpi, brightness, contrast, plateNum, left, top, right, bottom, scanGap, squareDev, edgeThresh, corrections, cellDistance);
   }
 
-  public static int slDecodePlateMultipleDpi(long verbose, long dpi1, long dpi2, long dpi3, int brightness, int contrast, long plateNum, double left, double top, double right, double bottom, double scanGap, long squareDev, long edgeThresh, long corrections, double cellDistance) {
-    return ScanLibWin32WrapperJNI.slDecodePlateMultipleDpi(verbose, dpi1, dpi2, dpi3, brightness, contrast, plateNum, left, top, right, bottom, scanGap, squareDev, edgeThresh, corrections, cellDistance);
-  }
-
   public static int slDecodeImage(long verbose, long plateNum, String filename, double scanGap, long squareDev, long edgeThresh, long corrections, double cellDistance) {
     return ScanLibWin32WrapperJNI.slDecodeImage(verbose, plateNum, filename, scanGap, squareDev, edgeThresh, corrections, cellDistance);
   }
