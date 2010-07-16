@@ -29,6 +29,7 @@ public class PlateBoundsWidget {
 
 	public static final String PALLET_IMAGE_FILE = "plates.bmp";
 
+	/* please note that this can change value */
 	public static double PALLET_IMAGE_DPI = 300.0;
 
 	private boolean pointTopLeft;
@@ -90,32 +91,43 @@ public class PlateBoundsWidget {
 
 				getPlateRect();
 
-				if (!pointTopLeft
-						&& Point2D.distance(e.x, e.y, plateRect.x, plateRect.y) < 20) {
-					pointTopLeft = true;
-				}
+				if ((plateRect.x != 0 || plateRect.y != 0)
+						&& Point2D.distance(e.x, e.y, plateRect.x, plateRect.y) < 30) {
 
-				if (pointTopLeft) {
+					plateRect.width = plateRect.width + (plateRect.x - e.x);
+					plateRect.height = plateRect.height + (plateRect.y - e.y);
 					plateRect.x = e.x;
 					plateRect.y = e.y;
-					plateRect.width = 0;
-					plateRect.height = 0;
+				} else if ((plateRect.width != 0 || plateRect.height != 0)
+						&& Point2D.distance(e.x, e.y, plateRect.x
+								+ plateRect.width, plateRect.y
+								+ plateRect.height) < 30) {
+					plateRect.width = e.x - plateRect.x;
+					plateRect.height = e.y - plateRect.y;
 				} else {
-					if (e.x > plateRect.x) {
-						plateRect.width = e.x - plateRect.x;
-					} else {
-						plateRect.width = plateRect.x - e.x;
+					if (pointTopLeft) {
 						plateRect.x = e.x;
-					}
-
-					if (e.y > plateRect.y) {
-						plateRect.height = e.y - plateRect.y;
-					} else {
-						plateRect.height = plateRect.y - e.y;
 						plateRect.y = e.y;
+						plateRect.width = 0;
+						plateRect.height = 0;
+					} else {
+						if (e.x > plateRect.x) {
+							plateRect.width = e.x - plateRect.x;
+						} else {
+							plateRect.width = plateRect.x - e.x;
+							plateRect.x = e.x;
+						}
+
+						if (e.y > plateRect.y) {
+							plateRect.height = e.y - plateRect.y;
+						} else {
+							plateRect.height = plateRect.y - e.y;
+							plateRect.y = e.y;
+						}
 					}
+					pointTopLeft = !pointTopLeft;
 				}
-				pointTopLeft = !pointTopLeft;
+
 				canvas.redraw();
 				canvas.update();
 				notifyChangeListener();
