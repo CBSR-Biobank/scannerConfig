@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.scanlib;
+package edu.ualberta.med.scannerconfig.dmscanlib;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -37,7 +37,7 @@ public class ScanLibSimulate extends ScanLib {
 		try {
 			// simulate decode
 			BufferedWriter out = new BufferedWriter(new FileWriter(
-					"scanlib.txt"));
+					"dmscanlib.txt"));
 
 			List<Integer> sampleIds = new ArrayList<Integer>();
 			int samples = r.nextInt(96) + 1;

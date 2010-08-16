@@ -19,10 +19,10 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.services.ISourceProviderService;
 import org.osgi.framework.BundleContext;
 
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanCell;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibWin32;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
-import edu.ualberta.med.scannerconfig.scanlib.ScanCell;
-import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
-import edu.ualberta.med.scannerconfig.scanlib.ScanLibWin32;
 import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
 
 /**
@@ -219,7 +219,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				region.right, region.bottom, scanGap, squareDev, edgeThresh,
 				corrections, cellDistance);
 
-		if (res != ScanLib.SC_SUCCESS || !(new File("scanlib.txt")).exists()) {
+		if (res != ScanLib.SC_SUCCESS || !(new File("dmscanlib.txt")).exists()) {
 			return 0;
 		}
 

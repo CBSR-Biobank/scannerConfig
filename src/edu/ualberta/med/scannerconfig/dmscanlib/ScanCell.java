@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.scanlib;
+package edu.ualberta.med.scannerconfig.dmscanlib;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -34,7 +34,7 @@ public class ScanCell {
 	public static ScanCell[][] getScanLibResults() throws Exception {
 		ScanCell[][] paletteScanned = new ScanCell[ROW_MAX][COL_MAX];
 
-		BufferedReader in = new BufferedReader(new FileReader("scanlib.txt"));
+		BufferedReader in = new BufferedReader(new FileReader("dmscanlib.txt"));
 
 		String str;
 		while ((str = in.readLine()) != null) {

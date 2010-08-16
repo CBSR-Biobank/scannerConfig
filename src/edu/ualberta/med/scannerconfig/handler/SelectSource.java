@@ -6,7 +6,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
-import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 
 public class SelectSource extends AbstractHandler implements IHandler {
 	@Override

@@ -17,7 +17,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.calibration.AutoCalibrate;
 import edu.ualberta.med.scannerconfig.calibration.FitnessFunct;
-import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
 import edu.ualberta.med.scannerconfig.widgets.PlateBoundsWidget;
 

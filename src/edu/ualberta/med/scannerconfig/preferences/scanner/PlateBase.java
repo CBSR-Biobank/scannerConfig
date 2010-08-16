@@ -30,9 +30,9 @@ import org.eclipse.ui.PlatformUI;
 import edu.ualberta.med.scannerconfig.IPlateBoundsListener;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.ScannerRegion;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
-import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.widgets.PlateBoundsWidget;
 
 public class PlateBase extends FieldEditorPreferencePage implements
@@ -66,7 +66,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
 		File platesFile = new File(PlateBoundsWidget.PALLET_IMAGE_FILE);
 		if (platesFile.exists()) {
-			platesFile.delete();
+			// platesFile.delete();
 		}
 
 		Control s = super.createContents(top);
@@ -193,21 +193,11 @@ public class PlateBase extends FieldEditorPreferencePage implements
 					if (plateBoundsWidget == null)
 						return;
 					try {
-						Text source = (Text) e.getSource();
-
-						if (source == textControls[0]) {
-							plateBoundsWidget.assignRegionLeft(Double
-									.parseDouble(source.getText()));
-						} else if (source == textControls[1]) {
-							plateBoundsWidget.assignRegionTop(Double
-									.parseDouble(source.getText()));
-						} else if (source == textControls[2]) {
-							plateBoundsWidget.assignRegionRight(Double
-									.parseDouble(source.getText()));
-						} else if (source == textControls[3]) {
-							plateBoundsWidget.assignRegionBottom(Double
-									.parseDouble(source.getText()));
-						}
+						plateBoundsWidget.assignRegions("" + plateId,
+								Double.parseDouble(textControls[0].getText()),
+								Double.parseDouble(textControls[1].getText()),
+								Double.parseDouble(textControls[2].getText()),
+								Double.parseDouble(textControls[3].getText()));
 						setValid(true);
 					} catch (NumberFormatException ex) {
 						setValid(false);
@@ -272,7 +262,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
 			@Override
 			public void change() {
-				ScannerRegion r = plateBoundsWidget.getPlateRetion();
+				ScannerRegion r = plateBoundsWidget.getPlateRegion();
 				textControls[0].setText(String.valueOf(r.left));
 				textControls[1].setText(String.valueOf(r.top));
 				textControls[2].setText(String.valueOf(r.right));

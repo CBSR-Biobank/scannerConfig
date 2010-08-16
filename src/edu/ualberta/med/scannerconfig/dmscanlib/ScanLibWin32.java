@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.scanlib;
+package edu.ualberta.med.scannerconfig.dmscanlib;
 
 public class ScanLibWin32 extends ScanLib {
 

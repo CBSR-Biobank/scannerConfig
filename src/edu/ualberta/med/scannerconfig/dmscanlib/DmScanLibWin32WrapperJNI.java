@@ -6,9 +6,9 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package edu.ualberta.med.scannerconfig.scanlib;
+package edu.ualberta.med.scannerconfig.dmscanlib;
 
-class ScanLibWin32WrapperJNI {
+class DmScanLibWin32WrapperJNI {
   public final static native int slIsTwainAvailable();
   public final static native int slSelectSourceAsDefault();
   public final static native int slGetScannerCapability();

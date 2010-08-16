@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.scanlib;
+package edu.ualberta.med.scannerconfig.dmscanlib;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -178,7 +178,7 @@ public abstract class ScanLib {
 	/**
 	 * From the regions specified in the INI file for the corresponding plate,
 	 * scans an image and then decodes all the regions. The decoded barcodes are
-	 * written to the file "scanlib.txt". The scanlib.txt file is a comma
+	 * written to the file "dmscanlib.txt". The scanlib.txt file is a comma
 	 * separated value file with the following columns: Plate, Row, Column,
 	 * Barcode.
 	 * 
@@ -237,7 +237,7 @@ public abstract class ScanLib {
 	/**
 	 * From the regions specified in the INI file for the corresponding plate,
 	 * decodes all the regions. The decoded barcodes are written to the file
-	 * "scanlib.txt". The scanlib.txt file is a comma separated value file with
+	 * "dmscanlib.txt". The scanlib.txt file is a comma separated value file with
 	 * the following columns: Plate, Row, Column, Barcode.
 	 * 
 	 * Calling this function also creates the "decoded.bmp" windows bitmap file.

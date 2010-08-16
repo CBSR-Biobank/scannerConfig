@@ -10,8 +10,8 @@ import org.jgap.FitnessFunction;
 import org.jgap.IChromosome;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
-import edu.ualberta.med.scannerconfig.scanlib.ScanLib;
 
 public class FitnessFunct extends FitnessFunction {
 	/**
@@ -96,7 +96,7 @@ public class FitnessFunct extends FitnessFunction {
 	private static int scanlibCount(IChromosome chroma) {
 
 		// Delete scanlib.txt if it exists
-		File scanlibFile = new File("scanlib.txt");
+		File scanlibFile = new File("dmscanlib.txt");
 		if (scanlibFile.exists()) {
 			scanlibFile.delete();
 		}
@@ -123,9 +123,8 @@ public class FitnessFunct extends FitnessFunction {
 
 			// XXX Debug Code
 			System.out
-					.printf(
-							"TWAIN Tubes Scanned: %02d, Return: %01d, Set: "
-									+ "bright: %03d, contra: %03d, gap: %.3f, squdev: %02d, thres: %03d, corr: %02d, celld: %.3f\n",
+					.printf("TWAIN Tubes Scanned: %02d, Return: %01d, Set: "
+							+ "bright: %03d, contra: %03d, gap: %.3f, squdev: %02d, thres: %03d, corr: %02d, celld: %.3f\n",
 							tubesscanned, 0, brightness, contrast, gap,
 							squareDev, threshold, corrections, celldist);
 
@@ -144,9 +143,8 @@ public class FitnessFunct extends FitnessFunction {
 				// XXX Debug Code
 				System.out.printf("Scanlib: Could not decode image\n");
 				System.out
-						.printf(
-								"Evil Settings: "
-										+ "gap: %.3f, squdev: %02d, thres: %03d, corr: %02d, celld: %.3f\n",
+						.printf("Evil Settings: "
+								+ "gap: %.3f, squdev: %02d, thres: %03d, corr: %02d, celld: %.3f\n",
 								gap, squareDev, threshold, corrections,
 								celldist);
 				return 0;
@@ -155,9 +153,8 @@ public class FitnessFunct extends FitnessFunction {
 			int tubesscanned = countTubesScanned();
 			// XXX Debug Code
 			System.out
-					.printf(
-							"WIA Tubes Scanned: %02d, Time: %04d Return: %01d, Set: "
-									+ "gap: %.3f, squdev: %02d, thres: %03d, corr: %02d, celld: %.3f\n",
+					.printf("WIA Tubes Scanned: %02d, Time: %04d Return: %01d, Set: "
+							+ "gap: %.3f, squdev: %02d, thres: %03d, corr: %02d, celld: %.3f\n",
 							tubesscanned, scanTime, retcode, gap, squareDev,
 							threshold, corrections, celldist);
 			return tubesscanned;
@@ -166,14 +163,14 @@ public class FitnessFunct extends FitnessFunction {
 	}
 
 	public static int countTubesScanned() {
-		File scanlibFile = new File("scanlib.txt");
+		File scanlibFile = new File("dmscanlib.txt");
 		Scanner fileInput = null;
 		int tubesScanned = 0;
 
 		if (scanlibFile.exists()) {
 			try {
 				fileInput = new Scanner(new BufferedReader(new FileReader(
-						"scanlib.txt")));
+						"dmscanlib.txt")));
 			} catch (IOException e) {
 			}
 			while (fileInput.hasNextLine()) {
