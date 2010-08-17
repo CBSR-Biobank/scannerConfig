@@ -44,7 +44,10 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 	public ScannerConfigPlugin() {
 		String osname = System.getProperty("os.name");
 		if (osname.startsWith("Windows")) {
-			System.loadLibrary("scanlib");
+			System.loadLibrary("OpenThreadsWin32");
+			System.loadLibrary("cxcore210");
+			System.loadLibrary("cv210");
+			System.loadLibrary("dmscanlib");
 		}
 	}
 
