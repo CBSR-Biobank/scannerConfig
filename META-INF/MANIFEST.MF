@@ -7,7 +7,10 @@ Bundle-Activator: edu.ualberta.med.scannerconfig.ScannerConfigPlugin
 Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-NativeCode: scanlib.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",*
+Bundle-NativeCode: dmscanlib.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",
+ cv210.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",
+ cxcore210.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",
+ OpenThreads.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",*
 Bundle-ClassPath: lib/jgap.jar,
  .
 Export-Package: edu.ualberta.med.scannerconfig,
