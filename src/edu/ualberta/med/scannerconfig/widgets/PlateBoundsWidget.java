@@ -1,26 +1,22 @@
 package edu.ualberta.med.scannerconfig.widgets;
 
-import java.awt.geom.Point2D;
 import java.io.File;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.util.SafeRunnable;
-<<<<<<< HEAD
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-=======
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
->>>>>>> b93d850637fb5f899c40c8557566b313f861ec9b
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -36,8 +32,10 @@ import edu.ualberta.med.scannerconfig.ScannerRegion;
 public class PlateBoundsWidget {
 
 	private Canvas canvas;
+	private Image scannedImage;
+	private GridRegion gridRegion;
+	private ScannerRegion initialScannerRegion;
 
-<<<<<<< HEAD
 	private Image imageBuffer;
 	private GC imageGC;
 
@@ -143,20 +141,11 @@ public class PlateBoundsWidget {
 			this.oldCanvasSize = canvas.getSize();
 
 		}
-=======
-	public static final String PALLET_IMAGE_FILE = "plates.bmp";
 
-	/* please note that this can change value */
-	public static double PALLET_IMAGE_DPI = 300.0;
+		public ScannerRegion getScannerRegion() {
 
-	private boolean pointTopLeft;
->>>>>>> b93d850637fb5f899c40c8557566b313f861ec9b
+			ScannerRegion r = new ScannerRegion();
 
-	private Rectangle plateRect;
-
-	private ScannerRegion scannerRegion;
-
-<<<<<<< HEAD
 			double canvasWidth = canvas.getBounds().width;
 			double canvasHeight = canvas.getBounds().height;
 
@@ -174,48 +163,36 @@ public class PlateBoundsWidget {
 			return r;
 
 		}
-=======
-	private Image img;
 
-	private long platesFileLastModified;
->>>>>>> b93d850637fb5f899c40c8557566b313f861ec9b
+		public Rectangle getRectangle() {
+			return new Rectangle((int) left, (int) top, (int) width,
+					(int) height);
+		}
 
-	protected ListenerList changeListeners = new ListenerList();
+	}
 
-	// pointTopLeft: Used to determine which point the user is currently
-	// adjusting.The point is either top-left or bottom-right.
-
-<<<<<<< HEAD
 	public PlateBoundsWidget(Canvas c, ScannerRegion r) {
-=======
-	public PlateBoundsWidget(Canvas c, ScannerRegion r, final Color mycolor) {
-		canvas = c;
-		scannerRegion = r;
-		plateRect = new Rectangle(-1, -1, -1, -1);
->>>>>>> b93d850637fb5f899c40c8557566b313f861ec9b
 
 		File platesFile = new File(PlateBoundsWidget.PALLET_IMAGE_FILE);
 		if (platesFile.exists()) {
 			platesFileLastModified = platesFile.lastModified();
-			img = new Image(PlatformUI.getWorkbench()
+			scannedImage = new Image(PlatformUI.getWorkbench()
 					.getActiveWorkbenchWindow().getShell().getDisplay(),
 					PALLET_IMAGE_FILE);
 		}
+		canvas = c;
+		initialScannerRegion = r;
+		Assert.isNotNull(scannedImage, "scannedImage is null");
 
-<<<<<<< HEAD
 		canvas.getParent().layout();
 		canvas.pack();
 		canvas.setFocus();
 		canvas.redraw();
 		canvas.update();
-=======
-		pointTopLeft = true;
->>>>>>> b93d850637fb5f899c40c8557566b313f861ec9b
 
-		canvas.getParent().addControlListener(new ControlListener() {
+		canvas.addMouseMoveListener(new MouseMoveListener() {
 
 			@Override
-<<<<<<< HEAD
 			public void mouseMove(MouseEvent e) {
 
 				if (getGridRegion().getRectangle().contains(e.x, e.y))
@@ -319,18 +296,7 @@ public class PlateBoundsWidget {
 						}
 					}
 				}
-=======
-			public void controlMoved(ControlEvent e) {
-			}
 
-			@Override
-			public void controlResized(ControlEvent e) {
->>>>>>> b93d850637fb5f899c40c8557566b313f861ec9b
-
-				if (canvas.getSize() != null
-						&& !canvas.getSize().equals(new Point(0, 0))) {
-					pointTopLeft = true;
-				}
 			}
 		});
 		canvas.addListener(SWT.MouseWheel, new Listener() {
@@ -368,16 +334,11 @@ public class PlateBoundsWidget {
 
 		canvas.addMouseListener(new MouseListener() {
 			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-			}
-
-			@Override
 			public void mouseDown(MouseEvent e) {
 
-				if (img == null)
+				if (scannedImage == null)
 					return;
 
-<<<<<<< HEAD
 				if (dragMode != DragMode.NONE) {
 					drag = true;
 					startDragMousePt.y = e.y;
@@ -387,55 +348,19 @@ public class PlateBoundsWidget {
 							getGridRegion().getRectangle().y, gridRegion
 									.getRectangle().width, gridRegion
 									.getRectangle().height);
-=======
-				getPlateRect();
 
-				if ((plateRect.x != 0 || plateRect.y != 0)
-						&& Point2D.distance(e.x, e.y, plateRect.x, plateRect.y) < 30) {
-
-					plateRect.width = plateRect.width + (plateRect.x - e.x);
-					plateRect.height = plateRect.height + (plateRect.y - e.y);
-					plateRect.x = e.x;
-					plateRect.y = e.y;
-				} else if ((plateRect.width != 0 || plateRect.height != 0)
-						&& Point2D.distance(e.x, e.y, plateRect.x
-								+ plateRect.width, plateRect.y
-								+ plateRect.height) < 30) {
-					plateRect.width = e.x - plateRect.x;
-					plateRect.height = e.y - plateRect.y;
-				} else {
-					if (pointTopLeft) {
-						plateRect.x = e.x;
-						plateRect.y = e.y;
-						plateRect.width = 0;
-						plateRect.height = 0;
-					} else {
-						if (e.x > plateRect.x) {
-							plateRect.width = e.x - plateRect.x;
-						} else {
-							plateRect.width = plateRect.x - e.x;
-							plateRect.x = e.x;
-						}
->>>>>>> b93d850637fb5f899c40c8557566b313f861ec9b
-
-						if (e.y > plateRect.y) {
-							plateRect.height = e.y - plateRect.y;
-						} else {
-							plateRect.height = plateRect.y - e.y;
-							plateRect.y = e.y;
-						}
-					}
-					pointTopLeft = !pointTopLeft;
 				}
-
 				canvas.redraw();
 
 				notifyChangeListener();
 			}
 
 			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+			}
+
+			@Override
 			public void mouseUp(MouseEvent e) {
-<<<<<<< HEAD
 				drag = false;
 				dragMode = DragMode.NONE;
 			}
@@ -469,47 +394,32 @@ public class PlateBoundsWidget {
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-=======
->>>>>>> b93d850637fb5f899c40c8557566b313f861ec9b
 			}
 		});
 
-		canvas.getParent().layout();
 		canvas.addPaintListener(new PaintListener() {
+
 			@Override
 			public void paintControl(PaintEvent e) {
+
 				File platesFile = new File(PlateBoundsWidget.PALLET_IMAGE_FILE);
 				if (platesFile.exists()
 						&& (platesFileLastModified != platesFile.lastModified())) {
 					platesFileLastModified = platesFile.lastModified();
-					img = new Image(
+					scannedImage = new Image(
 							PlatformUI.getWorkbench()
 									.getActiveWorkbenchWindow().getShell()
 									.getDisplay(), PALLET_IMAGE_FILE);
 				}
-
-				if (img == null)
+				if (scannedImage == null)
 					return;
 
-<<<<<<< HEAD
 				Rectangle imgBounds = scannedImage.getBounds();
 				Point canvasSize = canvas.getSize();
 
 				double imgAspectRatio = (double) imgBounds.width
 						/ (double) imgBounds.height;
 				if (imgAspectRatio > 1)
-=======
-				getPlateRect();
-
-				Rectangle imgBounds = img.getBounds();
-
-				double imgAspectRatio = (double) imgBounds.width
-						/ (double) imgBounds.height;
-
-				Point canvasSize = canvas.getSize();
-				// wide
-				if (imgAspectRatio > 1) {
->>>>>>> b93d850637fb5f899c40c8557566b313f861ec9b
 					canvasSize.y = (int) (canvasSize.x / imgAspectRatio);
 				else
 					canvasSize.x = (int) (canvasSize.y * imgAspectRatio);
@@ -521,7 +431,6 @@ public class PlateBoundsWidget {
 						scannedImage.getBounds().height, 0, 0,
 						canvas.getBounds().width, canvas.getBounds().height);
 
-<<<<<<< HEAD
 				imageGC.setForeground(new Color(canvas.getDisplay(), 255, 0, 0));
 
 				imageGC.drawRectangle(getGridRegion().getRectangle());
@@ -569,24 +478,6 @@ public class PlateBoundsWidget {
 				gc.drawPoint((int) cx, (int) cy);
 			}
 		}
-=======
-				GC gc = new GC(canvas);
-
-				// width/height <= 1
-				gc.drawImage(img, 0, 0, imgBounds.width, imgBounds.height, 0,
-						0, canvasBounds.width, canvasBounds.height);
-
-				gc.setForeground(mycolor);
-				gc.drawRectangle(plateRect);
-				gc.drawOval(plateRect.x - 3, plateRect.y - 3, 6, 6);
-				gc.drawOval(plateRect.x + plateRect.width - 3, plateRect.y
-						+ plateRect.height - 3, 6, 6);
-				gc.dispose();
-			}
-		});
-
-		canvas.update();
->>>>>>> b93d850637fb5f899c40c8557566b313f861ec9b
 	}
 
 	public void addChangeListener(IPlateBoundsListener listener) {
@@ -604,10 +495,8 @@ public class PlateBoundsWidget {
 				}
 			});
 		}
-
 	}
 
-<<<<<<< HEAD
 	@Deprecated
 	public void assignRegions(String name, double left, double top,
 			double right, double bottom, double gapX, double gapY) {
@@ -616,83 +505,9 @@ public class PlateBoundsWidget {
 				bottom, gapX, gapY));
 		canvas.redraw();
 
-=======
-	private void getPlateRect() {
-		Assert.isNotNull(canvas, "canvas is null");
-
-		if (plateRect.width != -1)
-			return;
-
-		Rectangle imgBounds = img.getBounds();
-		Rectangle canvasBounds = canvas.getBounds();
-
-		plateRect.x = (int) (scannerRegion.left * canvasBounds.width
-				* PALLET_IMAGE_DPI / imgBounds.width);
-		plateRect.y = (int) (scannerRegion.top * canvasBounds.height
-				* PALLET_IMAGE_DPI / imgBounds.height);
-		plateRect.width = (int) (scannerRegion.right * canvasBounds.width
-				* PALLET_IMAGE_DPI / imgBounds.width)
-				- plateRect.x;
-		plateRect.height = (int) (scannerRegion.bottom * canvasBounds.height
-				* PALLET_IMAGE_DPI / imgBounds.height)
-				- plateRect.y;
->>>>>>> b93d850637fb5f899c40c8557566b313f861ec9b
 	}
 
-	public void assignRegionLeft(double left) {
-		Assert.isNotNull(canvas, "canvas is null");
-
-		Rectangle imgBounds = img.getBounds();
-		Rectangle canvasBounds = canvas.getBounds();
-		plateRect.x = (int) (left * canvasBounds.width * PALLET_IMAGE_DPI / imgBounds.width);
-		canvas.redraw();
-		canvas.update();
-	}
-
-	public void assignRegionTop(double top) {
-		Assert.isNotNull(canvas, "canvas is null");
-		Rectangle imgBounds = img.getBounds();
-		Rectangle canvasBounds = canvas.getBounds();
-		plateRect.y = (int) (top * canvasBounds.height * PALLET_IMAGE_DPI / imgBounds.height);
-		canvas.redraw();
-		canvas.update();
-	}
-
-	public void assignRegionRight(double right) {
-		Assert.isNotNull(canvas, "canvas is null");
-		Rectangle imgBounds = img.getBounds();
-		Rectangle canvasBounds = canvas.getBounds();
-		plateRect.width = (int) (right * canvasBounds.width * PALLET_IMAGE_DPI / imgBounds.width)
-				- plateRect.x;
-		canvas.redraw();
-		canvas.update();
-	}
-
-	public void assignRegionBottom(double bottom) {
-		Assert.isNotNull(canvas, "canvas is null");
-		Rectangle imgBounds = img.getBounds();
-		Rectangle canvasBounds = canvas.getBounds();
-		plateRect.height = (int) (bottom * canvasBounds.height
-				* PALLET_IMAGE_DPI / imgBounds.height)
-				- plateRect.y;
-		canvas.redraw();
-		canvas.update();
-	}
-
-	public ScannerRegion getPlateRetion() {
-		ScannerRegion region = new ScannerRegion();
-
-		Rectangle imgBounds = img.getBounds();
-		Rectangle canvasBounds = canvas.getBounds();
-		double widthRatio = imgBounds.width / PALLET_IMAGE_DPI
-				/ canvasBounds.width;
-		double heightRatio = imgBounds.height / PALLET_IMAGE_DPI
-				/ canvasBounds.height;
-
-		region.set(plateRect.x * widthRatio, plateRect.y * heightRatio,
-				(plateRect.width + plateRect.x) * widthRatio,
-				(plateRect.height + plateRect.y) * heightRatio);
-
-		return region;
+	public ScannerRegion getPlateRegion() {
+		return this.getGridRegion().getScannerRegion();
 	}
 }
