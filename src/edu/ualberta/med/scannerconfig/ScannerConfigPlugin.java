@@ -152,7 +152,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				.getPreferenceStore().getDouble(prefsArr[0]), getDefault()
 				.getPreferenceStore().getDouble(prefsArr[1]), getDefault()
 				.getPreferenceStore().getDouble(prefsArr[2]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[3]));
+				.getPreferenceStore().getDouble(prefsArr[3]), getDefault()
+				.getPreferenceStore().getDouble(prefsArr[4]), getDefault()
+				.getPreferenceStore().getDouble(prefsArr[5]));
 		regionModifyIfScannerWia(region);
 		scanImage(region.left, region.top, region.right, region.bottom,
 				filename);
@@ -184,7 +186,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				.getPreferenceStore().getDouble(prefsArr[0]), getDefault()
 				.getPreferenceStore().getDouble(prefsArr[1]), getDefault()
 				.getPreferenceStore().getDouble(prefsArr[2]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[3]));
+				.getPreferenceStore().getDouble(prefsArr[3]), getDefault()
+				.getPreferenceStore().getDouble(prefsArr[4]), getDefault()
+				.getPreferenceStore().getDouble(prefsArr[5]));
 		regionModifyIfScannerWia(region);
 
 		int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
@@ -211,7 +215,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				.getPreferenceStore().getDouble(prefsArr[0]), getDefault()
 				.getPreferenceStore().getDouble(prefsArr[1]), getDefault()
 				.getPreferenceStore().getDouble(prefsArr[2]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[3]));
+				.getPreferenceStore().getDouble(prefsArr[3]), getDefault()
+				.getPreferenceStore().getDouble(prefsArr[4]), getDefault()
+				.getPreferenceStore().getDouble(prefsArr[5]));
 		regionModifyIfScannerWia(region);
 
 		int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,

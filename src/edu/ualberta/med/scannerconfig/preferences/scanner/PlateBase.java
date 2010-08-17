@@ -2,7 +2,6 @@ package edu.ualberta.med.scannerconfig.preferences.scanner;
 
 import java.io.File;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -55,7 +54,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 		this.plateId = plateId;
 		setPreferenceStore(ScannerConfigPlugin.getDefault()
 				.getPreferenceStore());
-		textControls = new Text[4];
+		textControls = new Text[6];
 	}
 
 	@Override
@@ -145,10 +144,6 @@ public class PlateBase extends FieldEditorPreferencePage implements
 									for (int i = 0; i < 4; ++i) {
 										textControls[i].setEnabled(true);
 									}
-									if (plateBoundsWidget != null) {
-										canvas.redraw();
-										canvas.update();
-									}
 								}
 							}
 						});
@@ -172,7 +167,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 	@Override
 	protected void createFieldEditors() {
 		DoubleFieldEditor fe;
-		String[] labels = { "Left", "Top", "Right", "Bottom" };
+		String[] labels = { "Left", "Top", "Right", "Bottom", "GapX", "GapY" };
 
 		BooleanFieldEditor bfe = new BooleanFieldEditor(
 				PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1],
@@ -181,7 +176,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
 		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[plateId - 1];
 
-		for (int i = 0; i < 4; ++i) {
+		for (int i = 0; i < 6; ++i) {
 			fe = new DoubleFieldEditor(prefsArr[i], labels[i] + ":",
 					getFieldEditorParent());
 			fe.setValidRange(0, 20);
@@ -197,7 +192,9 @@ public class PlateBase extends FieldEditorPreferencePage implements
 								Double.parseDouble(textControls[0].getText()),
 								Double.parseDouble(textControls[1].getText()),
 								Double.parseDouble(textControls[2].getText()),
-								Double.parseDouble(textControls[3].getText()));
+								Double.parseDouble(textControls[3].getText()),
+								Double.parseDouble(textControls[4].getText()),
+								Double.parseDouble(textControls[5].getText()));
 						setValid(true);
 					} catch (NumberFormatException ex) {
 						setValid(false);
@@ -219,7 +216,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 	}
 
 	private void createCanvasComp(Composite parent) {
-		canvas = new Canvas(parent, SWT.BORDER);
+		canvas = new Canvas(parent, SWT.BORDER | SWT.NO_BACKGROUND);
 		canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		canvas.setBackground(new Color(Display.getCurrent(), 255, 255, 255));
 
@@ -231,32 +228,11 @@ public class PlateBase extends FieldEditorPreferencePage implements
 		origScannerRegion = new ScannerRegion("" + plateId, ScannerConfigPlugin
 				.getDefault().getPreferenceStore().getDouble(prefsArr[0]),
 				prefs.getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]),
-				prefs.getDouble(prefsArr[3]));
-
-		Color c = null;
-
-		switch (plateId) {
-		case 1:
-			c = new Color(Display.getDefault(), 0, 0xFF, 0);
-			break;
-		case 2:
-			c = new Color(Display.getDefault(), 0xFF, 0, 0);
-			break;
-		case 3:
-			c = new Color(Display.getDefault(), 0xFF, 0xFF, 0);
-			break;
-		case 4:
-			c = new Color(Display.getDefault(), 0, 0xFF, 0xFF);
-			break;
-		case 5:
-			c = new Color(Display.getDefault(), 0, 0, 0xFF);
-			break;
-		default:
-			Assert.isTrue(false, "Invalid value for plateId: " + plateId);
-		}
+				prefs.getDouble(prefsArr[3]), prefs.getDouble(prefsArr[4]),
+				prefs.getDouble(prefsArr[5]));
 
 		plateBoundsWidget = new PlateBoundsWidget(canvas, new ScannerRegion(
-				origScannerRegion), c);
+				origScannerRegion));
 
 		plateBoundsWidget.addChangeListener(new IPlateBoundsListener() {
 
@@ -267,6 +243,8 @@ public class PlateBase extends FieldEditorPreferencePage implements
 				textControls[1].setText(String.valueOf(r.top));
 				textControls[2].setText(String.valueOf(r.right));
 				textControls[3].setText(String.valueOf(r.bottom));
+				textControls[4].setText(String.valueOf(r.gapX));
+				textControls[5].setText(String.valueOf(r.gapY));
 			}
 		});
 	}

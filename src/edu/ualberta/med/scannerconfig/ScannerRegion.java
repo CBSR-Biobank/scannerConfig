@@ -1,7 +1,5 @@
 package edu.ualberta.med.scannerconfig;
 
-import org.eclipse.swt.graphics.Rectangle;
-
 public class ScannerRegion {
 
 	public String name;
@@ -14,56 +12,45 @@ public class ScannerRegion {
 
 	public double bottom;
 
+	public double gapX;
+	public double gapY;
+
 	public ScannerRegion() {
-		left = top = right = bottom = 0;
+		left = top = right = bottom = gapX = gapY = 0;
 	}
 
 	public ScannerRegion(ScannerRegion region) {
-		name = region.name;
-		left = region.left;
-		top = region.top;
-		right = region.right;
-		bottom = region.bottom;
+		this.set(region);
 	}
 
 	public ScannerRegion(String name, double left, double top, double right,
-			double bottom) {
+			double bottom, double gapX, double gapY) {
 		this.name = name;
 		this.left = left;
 		this.top = top;
 		this.right = right;
 		this.bottom = bottom;
+		this.gapX = gapX;
+		this.gapY = gapY;
 	}
 
 	public void set(ScannerRegion region) {
+		name = region.name;
 		left = region.left;
 		top = region.top;
 		right = region.right;
 		bottom = region.bottom;
-
+		gapX = region.gapX;
+		gapY = region.gapY;
 	}
 
-	public void set(double left, double top, double right, double bottom) {
+	public void set(double left, double top, double right, double bottom,
+			double gapX, double gapY) {
 		this.left = left;
 		this.top = top;
 		this.right = right;
 		this.bottom = bottom;
-	}
-
-	public boolean equal(ScannerRegion region) {
-		return ((left == region.left) && (top == region.top)
-				&& (right == region.right) && (bottom == region.bottom));
-	}
-
-	public boolean equal(ScannerRegion region, double epsilon) {
-		return ((Math.abs(left - region.left) <= epsilon)
-				&& (Math.abs(top - region.top) <= epsilon)
-				&& (Math.abs(right - region.right) < epsilon) && (Math
-				.abs(bottom - region.bottom) < epsilon));
-	}
-
-	public Rectangle getRectangle() {
-		return new Rectangle((int) left, (int) top, (int) right - (int) left,
-				(int) bottom - (int) top);
+		this.gapX = gapX;
+		this.gapY = gapY;
 	}
 }
