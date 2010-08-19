@@ -325,6 +325,17 @@ public class Profiles extends FieldEditorPreferencePage implements
 		return profilesMap;
 	}
 
+	public static TriIntC getTriIntProfile(String name) {
+		TriIntC triInt = loadProfilesFromString().get(name);
+		if (triInt == null) {
+			triInt = new TriIntC();
+			triInt.setAll();
+		}
+
+		return triInt;
+
+	}
+
 	private void saveSettings() {
 		IPreferenceStore store = ScannerConfigPlugin.getDefault()
 				.getPreferenceStore();

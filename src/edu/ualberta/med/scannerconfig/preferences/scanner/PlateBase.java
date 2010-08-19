@@ -2,8 +2,6 @@ package edu.ualberta.med.scannerconfig.preferences.scanner;
 
 import java.io.File;
 
-
-
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -67,7 +65,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
 		File platesFile = new File(PlateBoundsWidget.PALLET_IMAGE_FILE);
 		if (platesFile.exists()) {
-			// platesFile.delete();
+			platesFile.delete();
 		}
 
 		Control s = super.createContents(top);
@@ -143,6 +141,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 								File platesFile = new File(
 										PlateBoundsWidget.PALLET_IMAGE_FILE);
 								if (platesFile.exists()) {
+									plateBoundsWidget.loadImage();
 									for (int i = 0; i < 4; ++i) {
 										textControls[i].setEnabled(true);
 									}

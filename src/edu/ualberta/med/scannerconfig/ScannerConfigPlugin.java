@@ -23,6 +23,8 @@ import edu.ualberta.med.scannerconfig.dmscanlib.ScanCell;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibWin32;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
+import edu.ualberta.med.scannerconfig.preferences.Profiles;
+import edu.ualberta.med.scannerconfig.preferences.TriIntC;
 import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
 
 /**
@@ -194,10 +196,14 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				.getPreferenceStore().getDouble(prefsArr[5]));
 		regionModifyIfScannerWia(region);
 
+		TriIntC triint = Profiles.getTriIntProfile("test"); // XXX bacon
+
 		int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
 				brightness, contrast, plateNumber, region.left, region.top,
 				region.right, region.bottom, scanGap, squareDev, edgeThresh,
-				corrections, cellDistance);
+				corrections, cellDistance, region.gapX, region.gapY,
+				triint.getValues()[0], triint.getValues()[1],
+				triint.getValues()[2]);
 
 		if (res < ScanLib.SC_SUCCESS) {
 			throw new Exception("Could not decode image. "
@@ -223,10 +229,14 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				.getPreferenceStore().getDouble(prefsArr[5]));
 		regionModifyIfScannerWia(region);
 
+		TriIntC triint = Profiles.getTriIntProfile("test"); // XXX bacon
+
 		int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
 				brightness, contrast, plateNumber, region.left, region.top,
 				region.right, region.bottom, scanGap, squareDev, edgeThresh,
-				corrections, cellDistance);
+				corrections, cellDistance, region.gapX, region.gapY,
+				triint.getValues()[0], triint.getValues()[1],
+				triint.getValues()[2]);
 
 		if (res != ScanLib.SC_SUCCESS || !(new File("dmscanlib.txt")).exists()) {
 			return 0;

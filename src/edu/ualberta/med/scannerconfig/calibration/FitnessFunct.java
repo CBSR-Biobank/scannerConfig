@@ -135,7 +135,7 @@ public class FitnessFunct extends FitnessFunction {
 
 			int retcode = ScanLib.getInstance().slDecodeImage(0, 1,
 					"calibration.bmp", gap, squareDev, threshold, corrections,
-					celldist);
+					celldist, 1, 2, 3, 4, 5);
 
 			long scanTime = (System.currentTimeMillis() - before) / 1000; // sec
 

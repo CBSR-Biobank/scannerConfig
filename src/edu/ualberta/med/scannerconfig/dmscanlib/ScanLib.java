@@ -232,13 +232,14 @@ public abstract class ScanLib {
 	public abstract int slDecodePlate(long verbose, long dpi, int brightness,
 			int contrast, long plateNum, double left, double top, double right,
 			double bottom, double scanGap, long squareDev, long edgeThresh,
-			long corrections, double cellDistance);
+			long corrections, double cellDistance, double gapX, double gapY,
+			long profileA, long profileB, long profileC);
 
 	/**
 	 * From the regions specified in the INI file for the corresponding plate,
 	 * decodes all the regions. The decoded barcodes are written to the file
-	 * "dmscanlib.txt". The scanlib.txt file is a comma separated value file with
-	 * the following columns: Plate, Row, Column, Barcode.
+	 * "dmscanlib.txt". The scanlib.txt file is a comma separated value file
+	 * with the following columns: Plate, Row, Column, Barcode.
 	 * 
 	 * Calling this function also creates the "decoded.bmp" windows bitmap file.
 	 * This file shows a green square around the barcodes that were successfully
@@ -283,6 +284,7 @@ public abstract class ScanLib {
 	 */
 	public abstract int slDecodeImage(long verbose, long plateNum,
 			String filename, double scanGap, long squareDev, long edgeThresh,
-			long corrections, double cellDistance);
+			long corrections, double cellDistance, double gapX, double gapY,
+			long profileA, long profileB, long profileC);
 
 }

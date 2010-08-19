@@ -4,19 +4,19 @@ public class ScanLibWin32 extends ScanLib {
 
 	@Override
 	public int slIsTwainAvailable() {
-		return ScanLibWin32Wrapper.slIsTwainAvailable();
+		return DmScanLibWin32Wrapper.slIsTwainAvailable();
 	}
 
 	@Override
 	public int slSelectSourceAsDefault() {
-		return ScanLibWin32Wrapper.slSelectSourceAsDefault();
+		return DmScanLibWin32Wrapper.slSelectSourceAsDefault();
 	}
 
 	@Override
 	public int slScanImage(long verbose, long dpi, int brightness,
 			int contrast, double left, double top, double right, double bottom,
 			String filename) {
-		return ScanLibWin32Wrapper.slScanImage(verbose, dpi, brightness,
+		return DmScanLibWin32Wrapper.slScanImage(verbose, dpi, brightness,
 				contrast, left, top, right, bottom, filename);
 	}
 
@@ -24,24 +24,28 @@ public class ScanLibWin32 extends ScanLib {
 	public int slDecodePlate(long verbose, long dpi, int brightness,
 			int contrast, long plateNum, double left, double top, double right,
 			double bottom, double scanGap, long squareDev, long edgeThresh,
-			long corrections, double cellDistance) {
-		return ScanLibWin32Wrapper.slDecodePlate(verbose, dpi, brightness,
+			long corrections, double cellDistance, double gapX, double gapY,
+			long profileA, long profileB, long profileC) {
+		return DmScanLibWin32Wrapper.slDecodePlate(verbose, dpi, brightness,
 				contrast, plateNum, left, top, right, bottom, scanGap,
-				squareDev, edgeThresh, corrections, cellDistance);
+				squareDev, edgeThresh, corrections, cellDistance, gapX, gapY,
+				profileA, profileB, profileC);
 	}
 
 	@Override
 	public int slDecodeImage(long verbose, long plateNum, String filename,
 			double scanGap, long squareDev, long edgeThresh, long corrections,
-			double cellDistance) {
-		return ScanLibWin32Wrapper.slDecodeImage(verbose, plateNum, filename,
-				scanGap, squareDev, edgeThresh, corrections, cellDistance);
+			double cellDistance, double gapX, double gapY, long profileA,
+			long profileB, long profileC) {
+		return DmScanLibWin32Wrapper.slDecodeImage(verbose, plateNum, filename,
+				scanGap, squareDev, edgeThresh, corrections, cellDistance,
+				gapX, gapY, profileA, profileB, profileC);
 	}
 
 	@Override
 	public int slGetScannerCapability() {
 
-		int cap = ScanLibWin32Wrapper.slGetScannerCapability();
+		int cap = DmScanLibWin32Wrapper.slGetScannerCapability();
 
 		/* XXX getcap Debug Code */
 		// cap = cap & (~ScanLib.CAP_DPI_600);
