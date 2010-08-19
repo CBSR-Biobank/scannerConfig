@@ -2,6 +2,8 @@ package edu.ualberta.med.scannerconfig.preferences.scanner;
 
 import java.io.File;
 
+
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;

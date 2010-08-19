@@ -508,5 +508,6 @@ public class PlateBoundsWidget {
 
 	public ScannerRegion getPlateRegion() {
 		return this.getGridRegion().getScannerRegion();
+
 	}
 }
