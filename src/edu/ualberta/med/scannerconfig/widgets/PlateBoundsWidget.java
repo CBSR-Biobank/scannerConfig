@@ -497,7 +497,6 @@ public class PlateBoundsWidget {
 		}
 	}
 
-	@Deprecated
 	public void assignRegions(String name, double left, double top,
 			double right, double bottom, double gapX, double gapY) {
 		Assert.isNotNull(canvas, "canvas is null");

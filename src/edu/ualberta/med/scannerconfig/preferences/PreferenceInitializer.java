@@ -12,6 +12,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		IPreferenceStore store = ScannerConfigPlugin.getDefault()
 				.getPreferenceStore();
 		store.setDefault(PreferenceConstants.SCANNER_DPI, 600);
+		store.setDefault(PreferenceConstants.SCANNER_PALLET_PROFILES, "");
 		store.setDefault(PreferenceConstants.SCANNER_BRIGHTNESS, 0);
 		store.setDefault(PreferenceConstants.SCANNER_CONTRAST, 0);
 		store.setDefault(PreferenceConstants.SCANNER_DRV_TYPE,

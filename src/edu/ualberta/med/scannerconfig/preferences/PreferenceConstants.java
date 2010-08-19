@@ -26,12 +26,13 @@ public class PreferenceConstants {
 
 	public static final String LIBDMTX_CELL_DISTANCE = "libdmtx.cell_distance";
 
+	public static final String SCANNER_PALLET_PROFILES = "scanner.pallet.profiles";
+
 	public static final String[] SCANNER_PALLET_ENABLED = {
 			"scanner.plate.coords.enabled.1", "scanner.plate.coords.enabled.2",
 			"scanner.plate.coords.enabled.3", "scanner.plate.coords.enabled.4",
 			"scanner.plate.coords.enabled.5" };
 
-	@Deprecated
 	public static final String[][] SCANNER_PALLET_COORDS = {
 			{ "scanner.plate.coords.left.1", "scanner.plate.coords.top.1",
 					"scanner.plate.coords.right.1",
