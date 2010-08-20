@@ -45,7 +45,7 @@ public class PlateBoundsWidget {
 		return gridRegion;
 	}
 
-	/* please note that this can change value */
+	/* please note that PALLET_IMAGE_DPI may change value */
 	public static double PALLET_IMAGE_DPI = 300.0;
 	public static final String PALLET_IMAGE_FILE = "plates.bmp";
 	private long platesFileLastModified;
@@ -62,6 +62,7 @@ public class PlateBoundsWidget {
 	protected ListenerList changeListeners = new ListenerList();
 
 	private class GridRegion {
+		// pixel coordinates
 		private double left, top, width, height;
 		private double gapOffsetX, gapOffsetY;
 
@@ -77,6 +78,10 @@ public class PlateBoundsWidget {
 			return (scannedImage.getBounds().height / (canvasHeight * PALLET_IMAGE_DPI));
 		}
 
+		/*
+		 * left,top,right,bottom are relative to the canvas size, so any change
+		 * to the canvas must call this function.
+		 */
 		public void scaleGrid(Point newCanvasSize) {
 
 			double horiztonalRatio = regionToPixelWidth(oldCanvasSize.x)
@@ -139,7 +144,6 @@ public class PlateBoundsWidget {
 					/ regionToPixelHeight(canvasHeight);
 
 			this.oldCanvasSize = canvas.getSize();
-
 		}
 
 		public ScannerRegion getScannerRegion() {
@@ -161,28 +165,30 @@ public class PlateBoundsWidget {
 			r.gapY = this.gapOffsetY * regionToPixelHeight(canvasHeight);
 
 			return r;
-
 		}
 
 		public Rectangle getRectangle() {
 			return new Rectangle((int) left, (int) top, (int) width,
 					(int) height);
 		}
-
 	}
 
 	public PlateBoundsWidget(Canvas c, ScannerRegion r) {
 
 		loadImage();
 
-		canvas = c;
 		initialScannerRegion = r;
 
+		canvas = c;
 		canvas.getParent().layout();
 		canvas.pack();
 		canvas.setFocus();
 		canvas.redraw();
 		canvas.update();
+		applyCanvasBindings();
+	}
+
+	private void applyCanvasBindings() {
 
 		canvas.addMouseMoveListener(new MouseMoveListener() {
 
@@ -238,6 +244,12 @@ public class PlateBoundsWidget {
 
 					canvas.setCursor(new Cursor(canvas.getDisplay(),
 							SWT.CURSOR_ARROW));
+
+					/*
+					 * Creates rectangles on the perimeter of the gridRegion,
+					 * the code then checks for mouse-rectangle intersection to
+					 * check for moving and resizing of the widget.
+					 */
 					if (gridRegion != null) {
 						if (getGridRegion().getRectangle().contains(e.x, e.y)) {
 							canvas.setCursor(new Cursor(canvas.getDisplay(),
@@ -322,7 +334,9 @@ public class PlateBoundsWidget {
 
 			@Override
 			public void controlMoved(ControlEvent e) {
-
+				if (scannedImage == null)
+					return;
+				getGridRegion().scaleGrid(canvas.getSize());
 			}
 
 			@Override
@@ -408,15 +422,9 @@ public class PlateBoundsWidget {
 			@Override
 			public void paintControl(PaintEvent e) {
 
-				File platesFile = new File(PlateBoundsWidget.PALLET_IMAGE_FILE);
-				if (platesFile.exists()
-						&& (platesFileLastModified != platesFile.lastModified())) {
-					platesFileLastModified = platesFile.lastModified();
-					scannedImage = new Image(
-							PlatformUI.getWorkbench()
-									.getActiveWorkbenchWindow().getShell()
-									.getDisplay(), PALLET_IMAGE_FILE);
-				}
+				// move me ?
+				loadMostRecentImage();
+
 				if (scannedImage == null) {
 					e.gc.setForeground(new Color(canvas.getDisplay(), 255, 255,
 							255));
@@ -463,7 +471,6 @@ public class PlateBoundsWidget {
 				imageBuffer.dispose();
 			}
 		});
-
 	}
 
 	private void drawGrid(GC gc) {
@@ -492,6 +499,41 @@ public class PlateBoundsWidget {
 		}
 	}
 
+	public void assignRegions(String name, double left, double top,
+			double right, double bottom, double gapX, double gapY) {
+		if (scannedImage == null)
+			return;
+		Assert.isNotNull(canvas, "canvas is null");
+		gridRegion = new GridRegion(new ScannerRegion(name, left, top, right,
+				bottom, gapX, gapY));
+		canvas.redraw();
+	}
+
+	public ScannerRegion getPlateRegion() {
+		return this.getGridRegion().getScannerRegion();
+	}
+
+	private boolean loadMostRecentImage() {
+		File platesFile = new File(PlateBoundsWidget.PALLET_IMAGE_FILE);
+		if (platesFile.exists()
+				&& (platesFileLastModified != platesFile.lastModified())) {
+			platesFileLastModified = platesFile.lastModified();
+			scannedImage = new Image(PlatformUI.getWorkbench()
+					.getActiveWorkbenchWindow().getShell().getDisplay(),
+					PALLET_IMAGE_FILE);
+			return true;
+		}
+		return false;
+	}
+
+	public void loadImage() {
+		if (loadMostRecentImage()) {
+			notifyChangeListener();
+			canvas.redraw();
+			canvas.update();
+		}
+	}
+
 	public void addChangeListener(IPlateBoundsListener listener) {
 		changeListeners.add(listener);
 	}
@@ -509,32 +551,4 @@ public class PlateBoundsWidget {
 		}
 	}
 
-	public void assignRegions(String name, double left, double top,
-			double right, double bottom, double gapX, double gapY) {
-		if (scannedImage == null)
-			return;
-		Assert.isNotNull(canvas, "canvas is null");
-		gridRegion = new GridRegion(new ScannerRegion(name, left, top, right,
-				bottom, gapX, gapY));
-		canvas.redraw();
-
-	}
-
-	public void loadImage() {
-		File platesFile = new File(PlateBoundsWidget.PALLET_IMAGE_FILE);
-		if (platesFile.exists()) {
-			platesFileLastModified = platesFile.lastModified();
-			scannedImage = new Image(PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow().getShell().getDisplay(),
-					PALLET_IMAGE_FILE);
-			notifyChangeListener();
-			canvas.redraw();
-			canvas.update();
-		}
-	}
-
-	public ScannerRegion getPlateRegion() {
-		return this.getGridRegion().getScannerRegion();
-
-	}
 }
