@@ -65,7 +65,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
 		File platesFile = new File(PlateBoundsWidget.PALLET_IMAGE_FILE);
 		if (platesFile.exists()) {
-			platesFile.delete();
+			// platesFile.delete();
 		}
 
 		Control s = super.createContents(top);
@@ -142,7 +142,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 										PlateBoundsWidget.PALLET_IMAGE_FILE);
 								if (platesFile.exists()) {
 									plateBoundsWidget.loadImage();
-									for (int i = 0; i < 4; ++i) {
+									for (int i = 0; i < 6; ++i) {
 										textControls[i].setEnabled(true);
 									}
 								}
@@ -157,7 +157,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
 		if (System.getProperty("os.name").startsWith("Windows")
 				&& !platesFile.exists()) {
-			for (int i = 0; i < 4; ++i) {
+			for (int i = 0; i < 6; ++i) {
 				textControls[i].setEnabled(false);
 			}
 		}

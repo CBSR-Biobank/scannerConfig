@@ -143,7 +143,30 @@ public class PlateBoundsWidget {
 			this.height = (r.bottom - r.top)
 					/ regionToPixelHeight(canvasHeight);
 
+			adjustBounds();
+
 			this.oldCanvasSize = canvas.getSize();
+		}
+
+		private void adjustBounds() {
+			if (this.width < 50) {
+				this.width = 50;
+			}
+			if (this.height < 50) {
+				this.height = 50;
+			}
+			if (this.left < 0) {
+				this.left = 0;
+			}
+			if (this.top < 0) {
+				this.top = 0;
+			}
+			if (this.left + this.width > canvas.getSize().x - 1) {
+				this.left = canvas.getSize().x - this.width - 1;
+			}
+			if (this.top + this.height > canvas.getSize().y - 1) {
+				this.top = canvas.getSize().y - this.height - 1;
+			}
 		}
 
 		public ScannerRegion getScannerRegion() {
@@ -152,6 +175,8 @@ public class PlateBoundsWidget {
 
 			double canvasWidth = canvas.getBounds().width;
 			double canvasHeight = canvas.getBounds().height;
+
+			adjustBounds();
 
 			r.name = this.name;
 
@@ -175,7 +200,7 @@ public class PlateBoundsWidget {
 
 	public PlateBoundsWidget(Canvas c, ScannerRegion r) {
 
-		loadImage();
+		loadMostRecentImage();
 
 		initialScannerRegion = r;
 

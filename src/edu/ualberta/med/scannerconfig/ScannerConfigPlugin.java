@@ -1,6 +1,5 @@
 package edu.ualberta.med.scannerconfig;
 
-import java.io.File;
 import java.net.URL;
 
 import org.eclipse.core.runtime.Assert;
@@ -165,7 +164,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				filename);
 	}
 
-	public static ScanCell[][] scan(int plateNumber) throws Exception {
+	public static ScanCell[][] scan(int plateNumber, String profile)
+			throws Exception {
 		int dpi = getDefault().getPreferenceStore().getInt(
 				PreferenceConstants.SCANNER_DPI);
 		int brightness = getDefault().getPreferenceStore().getInt(
@@ -196,7 +196,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				.getPreferenceStore().getDouble(prefsArr[5]));
 		regionModifyIfScannerWia(region);
 
-		TriIntC triint = Profiles.getTriIntProfile("test"); // XXX bacon
+		TriIntC triint = Profiles.getTriIntProfile(profile); // XXX bacon
 
 		int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
 				brightness, contrast, plateNumber, region.left, region.top,
@@ -210,54 +210,6 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 					+ ScanLib.getErrMsg(res));
 		}
 		return ScanCell.getScanLibResults();
-	}
-
-	public static int getTestTubesScanned(int plateNumber, int dpi,
-			int brightness, int contrast, int debugLevel, int edgeThresh,
-			double scanGap, int squareDev, int corrections, double cellDistance) {
-
-		ScanCell[][] barcodes = null;
-		int tubesScanned = 0;
-
-		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[plateNumber - 1];
-		ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
-				.getPreferenceStore().getDouble(prefsArr[0]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[1]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[2]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[3]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[4]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[5]));
-		regionModifyIfScannerWia(region);
-
-		TriIntC triint = Profiles.getTriIntProfile("test"); // XXX bacon
-
-		int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
-				brightness, contrast, plateNumber, region.left, region.top,
-				region.right, region.bottom, scanGap, squareDev, edgeThresh,
-				corrections, cellDistance, region.gapX, region.gapY,
-				triint.getValues()[0], triint.getValues()[1],
-				triint.getValues()[2]);
-
-		if (res != ScanLib.SC_SUCCESS || !(new File("dmscanlib.txt")).exists()) {
-			return 0;
-		}
-
-		try {
-			barcodes = ScanCell.getScanLibResults();
-		} catch (Exception e) {
-			return 0;
-		}
-
-		for (int r = 0; r < barcodes.length; ++r) {
-			for (int c = 0; c < barcodes[0].length; ++c) {
-				if ((barcodes[r][c] != null)
-						&& (barcodes[r][c].getValue() != null)
-						&& (barcodes[r][c].getValue().length() > 0)) {
-					tubesScanned++;
-				}
-			}
-		}
-		return tubesScanned;
 	}
 
 	public boolean getPlateEnabled(int plateId) {
