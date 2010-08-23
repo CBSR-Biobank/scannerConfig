@@ -136,12 +136,15 @@ public class Profiles extends FieldEditorPreferencePage implements
 		profile.setLayoutData(new GridData(SWT.FILL, GridData.FILL, true, true));
 		for (int i = 0; i < 96; i++) {
 			final int c = i;
+
 			profileBtns[i] = new Button(profile, SWT.CHECK);
+			profileBtns[i].setText("" + ((char) (c / 12 + 'A')) + (c % 12 + 1));
 			profileBtns[i].setEnabled(false);
 			profileBtns[i].addSelectionListener(new SelectionListener() {
 
 				@Override
 				public void widgetSelected(SelectionEvent e) {
+
 					if (profileBtns[c].getSelection())
 						getActiveProfileData().setBit(c);
 					else

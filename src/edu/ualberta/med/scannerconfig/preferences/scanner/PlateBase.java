@@ -65,7 +65,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
 		File platesFile = new File(PlateBoundsWidget.PALLET_IMAGE_FILE);
 		if (platesFile.exists()) {
-			// platesFile.delete();
+			platesFile.delete();
 		}
 
 		Control s = super.createContents(top);
@@ -151,7 +151,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 					}
 				});
 				statusLabel
-						.setText(" click on opposite corners to configure pallet");
+						.setText("the scroll wheel lets use change the grid gap");
 			}
 		});
 
