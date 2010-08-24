@@ -479,7 +479,7 @@ public class PlateBoundsWidget {
 
 				imageGC.drawRectangle(getGridRegion().getRectangle());
 
-				drawGrid(imageGC);
+				drawGrid(imageGC, false);
 
 				imageGC.setForeground(new Color(canvas.getDisplay(), 0, 0, 255));
 
@@ -498,15 +498,26 @@ public class PlateBoundsWidget {
 		});
 	}
 
-	private void drawGrid(GC gc) {
+	private void drawGrid(GC gc, boolean drawHorizontal) {
 
-		double w = (getGridRegion().getRectangle().width) / 12.0;
-		double h = (getGridRegion().getRectangle().height) / 8.0;
+		double X, Y;
+
+		if (drawHorizontal) {
+			X = 12.0;
+			Y = 8.0;
+		} else {
+			X = 8.0;
+			Y = 12.0;
+		}
+
+		double w = (getGridRegion().getRectangle().width) / X;
+		double h = (getGridRegion().getRectangle().height) / Y;
+
 		double ox = getGridRegion().getRectangle().x;
 		double oy = getGridRegion().getRectangle().y;
 
-		for (int j = 0; j < 8; j++) {
-			for (int i = 0; i < 12; i++) {
+		for (int j = 0; j < Y; j++) {
+			for (int i = 0; i < X; i++) {
 
 				double cx = ox + i * w + w / 2.0;
 				double cy = oy + j * h + h / 2.0;

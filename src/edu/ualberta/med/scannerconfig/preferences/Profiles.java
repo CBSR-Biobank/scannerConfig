@@ -323,7 +323,8 @@ public class Profiles extends FieldEditorPreferencePage implements
 			int a = Integer.parseInt(elements[1]);
 			int b = Integer.parseInt(elements[2]);
 			int c = Integer.parseInt(elements[3]);
-			profilesMap.put(key, new TriIntC(a, b, c));
+			profilesMap.put(key, new TriIntC(a, b, c, 0));
+			// TODO profilesMap horizontal
 		}
 		return profilesMap;
 	}
