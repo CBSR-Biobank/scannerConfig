@@ -64,12 +64,14 @@ public abstract class ScanLib {
 	static {
 		Map<Integer, String> aMap = new HashMap<Integer, String>();
 		aMap.put(SC_SUCCESS, "The call to ScanLib was successful.");
-		aMap.put(SC_FAIL,
+		aMap.put(
+				SC_FAIL,
 				"Unable to scan an image, please ensure a working scanner source is selected.");
 		aMap.put(SC_TWAIN_UAVAIL, "The TWAIN driver was not found.");
 		aMap.put(SC_INVALID_DPI, "An invalid DPI value was specified.");
 		aMap.put(SC_INVALID_PLATE_NUM, "The plate number used is invalid.");
-		aMap.put(SC_INVALID_VALUE,
+		aMap.put(
+				SC_INVALID_VALUE,
 				"The user did not select a valid scanning source.");
 		aMap.put(SC_INVALID_IMAGE, "The scanned image is invalid.");
 		aMap.put(SC_INVALID_POSITION, "Sample not found on row A or column 1.");
@@ -108,9 +110,11 @@ public abstract class ScanLib {
 		String osname = System.getProperty("os.name");
 		if (osname.startsWith("Windows")) {
 			instance = new ScanLibWin32();
-		} else if (osname.startsWith("Linux")) {
-			instance = new ScanLibSimulate();
 		}
+		else
+			if (osname.startsWith("Linux")) {
+				instance = new ScanLibSimulate();
+			}
 
 		if (instance == null) {
 			throw new RuntimeException("scanlib not supported on your os");
@@ -233,7 +237,7 @@ public abstract class ScanLib {
 			int contrast, long plateNum, double left, double top, double right,
 			double bottom, double scanGap, long squareDev, long edgeThresh,
 			long corrections, double cellDistance, double gapX, double gapY,
-			long profileA, long profileB, long profileC);
+			long profileA, long profileB, long profileC, long isHorizontal);
 
 	/**
 	 * From the regions specified in the INI file for the corresponding plate,
@@ -285,6 +289,6 @@ public abstract class ScanLib {
 	public abstract int slDecodeImage(long verbose, long plateNum,
 			String filename, double scanGap, long squareDev, long edgeThresh,
 			long corrections, double cellDistance, double gapX, double gapY,
-			long profileA, long profileB, long profileC);
+			long profileA, long profileB, long profileC, long isHorizontal);
 
 }

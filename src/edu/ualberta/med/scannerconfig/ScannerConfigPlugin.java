@@ -98,7 +98,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				ImageDescriptor desc = ImageDescriptor.createFromURL(url);
 				registry.put(key, desc);
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 		}
 	}
 
@@ -138,8 +139,16 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 		int debugLevel = getDefault().getPreferenceStore().getInt(
 				PreferenceConstants.DLL_DEBUG_LEVEL);
 
-		int res = ScanLibWin32.getInstance().slScanImage(debugLevel, dpi,
-				brightness, contrast, left, top, right, bottom, filename);
+		int res = ScanLibWin32.getInstance().slScanImage(
+				debugLevel,
+				dpi,
+				brightness,
+				contrast,
+				left,
+				top,
+				right,
+				bottom,
+				filename);
 
 		if (res < ScanLibWin32.SC_SUCCESS) {
 			throw new Exception("Could not decode image. "
@@ -150,7 +159,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 	public static void scanPlate(int plateNumber, String filename)
 			throws Exception {
 
-		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[plateNumber - 1];
+		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
 		ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
 				.getPreferenceStore().getDouble(prefsArr[0]), getDefault()
@@ -160,7 +169,11 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				.getPreferenceStore().getDouble(prefsArr[4]), getDefault()
 				.getPreferenceStore().getDouble(prefsArr[5]));
 		regionModifyIfScannerWia(region);
-		scanImage(region.left, region.top, region.right, region.bottom,
+		scanImage(
+				region.left,
+				region.top,
+				region.right,
+				region.bottom,
 				filename);
 	}
 
@@ -185,7 +198,10 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 		double cellDistance = getDefault().getPreferenceStore().getDouble(
 				PreferenceConstants.LIBDMTX_CELL_DISTANCE);
 
-		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[plateNumber - 1];
+		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
+
+		int isHoriztonal = getDefault().getPreferenceStore().getBoolean(
+				prefsArr[6]) ? 1 : 0;
 
 		ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
 				.getPreferenceStore().getDouble(prefsArr[0]), getDefault()
@@ -198,12 +214,27 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
 		TriIntC triint = Profiles.getTriIntProfile(profile); // XXX bacon
 
-		int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
-				brightness, contrast, plateNumber, region.left, region.top,
-				region.right, region.bottom, scanGap, squareDev, edgeThresh,
-				corrections, cellDistance, region.gapX, region.gapY,
-				triint.getValues()[0], triint.getValues()[1],
-				triint.getValues()[2]);
+		int res = ScanLib.getInstance().slDecodePlate(
+				debugLevel,
+				dpi,
+				brightness,
+				contrast,
+				plateNumber,
+				region.left,
+				region.top,
+				region.right,
+				region.bottom,
+				scanGap,
+				squareDev,
+				edgeThresh,
+				corrections,
+				cellDistance,
+				region.gapX,
+				region.gapY,
+				triint.getValues()[0],
+				triint.getValues()[1],
+				triint.getValues()[2],
+				isHoriztonal);
 
 		if (res < ScanLib.SC_SUCCESS) {
 			throw new Exception("Could not decode image. "

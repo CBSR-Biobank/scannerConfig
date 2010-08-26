@@ -13,6 +13,6 @@ public class DmScanLibWin32WrapperJNI {
   public final static native int slSelectSourceAsDefault();
   public final static native int slGetScannerCapability();
   public final static native int slScanImage(long jarg1, long jarg2, int jarg3, int jarg4, double jarg5, double jarg6, double jarg7, double jarg8, String jarg9);
-  public final static native int slDecodePlate(long jarg1, long jarg2, int jarg3, int jarg4, long jarg5, double jarg6, double jarg7, double jarg8, double jarg9, double jarg10, long jarg11, long jarg12, long jarg13, double jarg14, double jarg15, double jarg16, long jarg17, long jarg18, long jarg19);
-  public final static native int slDecodeImage(long jarg1, long jarg2, String jarg3, double jarg4, long jarg5, long jarg6, long jarg7, double jarg8, double jarg9, double jarg10, long jarg11, long jarg12, long jarg13);
+  public final static native int slDecodePlate(long jarg1, long jarg2, int jarg3, int jarg4, long jarg5, double jarg6, double jarg7, double jarg8, double jarg9, double jarg10, long jarg11, long jarg12, long jarg13, double jarg14, double jarg15, double jarg16, long jarg17, long jarg18, long jarg19, long jarg20);
+  public final static native int slDecodeImage(long jarg1, long jarg2, String jarg3, double jarg4, long jarg5, long jarg6, long jarg7, double jarg8, double jarg9, double jarg10, long jarg11, long jarg12, long jarg13, long jarg14);
 }

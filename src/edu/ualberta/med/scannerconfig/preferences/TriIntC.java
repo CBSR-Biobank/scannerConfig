@@ -2,14 +2,13 @@ package edu.ualberta.med.scannerconfig.preferences;
 
 public class TriIntC {
 	private int a, b, c;
-	private int flags;
 
 	public TriIntC() {
 		this.init();
 	}
 
-	public TriIntC(int a, int b, int c, int flags) {
-		this.setValues(a, b, c, flags);
+	public TriIntC(int a, int b, int c) {
+		this.setValues(a, b, c);
 	}
 
 	public void setAll() {
@@ -22,7 +21,6 @@ public class TriIntC {
 		this.a = 0;
 		this.b = 0;
 		this.c = 0;
-		this.flags = 0;
 	}
 
 	private boolean validBit(int bit) {
@@ -73,14 +71,13 @@ public class TriIntC {
 	}
 
 	public int[] getValues() {
-		return new int[] { this.a, this.b, this.c, this.flags };
+		return new int[] { this.a, this.b, this.c };
 	}
 
-	public void setValues(int a, int b, int c, int flags) {
+	public void setValues(int a, int b, int c) {
 		this.a = a;
 		this.b = b;
 		this.c = c;
-		this.flags = flags;
 	}
 
 	public void printBinary() {

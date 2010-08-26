@@ -25,12 +25,12 @@ public class DmScanLibWin32Wrapper {
     return DmScanLibWin32WrapperJNI.slScanImage(verbose, dpi, brightness, contrast, left, top, right, bottom, filename);
   }
 
-  public static int slDecodePlate(long verbose, long dpi, int brightness, int contrast, long plateNum, double left, double top, double right, double bottom, double scanGap, long squareDev, long edgeThresh, long corrections, double cellDistance, double gapX, double gapY, long profileA, long profileB, long profileC) {
-    return DmScanLibWin32WrapperJNI.slDecodePlate(verbose, dpi, brightness, contrast, plateNum, left, top, right, bottom, scanGap, squareDev, edgeThresh, corrections, cellDistance, gapX, gapY, profileA, profileB, profileC);
+  public static int slDecodePlate(long verbose, long dpi, int brightness, int contrast, long plateNum, double left, double top, double right, double bottom, double scanGap, long squareDev, long edgeThresh, long corrections, double cellDistance, double gapX, double gapY, long profileA, long profileB, long profileC, long isHorizontal) {
+    return DmScanLibWin32WrapperJNI.slDecodePlate(verbose, dpi, brightness, contrast, plateNum, left, top, right, bottom, scanGap, squareDev, edgeThresh, corrections, cellDistance, gapX, gapY, profileA, profileB, profileC, isHorizontal);
   }
 
-  public static int slDecodeImage(long verbose, long plateNum, String filename, double scanGap, long squareDev, long edgeThresh, long corrections, double cellDistance, double gapX, double gapY, long profileA, long profileB, long profileC) {
-    return DmScanLibWin32WrapperJNI.slDecodeImage(verbose, plateNum, filename, scanGap, squareDev, edgeThresh, corrections, cellDistance, gapX, gapY, profileA, profileB, profileC);
+  public static int slDecodeImage(long verbose, long plateNum, String filename, double scanGap, long squareDev, long edgeThresh, long corrections, double cellDistance, double gapX, double gapY, long profileA, long profileB, long profileC, long isHorizontal) {
+    return DmScanLibWin32WrapperJNI.slDecodeImage(verbose, plateNum, filename, scanGap, squareDev, edgeThresh, corrections, cellDistance, gapX, gapY, profileA, profileB, profileC, isHorizontal);
   }
 
 }
