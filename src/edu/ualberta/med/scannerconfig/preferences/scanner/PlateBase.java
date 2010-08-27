@@ -169,8 +169,11 @@ public class PlateBase extends FieldEditorPreferencePage implements
 		});
 
 		if (System.getProperty("os.name").startsWith("Windows")
-				&& !platesFile.exists()) {
+				&& !platesFile.exists() && bfe.getBooleanValue()) {
 			this.setEnabled(true);
+		}
+		else {
+			this.setEnabled(false);
 		}
 
 		return top;
@@ -183,6 +186,11 @@ public class PlateBase extends FieldEditorPreferencePage implements
 		rotateBtn.setEnabled(enabled);
 		if (scanBtn != null)
 			scanBtn.setEnabled(enabled);
+
+		if (plateBoundsWidget != null) {
+			plateBoundsWidget.setEnable(enabled);
+		}
+
 	}
 
 	@Override
@@ -275,9 +283,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 				prefs.getDouble(prefsArr[5]));
 
 		plateBoundsWidget = new PlateBoundsWidget(canvas, new ScannerRegion(
-				origScannerRegion));
-
-		plateBoundsWidget.rotateGrid(prefs.getBoolean(prefsArr[6]));
+				origScannerRegion), prefs.getBoolean(prefsArr[6]));
 
 		plateBoundsWidget.addChangeListener(new IPlateBoundsListener() {
 
@@ -309,7 +315,6 @@ public class PlateBase extends FieldEditorPreferencePage implements
 						plateBoundsWidget.getIsHorizontalRotation());
 
 		this.setEnabled(bfe.getBooleanValue());
-
 	}
 
 	@Override
@@ -321,12 +326,6 @@ public class PlateBase extends FieldEditorPreferencePage implements
 	@Override
 	protected void performApply() {
 		saveSettings();
-		ScannerConfigPlugin
-				.getDefault()
-				.getPreferenceStore()
-				.setValue(
-						PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1][6],
-						plateBoundsWidget.getIsHorizontalRotation());
 		super.performApply();
 	}
 }
