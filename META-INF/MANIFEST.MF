@@ -11,8 +11,7 @@ Bundle-NativeCode: dmscanlib.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win
  cv210.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",
  cxcore210.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",
  OpenThreads.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",*
-Bundle-ClassPath: lib/jgap.jar,
- .
+Bundle-ClassPath: .
 Export-Package: edu.ualberta.med.scannerconfig,
  edu.ualberta.med.scannerconfig.dmscanlib,
  edu.ualberta.med.scannerconfig.preferences

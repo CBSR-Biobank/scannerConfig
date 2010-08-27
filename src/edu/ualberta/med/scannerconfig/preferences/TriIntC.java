@@ -1,8 +1,20 @@
+package edu.ualberta.med.scannerconfig.preferences;
+
 public class TriIntC {
 	private int a, b, c;
 
 	public TriIntC() {
 		this.init();
+	}
+
+	public TriIntC(int a, int b, int c) {
+		this.setValues(a, b, c);
+	}
+
+	public void setAll() {
+		for (int i = 0; i < 96; i++) {
+			this.setBit(i);
+		}
 	}
 
 	public void init() {
@@ -56,6 +68,16 @@ public class TriIntC {
 			}
 		}
 		return false;
+	}
+
+	public int[] getValues() {
+		return new int[] { this.a, this.b, this.c };
+	}
+
+	public void setValues(int a, int b, int c) {
+		this.a = a;
+		this.b = b;
+		this.c = c;
 	}
 
 	public void printBinary() {

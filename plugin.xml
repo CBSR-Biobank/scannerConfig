@@ -34,9 +34,9 @@
    </extension>
    <extension point="org.eclipse.ui.preferencePages">
     <page id="Scanner"
-        name="Scanner"
+        name="Scanning and Decoding"
             class="edu.ualberta.med.scannerconfig.preferences.Scanner">
-    </page>
+    </page>    
     <page
           category="Scanner"
           class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate1"
@@ -66,6 +66,12 @@
           class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate5"
           id="scannerConfig.page5"
           name="Plate 5 Position">
+    </page>
+       <page 
+       category="Scanner"
+       id="Profiles"
+        name="Setup Profiles"
+            class="edu.ualberta.med.scannerconfig.preferences.Profiles">
     </page>
    </extension>
    <extension

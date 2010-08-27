@@ -70,8 +70,10 @@ public class ScanCell {
 					for (int i = 0; i < 10; i++) {
 						digits.append(random.nextInt(10));
 					}
-					paletteScanned[indexRow][indexCol] = new ScanCell(indexRow,
-							indexCol, digits.toString());
+					paletteScanned[indexRow][indexCol] = new ScanCell(
+							indexRow,
+							indexCol,
+							digits.toString());
 				}
 			}
 		}

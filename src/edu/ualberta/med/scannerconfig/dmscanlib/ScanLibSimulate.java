@@ -33,7 +33,8 @@ public class ScanLibSimulate extends ScanLib {
 	public int slDecodePlate(long verbose, long dpi, int brightness,
 			int contrast, long plateNum, double left, double top, double right,
 			double bottom, double scanGap, long squareDev, long edgeThresh,
-			long corrections, double cellDistance) {
+			long corrections, double cellDistance, double gapX, double gapY,
+			long profileA, long profileB, long profileC, long isHorizontal) {
 		try {
 			// simulate decode
 			BufferedWriter out = new BufferedWriter(new FileWriter(
@@ -49,13 +50,18 @@ public class ScanLibSimulate extends ScanLib {
 			out.write("#Plate,Row,Col,Barcode");
 			out.newLine();
 			for (Integer id : sampleIds) {
-				out.write(String.format("%d,%c,%d,%s", plateNum,
-						(id / 12) + 'A', id % 12 + 1, getRandomString(10)));
+				out.write(String.format(
+						"%d,%c,%d,%s",
+						plateNum,
+						(id / 12) + 'A',
+						id % 12 + 1,
+						getRandomString(10)));
 				out.newLine();
 			}
 			out.flush();
 			return ScanLib.SC_SUCCESS;
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			return ScanLib.SC_INVALID_IMAGE;
 		}
 	}
@@ -71,7 +77,8 @@ public class ScanLibSimulate extends ScanLib {
 	@Override
 	public int slDecodeImage(long verbose, long plateNum, String filename,
 			double scanGap, long squareDev, long edgeThresh, long corrections,
-			double cellDistance) {
+			double cellDistance, double gapX, double gapY, long profileA,
+			long profileB, long profileC, long isHorizontal) {
 		return -1;
 	}
 

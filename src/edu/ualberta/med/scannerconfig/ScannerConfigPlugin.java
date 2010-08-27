@@ -1,6 +1,5 @@
 package edu.ualberta.med.scannerconfig;
 
-import java.io.File;
 import java.net.URL;
 
 import org.eclipse.core.runtime.Assert;
@@ -23,6 +22,8 @@ import edu.ualberta.med.scannerconfig.dmscanlib.ScanCell;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibWin32;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
+import edu.ualberta.med.scannerconfig.preferences.Profiles;
+import edu.ualberta.med.scannerconfig.preferences.TriIntC;
 import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
 
 /**
@@ -97,7 +98,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				ImageDescriptor desc = ImageDescriptor.createFromURL(url);
 				registry.put(key, desc);
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 		}
 	}
 
@@ -137,8 +139,16 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 		int debugLevel = getDefault().getPreferenceStore().getInt(
 				PreferenceConstants.DLL_DEBUG_LEVEL);
 
-		int res = ScanLibWin32.getInstance().slScanImage(debugLevel, dpi,
-				brightness, contrast, left, top, right, bottom, filename);
+		int res = ScanLibWin32.getInstance().slScanImage(
+				debugLevel,
+				dpi,
+				brightness,
+				contrast,
+				left,
+				top,
+				right,
+				bottom,
+				filename);
 
 		if (res < ScanLibWin32.SC_SUCCESS) {
 			throw new Exception("Could not decode image. "
@@ -149,7 +159,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 	public static void scanPlate(int plateNumber, String filename)
 			throws Exception {
 
-		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[plateNumber - 1];
+		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
 		ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
 				.getPreferenceStore().getDouble(prefsArr[0]), getDefault()
@@ -159,11 +169,16 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				.getPreferenceStore().getDouble(prefsArr[4]), getDefault()
 				.getPreferenceStore().getDouble(prefsArr[5]));
 		regionModifyIfScannerWia(region);
-		scanImage(region.left, region.top, region.right, region.bottom,
+		scanImage(
+				region.left,
+				region.top,
+				region.right,
+				region.bottom,
 				filename);
 	}
 
-	public static ScanCell[][] scan(int plateNumber) throws Exception {
+	public static ScanCell[][] scan(int plateNumber, String profile)
+			throws Exception {
 		int dpi = getDefault().getPreferenceStore().getInt(
 				PreferenceConstants.SCANNER_DPI);
 		int brightness = getDefault().getPreferenceStore().getInt(
@@ -183,7 +198,10 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 		double cellDistance = getDefault().getPreferenceStore().getDouble(
 				PreferenceConstants.LIBDMTX_CELL_DISTANCE);
 
-		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[plateNumber - 1];
+		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
+
+		int isHoriztonal = getDefault().getPreferenceStore().getBoolean(
+				prefsArr[6]) ? 1 : 0;
 
 		ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
 				.getPreferenceStore().getDouble(prefsArr[0]), getDefault()
@@ -194,60 +212,35 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				.getPreferenceStore().getDouble(prefsArr[5]));
 		regionModifyIfScannerWia(region);
 
-		int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
-				brightness, contrast, plateNumber, region.left, region.top,
-				region.right, region.bottom, scanGap, squareDev, edgeThresh,
-				corrections, cellDistance);
+		TriIntC triint = Profiles.getTriIntProfile(profile); // XXX bacon
+
+		int res = ScanLib.getInstance().slDecodePlate(
+				debugLevel,
+				dpi,
+				brightness,
+				contrast,
+				plateNumber,
+				region.left,
+				region.top,
+				region.right,
+				region.bottom,
+				scanGap,
+				squareDev,
+				edgeThresh,
+				corrections,
+				cellDistance,
+				region.gapX,
+				region.gapY,
+				triint.getValues()[0],
+				triint.getValues()[1],
+				triint.getValues()[2],
+				isHoriztonal);
 
 		if (res < ScanLib.SC_SUCCESS) {
 			throw new Exception("Could not decode image. "
 					+ ScanLib.getErrMsg(res));
 		}
 		return ScanCell.getScanLibResults();
-	}
-
-	public static int getTestTubesScanned(int plateNumber, int dpi,
-			int brightness, int contrast, int debugLevel, int edgeThresh,
-			double scanGap, int squareDev, int corrections, double cellDistance) {
-
-		ScanCell[][] barcodes = null;
-		int tubesScanned = 0;
-
-		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_COORDS[plateNumber - 1];
-		ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
-				.getPreferenceStore().getDouble(prefsArr[0]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[1]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[2]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[3]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[4]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[5]));
-		regionModifyIfScannerWia(region);
-
-		int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
-				brightness, contrast, plateNumber, region.left, region.top,
-				region.right, region.bottom, scanGap, squareDev, edgeThresh,
-				corrections, cellDistance);
-
-		if (res != ScanLib.SC_SUCCESS || !(new File("dmscanlib.txt")).exists()) {
-			return 0;
-		}
-
-		try {
-			barcodes = ScanCell.getScanLibResults();
-		} catch (Exception e) {
-			return 0;
-		}
-
-		for (int r = 0; r < barcodes.length; ++r) {
-			for (int c = 0; c < barcodes[0].length; ++c) {
-				if ((barcodes[r][c] != null)
-						&& (barcodes[r][c].getValue() != null)
-						&& (barcodes[r][c].getValue().length() > 0)) {
-					tubesScanned++;
-				}
-			}
-		}
-		return tubesScanned;
 	}
 
 	public boolean getPlateEnabled(int plateId) {

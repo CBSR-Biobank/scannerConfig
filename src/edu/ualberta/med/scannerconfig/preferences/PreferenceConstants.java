@@ -26,40 +26,41 @@ public class PreferenceConstants {
 
 	public static final String LIBDMTX_CELL_DISTANCE = "libdmtx.cell_distance";
 
+	public static final String SCANNER_PALLET_PROFILES = "scanner.pallet.profiles";
+
 	public static final String[] SCANNER_PALLET_ENABLED = {
 			"scanner.plate.coords.enabled.1", "scanner.plate.coords.enabled.2",
 			"scanner.plate.coords.enabled.3", "scanner.plate.coords.enabled.4",
 			"scanner.plate.coords.enabled.5" };
 
-	@Deprecated
-	public static final String[][] SCANNER_PALLET_COORDS = {
+	public static final String[][] SCANNER_PALLET_CONFIG = {
 			{ "scanner.plate.coords.left.1", "scanner.plate.coords.top.1",
 					"scanner.plate.coords.right.1",
 					"scanner.plate.coords.bottom.1",
 					"scanner.plate.coords.gapx.1",
-					"scanner.plate.coords.gapy.1" },
+					"scanner.plate.coords.gapy.1", "scanner.plate.rotated.1" },
 
 			{ "scanner.plate.coords.left.2", "scanner.plate.coords.top.2",
 					"scanner.plate.coords.right.2",
 					"scanner.plate.coords.bottom.2",
 					"scanner.plate.coords.gapx.2",
-					"scanner.plate.coords.gapy.2" },
+					"scanner.plate.coords.gapy.2", "scanner.plate.rotated.2" },
 
 			{ "scanner.plate.coords.left.3", "scanner.plate.coords.top.3",
 					"scanner.plate.coords.right.3",
 					"scanner.plate.coords.bottom.3",
 					"scanner.plate.coords.gapx.3",
-					"scanner.plate.coords.gapy.3" },
+					"scanner.plate.coords.gapy.3", "scanner.plate.rotated.3" },
 
 			{ "scanner.plate.coords.left.4", "scanner.plate.coords.top.4",
 					"scanner.plate.coords.right.4",
 					"scanner.plate.coords.bottom.4",
 					"scanner.plate.coords.gapx.4",
-					"scanner.plate.coords.gapy.4" },
+					"scanner.plate.coords.gapy.4", "scanner.plate.rotated.4" },
 
 			{ "scanner.plate.coords.left.5", "scanner.plate.coords.top.5",
 					"scanner.plate.coords.right.5",
 					"scanner.plate.coords.bottom.5",
 					"scanner.plate.coords.gapx.5",
-					"scanner.plate.coords.gapy.5" } };
+					"scanner.plate.coords.gapy.5", "scanner.plate.rotated.5" } };
 }
