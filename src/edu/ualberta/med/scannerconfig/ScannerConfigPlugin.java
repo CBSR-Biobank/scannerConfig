@@ -167,7 +167,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				.getPreferenceStore().getDouble(prefsArr[2]), getDefault()
 				.getPreferenceStore().getDouble(prefsArr[3]), getDefault()
 				.getPreferenceStore().getDouble(prefsArr[4]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[5]));
+				.getPreferenceStore().getDouble(prefsArr[5]), getDefault()
+				.getPreferenceStore().getBoolean(prefsArr[6]));
 		regionModifyIfScannerWia(region);
 		scanImage(
 				region.left,
@@ -200,16 +201,14 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
 		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
-		int isHoriztonal = getDefault().getPreferenceStore().getBoolean(
-				prefsArr[6]) ? 1 : 0;
-
 		ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
 				.getPreferenceStore().getDouble(prefsArr[0]), getDefault()
 				.getPreferenceStore().getDouble(prefsArr[1]), getDefault()
 				.getPreferenceStore().getDouble(prefsArr[2]), getDefault()
 				.getPreferenceStore().getDouble(prefsArr[3]), getDefault()
 				.getPreferenceStore().getDouble(prefsArr[4]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[5]));
+				.getPreferenceStore().getDouble(prefsArr[5]), getDefault()
+				.getPreferenceStore().getBoolean(prefsArr[6]));
 		regionModifyIfScannerWia(region);
 
 		TriIntC triint = Profiles.getTriIntProfile(profile); // XXX bacon
@@ -234,7 +233,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				triint.getValues()[0],
 				triint.getValues()[1],
 				triint.getValues()[2],
-				isHoriztonal);
+				region.horizontalRotation ? 1 : 0);
 
 		if (res < ScanLib.SC_SUCCESS) {
 			throw new Exception("Could not decode image. "

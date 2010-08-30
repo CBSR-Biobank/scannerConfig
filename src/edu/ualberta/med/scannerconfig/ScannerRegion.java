@@ -13,10 +13,14 @@ public class ScannerRegion {
 	public double bottom;
 
 	public double gapX;
+
 	public double gapY;
+
+	public boolean horizontalRotation;
 
 	public ScannerRegion() {
 		left = top = right = bottom = gapX = gapY = 0;
+		horizontalRotation = true;
 	}
 
 	public ScannerRegion(ScannerRegion region) {
@@ -24,7 +28,7 @@ public class ScannerRegion {
 	}
 
 	public ScannerRegion(String name, double left, double top, double right,
-			double bottom, double gapX, double gapY) {
+			double bottom, double gapX, double gapY, boolean horizontalRotation) {
 		this.name = name;
 		this.left = left;
 		this.top = top;
@@ -32,6 +36,7 @@ public class ScannerRegion {
 		this.bottom = bottom;
 		this.gapX = gapX;
 		this.gapY = gapY;
+		this.horizontalRotation = horizontalRotation;
 	}
 
 	public void set(ScannerRegion region) {
@@ -42,15 +47,17 @@ public class ScannerRegion {
 		bottom = region.bottom;
 		gapX = region.gapX;
 		gapY = region.gapY;
+		horizontalRotation = region.horizontalRotation;
 	}
 
 	public void set(double left, double top, double right, double bottom,
-			double gapX, double gapY) {
+			double gapX, double gapY, boolean horizontalRotation) {
 		this.left = left;
 		this.top = top;
 		this.right = right;
 		this.bottom = bottom;
 		this.gapX = gapX;
 		this.gapY = gapY;
+		this.horizontalRotation = horizontalRotation;
 	}
 }

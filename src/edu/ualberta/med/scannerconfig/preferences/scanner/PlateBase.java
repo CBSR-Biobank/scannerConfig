@@ -1,13 +1,11 @@
 package edu.ualberta.med.scannerconfig.preferences.scanner;
 
-import java.io.File;
-
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -20,16 +18,15 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.ui.PlatformUI;
 
-import edu.ualberta.med.scannerconfig.IPlateBoundsListener;
+import edu.ualberta.med.scannerconfig.ChangeListener;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.ScannerRegion;
-import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.widgets.PlateBoundsWidget;
@@ -37,40 +34,37 @@ import edu.ualberta.med.scannerconfig.widgets.PlateBoundsWidget;
 public class PlateBase extends FieldEditorPreferencePage implements
 		IWorkbenchPreferencePage {
 
+	protected ListenerList changeListeners = new ListenerList();
+
 	protected int plateId;
+	private boolean isEnabled;
 
 	private Text[] textControls;
-
+	private Canvas canvas;
 	private PlateBoundsWidget plateBoundsWidget;
 
-	private ScannerRegion origScannerRegion;
+	private BooleanFieldEditor booleanFieldEditor;
+	private Button rotateBtn;
+	private Button scanBtn;
+
+	private boolean isHorizontalRotation;
 
 	private Label statusLabel;
-
-	private Canvas canvas;
-
-	private BooleanFieldEditor bfe;
-	private Button rotateBtn;
-	Button scanBtn;
 
 	public PlateBase(int plateId) {
 		super(GRID);
 		this.plateId = plateId;
+
 		setPreferenceStore(ScannerConfigPlugin.getDefault()
 				.getPreferenceStore());
-		textControls = new Text[6];
 	}
 
 	@Override
 	protected Control createContents(final Composite parent) {
+
 		Composite top = new Composite(parent, SWT.NONE);
 		top.setLayout(new GridLayout(2, false));
 		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
-		File platesFile = new File(PlateBoundsWidget.PALLET_IMAGE_FILE);
-		if (platesFile.exists()) {
-			platesFile.delete();
-		}
 
 		Control s = super.createContents(top);
 		GridData gd = (GridData) s.getLayoutData();
@@ -92,20 +86,6 @@ public class PlateBase extends FieldEditorPreferencePage implements
 		statusLabel
 				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		if (!ScannerConfigPlugin.getDefault().getPlateEnabled(plateId)) {
-			statusLabel.setText(" plate is not enabled");
-			PlateBase.this.setEnabled(false);
-		}
-		else
-			if (!platesFile.exists()) {
-				statusLabel
-						.setText(" a scan is required to configure this pallet");
-			}
-			else {
-				statusLabel
-						.setText(" click on opposite corners to configure pallet");
-			}
-
 		scanBtn = new Button(right, SWT.NONE);
 		scanBtn.setText("Scan");
 		scanBtn.addSelectionListener(new SelectionListener() {
@@ -116,60 +96,12 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				statusLabel.setText("scanning...");
-				BusyIndicator.showWhile(parent.getDisplay(), new Runnable() {
-					@Override
-					public void run() {
-						int brightness = ScannerConfigPlugin.getDefault()
-								.getPreferenceStore()
-								.getInt(PreferenceConstants.SCANNER_BRIGHTNESS);
-						int contrast = ScannerConfigPlugin.getDefault()
-								.getPreferenceStore()
-								.getInt(PreferenceConstants.SCANNER_CONTRAST);
-						int debugLevel = ScannerConfigPlugin.getDefault()
-								.getPreferenceStore()
-								.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
-						final int result = ScanLib.getInstance().slScanImage(
-								debugLevel,
-								(int) PlateBoundsWidget.PALLET_IMAGE_DPI,
-								brightness,
-								contrast,
-								0,
-								0,
-								20,
-								20,
-								PlateBoundsWidget.PALLET_IMAGE_FILE);
-
-						parent.getDisplay().asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								if (result != ScanLib.SC_SUCCESS) {
-									MessageDialog.openError(
-											PlatformUI.getWorkbench()
-													.getActiveWorkbenchWindow()
-													.getShell(),
-											"Scanner error",
-											ScanLib.getErrMsg(result));
-									return;
-								}
-
-								File platesFile = new File(
-										PlateBoundsWidget.PALLET_IMAGE_FILE);
-								if (platesFile.exists()) {
-									plateBoundsWidget.loadImage();
-									PlateBase.this.setEnabled(true);
-								}
-							}
-						});
-					}
-				});
-				statusLabel
-						.setText("the scroll wheel lets use change the grid gap");
+				PlateScannedImage.instance().scanPlateImage();
+				updateStatus();
 			}
 		});
-
 		if (System.getProperty("os.name").startsWith("Windows")
-				&& !platesFile.exists() && bfe.getBooleanValue()) {
+				&& ScannerConfigPlugin.getDefault().getPlateEnabled(plateId)) {
 			this.setEnabled(true);
 		}
 		else {
@@ -179,18 +111,19 @@ public class PlateBase extends FieldEditorPreferencePage implements
 		return top;
 	}
 
-	private void setEnabled(boolean enabled) {
-		for (int i = 0; i < 6; ++i) {
-			textControls[i].setEnabled(enabled);
-		}
-		rotateBtn.setEnabled(enabled);
-		if (scanBtn != null)
-			scanBtn.setEnabled(enabled);
-
-		if (plateBoundsWidget != null) {
-			plateBoundsWidget.setEnable(enabled);
+	private void updateStatus() {
+		if (!isEnabled) {
+			statusLabel.setText(" plate is not enabled");
+			return;
 		}
 
+		if (!PlateScannedImage.instance().exists()) {
+			statusLabel.setText(" a scan is required to configure this pallet");
+			return;
+		}
+
+		statusLabel.setText(" outline the barcodes using the green grid");
+		return;
 	}
 
 	@Override
@@ -198,13 +131,15 @@ public class PlateBase extends FieldEditorPreferencePage implements
 		DoubleFieldEditor fe;
 		String[] labels = { "Left", "Top", "Right", "Bottom", "GapX", "GapY" };
 
-		bfe = new BooleanFieldEditor(
+		booleanFieldEditor = new BooleanFieldEditor(
 				PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1],
 				"Enable",
 				getFieldEditorParent());
-		addField(bfe);
+		addField(booleanFieldEditor);
 
 		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
+
+		textControls = new Text[6];
 
 		for (int i = 0; i < 6; ++i) {
 			fe = new DoubleFieldEditor(
@@ -217,33 +152,23 @@ public class PlateBase extends FieldEditorPreferencePage implements
 			textControls[i].addModifyListener(new ModifyListener() {
 				@Override
 				public void modifyText(ModifyEvent e) {
-					if (plateBoundsWidget == null)
-						return;
-					try {
-						plateBoundsWidget.assignRegions(
-								"" + plateId,
-								Double.parseDouble(textControls[0].getText()),
-								Double.parseDouble(textControls[1].getText()),
-								Double.parseDouble(textControls[2].getText()),
-								Double.parseDouble(textControls[3].getText()),
-								Double.parseDouble(textControls[4].getText()),
-								Double.parseDouble(textControls[5].getText()));
-
-						setValid(true);
-					}
-					catch (NumberFormatException ex) {
-						setValid(false);
-					}
+					PlateBase.this.notifyChangeListener(
+							ChangeListener.PLATE_BASE_TEXT_CHANGE,
+							0);
 				}
+
 			});
 		}
+
 		rotateBtn = new Button(getFieldEditorParent(), SWT.BORDER);
 		rotateBtn.setText("Rotate");
 		rotateBtn.addSelectionListener(new SelectionListener() {
-
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				plateBoundsWidget.rotateGrid();
+				isHorizontalRotation = !isHorizontalRotation;
+				PlateBase.this.notifyChangeListener(
+						ChangeListener.PLATE_BASE_ROTATE,
+						0);
 			}
 
 			@Override
@@ -251,6 +176,90 @@ public class PlateBase extends FieldEditorPreferencePage implements
 			}
 		});
 
+	}
+
+	/* create canvas and plate widget */
+	private void createCanvasComp(Composite parent) {
+
+		canvas = new Canvas(parent, SWT.BORDER | SWT.NO_BACKGROUND);
+		canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		canvas.setBackground(new Color(Display.getCurrent(), 255, 255, 255));
+
+		IPreferenceStore prefs = ScannerConfigPlugin.getDefault()
+				.getPreferenceStore();
+
+		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
+
+		this.isHorizontalRotation = prefs.getBoolean(prefsArr[6]);
+
+		plateBoundsWidget = new PlateBoundsWidget(this, canvas);
+
+		plateBoundsWidget.addPlateWidgetChangeListener(new ChangeListener() {
+			@Override
+			public void change(Event e) {
+				ScannerRegion r = plateBoundsWidget.getPlateRegion();
+				textControls[0].setText(String.valueOf(r.left));
+				textControls[1].setText(String.valueOf(r.top));
+				textControls[2].setText(String.valueOf(r.right));
+				textControls[3].setText(String.valueOf(r.bottom));
+				textControls[4].setText(String.valueOf(r.gapX));
+				textControls[5].setText(String.valueOf(r.gapY));
+				PlateBase.this.isHorizontalRotation = r.horizontalRotation;
+			}
+		});
+	}
+
+	private String formatInput(String s) {
+		try {
+			Double.parseDouble(s);
+			return s;
+		}
+		catch (NumberFormatException e) {
+			return "0";
+		}
+	}
+
+	public ScannerRegion getScannerRegionText() {
+		return new ScannerRegion(
+				"" + plateId,
+				Double.parseDouble(formatInput(textControls[0].getText())),
+				Double.parseDouble(formatInput(textControls[1].getText())),
+				Double.parseDouble(formatInput(textControls[2].getText())),
+				Double.parseDouble(formatInput(textControls[3].getText())),
+				Double.parseDouble(formatInput(textControls[4].getText())),
+				Double.parseDouble(formatInput(textControls[5].getText())),
+				this.isHorizontalRotation);
+
+	}
+
+	@Override
+	public void dispose() {
+		plateBoundsWidget.dispose();
+		super.dispose();
+	}
+
+	private void setEnabled(boolean enabled) {
+
+		this.isEnabled = enabled;
+
+		for (int i = 0; i < 6; ++i) {
+			if (textControls[i] != null)
+				textControls[i].setEnabled(enabled);
+		}
+
+		if (rotateBtn != null)
+			rotateBtn.setEnabled(enabled);
+
+		if (scanBtn != null)
+			scanBtn.setEnabled(enabled);
+
+		notifyChangeListener(ChangeListener.PLATE_BASE_ENABLED, enabled ? 1 : 0);
+
+		updateStatus();
+	}
+
+	public boolean isEnabled() {
+		return this.isEnabled;
 	}
 
 	@Override
@@ -263,42 +272,29 @@ public class PlateBase extends FieldEditorPreferencePage implements
 			applyButton.setEnabled(true);
 	}
 
-	private void createCanvasComp(Composite parent) {
-		canvas = new Canvas(parent, SWT.BORDER | SWT.NO_BACKGROUND);
-		canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		canvas.setBackground(new Color(Display.getCurrent(), 255, 255, 255));
+	public void removePlateBaseChangeListener(ChangeListener listener) {
+		this.changeListeners.remove(listener);
+	}
 
-		IPreferenceStore prefs = ScannerConfigPlugin.getDefault()
-				.getPreferenceStore();
+	public void addPlateBaseChangeListener(ChangeListener listener) {
+		this.changeListeners.add(listener);
+	}
 
-		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
+	private void notifyChangeListener(final int message, final int detail) {
+		Object[] listeners = this.changeListeners.getListeners();
+		for (int i = 0; i < listeners.length; ++i) {
+			final ChangeListener l = (ChangeListener) listeners[i];
+			SafeRunnable.run(new SafeRunnable() {
+				@Override
+				public void run() {
 
-		origScannerRegion = new ScannerRegion(
-				"" + plateId,
-				ScannerConfigPlugin.getDefault().getPreferenceStore()
-						.getDouble(prefsArr[0]),
-				prefs.getDouble(prefsArr[1]),
-				prefs.getDouble(prefsArr[2]),
-				prefs.getDouble(prefsArr[3]),
-				prefs.getDouble(prefsArr[4]),
-				prefs.getDouble(prefsArr[5]));
-
-		plateBoundsWidget = new PlateBoundsWidget(canvas, new ScannerRegion(
-				origScannerRegion), prefs.getBoolean(prefsArr[6]));
-
-		plateBoundsWidget.addChangeListener(new IPlateBoundsListener() {
-
-			@Override
-			public void change() {
-				ScannerRegion r = plateBoundsWidget.getPlateRegion();
-				textControls[0].setText(String.valueOf(r.left));
-				textControls[1].setText(String.valueOf(r.top));
-				textControls[2].setText(String.valueOf(r.right));
-				textControls[3].setText(String.valueOf(r.bottom));
-				textControls[4].setText(String.valueOf(r.gapX));
-				textControls[5].setText(String.valueOf(r.gapY));
-			}
-		});
+					Event e = new Event();
+					e.type = message;
+					e.detail = detail;
+					l.change(e);
+				}
+			});
+		}
 	}
 
 	@Override
@@ -313,9 +309,9 @@ public class PlateBase extends FieldEditorPreferencePage implements
 				.getPreferenceStore()
 				.setValue(
 						PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1][6],
-						plateBoundsWidget.getIsHorizontalRotation());
+						this.isHorizontalRotation);
 
-		this.setEnabled(bfe.getBooleanValue());
+		this.setEnabled(booleanFieldEditor.getBooleanValue());
 	}
 
 	@Override

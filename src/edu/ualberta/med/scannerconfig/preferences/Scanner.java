@@ -15,8 +15,8 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.preferences.scanner.PlateScannedImage;
 import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
-import edu.ualberta.med.scannerconfig.widgets.PlateBoundsWidget;
 
 public class Scanner extends FieldEditorPreferencePage implements
 		IWorkbenchPreferencePage {
@@ -61,66 +61,84 @@ public class Scanner extends FieldEditorPreferencePage implements
 				new String[][] {
 						{ "TWAIN", PreferenceConstants.SCANNER_DRV_TYPE_TWAIN },
 						{ "WIA", PreferenceConstants.SCANNER_DRV_TYPE_WIA } },
-				getFieldEditorParent(), true);
+				getFieldEditorParent(),
+				true);
 		addField(driverTypeRadio);
 
 		dpiRadio = new AdvancedRadioGroupFieldEditor(
-				PreferenceConstants.SCANNER_DPI, "DPI", 5, new String[][] {
-						{ "300", "300" }, { "400", "400" }, { "600", "600" } },
-				getFieldEditorParent(), true);
+				PreferenceConstants.SCANNER_DPI,
+				"DPI",
+				5,
+				new String[][] { { "300", "300" }, { "400", "400" },
+						{ "600", "600" } },
+				getFieldEditorParent(),
+				true);
 
 		addField(dpiRadio);
 
 		brightnessInputField = new IntegerFieldEditor(
-				PreferenceConstants.SCANNER_BRIGHTNESS, "Brightness:",
+				PreferenceConstants.SCANNER_BRIGHTNESS,
+				"Brightness:",
 				getFieldEditorParent());
 		brightnessInputField.setValidRange(-1000, 1000);
 		addField(brightnessInputField);
-		intFieldMap.put(brightnessInputField.getPreferenceName(),
+		intFieldMap.put(
+				brightnessInputField.getPreferenceName(),
 				brightnessInputField);
 
 		contrastInputField = new IntegerFieldEditor(
-				PreferenceConstants.SCANNER_CONTRAST, "Contrast:",
+				PreferenceConstants.SCANNER_CONTRAST,
+				"Contrast:",
 				getFieldEditorParent());
 		contrastInputField.setValidRange(-1000, 1000);
 		addField(contrastInputField);
-		intFieldMap.put(contrastInputField.getPreferenceName(),
+		intFieldMap.put(
+				contrastInputField.getPreferenceName(),
 				contrastInputField);
 
 		debugLevelInputField = new IntegerFieldEditor(
 				PreferenceConstants.DLL_DEBUG_LEVEL,
-				"Decode Library Debug Level:", getFieldEditorParent());
+				"Decode Library Debug Level:",
+				getFieldEditorParent());
 		debugLevelInputField.setValidRange(0, 9);
 		addField(debugLevelInputField);
-		intFieldMap.put(debugLevelInputField.getPreferenceName(),
+		intFieldMap.put(
+				debugLevelInputField.getPreferenceName(),
 				debugLevelInputField);
 
 		thresholdInputField = new IntegerFieldEditor(
 				PreferenceConstants.LIBDMTX_EDGE_THRESH,
-				"Decode Edge Threshold:", getFieldEditorParent());
+				"Decode Edge Threshold:",
+				getFieldEditorParent());
 		thresholdInputField.setValidRange(0, 100);
 		addField(thresholdInputField);
-		intFieldMap.put(thresholdInputField.getPreferenceName(),
+		intFieldMap.put(
+				thresholdInputField.getPreferenceName(),
 				thresholdInputField);
 
 		squaredevInputField = new IntegerFieldEditor(
 				PreferenceConstants.LIBDMTX_SQUARE_DEV,
-				"Decode Square Deviation:", getFieldEditorParent());
+				"Decode Square Deviation:",
+				getFieldEditorParent());
 		squaredevInputField.setValidRange(0, 90);
 		addField(squaredevInputField);
-		intFieldMap.put(squaredevInputField.getPreferenceName(),
+		intFieldMap.put(
+				squaredevInputField.getPreferenceName(),
 				squaredevInputField);
 
 		correctionsInputField = new IntegerFieldEditor(
-				PreferenceConstants.LIBDMTX_CORRECTIONS, "Decode Corrections:",
+				PreferenceConstants.LIBDMTX_CORRECTIONS,
+				"Decode Corrections:",
 				getFieldEditorParent());
 		correctionsInputField.setValidRange(0, 100);
 		addField(correctionsInputField);
-		intFieldMap.put(correctionsInputField.getPreferenceName(),
+		intFieldMap.put(
+				correctionsInputField.getPreferenceName(),
 				correctionsInputField);
 
 		scanGapDblInput = new DoubleFieldEditor(
-				PreferenceConstants.LIBDMTX_SCAN_GAP, "Decode Scan Gap:",
+				PreferenceConstants.LIBDMTX_SCAN_GAP,
+				"Decode Scan Gap:",
 				getFieldEditorParent());
 		scanGapDblInput.setValidRange(0.0, 1.0);
 		addField(scanGapDblInput);
@@ -128,10 +146,12 @@ public class Scanner extends FieldEditorPreferencePage implements
 
 		celldistDblInput = new DoubleFieldEditor(
 				PreferenceConstants.LIBDMTX_CELL_DISTANCE,
-				"Decode Cell Distance:", getFieldEditorParent());
+				"Decode Cell Distance:",
+				getFieldEditorParent());
 		celldistDblInput.setValidRange(0.0, 1.0);
 		addField(celldistDblInput);
-		dblFieldMap.put(PreferenceConstants.LIBDMTX_CELL_DISTANCE,
+		dblFieldMap.put(
+				PreferenceConstants.LIBDMTX_CELL_DISTANCE,
 				celldistDblInput);
 		setEnableAllWidgets((scannerCap & ScanLib.CAP_IS_SCANNER) != 0);
 	}
@@ -141,12 +161,14 @@ public class Scanner extends FieldEditorPreferencePage implements
 		if (enableSettings) {
 
 			int scannerCap = ScanLib.getInstance().slGetScannerCapability();
-			dpiRadio.setEnabledArray(new boolean[] {
-					(scannerCap & ScanLib.CAP_DPI_300) != 0,
-					(scannerCap & ScanLib.CAP_DPI_400) != 0,
-					(scannerCap & ScanLib.CAP_DPI_600) != 0 }, 0,
+			dpiRadio.setEnabledArray(
+					new boolean[] { (scannerCap & ScanLib.CAP_DPI_300) != 0,
+							(scannerCap & ScanLib.CAP_DPI_400) != 0,
+							(scannerCap & ScanLib.CAP_DPI_600) != 0 },
+					0,
 					getFieldEditorParent());
-		} else {
+		}
+		else {
 			dpiRadio.setEnabled(false, getFieldEditorParent());
 		}
 
@@ -203,23 +225,29 @@ public class Scanner extends FieldEditorPreferencePage implements
 				if ((scannerCap & ScanLib.CAP_IS_SCANNER) != 0) {
 					return;
 
-				} else {
+				}
+				else {
 					setEnableAllWidgets(false);
 					ScannerConfigPlugin
-							.openError("Source Selection Error",
+							.openError(
+									"Source Selection Error",
 									"Please plug in a scanner and select an appropiate source driver.");
 				}
-			} else {
+			}
+			else {
 
 				IPreferenceStore store = self.getPreferenceStore();
 
 				if ((scannerCap & ScanLib.CAP_IS_WIA) != 0) {
-					store.setValue(PreferenceConstants.SCANNER_DRV_TYPE,
+					store.setValue(
+							PreferenceConstants.SCANNER_DRV_TYPE,
 							PreferenceConstants.SCANNER_DRV_TYPE_WIA);
 					driverTypeRadio.setSelectionArray(new boolean[] { false,
 							true });
-				} else {
-					store.setValue(PreferenceConstants.SCANNER_DRV_TYPE,
+				}
+				else {
+					store.setValue(
+							PreferenceConstants.SCANNER_DRV_TYPE,
 							PreferenceConstants.SCANNER_DRV_TYPE_TWAIN);
 					driverTypeRadio.setSelectionArray(new boolean[] { true,
 							false });
@@ -233,22 +261,26 @@ public class Scanner extends FieldEditorPreferencePage implements
 					dpiRadio.setSelectionArray(new boolean[] { true, false,
 							false });
 					store.setValue(PreferenceConstants.SCANNER_DPI, 300);
-					PlateBoundsWidget.PALLET_IMAGE_DPI = 300;
+					PlateScannedImage.PALLET_IMAGE_DPI = 300;
 
-				} else if ((scannerCap & ScanLib.CAP_DPI_400) != 0) {
-
-					dpiRadio.setSelectionArray(new boolean[] { false, true,
-							false });
-					store.setValue(PreferenceConstants.SCANNER_DPI, 400);
-					PlateBoundsWidget.PALLET_IMAGE_DPI = 400;
-
-				} else if ((scannerCap & ScanLib.CAP_DPI_600) != 0) {
-
-					dpiRadio.setSelectionArray(new boolean[] { false, false,
-							true });
-					store.setValue(PreferenceConstants.SCANNER_DPI, 600);
-					PlateBoundsWidget.PALLET_IMAGE_DPI = 600;
 				}
+				else
+					if ((scannerCap & ScanLib.CAP_DPI_400) != 0) {
+
+						dpiRadio.setSelectionArray(new boolean[] { false, true,
+								false });
+						store.setValue(PreferenceConstants.SCANNER_DPI, 400);
+						PlateScannedImage.PALLET_IMAGE_DPI = 400;
+
+					}
+					else
+						if ((scannerCap & ScanLib.CAP_DPI_600) != 0) {
+
+							dpiRadio.setSelectionArray(new boolean[] { false,
+									false, true });
+							store.setValue(PreferenceConstants.SCANNER_DPI, 600);
+							PlateScannedImage.PALLET_IMAGE_DPI = 600;
+						}
 				dpiRadio.doLoad();
 
 				setEnableAllWidgets(true);
