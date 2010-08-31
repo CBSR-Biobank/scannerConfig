@@ -51,6 +51,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 	private boolean isHorizontalRotation;
 
 	private Label statusLabel;
+	private ChangeListener scannedImageListner;
 
 	public PlateBase(int plateId) {
 		super(GRID);
@@ -62,6 +63,24 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
 	@Override
 	protected Control createContents(final Composite parent) {
+
+		scannedImageListner = new ChangeListener() {
+			@Override
+			public void change(Event e) {
+				if (e.type == ChangeListener.IMAGE_SCANNED) {
+
+					/* new image scanned */
+					if (e.detail == 1) {
+						statusLabel
+								.setText(" outline the barcodes using the green grid");
+					}
+					else {
+						statusLabel
+								.setText(" an error occured scanning an image");
+					}
+				}
+			}
+		};
 
 		Composite top = new Composite(parent, SWT.NONE);
 		top.setLayout(new GridLayout(2, false));
@@ -101,7 +120,6 @@ public class PlateBase extends FieldEditorPreferencePage implements
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				PlateScannedImage.instance().scanPlateImage();
-				updateStatus();
 			}
 		});
 		refreshBtn = new Button(buttonComposite, SWT.NONE);
@@ -129,21 +147,6 @@ public class PlateBase extends FieldEditorPreferencePage implements
 		}
 
 		return top;
-	}
-
-	private void updateStatus() {
-		if (!isEnabled) {
-			statusLabel.setText(" plate is not enabled");
-			return;
-		}
-
-		if (!PlateScannedImage.instance().exists()) {
-			statusLabel.setText(" a scan is required to configure this pallet");
-			return;
-		}
-
-		statusLabel.setText(" outline the barcodes using the green grid");
-		return;
 	}
 
 	@Override
@@ -254,6 +257,8 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
 	@Override
 	public void dispose() {
+		PlateScannedImage.instance().removeScannedImageChangeListener(
+				scannedImageListner);
 		plateBoundsWidget.dispose();
 		super.dispose();
 	}
@@ -276,9 +281,13 @@ public class PlateBase extends FieldEditorPreferencePage implements
 		if (refreshBtn != null)
 			refreshBtn.setEnabled(enabled);
 
+		if (!isEnabled) {
+			statusLabel.setText(" plate is not enabled");
+			return;
+		}
+
 		notifyChangeListener(ChangeListener.PLATE_BASE_ENABLED, enabled ? 1 : 0);
 
-		updateStatus();
 	}
 
 	public boolean isEnabled() {

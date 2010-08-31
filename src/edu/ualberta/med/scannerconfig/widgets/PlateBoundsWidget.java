@@ -44,7 +44,8 @@ public class PlateBoundsWidget {
 
 	private enum DragMode {
 		NONE, MOVE, RESIZE_HORIZONTAL_LEFT, RESIZE_HORIZONTAL_RIGHT,
-		RESIZE_VERTICAL_TOP, RESIZE_VERTICAL_BOTTOM, RESIZE_BOTTOM_RIGHT
+		RESIZE_VERTICAL_TOP, RESIZE_VERTICAL_BOTTOM, RESIZE_BOTTOM_RIGHT,
+		RESIZE_TOP_LEFT
 	};
 
 	private boolean drag = false;
@@ -273,6 +274,7 @@ public class PlateBoundsWidget {
 					case ChangeListener.PLATE_BASE_ENABLED:
 						PlateBoundsWidget.this.setEnable(e.detail == 1);
 						break;
+
 					case ChangeListener.PALLET_BASE_REFRESH:
 						getGridRegion();
 						PlateBoundsWidget.this
@@ -353,12 +355,25 @@ public class PlateBoundsWidget {
 							PlateBoundsWidget.this.getGridRegion().height = (e.y - PlateBoundsWidget.this.startDragMousePt.y)
 									+ PlateBoundsWidget.this.startGridRect.height;
 							break;
+
 						case RESIZE_BOTTOM_RIGHT:
 							PlateBoundsWidget.this.getGridRegion().width = (e.x - PlateBoundsWidget.this.startDragMousePt.x)
 									+ PlateBoundsWidget.this.startGridRect.width;
 							PlateBoundsWidget.this.getGridRegion().height = (e.y - PlateBoundsWidget.this.startDragMousePt.y)
 									+ PlateBoundsWidget.this.startGridRect.height;
+							break;
+
+						case RESIZE_TOP_LEFT:
+							PlateBoundsWidget.this.getGridRegion().left = (e.x - PlateBoundsWidget.this.startDragMousePt.x)
+									+ PlateBoundsWidget.this.startGridRect.x;
+							PlateBoundsWidget.this.getGridRegion().top = (e.y - PlateBoundsWidget.this.startDragMousePt.y)
+									+ PlateBoundsWidget.this.startGridRect.y;
+							PlateBoundsWidget.this.getGridRegion().height = (PlateBoundsWidget.this.startDragMousePt.y - e.y)
+									+ PlateBoundsWidget.this.startGridRect.height;
+							PlateBoundsWidget.this.getGridRegion().width = (PlateBoundsWidget.this.startDragMousePt.x - e.x)
+									+ PlateBoundsWidget.this.startGridRect.width;
 						default:
+
 							break;
 					}
 
@@ -406,26 +421,26 @@ public class PlateBoundsWidget {
 							else
 								if (new Rectangle(
 										PlateBoundsWidget.this.gridRegion
-												.getRectangle().x
-												+ PlateBoundsWidget.this.gridRegion
-														.getRectangle().width,
+												.getRectangle().x - 10,
 										PlateBoundsWidget.this.gridRegion
-												.getRectangle().y,
-										10,
-										PlateBoundsWidget.this.gridRegion
-												.getRectangle().height)
-										.contains(e.x, e.y)) {
+												.getRectangle().y - 10,
+										15,
+										15).contains(e.x, e.y)) {
 									PlateBoundsWidget.this.canvas
 											.setCursor(new Cursor(
 													PlateBoundsWidget.this.canvas
 															.getDisplay(),
-													SWT.CURSOR_SIZEE));
-									PlateBoundsWidget.this.dragMode = DragMode.RESIZE_HORIZONTAL_RIGHT;
+													SWT.CURSOR_SIZENWSE));
+									PlateBoundsWidget.this.dragMode = DragMode.RESIZE_TOP_LEFT;
+
 								}
+
 								else
 									if (new Rectangle(
 											PlateBoundsWidget.this.gridRegion
-													.getRectangle().x - 10,
+													.getRectangle().x
+													+ PlateBoundsWidget.this.gridRegion
+															.getRectangle().width,
 											PlateBoundsWidget.this.gridRegion
 													.getRectangle().y,
 											10,
@@ -436,33 +451,32 @@ public class PlateBoundsWidget {
 												.setCursor(new Cursor(
 														PlateBoundsWidget.this.canvas
 																.getDisplay(),
-														SWT.CURSOR_SIZEW));
-										PlateBoundsWidget.this.dragMode = DragMode.RESIZE_HORIZONTAL_LEFT;
+														SWT.CURSOR_SIZEE));
+										PlateBoundsWidget.this.dragMode = DragMode.RESIZE_HORIZONTAL_RIGHT;
 									}
 									else
 										if (new Rectangle(
 												PlateBoundsWidget.this.gridRegion
-														.getRectangle().x,
+														.getRectangle().x - 10,
 												PlateBoundsWidget.this.gridRegion
-														.getRectangle().y - 10,
+														.getRectangle().y,
+												10,
 												PlateBoundsWidget.this.gridRegion
-														.getRectangle().width,
-												10).contains(e.x, e.y)) {
+														.getRectangle().height)
+												.contains(e.x, e.y)) {
 											PlateBoundsWidget.this.canvas
 													.setCursor(new Cursor(
 															PlateBoundsWidget.this.canvas
 																	.getDisplay(),
-															SWT.CURSOR_SIZEN));
-											PlateBoundsWidget.this.dragMode = DragMode.RESIZE_VERTICAL_TOP;
+															SWT.CURSOR_SIZEW));
+											PlateBoundsWidget.this.dragMode = DragMode.RESIZE_HORIZONTAL_LEFT;
 										}
 										else
 											if (new Rectangle(
 													PlateBoundsWidget.this.gridRegion
 															.getRectangle().x,
 													PlateBoundsWidget.this.gridRegion
-															.getRectangle().y
-															+ PlateBoundsWidget.this.gridRegion
-																	.getRectangle().height,
+															.getRectangle().y - 10,
 													PlateBoundsWidget.this.gridRegion
 															.getRectangle().width,
 													10).contains(e.x, e.y)) {
@@ -470,13 +484,31 @@ public class PlateBoundsWidget {
 														.setCursor(new Cursor(
 																PlateBoundsWidget.this.canvas
 																		.getDisplay(),
-																SWT.CURSOR_SIZES));
-												PlateBoundsWidget.this.dragMode = DragMode.RESIZE_VERTICAL_BOTTOM;
+																SWT.CURSOR_SIZEN));
+												PlateBoundsWidget.this.dragMode = DragMode.RESIZE_VERTICAL_TOP;
+											}
+											else
+												if (new Rectangle(
+														PlateBoundsWidget.this.gridRegion
+																.getRectangle().x,
+														PlateBoundsWidget.this.gridRegion
+																.getRectangle().y
+																+ PlateBoundsWidget.this.gridRegion
+																		.getRectangle().height,
+														PlateBoundsWidget.this.gridRegion
+																.getRectangle().width,
+														10).contains(e.x, e.y)) {
+													PlateBoundsWidget.this.canvas
+															.setCursor(new Cursor(
+																	PlateBoundsWidget.this.canvas
+																			.getDisplay(),
+																	SWT.CURSOR_SIZES));
+													PlateBoundsWidget.this.dragMode = DragMode.RESIZE_VERTICAL_BOTTOM;
 
-											}
-											else {
-												PlateBoundsWidget.this.dragMode = DragMode.NONE;
-											}
+												}
+												else {
+													PlateBoundsWidget.this.dragMode = DragMode.NONE;
+												}
 					}
 				}
 
