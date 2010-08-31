@@ -43,9 +43,10 @@ public class PlateBase extends FieldEditorPreferencePage implements
 	private Canvas canvas;
 	private PlateBoundsWidget plateBoundsWidget;
 
-	private BooleanFieldEditor booleanFieldEditor;
+	private BooleanFieldEditor enabledFieldEditor;
 	private Button rotateBtn;
 	private Button scanBtn;
+	Button refreshBtn;
 
 	private boolean isHorizontalRotation;
 
@@ -86,7 +87,10 @@ public class PlateBase extends FieldEditorPreferencePage implements
 		statusLabel
 				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		scanBtn = new Button(right, SWT.NONE);
+		Composite buttonComposite = new Composite(right, SWT.NONE);
+		buttonComposite.setLayout(new GridLayout(2, false));
+
+		scanBtn = new Button(buttonComposite, SWT.NONE);
 		scanBtn.setText("Scan");
 		scanBtn.addSelectionListener(new SelectionListener() {
 
@@ -100,6 +104,22 @@ public class PlateBase extends FieldEditorPreferencePage implements
 				updateStatus();
 			}
 		});
+		refreshBtn = new Button(buttonComposite, SWT.NONE);
+		refreshBtn.setText("Refresh");
+		refreshBtn.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				PlateBase.this.notifyChangeListener(
+						ChangeListener.PALLET_BASE_REFRESH,
+						0);
+			}
+		});
+
 		if (System.getProperty("os.name").startsWith("Windows")
 				&& ScannerConfigPlugin.getDefault().getPlateEnabled(plateId)) {
 			this.setEnabled(true);
@@ -131,11 +151,11 @@ public class PlateBase extends FieldEditorPreferencePage implements
 		DoubleFieldEditor fe;
 		String[] labels = { "Left", "Top", "Right", "Bottom", "GapX", "GapY" };
 
-		booleanFieldEditor = new BooleanFieldEditor(
+		enabledFieldEditor = new BooleanFieldEditor(
 				PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1],
 				"Enable",
 				getFieldEditorParent());
-		addField(booleanFieldEditor);
+		addField(enabledFieldEditor);
 
 		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
 
@@ -253,6 +273,9 @@ public class PlateBase extends FieldEditorPreferencePage implements
 		if (scanBtn != null)
 			scanBtn.setEnabled(enabled);
 
+		if (refreshBtn != null)
+			refreshBtn.setEnabled(enabled);
+
 		notifyChangeListener(ChangeListener.PLATE_BASE_ENABLED, enabled ? 1 : 0);
 
 		updateStatus();
@@ -311,7 +334,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 						PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1][6],
 						this.isHorizontalRotation);
 
-		this.setEnabled(booleanFieldEditor.getBooleanValue());
+		this.setEnabled(enabledFieldEditor.getBooleanValue());
 	}
 
 	@Override

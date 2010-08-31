@@ -8,6 +8,7 @@ public interface ChangeListener {
 	public final static int PLATE_BASE_ROTATE = 3;
 	public final static int PLATE_BASE_TEXT_CHANGE = 4;
 	public final static int PLATE_BASE_ENABLED = 5;
+	public final static int PALLET_BASE_REFRESH = 6;
 
 	void change(Event e);
 }

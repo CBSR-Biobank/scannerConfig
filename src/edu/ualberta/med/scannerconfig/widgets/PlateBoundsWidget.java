@@ -64,7 +64,6 @@ public class PlateBoundsWidget {
 
 		public double regionToPixelWidth(double canvasWidth) {// canvas.getBounds().width
 			if (PlateScannedImage.instance().exists()) {
-
 				return (PlateScannedImage.instance().getScannedImage()
 						.getBounds().width / (canvasWidth * PlateScannedImage.PALLET_IMAGE_DPI));
 			}
@@ -224,6 +223,10 @@ public class PlateBoundsWidget {
 
 		public void rotate() {
 			this.horizontalRotation = !this.horizontalRotation;
+			double t = this.height;
+			this.height = this.width;
+			this.width = t;
+			this.adjustBounds();
 		}
 	}
 
@@ -248,6 +251,7 @@ public class PlateBoundsWidget {
 		this.applyCanvasBindings();
 
 		this.setEnable(false);
+
 	}
 
 	private void applyPlateBaseBindings() {
@@ -268,7 +272,12 @@ public class PlateBoundsWidget {
 
 					case ChangeListener.PLATE_BASE_ENABLED:
 						PlateBoundsWidget.this.setEnable(e.detail == 1);
-
+						break;
+					case ChangeListener.PALLET_BASE_REFRESH:
+						getGridRegion();
+						PlateBoundsWidget.this
+								.setEnable(PlateBoundsWidget.this.parentPlateBase
+										.isEnabled());
 						break;
 
 					default:

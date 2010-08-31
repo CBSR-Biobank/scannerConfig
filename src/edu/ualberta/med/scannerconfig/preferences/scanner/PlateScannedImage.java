@@ -46,7 +46,7 @@ public class PlateScannedImage {
 
 	public void cleanAll() {
 		final File platesFile = new File(PlateScannedImage.PALLET_IMAGE_FILE);
-		// platesFile.delete();
+		platesFile.delete();
 
 		if (scannedImage != null) {
 			scannedImage.dispose();
@@ -62,18 +62,17 @@ public class PlateScannedImage {
 		int debugLevel = ScannerConfigPlugin.getDefault().getPreferenceStore()
 				.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
-		// cleanAll();
-		// final int result = ScanLib.getInstance().slScanImage(
-		// debugLevel,
-		// (int) PlateScannedImage.PALLET_IMAGE_DPI,
-		// brightness,
-		// contrast,
-		// 0,
-		// 0,
-		// 20,
-		// 20,
-		// PlateScannedImage.PALLET_IMAGE_FILE);
-		final int result = ScanLib.SC_SUCCESS;
+		cleanAll();
+		final int result = ScanLib.getInstance().slScanImage(
+				debugLevel,
+				(int) PlateScannedImage.PALLET_IMAGE_DPI,
+				brightness,
+				contrast,
+				0,
+				0,
+				20,
+				20,
+				PlateScannedImage.PALLET_IMAGE_FILE);
 
 		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
 				.getDisplay().asyncExec(new Runnable() {
