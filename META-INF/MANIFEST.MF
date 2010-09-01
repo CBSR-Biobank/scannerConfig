@@ -14,5 +14,6 @@ Bundle-NativeCode: dmscanlib.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win
 Bundle-ClassPath: .
 Export-Package: edu.ualberta.med.scannerconfig,
  edu.ualberta.med.scannerconfig.dmscanlib,
- edu.ualberta.med.scannerconfig.preferences
+ edu.ualberta.med.scannerconfig.preferences,
+ edu.ualberta.med.scannerconfig.preferences.profiles
 Bundle-Vendor: AICML
