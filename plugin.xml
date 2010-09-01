@@ -71,7 +71,7 @@
        category="Scanner"
        id="Profiles"
         name="Setup Profiles"
-            class="edu.ualberta.med.scannerconfig.preferences.Profiles">
+            class="edu.ualberta.med.scannerconfig.preferences.profiles.Profiles">
     </page>
    </extension>
    <extension

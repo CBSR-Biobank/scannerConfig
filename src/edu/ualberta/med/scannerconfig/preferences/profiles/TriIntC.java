@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.preferences;
+package edu.ualberta.med.scannerconfig.preferences.profiles;
 
 public class TriIntC {
 	private int a, b, c;

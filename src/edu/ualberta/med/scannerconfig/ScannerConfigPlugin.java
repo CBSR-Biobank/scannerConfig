@@ -22,8 +22,8 @@ import edu.ualberta.med.scannerconfig.dmscanlib.ScanCell;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibWin32;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
-import edu.ualberta.med.scannerconfig.preferences.Profiles;
-import edu.ualberta.med.scannerconfig.preferences.TriIntC;
+import edu.ualberta.med.scannerconfig.preferences.profiles.ProfileManager;
+import edu.ualberta.med.scannerconfig.preferences.profiles.TriIntC;
 import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
 
 /**
@@ -211,7 +211,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				.getPreferenceStore().getBoolean(prefsArr[6]));
 		regionModifyIfScannerWia(region);
 
-		TriIntC triint = Profiles.getTriIntProfile(profile); // XXX bacon
+		TriIntC triint = ProfileManager.instance().getProfile(profile);
 
 		int res = ScanLib.getInstance().slDecodePlate(
 				debugLevel,

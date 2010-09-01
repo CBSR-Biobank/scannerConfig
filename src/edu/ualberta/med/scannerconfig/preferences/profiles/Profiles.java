@@ -1,13 +1,11 @@
-package edu.ualberta.med.scannerconfig.preferences;
+package edu.ualberta.med.scannerconfig.preferences.profiles;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -28,8 +26,6 @@ import edu.ualberta.med.scannerconfig.dialogs.InputDialog;
 public class Profiles extends FieldEditorPreferencePage implements
 		IWorkbenchPreferencePage {
 
-	HashMap<String, TriIntC> profiles = new HashMap<String, TriIntC>();
-
 	Button profileBtns[] = new Button[96];
 	Button resetBtn, allBtn, deleteBtn;
 	Label profileNameLbl;
@@ -39,10 +35,14 @@ public class Profiles extends FieldEditorPreferencePage implements
 	public void init(IWorkbench workbench) {
 		setPreferenceStore(ScannerConfigPlugin.getDefault()
 				.getPreferenceStore());
+
 	}
 
 	@Override
 	protected Control createContents(final Composite parent) {
+
+		ProfileManager.instance().reloadProfiles();
+
 		Composite top = new Composite(parent, SWT.NONE);
 		top.setLayout(new GridLayout(2, false));
 		top.setLayoutData(new GridData(SWT.FILL, GridData.FILL, true, true));
@@ -71,7 +71,8 @@ public class Profiles extends FieldEditorPreferencePage implements
 				if (profileList.getSelectionIndex() >= 0) {
 					setEnabledProfile(true);
 					loadActiveProfile();
-				} else
+				}
+				else
 					setEnabledProfile(false);
 			}
 
@@ -90,18 +91,16 @@ public class Profiles extends FieldEditorPreferencePage implements
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				InputDialog id = new InputDialog(getShell(), SWT.NONE,
-						"Profile Name", "Please enter a profile name: ");
+				InputDialog id = new InputDialog(
+						getShell(),
+						SWT.NONE,
+						"Profile Name",
+						"Please enter a profile name: ");
 
-				String newProfileName = strip(id.open());
+				String newProfileName = id.open(); // TODO strip
 
-				if (newProfileName != null) {
-					if (newProfileName.length() >= 5)
-						addProfile(newProfileName);
-					else
-						MessageDialog
-								.openError(getShell(), "Error adding profile",
-										"Your profile name must be at least 5 characters in length.");
+				if (newProfileName != null && newProfileName.length() > 1) {
+					addNewProfile(newProfileName);
 				}
 
 			}
@@ -195,7 +194,7 @@ public class Profiles extends FieldEditorPreferencePage implements
 		});
 		setEnabledProfile(false);
 
-		loadProfilesToSelf(loadProfilesFromString());
+		loadProfilesToSelf(ProfileManager.instance().getProfiles());
 		return parent;
 	}
 
@@ -216,19 +215,19 @@ public class Profiles extends FieldEditorPreferencePage implements
 		while (it.hasNext()) {
 			@SuppressWarnings("rawtypes")
 			Map.Entry entry = (Map.Entry) it.next();
-			addProfile((String) entry.getKey(), (TriIntC) entry.getValue());
+			addProfile((String) entry.getKey());
 		}
+	}
+
+	private void addNewProfile(String name) {
+		ProfileManager.instance().addNewProfile(name);
+		addProfile(name);
 	}
 
 	private void addProfile(String name) {
-		addProfile(name, new TriIntC());
-	}
-
-	private void addProfile(String name, TriIntC tic) {
-		if (profileList.indexOf(name) != -1 || profiles.containsKey(tic)) {
+		if (profileList.indexOf(name) != -1) {
 			return;
 		}
-		profiles.put(name, tic);
 		profileList.add(name);
 		setEnabledProfile(true);
 		profileList.deselectAll();
@@ -242,14 +241,15 @@ public class Profiles extends FieldEditorPreferencePage implements
 		if (nextSelection < 0)
 			nextSelection = 0;
 
-		profiles.remove(getActiveName());
+		ProfileManager.instance().removeProfile(getActiveName());
 		profileList.remove(getActiveName());
 
 		profileList.deselectAll();
 		if (nextSelection >= 0 && profileList.getItemCount() > 0) {
 			profileList.select(nextSelection);
 			setEnabledProfile(true);
-		} else {
+		}
+		else {
 			setEnabledProfile(false);
 		}
 		profileList.notifyListeners(SWT.Selection, new Event());
@@ -262,100 +262,22 @@ public class Profiles extends FieldEditorPreferencePage implements
 	}
 
 	private TriIntC getActiveProfileData() {
-		return profiles.get(getActiveName());
+		return ProfileManager.instance().getProfile(getActiveName());
 	}
 
 	private String getActiveName() {
 		return profileList.getSelection()[0];
 	}
 
-	private String strip(String s) {
-
-		if (s == null)
-			return null;
-
-		String result = "";
-		for (int i = 0; i < s.length(); i++) {
-			if (s.charAt(i) != ",".charAt(0) && s.charAt(i) != ";".charAt(0))
-				result += s.charAt(i);
-		}
-		return result;
-	}
-
-	private String profilesToString() {
-		String out = "";
-		Set<?> entries = profiles.entrySet();
-		Iterator<?> it = entries.iterator();
-		while (it.hasNext()) {
-			@SuppressWarnings("rawtypes")
-			Map.Entry entry = (Map.Entry) it.next();
-			out += strip((String) entry.getKey()) + ","
-					+ ((TriIntC) entry.getValue()).getValues()[0] + ","
-					+ ((TriIntC) entry.getValue()).getValues()[1] + ","
-					+ ((TriIntC) entry.getValue()).getValues()[2] + ";";
-		}
-		return out;
-	}
-
-	public static HashMap<String, TriIntC> loadProfilesFromString() {
-		HashMap<String, TriIntC> profilesMap = new HashMap<String, TriIntC>();
-
-		TriIntC allTriIntC = new TriIntC();
-		allTriIntC.setAll();
-		profilesMap.put("All", allTriIntC);
-
-		IPreferenceStore store = ScannerConfigPlugin.getDefault()
-				.getPreferenceStore();
-		String profileString = store
-				.getString(PreferenceConstants.SCANNER_PALLET_PROFILES);
-
-		String entries[] = profileString.split(";");
-		if (entries.length < 0)
-			return profilesMap;
-
-		for (String entry : entries) {
-			String elements[] = entry.split(",");
-			if (elements.length < 4)
-				break;
-			String key = elements[0];
-			if (key.equals("All"))
-				continue;
-			int a = Integer.parseInt(elements[1]);
-			int b = Integer.parseInt(elements[2]);
-			int c = Integer.parseInt(elements[3]);
-			profilesMap.put(key, new TriIntC(a, b, c));
-			// TODO
-		}
-		return profilesMap;
-	}
-
-	public static TriIntC getTriIntProfile(String name) {
-		TriIntC triInt = loadProfilesFromString().get(name);
-		if (triInt == null) {
-			triInt = new TriIntC();
-			triInt.setAll();
-		}
-
-		return triInt;
-
-	}
-
-	private void saveSettings() {
-		IPreferenceStore store = ScannerConfigPlugin.getDefault()
-				.getPreferenceStore();
-		store.setValue(PreferenceConstants.SCANNER_PALLET_PROFILES,
-				profilesToString());
-	}
-
 	@Override
 	protected void performApply() {
-		saveSettings();
+		ProfileManager.instance().saveProfiles();
 		super.performApply();
 	}
 
 	@Override
 	public boolean performOk() {
-		saveSettings();
+		ProfileManager.instance().saveProfiles();
 		return super.performOk();
 	}
 
