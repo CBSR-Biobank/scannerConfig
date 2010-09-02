@@ -51,7 +51,23 @@ public class PlateBase extends FieldEditorPreferencePage implements
 	private boolean isHorizontalRotation;
 
 	private Label statusLabel;
-	private ChangeListener scannedImageListner;
+
+	private ChangeListener scannedImageListner = new ChangeListener() {
+		@Override
+		public void change(Event e) {
+			if (e.type == ChangeListener.IMAGE_SCANNED) {
+
+				/* new image scanned */
+				if (e.detail == 1) {
+					statusLabel
+							.setText(" outline the barcodes using the green grid");
+				}
+				else {
+					statusLabel.setText(" an error occured scanning an image");
+				}
+			}
+		}
+	};
 
 	public PlateBase(int plateId) {
 		super(GRID);
@@ -62,25 +78,23 @@ public class PlateBase extends FieldEditorPreferencePage implements
 	}
 
 	@Override
+	public void setValid(boolean enable) {
+		super.setValid(enable);
+
+		getContainer().updateButtons();
+		Button applyButton = getApplyButton();
+		if (applyButton != null)
+			applyButton.setEnabled(true);
+	}
+
+	@Override
+	public void init(IWorkbench workbench) {
+		setPreferenceStore(ScannerConfigPlugin.getDefault()
+				.getPreferenceStore());
+	}
+
+	@Override
 	protected Control createContents(final Composite parent) {
-
-		scannedImageListner = new ChangeListener() {
-			@Override
-			public void change(Event e) {
-				if (e.type == ChangeListener.IMAGE_SCANNED) {
-
-					/* new image scanned */
-					if (e.detail == 1) {
-						statusLabel
-								.setText(" outline the barcodes using the green grid");
-					}
-					else {
-						statusLabel
-								.setText(" an error occured scanning an image");
-					}
-				}
-			}
-		};
 
 		Composite top = new Composite(parent, SWT.NONE);
 		top.setLayout(new GridLayout(2, false));
@@ -255,12 +269,8 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
 	}
 
-	@Override
-	public void dispose() {
-		PlateScannedImage.instance().removeScannedImageChangeListener(
-				scannedImageListner);
-		plateBoundsWidget.dispose();
-		super.dispose();
+	public boolean isEnabled() {
+		return this.isEnabled;
 	}
 
 	private void setEnabled(boolean enabled) {
@@ -290,20 +300,6 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
 	}
 
-	public boolean isEnabled() {
-		return this.isEnabled;
-	}
-
-	@Override
-	public void setValid(boolean enable) {
-		super.setValid(enable);
-
-		getContainer().updateButtons();
-		Button applyButton = getApplyButton();
-		if (applyButton != null)
-			applyButton.setEnabled(true);
-	}
-
 	public void removePlateBaseChangeListener(ChangeListener listener) {
 		this.changeListeners.remove(listener);
 	}
@@ -329,12 +325,6 @@ public class PlateBase extends FieldEditorPreferencePage implements
 		}
 	}
 
-	@Override
-	public void init(IWorkbench workbench) {
-		setPreferenceStore(ScannerConfigPlugin.getDefault()
-				.getPreferenceStore());
-	}
-
 	private void saveSettings() {
 		ScannerConfigPlugin
 				.getDefault()
@@ -344,6 +334,14 @@ public class PlateBase extends FieldEditorPreferencePage implements
 						this.isHorizontalRotation);
 
 		this.setEnabled(enabledFieldEditor.getBooleanValue());
+	}
+
+	@Override
+	public void dispose() {
+		PlateScannedImage.instance().removeScannedImageChangeListener(
+				scannedImageListner);
+		plateBoundsWidget.dispose();
+		super.dispose();
 	}
 
 	@Override
