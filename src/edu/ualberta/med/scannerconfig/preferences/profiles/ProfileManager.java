@@ -58,13 +58,14 @@ public class ProfileManager {
 		return out;
 	}
 
-	public static TriIntC getTriIntProfile(String name) {
+	public TriIntC getTriIntProfile(String name) {
 		TriIntC triInt = loadProfilesFromString().get(name);
 		if (triInt == null) {
 			triInt = new TriIntC();
 			triInt.setAll();
+			System.err
+					.println("Warning:loading non-existant profile (Defaulting to ALL)");
 		}
-
 		return triInt;
 
 	}
@@ -102,6 +103,7 @@ public class ProfileManager {
 
 	public TriIntC getProfile(String name) {
 		return profiles.get(name);
+
 	}
 
 	public void addNewProfile(String name) {
