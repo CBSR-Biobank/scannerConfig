@@ -23,7 +23,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dialogs.InputDialog;
 
-public class Profiles extends FieldEditorPreferencePage implements
+public class ProfilePreferences extends FieldEditorPreferencePage implements
 		IWorkbenchPreferencePage {
 
 	Button profileBtns[] = new Button[96];
@@ -145,9 +145,9 @@ public class Profiles extends FieldEditorPreferencePage implements
 				public void widgetSelected(SelectionEvent e) {
 
 					if (profileBtns[c].getSelection())
-						getActiveProfileData().setBit(c);
+						getActiveProfileData().set(c);
 					else
-						getActiveProfileData().resetBit(c);
+						getActiveProfileData().clear(c);
 				}
 
 				@Override
@@ -167,7 +167,7 @@ public class Profiles extends FieldEditorPreferencePage implements
 			public void widgetSelected(SelectionEvent e) {
 				for (int i = 0; i < 96; i++) {
 					profileBtns[i].setSelection(true);
-					getActiveProfileData().setBit(i);
+					getActiveProfileData().set(i);
 				}
 			}
 
@@ -184,7 +184,7 @@ public class Profiles extends FieldEditorPreferencePage implements
 			public void widgetSelected(SelectionEvent e) {
 				for (int i = 0; i < 96; i++) {
 					profileBtns[i].setSelection(false);
-					getActiveProfileData().resetBit(i);
+					getActiveProfileData().clear(i);
 				}
 			}
 
@@ -209,7 +209,7 @@ public class Profiles extends FieldEditorPreferencePage implements
 		}
 	}
 
-	private void loadProfilesToSelf(HashMap<String, TriIntC> profilesMap) {
+	private void loadProfilesToSelf(HashMap<String, ProfileSettings> profilesMap) {
 		Set<?> entries = profilesMap.entrySet();
 		Iterator<?> it = entries.iterator();
 		while (it.hasNext()) {
@@ -257,11 +257,11 @@ public class Profiles extends FieldEditorPreferencePage implements
 
 	private void loadActiveProfile() {
 		for (int i = 0; i < 96; i++) {
-			profileBtns[i].setSelection(getActiveProfileData().isSetBit(i));
+			profileBtns[i].setSelection(getActiveProfileData().get(i));
 		}
 	}
 
-	private TriIntC getActiveProfileData() {
+	private ProfileSettings getActiveProfileData() {
 		return ProfileManager.instance().getProfile(getActiveName());
 	}
 

@@ -42,7 +42,7 @@ public class InputDialog extends Dialog {
 		final Text text = new Text(shell, SWT.SINGLE | SWT.BORDER);
 
 		final Button buttonOK = new Button(shell, SWT.PUSH);
-		buttonOK.setText("Okay");
+		buttonOK.setText("OK");
 		buttonOK.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
 		Button buttonCancel = new Button(shell, SWT.PUSH);
 		buttonCancel.setText("Cancel");
@@ -107,7 +107,10 @@ public class InputDialog extends Dialog {
 
 	public static void main(String[] args) {
 		Shell shell = new Shell();
-		InputDialog dialog = new InputDialog(shell, SWT.NONE, "Bacon",
+		InputDialog dialog = new InputDialog(
+				shell,
+				SWT.NONE,
+				"Bacon",
 				"Enter fish:");
 		System.out.println(dialog.open());
 	}

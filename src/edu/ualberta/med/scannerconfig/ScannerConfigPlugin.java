@@ -23,7 +23,7 @@ import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibWin32;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.profiles.ProfileManager;
-import edu.ualberta.med.scannerconfig.preferences.profiles.TriIntC;
+import edu.ualberta.med.scannerconfig.preferences.profiles.ProfileSettings;
 import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
 
 /**
@@ -178,7 +178,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				filename);
 	}
 
-	public static ScanCell[][] scan(int plateNumber, String profile)
+	public static ScanCell[][] scan(int plateNumber, String profileName)
 			throws Exception {
 		int dpi = getDefault().getPreferenceStore().getInt(
 				PreferenceConstants.SCANNER_DPI);
@@ -211,7 +211,10 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				.getPreferenceStore().getBoolean(prefsArr[6]));
 		regionModifyIfScannerWia(region);
 
-		TriIntC triint = ProfileManager.instance().getProfile(profile);
+		ProfileSettings profile = ProfileManager.instance().getProfile(
+				profileName);
+
+		int[] words = profile.toWords();
 
 		int res = ScanLib.getInstance().slDecodePlate(
 				debugLevel,
@@ -230,9 +233,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 				cellDistance,
 				region.gapX,
 				region.gapY,
-				triint.getValues()[0],
-				triint.getValues()[1],
-				triint.getValues()[2],
+				words[0],
+				words[1],
+				words[2],
 				region.horizontalRotation ? 1 : 0);
 
 		if (res < ScanLib.SC_SUCCESS) {

@@ -70,8 +70,8 @@
        <page 
        category="Scanner"
        id="Profiles"
-        name="Setup Profiles"
-            class="edu.ualberta.med.scannerconfig.preferences.profiles.Profiles">
+        name="Decoding Profiles"
+            class="edu.ualberta.med.scannerconfig.preferences.profiles.ProfilePreferences">
     </page>
    </extension>
    <extension
