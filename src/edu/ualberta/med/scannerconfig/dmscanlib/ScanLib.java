@@ -51,22 +51,18 @@ public abstract class ScanLib {
 	public static final int SC_INVALID_IMAGE = -6;
 
 	/**
-	 * Sample not found on row A or column 1
+	 * Incorrect DPI.
 	 */
-	public static final int SC_INVALID_POSITION = -7;
-
-	/**
-	 * Could not determine positions.
-	 */
-	public static final int SC_POS_CALC_ERROR = -8;
+	public static final int SC_INCORRECT_DPI_SCANNED = -9;
 
 	private static final Map<Integer, String> ERROR_MSG;
 	static {
 		Map<Integer, String> aMap = new HashMap<Integer, String>();
 		aMap.put(SC_SUCCESS, "The call to ScanLib was successful.");
-		aMap.put(
-				SC_FAIL,
-				"Unable to scan an image, please ensure a working scanner source is selected.");
+		aMap
+				.put(
+						SC_FAIL,
+						"Unable to scan an image, please ensure a working scanner source is selected.");
 		aMap.put(SC_TWAIN_UAVAIL, "The TWAIN driver was not found.");
 		aMap.put(SC_INVALID_DPI, "An invalid DPI value was specified.");
 		aMap.put(SC_INVALID_PLATE_NUM, "The plate number used is invalid.");
@@ -74,8 +70,7 @@ public abstract class ScanLib {
 				SC_INVALID_VALUE,
 				"The user did not select a valid scanning source.");
 		aMap.put(SC_INVALID_IMAGE, "The scanned image is invalid.");
-		aMap.put(SC_INVALID_POSITION, "Sample not found on row A or column 1.");
-		aMap.put(SC_POS_CALC_ERROR, "Could not determine aliquot positions.");
+		aMap.put(SC_INCORRECT_DPI_SCANNED, "Incorrect DPI.");
 		ERROR_MSG = Collections.unmodifiableMap(aMap);
 	};
 
@@ -96,7 +91,7 @@ public abstract class ScanLib {
 	}
 
 	public static String getErrMsg(int err) throws IllegalArgumentException {
-		if ((err < SC_POS_CALC_ERROR) || (err > SC_SUCCESS)) {
+		if ((err < SC_INCORRECT_DPI_SCANNED) || (err > SC_SUCCESS)) {
 			throw new IllegalArgumentException("value " + err
 					+ " is not a valid error code");
 		}
@@ -237,7 +232,7 @@ public abstract class ScanLib {
 			int contrast, long plateNum, double left, double top, double right,
 			double bottom, double scanGap, long squareDev, long edgeThresh,
 			long corrections, double cellDistance, double gapX, double gapY,
-			long profileA, long profileB, long profileC, long isHorizontal);
+			long profileA, long profileB, long profileC, long isVertical);
 
 	/**
 	 * From the regions specified in the INI file for the corresponding plate,
@@ -289,6 +284,6 @@ public abstract class ScanLib {
 	public abstract int slDecodeImage(long verbose, long plateNum,
 			String filename, double scanGap, long squareDev, long edgeThresh,
 			long corrections, double cellDistance, double gapX, double gapY,
-			long profileA, long profileB, long profileC, long isHorizontal);
+			long profileA, long profileB, long profileC, long isVertical);
 
 }

@@ -31,296 +31,268 @@ import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
  */
 public class ScannerConfigPlugin extends AbstractUIPlugin {
 
-	public static final String IMG_SCANNER = "scanner";
+    public static final String IMG_SCANNER = "scanner";
 
-	// The plug-in ID
-	public static final String PLUGIN_ID = "scannerConfig";
+    // The plug-in ID
+    public static final String PLUGIN_ID = "scannerConfig";
 
-	// The shared instance
-	private static ScannerConfigPlugin plugin;
+    // The shared instance
+    private static ScannerConfigPlugin plugin;
 
-	/**
-	 * The constructor
-	 */
-	public ScannerConfigPlugin() {
-		String osname = System.getProperty("os.name");
-		if (osname.startsWith("Windows")) {
-			System.loadLibrary("OpenThreadsWin32");
-			System.loadLibrary("cxcore210");
-			System.loadLibrary("cv210");
-			System.loadLibrary("dmscanlib");
-		}
-	}
+    /**
+     * The constructor
+     */
+    public ScannerConfigPlugin() {
+        String osname = System.getProperty("os.name");
+        if (osname.startsWith("Windows")) {
+            System.loadLibrary("OpenThreadsWin32");
+            System.loadLibrary("cxcore210");
+            System.loadLibrary("cv210");
+            System.loadLibrary("dmscanlib");
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
-	 * )
-	 */
-	@Override
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		plugin = this;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
+     * )
+     */
+    @Override
+    public void start(BundleContext context) throws Exception {
+        super.start(context);
+        plugin = this;
 
-		getPreferenceStore().addPropertyChangeListener(
-				new IPropertyChangeListener() {
-					@Override
-					public void propertyChange(PropertyChangeEvent event) {
-						if (event.getProperty().startsWith(
-								"scanner.plate.coords.enabled.")) {
-							IWorkbenchWindow window = PlatformUI.getWorkbench()
-									.getActiveWorkbenchWindow();
-							ISourceProviderService service = (ISourceProviderService) window
-									.getService(ISourceProviderService.class);
+        getPreferenceStore().addPropertyChangeListener(
+            new IPropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent event) {
+                    if (event.getProperty().startsWith(
+                        "scanner.plate.coords.enabled.")) {
+                        IWorkbenchWindow window = PlatformUI.getWorkbench()
+                            .getActiveWorkbenchWindow();
+                        ISourceProviderService service = (ISourceProviderService) window
+                            .getService(ISourceProviderService.class);
 
-							PlateEnabledState plateEnabledSourceProvider = (PlateEnabledState) service
-									.getSourceProvider(PlateEnabledState.PLATES_ENABLED);
-							Assert.isNotNull(plateEnabledSourceProvider);
-							plateEnabledSourceProvider.setPlateEnabled();
-						}
-					}
-				});
-	}
+                        PlateEnabledState plateEnabledSourceProvider = (PlateEnabledState) service
+                            .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
+                        Assert.isNotNull(plateEnabledSourceProvider);
+                        plateEnabledSourceProvider.setPlateEnabled();
+                    }
+                }
+            });
+    }
 
-	@Override
-	protected void initializeImageRegistry(ImageRegistry registry) {
-		registerImage(registry, IMG_SCANNER, "selectScanner.png");
-	}
+    @Override
+    protected void initializeImageRegistry(ImageRegistry registry) {
+        registerImage(registry, IMG_SCANNER, "selectScanner.png");
+    }
 
-	private void registerImage(ImageRegistry registry, String key,
-			String fileName) {
-		try {
-			IPath path = new Path("icons/" + fileName);
-			URL url = FileLocator.find(getBundle(), path, null);
-			if (url != null) {
-				ImageDescriptor desc = ImageDescriptor.createFromURL(url);
-				registry.put(key, desc);
-			}
-		}
-		catch (Exception e) {
-		}
-	}
+    private void registerImage(ImageRegistry registry, String key,
+        String fileName) {
+        try {
+            IPath path = new Path("icons/" + fileName);
+            URL url = FileLocator.find(getBundle(), path, null);
+            if (url != null) {
+                ImageDescriptor desc = ImageDescriptor.createFromURL(url);
+                registry.put(key, desc);
+            }
+        } catch (Exception e) {
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
-	 * )
-	 */
-	@Override
-	public void stop(BundleContext context) throws Exception {
-		plugin = null;
-		super.stop(context);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
+     * )
+     */
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        plugin = null;
+        super.stop(context);
+    }
 
-	/**
-	 * Returns the shared instance
-	 * 
-	 * @return the shared instance
-	 */
-	public static ScannerConfigPlugin getDefault() {
-		return plugin;
-	}
+    /**
+     * Returns the shared instance
+     * 
+     * @return the shared instance
+     */
+    public static ScannerConfigPlugin getDefault() {
+        return plugin;
+    }
 
-	public void initialize() {
-	}
+    public void initialize() {
+    }
 
-	public static void scanImage(double left, double top, double right,
-			double bottom, String filename) throws Exception {
-		int dpi = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.SCANNER_DPI);
-		int brightness = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.SCANNER_BRIGHTNESS);
-		int contrast = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.SCANNER_CONTRAST);
-		int debugLevel = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.DLL_DEBUG_LEVEL);
+    public static void scanImage(double left, double top, double right,
+        double bottom, String filename) throws Exception {
+        int dpi = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_DPI);
+        int brightness = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_BRIGHTNESS);
+        int contrast = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_CONTRAST);
+        int debugLevel = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.DLL_DEBUG_LEVEL);
 
-		int res = ScanLibWin32.getInstance().slScanImage(
-				debugLevel,
-				dpi,
-				brightness,
-				contrast,
-				left,
-				top,
-				right,
-				bottom,
-				filename);
+        int res = ScanLibWin32.getInstance().slScanImage(debugLevel, dpi,
+            brightness, contrast, left, top, right, bottom, filename);
 
-		if (res < ScanLibWin32.SC_SUCCESS) {
-			throw new Exception("Could not decode image. "
-					+ ScanLib.getErrMsg(res));
-		}
-	}
+        if (res < ScanLibWin32.SC_SUCCESS) {
+            throw new Exception("Could not decode image. "
+                + ScanLib.getErrMsg(res));
+        }
+    }
 
-	public static void scanPlate(int plateNumber, String filename)
-			throws Exception {
+    public static void scanPlate(int plateNumber, String filename)
+        throws Exception {
 
-		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
+        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
-		ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
-				.getPreferenceStore().getDouble(prefsArr[0]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[1]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[2]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[3]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[4]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[5]), getDefault()
-				.getPreferenceStore().getBoolean(prefsArr[6]));
-		regionModifyIfScannerWia(region);
-		scanImage(
-				region.left,
-				region.top,
-				region.right,
-				region.bottom,
-				filename);
-	}
+        ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
+            .getPreferenceStore().getDouble(prefsArr[0]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[1]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[2]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[3]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[4]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[5]), getDefault()
+            .getPreferenceStore().getBoolean(
+                PreferenceConstants.SCANNER_PALLET_VERTICAL[plateNumber - 1]));
+        regionModifyIfScannerWia(region);
+        scanImage(region.left, region.top, region.right, region.bottom,
+            filename);
+    }
 
-	public static ScanCell[][] scan(int plateNumber, String profileName)
-			throws Exception {
-		int dpi = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.SCANNER_DPI);
-		int brightness = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.SCANNER_BRIGHTNESS);
-		int contrast = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.SCANNER_CONTRAST);
-		int debugLevel = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.DLL_DEBUG_LEVEL);
-		int edgeThresh = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.LIBDMTX_EDGE_THRESH);
-		double scanGap = getDefault().getPreferenceStore().getDouble(
-				PreferenceConstants.LIBDMTX_SCAN_GAP);
-		int squareDev = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.LIBDMTX_SQUARE_DEV);
-		int corrections = getDefault().getPreferenceStore().getInt(
-				PreferenceConstants.LIBDMTX_CORRECTIONS);
-		double cellDistance = getDefault().getPreferenceStore().getDouble(
-				PreferenceConstants.LIBDMTX_CELL_DISTANCE);
+    public static ScanCell[][] scan(int plateNumber, String profileName)
+        throws Exception {
+        int dpi = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_DPI);
+        int brightness = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_BRIGHTNESS);
+        int contrast = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_CONTRAST);
+        int debugLevel = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.DLL_DEBUG_LEVEL);
+        int edgeThresh = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.LIBDMTX_EDGE_THRESH);
+        double scanGap = getDefault().getPreferenceStore().getDouble(
+            PreferenceConstants.LIBDMTX_SCAN_GAP);
+        int squareDev = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.LIBDMTX_SQUARE_DEV);
+        int corrections = getDefault().getPreferenceStore().getInt(
+            PreferenceConstants.LIBDMTX_CORRECTIONS);
+        double cellDistance = getDefault().getPreferenceStore().getDouble(
+            PreferenceConstants.LIBDMTX_CELL_DISTANCE);
 
-		String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
+        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
-		ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
-				.getPreferenceStore().getDouble(prefsArr[0]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[1]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[2]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[3]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[4]), getDefault()
-				.getPreferenceStore().getDouble(prefsArr[5]), getDefault()
-				.getPreferenceStore().getBoolean(prefsArr[6]));
-		regionModifyIfScannerWia(region);
+        ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
+            .getPreferenceStore().getDouble(prefsArr[0]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[1]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[2]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[3]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[4]), getDefault()
+            .getPreferenceStore().getDouble(prefsArr[5]), getDefault()
+            .getPreferenceStore().getBoolean(
+                PreferenceConstants.SCANNER_PALLET_VERTICAL[plateNumber - 1]));
+        regionModifyIfScannerWia(region);
 
-		ProfileSettings profile = ProfileManager.instance().getProfile(
-				profileName);
+        ProfileSettings profile = ProfileManager.instance().getProfile(
+            profileName);
 
-		int[] words = profile.toWords();
+        int[] words = profile.toWords();
 
-		int res = ScanLib.getInstance().slDecodePlate(
-				debugLevel,
-				dpi,
-				brightness,
-				contrast,
-				plateNumber,
-				region.left,
-				region.top,
-				region.right,
-				region.bottom,
-				scanGap,
-				squareDev,
-				edgeThresh,
-				corrections,
-				cellDistance,
-				region.gapX,
-				region.gapY,
-				words[0],
-				words[1],
-				words[2],
-				region.horizontalRotation ? 1 : 0);
+        int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
+            brightness, contrast, plateNumber, region.left, region.top,
+            region.right, region.bottom, scanGap, squareDev, edgeThresh,
+            corrections, cellDistance, region.gapX, region.gapY, words[0],
+            words[1], words[2], region.verticalRotation ? 1 : 0);
 
-		if (res < ScanLib.SC_SUCCESS) {
-			throw new Exception("Could not decode image. "
-					+ ScanLib.getErrMsg(res));
-		}
-		return ScanCell.getScanLibResults();
-	}
+        if (res < ScanLib.SC_SUCCESS) {
+            throw new Exception("Could not decode image. "
+                + ScanLib.getErrMsg(res));
+        }
+        return ScanCell.getScanLibResults();
+    }
 
-	public boolean getPlateEnabled(int plateId) {
-		Assert.isTrue(
-				(plateId > 0)
-						&& (plateId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
-				"plate id is invalid: " + plateId);
-		return getPreferenceStore().getBoolean(
-				PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1]);
-	}
+    public boolean getPlateEnabled(int plateId) {
+        Assert.isTrue((plateId > 0)
+            && (plateId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
+            "plate id is invalid: " + plateId);
+        return getPreferenceStore().getBoolean(
+            PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1]);
+    }
 
-	private static void regionModifyIfScannerWia(ScannerRegion region) {
-		if (!ScannerConfigPlugin.getDefault().getPreferenceStore()
-				.getString(PreferenceConstants.SCANNER_DRV_TYPE)
-				.equals(PreferenceConstants.SCANNER_DRV_TYPE_WIA))
-			return;
+    private static void regionModifyIfScannerWia(ScannerRegion region) {
+        if (!ScannerConfigPlugin.getDefault().getPreferenceStore().getString(
+            PreferenceConstants.SCANNER_DRV_TYPE).equals(
+            PreferenceConstants.SCANNER_DRV_TYPE_WIA))
+            return;
 
-		region.right = region.right - region.left;
-		region.bottom = region.bottom - region.top;
-	}
+        region.right = region.right - region.left;
+        region.bottom = region.bottom - region.top;
+    }
 
-	public int getPlateCount() {
-		int result = 0;
-		for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_ENABLED.length; ++i) {
-			if (getPreferenceStore().getBoolean(
-					PreferenceConstants.SCANNER_PALLET_ENABLED[i]))
-				++result;
-		}
-		return result;
-	}
+    public int getPlateCount() {
+        int result = 0;
+        for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_ENABLED.length; ++i) {
+            if (getPreferenceStore().getBoolean(
+                PreferenceConstants.SCANNER_PALLET_ENABLED[i]))
+                ++result;
+        }
+        return result;
+    }
 
-	public static int getPlatesMax() {
-		return PreferenceConstants.SCANNER_PALLET_ENABLED.length;
-	}
+    public static int getPlatesMax() {
+        return PreferenceConstants.SCANNER_PALLET_ENABLED.length;
+    }
 
-	public int getDpi() {
-		return getPreferenceStore().getInt(PreferenceConstants.SCANNER_DPI);
-	}
+    public int getDpi() {
+        return getPreferenceStore().getInt(PreferenceConstants.SCANNER_DPI);
+    }
 
-	public int getBrightness() {
-		return getPreferenceStore().getInt(
-				PreferenceConstants.SCANNER_BRIGHTNESS);
-	}
+    public int getBrightness() {
+        return getPreferenceStore().getInt(
+            PreferenceConstants.SCANNER_BRIGHTNESS);
+    }
 
-	public int getContrast() {
-		return getPreferenceStore()
-				.getInt(PreferenceConstants.SCANNER_CONTRAST);
-	}
+    public int getContrast() {
+        return getPreferenceStore()
+            .getInt(PreferenceConstants.SCANNER_CONTRAST);
+    }
 
-	/**
-	 * Display an error message
-	 */
-	public static void openError(String title, String message) {
-		MessageDialog.openError(PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getShell(), title, message);
-	}
+    /**
+     * Display an error message
+     */
+    public static void openError(String title, String message) {
+        MessageDialog.openError(PlatformUI.getWorkbench()
+            .getActiveWorkbenchWindow().getShell(), title, message);
+    }
 
-	public static void openInformation(String title, String message) {
-		MessageDialog.openInformation(PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getShell(), title, message);
-	}
+    public static void openInformation(String title, String message) {
+        MessageDialog.openInformation(PlatformUI.getWorkbench()
+            .getActiveWorkbenchWindow().getShell(), title, message);
+    }
 
-	public static boolean openConfim(String title, String message) {
-		return MessageDialog.openConfirm(PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getShell(), title, message);
-	}
+    public static boolean openConfim(String title, String message) {
+        return MessageDialog.openConfirm(PlatformUI.getWorkbench()
+            .getActiveWorkbenchWindow().getShell(), title, message);
+    }
 
-	/**
-	 * Display an error message asynchronously
-	 */
+    /**
+     * Display an error message asynchronously
+     */
 
-	public static void openAsyncError(final String title, final String message) {
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				MessageDialog.openError(PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getShell(), title, message);
-			}
-		});
-	}
+    public static void openAsyncError(final String title, final String message) {
+        Display.getDefault().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                MessageDialog.openError(PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow().getShell(), title, message);
+            }
+        });
+    }
 }

@@ -57,7 +57,7 @@ public class PlateBoundsWidget {
 		// pixel coordinates
 		private double left, top, width, height;
 		private double gapOffsetX, gapOffsetY;
-		private boolean horizontalRotation;
+		private boolean verticalRotation;
 
 		public String name;
 
@@ -154,7 +154,7 @@ public class PlateBoundsWidget {
 					/ this.regionToPixelWidth(canvasWidth);
 			this.height = (r.bottom - r.top)
 					/ this.regionToPixelHeight(canvasHeight);
-			this.horizontalRotation = r.horizontalRotation;
+			this.verticalRotation = r.verticalRotation;
 
 			this.adjustBounds();
 
@@ -205,7 +205,7 @@ public class PlateBoundsWidget {
 					* this.regionToPixelHeight(canvasHeight);
 			r.gapX = this.gapOffsetX * this.regionToPixelWidth(canvasWidth);
 			r.gapY = this.gapOffsetY * this.regionToPixelHeight(canvasHeight);
-			r.horizontalRotation = this.horizontalRotation;
+			r.verticalRotation = this.verticalRotation;
 
 			return r;
 		}
@@ -218,12 +218,12 @@ public class PlateBoundsWidget {
 					(int) this.height);
 		}
 
-		public boolean isHorizontalRotation() {
-			return this.horizontalRotation;
+		public boolean isVerticalRotation() {
+			return this.verticalRotation;
 		}
 
 		public void rotate() {
-			this.horizontalRotation = !this.horizontalRotation;
+			this.verticalRotation = !this.verticalRotation;
 			double t = this.height;
 			this.height = this.width;
 			this.width = t;
@@ -685,7 +685,7 @@ public class PlateBoundsWidget {
 				PlateBoundsWidget.this.drawGrid(
 						PlateBoundsWidget.this.imageGC,
 						PlateBoundsWidget.this.gridRegion
-								.isHorizontalRotation());
+								.isVerticalRotation());
 
 				PlateBoundsWidget.this.imageGC.setForeground(new Color(
 						PlateBoundsWidget.this.canvas.getDisplay(),

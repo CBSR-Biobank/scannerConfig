@@ -34,7 +34,7 @@ public class ScanLibSimulate extends ScanLib {
 			int contrast, long plateNum, double left, double top, double right,
 			double bottom, double scanGap, long squareDev, long edgeThresh,
 			long corrections, double cellDistance, double gapX, double gapY,
-			long profileA, long profileB, long profileC, long isHorizontal) {
+			long profileA, long profileB, long profileC, long isVertical) {
 		try {
 			// simulate decode
 			BufferedWriter out = new BufferedWriter(new FileWriter(
@@ -78,7 +78,7 @@ public class ScanLibSimulate extends ScanLib {
 	public int slDecodeImage(long verbose, long plateNum, String filename,
 			double scanGap, long squareDev, long edgeThresh, long corrections,
 			double cellDistance, double gapX, double gapY, long profileA,
-			long profileB, long profileC, long isHorizontal) {
+			long profileB, long profileC, long isVertical) {
 		return -1;
 	}
 
