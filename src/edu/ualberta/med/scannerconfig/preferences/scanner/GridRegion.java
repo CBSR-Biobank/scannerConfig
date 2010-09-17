@@ -1,5 +1,6 @@
 package edu.ualberta.med.scannerconfig.preferences.scanner;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
@@ -127,21 +128,15 @@ public class GridRegion {
     }
 
     public double regionToPixelHeight(double canvasHeight) {
-        if (PlateScannedImage.instance().exists()) {
-            return (PlateScannedImage.instance().getScannedImage().getBounds().height / (canvasHeight * PlateScannedImage.PALLET_IMAGE_DPI));
-        } else {
-            System.err.println("regionToPixelHeight: Warning bad state");
-            return 1.0;
-        }
+        PlateScannedImage plateImage = PlateScannedImage.instance();
+        Assert.isTrue(plateImage.exists());
+        return (plateImage.getScannedImage().getBounds().height / (canvasHeight * PlateScannedImage.PALLET_IMAGE_DPI));
     }
 
-    public double regionToPixelWidth(double canvasWidth) {// canvas.getBounds().width
-        if (PlateScannedImage.instance().exists()) {
-            return (PlateScannedImage.instance().getScannedImage().getBounds().width / (canvasWidth * PlateScannedImage.PALLET_IMAGE_DPI));
-        } else {
-            System.err.println("regionToPixelWidth: Warning bad state");
-            return 1.0;
-        }
+    public double regionToPixelWidth(double canvasWidth) {
+        PlateScannedImage plateImage = PlateScannedImage.instance();
+        Assert.isTrue(plateImage.exists());
+        return (plateImage.getScannedImage().getBounds().width / (canvasWidth * PlateScannedImage.PALLET_IMAGE_DPI));
     }
 
     /*

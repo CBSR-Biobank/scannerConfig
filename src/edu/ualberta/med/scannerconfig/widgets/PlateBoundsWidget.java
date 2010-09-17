@@ -473,7 +473,7 @@ public class PlateBoundsWidget {
                         gc.fillRectangle(gridRect);
                     }
                 } else {
-                    if ((i == X - 1) && (j == Y - 1)) {
+                    if ((i == 0) && (j == 0)) {
                         gc.setBackground(new Color(canvas.getDisplay(), 0, 255,
                             255));
                         gc.fillRectangle(gridRect);
