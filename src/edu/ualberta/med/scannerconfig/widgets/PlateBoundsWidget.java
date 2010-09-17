@@ -26,7 +26,6 @@ import org.eclipse.swt.widgets.Listener;
 import edu.ualberta.med.scannerconfig.ChangeListener;
 import edu.ualberta.med.scannerconfig.ScannerRegion;
 import edu.ualberta.med.scannerconfig.ScannerRegion.Orientation;
-import edu.ualberta.med.scannerconfig.preferences.scanner.GridRegion;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateBase;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateScannedImage;
 
@@ -41,8 +40,6 @@ public class PlateBoundsWidget {
     private PlateBase parentPlateBase;
 
     private Canvas canvas;
-
-    private GridRegion gridRegion;
 
     protected ListenerList changeListeners = new ListenerList();
 
@@ -138,6 +135,13 @@ public class PlateBoundsWidget {
         PlateScannedImage.instance().addScannedImageChangeListener(
             scannedImageListner);
 
+    }
+
+    public void recreateGridRegion() {
+        if (PlateScannedImage.instance().exists()) {
+            gridRegion = new GridRegion(parentPlateBase.getScannerRegionText(),
+                canvas);
+        }
     }
 
     private void applyCanvasBindings() {
@@ -400,28 +404,27 @@ public class PlateBoundsWidget {
                 else
                     canvasSize.x = (int) (canvasSize.y * imgAspectRatio);
 
+                Image plateImage = PlateScannedImage.instance()
+                    .getScannedImage();
+                Rectangle plateRect = plateImage.getBounds();
                 imageBuffer = new Image(canvas.getDisplay(), canvas.getBounds());
                 imageGC = new GC(imageBuffer);
-                imageGC.drawImage(PlateScannedImage.instance()
-                    .getScannedImage(), 0, 0, PlateScannedImage.instance()
-                    .getScannedImage().getBounds().width, PlateScannedImage
-                    .instance().getScannedImage().getBounds().height, 0, 0,
-                    canvas.getBounds().width, canvas.getBounds().height);
+                imageGC.drawImage(plateImage, 0, 0, plateRect.width,
+                    plateRect.height, 0, 0, canvas.getBounds().width,
+                    canvas.getBounds().height);
 
                 imageGC.setForeground(new Color(canvas.getDisplay(), 255, 0, 0));
 
                 imageGC.drawRectangle(gridRegion.getRectangle());
 
-                drawGrid(imageGC, gridRegion.getOrientation());
+                drawGrid(imageGC);
 
                 imageGC.setForeground(new Color(canvas.getDisplay(), 0, 0, 255));
 
-                int left = (int) gridRegion.getLeft() - 1;
-                int top = (int) gridRegion.getTop() - 1;
-                int right = (int) gridRegion.getLeft()
-                    + (int) gridRegion.getWidth() - 3;
-                int bottom = (int) gridRegion.getTop()
-                    + (int) gridRegion.getHeight() - 3;
+                int left = gridRegion.getLeft() - 1;
+                int top = gridRegion.getTop() - 1;
+                int right = gridRegion.getLeft() + gridRegion.getWidth() - 3;
+                int bottom = gridRegion.getTop() + gridRegion.getHeight() - 3;
 
                 imageGC.drawOval(left, top, 1, 1);
                 imageGC.drawOval(right, bottom, 6, 6);
@@ -433,50 +436,56 @@ public class PlateBoundsWidget {
         });
     }
 
-    private void drawGrid(GC gc, Orientation orientation) {
-
-        double X, Y;
+    private void drawGrid(GC gc) {
+        int rows, cols;
+        Orientation orientation = gridRegion.getOrientation();
 
         if (orientation == Orientation.HORIZONTAL) {
-            X = 12.0;
-            Y = 8.0;
+            cols = 12;
+            rows = 8;
         } else {
-            X = 8.0;
-            Y = 12.0;
+            cols = 8;
+            rows = 12;
         }
 
-        double w = (gridRegion.getRectangle().width) / X;
-        double h = (gridRegion.getRectangle().height) / Y;
+        Rectangle canvasRect = canvas.getBounds();
+        gridRegion.scaleGrid(new Point(canvasRect.width, canvasRect.height));
+        Rectangle gridRect = gridRegion.getRectangle();
 
-        double ox = gridRegion.getRectangle().x;
-        double oy = gridRegion.getRectangle().y;
+        double w = gridRect.width / cols / canvasRect.width;
+        double h = gridRect.height / rows / canvasRect.height;
 
-        for (int j = 0; j < Y; j++) {
-            for (int i = 0; i < X; i++) {
+        double ox = gridRect.x;
+        double oy = gridRect.y;
 
-                double cx = ox + i * w + w / 2.0;
-                double cy = oy + j * h + h / 2.0;
+        double gapX = gridRegion.getGapOffsetX();
+        double gapY = gridRegion.getGapOffsetY();
 
-                Rectangle gridRect = new Rectangle(
-                    (int) (cx - w / 2.0 + this.gridRegion.getGapOffsetX() / 2.0),
-                    (int) (cy - h / 2.0 + gridRegion.getGapOffsetY() / 2.0),
-                    (int) (w - gridRegion.getGapOffsetX() / 1.0),
-                    (int) (h - gridRegion.getGapOffsetY() / 1.0));
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+
+                double cx = ox + col * w + w / 2.0;
+                double cy = oy + row * h + h / 2.0;
+
+                Rectangle cellRect = new Rectangle(
+                    (int) (cx - w / 2.0 + gapX / 2.0),
+                    (int) (cy - h / 2.0 + gapY / 2.0), (int) (w - gapX / 1.0),
+                    (int) (h - gapY / 1.0));
 
                 gc.setForeground(new Color(canvas.getDisplay(), 0, 255, 0));
-                gc.drawRectangle(gridRect);
+                gc.drawRectangle(cellRect);
 
                 if (orientation == Orientation.HORIZONTAL) {
-                    if ((i == X - 1) && (j == 0)) {
+                    if ((col == cols - 1) && (row == 0)) {
                         gc.setBackground(new Color(canvas.getDisplay(), 0, 255,
                             255));
-                        gc.fillRectangle(gridRect);
+                        gc.fillRectangle(cellRect);
                     }
                 } else {
-                    if ((i == 0) && (j == 0)) {
+                    if ((col == 0) && (row == 0)) {
                         gc.setBackground(new Color(canvas.getDisplay(), 0, 255,
                             255));
-                        gc.fillRectangle(gridRect);
+                        gc.fillRectangle(cellRect);
                     }
                 }
 
