@@ -27,6 +27,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import edu.ualberta.med.scannerconfig.ChangeListener;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.ScannerRegion;
+import edu.ualberta.med.scannerconfig.ScannerRegion.Orientation;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.widgets.PlateBoundsWidget;
@@ -48,7 +49,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
     private Button scanBtn;
     Button refreshBtn;
 
-    private boolean isVertical;
+    private Orientation orientation;
 
     private Label statusLabel;
 
@@ -146,7 +147,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 PlateBase.this.notifyChangeListener(
-                    ChangeListener.PALLET_BASE_REFRESH, 0);
+                    ChangeListener.PLATE_BASE_REFRESH, 0);
             }
         });
 
@@ -213,10 +214,11 @@ public class PlateBase extends FieldEditorPreferencePage implements
         verticalButton.addSelectionListener(new SelectionListener() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                PlateBase.this.isVertical = verticalFieldEditor
-                    .getBooleanValue();
+                orientation = verticalFieldEditor.getBooleanValue() ? Orientation.VERTICAL
+                    : Orientation.HORIZONTAL;
                 PlateBase.this.notifyChangeListener(
-                    ChangeListener.PLATE_BASE_ROTATE, 0);
+                    ChangeListener.PLATE_BASE_ORIENTATION,
+                    orientation == Orientation.VERTICAL ? 1 : 0);
             }
 
             @Override
@@ -235,8 +237,9 @@ public class PlateBase extends FieldEditorPreferencePage implements
         IPreferenceStore prefs = ScannerConfigPlugin.getDefault()
             .getPreferenceStore();
 
-        isVertical = prefs
-            .getBoolean(PreferenceConstants.SCANNER_PALLET_VERTICAL[plateId - 1]);
+        orientation = prefs
+            .getBoolean(PreferenceConstants.SCANNER_PALLET_VERTICAL[plateId - 1]) ? Orientation.VERTICAL
+            : Orientation.HORIZONTAL;
 
         plateBoundsWidget = new PlateBoundsWidget(this, canvas);
 
@@ -250,7 +253,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
                 textControls[3].setText(String.valueOf(r.bottom));
                 textControls[4].setText(String.valueOf(r.gapX));
                 textControls[5].setText(String.valueOf(r.gapY));
-                PlateBase.this.isVertical = r.verticalRotation;
+                PlateBase.this.orientation = r.orientation;
             }
         });
     }
@@ -265,13 +268,14 @@ public class PlateBase extends FieldEditorPreferencePage implements
     }
 
     public ScannerRegion getScannerRegionText() {
-        return new ScannerRegion("" + plateId, Double
-            .parseDouble(formatInput(textControls[0].getText())), Double
-            .parseDouble(formatInput(textControls[1].getText())), Double
-            .parseDouble(formatInput(textControls[2].getText())), Double
-            .parseDouble(formatInput(textControls[3].getText())), Double
-            .parseDouble(formatInput(textControls[4].getText())), Double
-            .parseDouble(formatInput(textControls[5].getText())), isVertical);
+        return new ScannerRegion("" + plateId,
+            Double.parseDouble(formatInput(textControls[0].getText())),
+            Double.parseDouble(formatInput(textControls[1].getText())),
+            Double.parseDouble(formatInput(textControls[2].getText())),
+            Double.parseDouble(formatInput(textControls[3].getText())),
+            Double.parseDouble(formatInput(textControls[4].getText())),
+            Double.parseDouble(formatInput(textControls[5].getText())),
+            orientation);
 
     }
 
@@ -289,12 +293,6 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
         ((Button) verticalFieldEditor
             .getDescriptionControl(getFieldEditorParent())).setEnabled(enabled);
-
-        if (scanBtn != null)
-            scanBtn.setEnabled(enabled);
-
-        if (refreshBtn != null)
-            refreshBtn.setEnabled(enabled);
 
         if (isEnabled) {
             statusLabel.setText("A scan is required");

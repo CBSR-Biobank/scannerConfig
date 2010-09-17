@@ -1,63 +1,54 @@
 package edu.ualberta.med.scannerconfig;
 
 public class ScannerRegion {
+    public enum Orientation {
+        HORIZONTAL, VERTICAL
+    };
 
-	public String name;
+    public String name;
 
-	public double left;
+    public double left;
 
-	public double top;
+    public double top;
 
-	public double right;
+    public double right;
 
-	public double bottom;
+    public double bottom;
 
-	public double gapX;
+    public double gapX;
 
-	public double gapY;
+    public double gapY;
 
-	public boolean verticalRotation;
+    public Orientation orientation;
 
-	public ScannerRegion() {
-		left = top = right = bottom = gapX = gapY = 0;
-		verticalRotation = false;
-	}
+    public ScannerRegion() {
+        left = top = right = bottom = gapX = gapY = 0;
+        orientation = Orientation.HORIZONTAL;
+    }
 
-	public ScannerRegion(ScannerRegion region) {
-		this.set(region);
-	}
+    public ScannerRegion(ScannerRegion region) {
+        this.set(region);
+    }
 
-	public ScannerRegion(String name, double left, double top, double right,
-			double bottom, double gapX, double gapY, boolean verticalRotation) {
-		this.name = name;
-		this.left = left;
-		this.top = top;
-		this.right = right;
-		this.bottom = bottom;
-		this.gapX = gapX;
-		this.gapY = gapY;
-		this.verticalRotation = verticalRotation;
-	}
+    public ScannerRegion(String name, double left, double top, double right,
+        double bottom, double gapX, double gapY, Orientation orientation) {
+        set(name, left, top, right, bottom, gapX, gapY, orientation);
+    }
 
-	public void set(ScannerRegion region) {
-		name = region.name;
-		left = region.left;
-		top = region.top;
-		right = region.right;
-		bottom = region.bottom;
-		gapX = region.gapX;
-		gapY = region.gapY;
-		verticalRotation = region.verticalRotation;
-	}
+    public void set(ScannerRegion region) {
+        set(region.name, region.left, region.top, region.right, region.bottom,
+            region.gapX, region.gapY, region.orientation);
+    }
 
-	public void set(double left, double top, double right, double bottom,
-			double gapX, double gapY, boolean verticalRotation) {
-		this.left = left;
-		this.top = top;
-		this.right = right;
-		this.bottom = bottom;
-		this.gapX = gapX;
-		this.gapY = gapY;
-		this.verticalRotation = verticalRotation;
-	}
+    public void set(String name, double left, double top, double right,
+        double bottom, double gapX, double gapY, Orientation orientation) {
+        this.name = name;
+        this.left = left;
+        this.top = top;
+        this.right = right;
+        this.bottom = bottom;
+        this.gapX = gapX;
+        this.gapY = gapY;
+        this.orientation = orientation;
+    }
 }

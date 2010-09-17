@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -18,6 +19,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.services.ISourceProviderService;
 import org.osgi.framework.BundleContext;
 
+import edu.ualberta.med.scannerconfig.ScannerRegion.Orientation;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanCell;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibWin32;
@@ -152,15 +154,16 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
-        ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
-            .getPreferenceStore().getDouble(prefsArr[0]), getDefault()
-            .getPreferenceStore().getDouble(prefsArr[1]), getDefault()
-            .getPreferenceStore().getDouble(prefsArr[2]), getDefault()
-            .getPreferenceStore().getDouble(prefsArr[3]), getDefault()
-            .getPreferenceStore().getDouble(prefsArr[4]), getDefault()
-            .getPreferenceStore().getDouble(prefsArr[5]), getDefault()
-            .getPreferenceStore().getBoolean(
-                PreferenceConstants.SCANNER_PALLET_VERTICAL[plateNumber - 1]));
+        IPreferenceStore store = getDefault().getPreferenceStore();
+
+        Orientation o = store
+            .getBoolean(PreferenceConstants.SCANNER_PALLET_VERTICAL[plateNumber - 1]) ? Orientation.VERTICAL
+            : Orientation.VERTICAL;
+
+        ScannerRegion region = new ScannerRegion("" + plateNumber,
+            store.getDouble(prefsArr[0]), store.getDouble(prefsArr[1]),
+            store.getDouble(prefsArr[2]), store.getDouble(prefsArr[3]),
+            store.getDouble(prefsArr[4]), store.getDouble(prefsArr[5]), o);
         regionModifyIfScannerWia(region);
         scanImage(region.left, region.top, region.right, region.bottom,
             filename);
@@ -189,15 +192,16 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
-        ScannerRegion region = new ScannerRegion("" + plateNumber, getDefault()
-            .getPreferenceStore().getDouble(prefsArr[0]), getDefault()
-            .getPreferenceStore().getDouble(prefsArr[1]), getDefault()
-            .getPreferenceStore().getDouble(prefsArr[2]), getDefault()
-            .getPreferenceStore().getDouble(prefsArr[3]), getDefault()
-            .getPreferenceStore().getDouble(prefsArr[4]), getDefault()
-            .getPreferenceStore().getDouble(prefsArr[5]), getDefault()
-            .getPreferenceStore().getBoolean(
-                PreferenceConstants.SCANNER_PALLET_VERTICAL[plateNumber - 1]));
+        IPreferenceStore store = getDefault().getPreferenceStore();
+
+        Orientation o = store
+            .getBoolean(PreferenceConstants.SCANNER_PALLET_VERTICAL[plateNumber - 1]) ? Orientation.VERTICAL
+            : Orientation.VERTICAL;
+
+        ScannerRegion region = new ScannerRegion("" + plateNumber,
+            store.getDouble(prefsArr[0]), store.getDouble(prefsArr[1]),
+            store.getDouble(prefsArr[2]), store.getDouble(prefsArr[3]),
+            store.getDouble(prefsArr[4]), store.getDouble(prefsArr[5]), o);
         regionModifyIfScannerWia(region);
 
         ProfileSettings profile = ProfileManager.instance().getProfile(
@@ -209,7 +213,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             brightness, contrast, plateNumber, region.left, region.top,
             region.right, region.bottom, scanGap, squareDev, edgeThresh,
             corrections, cellDistance, region.gapX, region.gapY, words[0],
-            words[1], words[2], region.verticalRotation ? 1 : 0);
+            words[1], words[2],
+            region.orientation == Orientation.HORIZONTAL ? 0 : 1);
 
         if (res < ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. "
@@ -227,9 +232,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     private static void regionModifyIfScannerWia(ScannerRegion region) {
-        if (!ScannerConfigPlugin.getDefault().getPreferenceStore().getString(
-            PreferenceConstants.SCANNER_DRV_TYPE).equals(
-            PreferenceConstants.SCANNER_DRV_TYPE_WIA))
+        if (!ScannerConfigPlugin.getDefault().getPreferenceStore()
+            .getString(PreferenceConstants.SCANNER_DRV_TYPE)
+            .equals(PreferenceConstants.SCANNER_DRV_TYPE_WIA))
             return;
 
         region.right = region.right - region.left;
