@@ -261,7 +261,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 					dpiRadio.setSelectionArray(new boolean[] { true, false,
 							false });
 					store.setValue(PreferenceConstants.SCANNER_DPI, 300);
-					PlateScannedImage.PALLET_IMAGE_DPI = 300;
+					PlateScannedImage.PLATE_IMAGE_DPI = 300;
 
 				}
 				else
@@ -270,7 +270,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 						dpiRadio.setSelectionArray(new boolean[] { false, true,
 								false });
 						store.setValue(PreferenceConstants.SCANNER_DPI, 400);
-						PlateScannedImage.PALLET_IMAGE_DPI = 400;
+						PlateScannedImage.PLATE_IMAGE_DPI = 400;
 
 					}
 					else
@@ -279,7 +279,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 							dpiRadio.setSelectionArray(new boolean[] { false,
 									false, true });
 							store.setValue(PreferenceConstants.SCANNER_DPI, 600);
-							PlateScannedImage.PALLET_IMAGE_DPI = 600;
+							PlateScannedImage.PLATE_IMAGE_DPI = 600;
 						}
 				dpiRadio.doLoad();
 

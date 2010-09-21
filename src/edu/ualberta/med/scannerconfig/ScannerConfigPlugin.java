@@ -19,13 +19,14 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.services.ISourceProviderService;
 import org.osgi.framework.BundleContext;
 
-import edu.ualberta.med.scannerconfig.ScannerRegion.Orientation;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanCell;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibWin32;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.profiles.ProfileManager;
 import edu.ualberta.med.scannerconfig.preferences.profiles.ProfileSettings;
+import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid;
+import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid.Orientation;
 import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
 
 /**
@@ -160,12 +161,12 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             .getBoolean(PreferenceConstants.SCANNER_PALLET_VERTICAL[plateNumber - 1]) ? Orientation.VERTICAL
             : Orientation.VERTICAL;
 
-        ScannerRegion region = new ScannerRegion("" + plateNumber,
+        PlateGrid region = new PlateGrid("" + plateNumber,
             store.getDouble(prefsArr[0]), store.getDouble(prefsArr[1]),
             store.getDouble(prefsArr[2]), store.getDouble(prefsArr[3]),
             store.getDouble(prefsArr[4]), store.getDouble(prefsArr[5]), o);
         regionModifyIfScannerWia(region);
-        scanImage(region.left, region.top, region.right, region.bottom,
+        scanImage(region.left, region.top, region.width, region.height,
             filename);
     }
 
@@ -198,7 +199,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             .getBoolean(PreferenceConstants.SCANNER_PALLET_VERTICAL[plateNumber - 1]) ? Orientation.VERTICAL
             : Orientation.VERTICAL;
 
-        ScannerRegion region = new ScannerRegion("" + plateNumber,
+        PlateGrid region = new PlateGrid("" + plateNumber,
             store.getDouble(prefsArr[0]), store.getDouble(prefsArr[1]),
             store.getDouble(prefsArr[2]), store.getDouble(prefsArr[3]),
             store.getDouble(prefsArr[4]), store.getDouble(prefsArr[5]), o);
@@ -211,7 +212,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
             brightness, contrast, plateNumber, region.left, region.top,
-            region.right, region.bottom, scanGap, squareDev, edgeThresh,
+            region.width, region.height, scanGap, squareDev, edgeThresh,
             corrections, cellDistance, region.gapX, region.gapY, words[0],
             words[1], words[2],
             region.orientation == Orientation.HORIZONTAL ? 0 : 1);
@@ -231,14 +232,14 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1]);
     }
 
-    private static void regionModifyIfScannerWia(ScannerRegion region) {
+    private static void regionModifyIfScannerWia(PlateGrid region) {
         if (!ScannerConfigPlugin.getDefault().getPreferenceStore()
             .getString(PreferenceConstants.SCANNER_DRV_TYPE)
             .equals(PreferenceConstants.SCANNER_DRV_TYPE_WIA))
             return;
 
-        region.right = region.right - region.left;
-        region.bottom = region.bottom - region.top;
+        region.width = region.width - region.left;
+        region.height = region.height - region.top;
     }
 
     public int getPlateCount() {

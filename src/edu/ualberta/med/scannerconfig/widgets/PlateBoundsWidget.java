@@ -23,10 +23,10 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
-import edu.ualberta.med.scannerconfig.ChangeListener;
-import edu.ualberta.med.scannerconfig.ScannerRegion;
-import edu.ualberta.med.scannerconfig.ScannerRegion.Orientation;
+import edu.ualberta.med.scannerconfig.preferences.scanner.ChangeListener;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateBase;
+import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid;
+import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid.Orientation;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateScannedImage;
 
 public class PlateBoundsWidget {
@@ -57,7 +57,13 @@ public class PlateBoundsWidget {
 
     private DragMode dragMode = DragMode.NONE;
 
-    public PlateBoundsWidget(final PlateBase plateBase, Canvas c) {
+    private double imgAspectRatio;
+
+    private boolean haveImage;
+
+    private PlateGrid plateGrid;
+
+    public PlateBoundsWidget(PlateBase plateBase, Canvas c) {
 
         parentPlateBase = plateBase;
 
@@ -72,11 +78,7 @@ public class PlateBoundsWidget {
         applyCanvasBindings();
 
         setEnable(false);
-
-        if (PlateScannedImage.instance().exists()) {
-            gridRegion = new GridRegion(parentPlateBase.getScannerRegionText(),
-                canvas);
-        }
+        haveImage = false;
     }
 
     private void applyPlateBaseBindings() {
@@ -99,10 +101,6 @@ public class PlateBoundsWidget {
                     break;
 
                 case ChangeListener.PLATE_BASE_REFRESH:
-                    if (PlateScannedImage.instance().exists()) {
-                        gridRegion = new GridRegion(
-                            parentPlateBase.getScannerRegionText(), canvas);
-                    }
                     setEnable(parentPlateBase.isEnabled());
                     break;
 
@@ -117,14 +115,9 @@ public class PlateBoundsWidget {
             public void change(Event e) {
                 if (e.type == ChangeListener.IMAGE_SCANNED) {
 
-                    /* new image scanned */
-                    if (e.detail == 1) {
-                        gridRegion = new GridRegion(
-                            parentPlateBase.getScannerRegionText(), canvas);
-                        setEnable(parentPlateBase.isEnabled());
-                    }
-                    /* image scanned unsuccessfully */
-                    else {
+                    haveImage = (e.detail == 1);
+
+                    if (!haveImage) {
                         setEnable(false);
                     }
                 }
@@ -137,69 +130,62 @@ public class PlateBoundsWidget {
 
     }
 
-    public void recreateGridRegion() {
-        if (PlateScannedImage.instance().exists()) {
-            gridRegion = new GridRegion(parentPlateBase.getScannerRegionText(),
-                canvas);
-        }
-    }
-
     private void applyCanvasBindings() {
 
         canvas.addMouseMoveListener(new MouseMoveListener() {
 
             @Override
             public void mouseMove(MouseEvent e) {
-                if (notValid())
+                if (!haveImage)
                     return;
 
-                if (gridRegion.getRectangle().contains(e.x, e.y))
+                if (plateGrid.getRectangle().contains(e.x, e.y))
                     canvas.setFocus();
 
                 if (drag) {
                     switch (dragMode) {
                     case MOVE:
-                        gridRegion.setLeft((e.x - startDragMousePt.x)
+                        plateGrid.setLeft((e.x - startDragMousePt.x)
                             + startGridRect.x);
-                        gridRegion.setTop((e.y - startDragMousePt.y)
+                        plateGrid.setTop((e.y - startDragMousePt.y)
                             + startGridRect.y);
                         break;
                     case RESIZE_HORIZONTAL_RIGHT:
-                        gridRegion.setWidth((e.x - startDragMousePt.x)
+                        plateGrid.setWidth((e.x - startDragMousePt.x)
                             + startGridRect.width);
                         break;
                     case RESIZE_HORIZONTAL_LEFT:
-                        gridRegion.setLeft((e.x - startDragMousePt.x)
+                        plateGrid.setLeft((e.x - startDragMousePt.x)
                             + startGridRect.x);
-                        gridRegion.setWidth((startDragMousePt.x - e.x)
+                        plateGrid.setWidth((startDragMousePt.x - e.x)
                             + startGridRect.width);
                         break;
                     case RESIZE_VERTICAL_TOP:
-                        gridRegion.setTop((e.y - startDragMousePt.y)
+                        plateGrid.setTop((e.y - startDragMousePt.y)
                             + startGridRect.y);
-                        gridRegion.setHeight((startDragMousePt.y - e.y)
+                        plateGrid.setHeight((startDragMousePt.y - e.y)
                             + startGridRect.height);
                         break;
                     case RESIZE_VERTICAL_BOTTOM:
-                        gridRegion.setHeight((e.y - startDragMousePt.y)
+                        plateGrid.setHeight((e.y - startDragMousePt.y)
                             + startGridRect.height);
                         break;
 
                     case RESIZE_BOTTOM_RIGHT:
-                        gridRegion.setWidth((e.x - startDragMousePt.x)
+                        plateGrid.setWidth((e.x - startDragMousePt.x)
                             + startGridRect.width);
-                        gridRegion.setHeight((e.y - startDragMousePt.y)
+                        plateGrid.setHeight((e.y - startDragMousePt.y)
                             + startGridRect.height);
                         break;
 
                     case RESIZE_TOP_LEFT:
-                        gridRegion.setLeft((e.x - startDragMousePt.x)
+                        plateGrid.setLeft((e.x - startDragMousePt.x)
                             + startGridRect.x);
-                        gridRegion.setTop((e.y - startDragMousePt.y)
+                        plateGrid.setTop((e.y - startDragMousePt.y)
                             + startGridRect.y);
-                        gridRegion.setHeight((startDragMousePt.y - e.y)
+                        plateGrid.setHeight((startDragMousePt.y - e.y)
                             + startGridRect.height);
-                        gridRegion.setWidth((startDragMousePt.x - e.x)
+                        plateGrid.setWidth((startDragMousePt.x - e.x)
                             + startGridRect.width);
                     default:
 
@@ -219,52 +205,51 @@ public class PlateBoundsWidget {
                  * code then checks for mouse-rectangle intersection to check
                  * for moving and resizing of the widget.
                  */
-                if (gridRegion == null)
+                if (plateGrid == null)
                     return;
 
-                if (gridRegion.getRectangle().contains(e.x, e.y)) {
+                if (plateGrid.getRectangle().contains(e.x, e.y)) {
                     canvas.setCursor(new Cursor(canvas.getDisplay(),
                         SWT.CURSOR_HAND));
                     dragMode = DragMode.MOVE;
-                } else if (new Rectangle(gridRegion.getRectangle().x
-                    + gridRegion.getRectangle().width, gridRegion
-                    .getRectangle().y + gridRegion.getRectangle().height, 15,
-                    15).contains(e.x, e.y)) {
+                } else if (new Rectangle(plateGrid.getRectangle().x
+                    + plateGrid.getRectangle().width,
+                    plateGrid.getRectangle().y
+                        + plateGrid.getRectangle().height, 15, 15).contains(
+                    e.x, e.y)) {
                     canvas.setCursor(new Cursor(canvas.getDisplay(),
                         SWT.CURSOR_SIZENWSE));
                     dragMode = DragMode.RESIZE_BOTTOM_RIGHT;
-                } else if (new Rectangle(gridRegion.getRectangle().x - 10,
-                    gridRegion.getRectangle().y - 10, 15, 15)
-                    .contains(e.x, e.y)) {
+                } else if (new Rectangle(plateGrid.getRectangle().x - 10,
+                    plateGrid.getRectangle().y - 10, 15, 15).contains(e.x, e.y)) {
                     canvas.setCursor(new Cursor(canvas.getDisplay(),
                         SWT.CURSOR_SIZENWSE));
                     dragMode = DragMode.RESIZE_TOP_LEFT;
 
                 }
 
-                else if (new Rectangle(gridRegion.getRectangle().x
-                    + gridRegion.getRectangle().width, gridRegion
-                    .getRectangle().y, 10, gridRegion.getRectangle().height)
-                    .contains(e.x, e.y)) {
+                else if (new Rectangle(plateGrid.getRectangle().x
+                    + plateGrid.getRectangle().width,
+                    plateGrid.getRectangle().y, 10,
+                    plateGrid.getRectangle().height).contains(e.x, e.y)) {
                     canvas.setCursor(new Cursor(canvas.getDisplay(),
                         SWT.CURSOR_SIZEE));
                     dragMode = DragMode.RESIZE_HORIZONTAL_RIGHT;
-                } else if (new Rectangle(gridRegion.getRectangle().x - 10,
-                    gridRegion.getRectangle().y, 10,
-                    gridRegion.getRectangle().height).contains(e.x, e.y)) {
+                } else if (new Rectangle(plateGrid.getRectangle().x - 10,
+                    plateGrid.getRectangle().y, 10,
+                    plateGrid.getRectangle().height).contains(e.x, e.y)) {
                     canvas.setCursor(new Cursor(canvas.getDisplay(),
                         SWT.CURSOR_SIZEW));
                     dragMode = DragMode.RESIZE_HORIZONTAL_LEFT;
-                } else if (new Rectangle(gridRegion.getRectangle().x,
-                    gridRegion.getRectangle().y - 10,
-                    gridRegion.getRectangle().width, 10).contains(e.x, e.y)) {
+                } else if (new Rectangle(plateGrid.getRectangle().x, plateGrid
+                    .getRectangle().y - 10, plateGrid.getRectangle().width, 10)
+                    .contains(e.x, e.y)) {
                     canvas.setCursor(new Cursor(canvas.getDisplay(),
                         SWT.CURSOR_SIZEN));
                     dragMode = DragMode.RESIZE_VERTICAL_TOP;
-                } else if (new Rectangle(gridRegion.getRectangle().x,
-                    gridRegion.getRectangle().y
-                        + gridRegion.getRectangle().height, gridRegion
-                        .getRectangle().width, 10).contains(e.x, e.y)) {
+                } else if (new Rectangle(plateGrid.getRectangle().x, plateGrid
+                    .getRectangle().y + plateGrid.getRectangle().height,
+                    plateGrid.getRectangle().width, 10).contains(e.x, e.y)) {
                     canvas.setCursor(new Cursor(canvas.getDisplay(),
                         SWT.CURSOR_SIZES));
                     dragMode = DragMode.RESIZE_VERTICAL_BOTTOM;
@@ -279,15 +264,13 @@ public class PlateBoundsWidget {
         canvas.addListener(SWT.MouseWheel, new Listener() {
             @Override
             public void handleEvent(Event event) {
-                if (notValid())
+                if (!haveImage)
                     return;
 
                 switch (event.type) {
                 case SWT.MouseWheel:
-                    gridRegion.setGapOffsetX(gridRegion.getGapOffsetX()
-                        + event.count / 10.0);
-                    gridRegion.setGapOffsetY(gridRegion.getGapOffsetY()
-                        + event.count / 10.0);
+                    plateGrid.setGapX(plateGrid.getGapX() + event.count / 10);
+                    plateGrid.setGapY(plateGrid.getGapY() + event.count / 10);
 
                     canvas.redraw();
                     notifyChangeListener();
@@ -298,35 +281,34 @@ public class PlateBoundsWidget {
         });
 
         canvas.addControlListener(new ControlListener() {
-
             @Override
             public void controlMoved(ControlEvent e) {
-                if (notValid())
+                if (!haveImage)
                     return;
-                gridRegion.scaleGrid(canvas.getSize());
+                plateGrid.scaleGrid(canvas.getSize());
             }
 
             @Override
             public void controlResized(ControlEvent e) {
-                if (notValid())
+                if (!haveImage)
                     return;
-                gridRegion.scaleGrid(canvas.getSize());
+                plateGrid.scaleGrid(canvas.getSize());
             }
         });
 
         canvas.addMouseListener(new MouseListener() {
             @Override
             public void mouseDown(MouseEvent e) {
-                if (notValid())
+                if (!haveImage)
                     return;
 
                 if (dragMode != DragMode.NONE) {
                     drag = true;
                     startDragMousePt.y = e.y;
                     startDragMousePt.x = e.x;
-                    startGridRect = new Rectangle(gridRegion.getRectangle().x,
-                        gridRegion.getRectangle().y,
-                        gridRegion.getRectangle().width, gridRegion
+                    startGridRect = new Rectangle(plateGrid.getRectangle().x,
+                        plateGrid.getRectangle().y,
+                        plateGrid.getRectangle().width, plateGrid
                             .getRectangle().height);
 
                 }
@@ -339,7 +321,7 @@ public class PlateBoundsWidget {
 
             @Override
             public void mouseUp(MouseEvent e) {
-                if (notValid())
+                if (!haveImage)
                     return;
 
                 drag = false;
@@ -351,22 +333,22 @@ public class PlateBoundsWidget {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if (notValid())
+                if (!haveImage)
                     return;
 
                 if (!drag) {
                     switch (e.keyCode) {
                     case SWT.ARROW_LEFT:
-                        gridRegion.setLeft(gridRegion.getLeft() - 1);
+                        plateGrid.setLeft(plateGrid.getLeft() - 1);
                         break;
                     case SWT.ARROW_RIGHT:
-                        gridRegion.setLeft(gridRegion.getLeft() + 1);
+                        plateGrid.setLeft(plateGrid.getLeft() + 1);
                         break;
                     case SWT.ARROW_UP:
-                        gridRegion.setTop(gridRegion.getTop() - 1);
+                        plateGrid.setTop(plateGrid.getTop() - 1);
                         break;
                     case SWT.ARROW_DOWN:
-                        gridRegion.setTop(gridRegion.getTop() + 1);
+                        plateGrid.setTop(plateGrid.getTop() + 1);
                         break;
                     }
                     canvas.redraw();
@@ -385,7 +367,7 @@ public class PlateBoundsWidget {
             @Override
             public void paintControl(PaintEvent e) {
 
-                if (notValid()) {
+                if (!haveImage)
                     e.gc.setForeground(new Color(canvas.getDisplay(), 255, 255,
                         255));
                     e.gc.fillRectangle(0, 0, canvas.getSize().x,
@@ -397,7 +379,7 @@ public class PlateBoundsWidget {
                     .getScannedImage().getBounds();
                 Point canvasSize = canvas.getSize();
 
-                double imgAspectRatio = (double) imgBounds.width
+                imgAspectRatio = (double) imgBounds.width
                     / (double) imgBounds.height;
                 if (imgAspectRatio > 1)
                     canvasSize.y = (int) (canvasSize.x / imgAspectRatio);
@@ -415,30 +397,30 @@ public class PlateBoundsWidget {
 
                 imageGC.setForeground(new Color(canvas.getDisplay(), 255, 0, 0));
 
-                imageGC.drawRectangle(gridRegion.getRectangle());
+                imageGC.drawRectangle(plateGrid.getRectangle());
 
                 drawGrid(imageGC);
 
                 imageGC.setForeground(new Color(canvas.getDisplay(), 0, 0, 255));
 
-                int left = gridRegion.getLeft() - 1;
-                int top = gridRegion.getTop() - 1;
-                int right = gridRegion.getLeft() + gridRegion.getWidth() - 3;
-                int bottom = gridRegion.getTop() + gridRegion.getHeight() - 3;
+                int left = plateGrid.getLeft() - 1;
+                int top = plateGrid.getTop() - 1;
+                int right = plateGrid.getLeft() + plateGrid.getWidth() - 3;
+                int bottom = plateGrid.getTop() + plateGrid.getHeight() - 3;
 
                 imageGC.drawOval(left, top, 1, 1);
                 imageGC.drawOval(right, bottom, 6, 6);
 
                 e.gc.drawImage(imageBuffer, 0, 0);
                 imageGC.dispose();
-                imageBuffer.dispose();
+                imageBuffer.dispose();  
             }
         });
     }
 
     private void drawGrid(GC gc) {
         int rows, cols;
-        Orientation orientation = gridRegion.getOrientation();
+        Orientation orientation = plateGrid.getOrientation();
 
         if (orientation == Orientation.HORIZONTAL) {
             cols = 12;
@@ -449,8 +431,8 @@ public class PlateBoundsWidget {
         }
 
         Rectangle canvasRect = canvas.getBounds();
-        gridRegion.scaleGrid(new Point(canvasRect.width, canvasRect.height));
-        Rectangle gridRect = gridRegion.getRectangle();
+        plateGrid.scaleGrid(new Point(canvasRect.width, canvasRect.height));
+        Rectangle gridRect = plateGrid.getRectangle();
 
         double w = gridRect.width / cols / canvasRect.width;
         double h = gridRect.height / rows / canvasRect.height;
@@ -458,8 +440,8 @@ public class PlateBoundsWidget {
         double ox = gridRect.x;
         double oy = gridRect.y;
 
-        double gapX = gridRegion.getGapOffsetX();
-        double gapY = gridRegion.getGapOffsetY();
+        double gapX = plateGrid.getGapX();
+        double gapY = plateGrid.getGapY();
 
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
@@ -493,18 +475,14 @@ public class PlateBoundsWidget {
         }
     }
 
-    public void assignRegions(ScannerRegion sr) {
+    public void assignRegions(PlateGrid sr) {
         Assert.isNotNull(canvas, "canvas is null");
-        gridRegion = new GridRegion(sr, canvas);
+        plateGrid = new PlateGrid(sr, canvas);
         canvas.redraw();
     }
 
-    public ScannerRegion getPlateRegion() {
-        return gridRegion.getScannerRegion();
-    }
-
-    private boolean notValid() {
-        return (!PlateScannedImage.instance().exists() || !isEnabled || gridRegion == null);
+    public PlateGrid getPlateRegion() {
+        return plateGrid.getScannerRegion();
     }
 
     private void setEnable(boolean enabled) {
@@ -516,10 +494,10 @@ public class PlateBoundsWidget {
     }
 
     private void setPlateOrientation(int orientation) {
-        if (notValid())
+        if (!haveImage)
             return;
 
-        gridRegion.setOrientation(orientation == 1 ? Orientation.VERTICAL
+        plateGrid.setOrientation(orientation == 1 ? Orientation.VERTICAL
             : Orientation.HORIZONTAL);
         canvas.redraw();
     }

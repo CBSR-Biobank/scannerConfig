@@ -24,12 +24,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import edu.ualberta.med.scannerconfig.ChangeListener;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
-import edu.ualberta.med.scannerconfig.ScannerRegion;
-import edu.ualberta.med.scannerconfig.ScannerRegion.Orientation;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
+import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid.Orientation;
 import edu.ualberta.med.scannerconfig.widgets.PlateBoundsWidget;
 
 public class PlateBase extends FieldEditorPreferencePage implements
@@ -47,7 +45,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
     private BooleanFieldEditor enabledFieldEditor;
     private BooleanFieldEditor verticalFieldEditor;
     private Button scanBtn;
-    Button refreshBtn;
+    private Button refreshBtn;
 
     private Orientation orientation;
 
@@ -246,11 +244,11 @@ public class PlateBase extends FieldEditorPreferencePage implements
         plateBoundsWidget.addPlateWidgetChangeListener(new ChangeListener() {
             @Override
             public void change(Event e) {
-                ScannerRegion r = plateBoundsWidget.getPlateRegion();
+                PlateGrid r = plateBoundsWidget.getPlateRegion();
                 textControls[0].setText(String.valueOf(r.left));
                 textControls[1].setText(String.valueOf(r.top));
-                textControls[2].setText(String.valueOf(r.right));
-                textControls[3].setText(String.valueOf(r.bottom));
+                textControls[2].setText(String.valueOf(r.width));
+                textControls[3].setText(String.valueOf(r.height));
                 textControls[4].setText(String.valueOf(r.gapX));
                 textControls[5].setText(String.valueOf(r.gapY));
                 PlateBase.this.orientation = r.orientation;
@@ -267,8 +265,8 @@ public class PlateBase extends FieldEditorPreferencePage implements
         }
     }
 
-    public ScannerRegion getScannerRegionText() {
-        return new ScannerRegion("" + plateId,
+    public PlateGrid getScannerRegionText() {
+        return new PlateGrid("" + plateId,
             Double.parseDouble(formatInput(textControls[0].getText())),
             Double.parseDouble(formatInput(textControls[1].getText())),
             Double.parseDouble(formatInput(textControls[2].getText())),

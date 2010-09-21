@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig;
+package edu.ualberta.med.scannerconfig.preferences.scanner;
 
 import org.eclipse.swt.widgets.Event;
 
