@@ -23,14 +23,16 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
-import edu.ualberta.med.scannerconfig.preferences.scanner.ChangeListener;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid.Orientation;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateImage;
+import edu.ualberta.med.scannerconfig.preferences.scanner.PlateImageListener;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateSettings;
+import edu.ualberta.med.scannerconfig.preferences.scanner.PlateSettingsListener;
 
-public class PlateGridWidget implements ChangeListener, MouseMoveListener,
-    Listener, ControlListener, MouseListener, KeyListener, PaintListener {
+public class PlateGridWidget implements PlateImageListener,
+    PlateSettingsListener, MouseMoveListener, Listener, ControlListener,
+    MouseListener, KeyListener, PaintListener {
 
     private enum DragMode {
         NONE, MOVE, RESIZE_HORIZONTAL_LEFT, RESIZE_HORIZONTAL_RIGHT,
@@ -44,7 +46,9 @@ public class PlateGridWidget implements ChangeListener, MouseMoveListener,
 
     protected ListenerList changeListeners = new ListenerList();
 
-    private ChangeListener scannedImageListner, plateBaseChangeListner;
+    private PlateImageListener scannedImageListener;
+
+    private PlateSettingsListener plateSettingsListener;
 
     private Image imageBuffer;
 
@@ -92,35 +96,33 @@ public class PlateGridWidget implements ChangeListener, MouseMoveListener,
     }
 
     @Override
-    public void change(Event e) {
+    public void newImage() {
+        haveImage = true;
+        setEnabled();
+    }
+
+    @Override
+    public void plateGridChange(Event e) {
 
         switch (e.type) {
-        case ChangeListener.PLATE_BASE_ORIENTATION:
+        case PlateSettingsListener.PLATE_BASE_ORIENTATION:
             setPlateOrientation(e.detail);
             break;
 
-        case ChangeListener.PLATE_BASE_TEXT_CHANGE:
+        case PlateSettingsListener.PLATE_BASE_TEXT_CHANGE:
             resizePlageGrid();
             break;
 
-        case ChangeListener.PLATE_BASE_ENABLED:
+        case PlateSettingsListener.PLATE_BASE_ENABLED:
             setEnabled();
             break;
 
-        case ChangeListener.PLATE_BASE_REFRESH:
+        case PlateSettingsListener.PLATE_BASE_REFRESH:
             setEnabled();
-            break;
-
-        case ChangeListener.IMAGE_SCANNED:
-            haveImage = (e.detail == 1);
-
-            if (!haveImage) {
-                setEnabled();
-            }
             break;
 
         default:
-            break;
+            Assert.isTrue(false, "invalid event received: " + e);
         }
     }
 
@@ -468,25 +470,24 @@ public class PlateGridWidget implements ChangeListener, MouseMoveListener,
 
     public void dispose() {
         PlateImage.instance().removeScannedImageChangeListener(
-            scannedImageListner);
-        plateSettings.removePlateBaseChangeListener(plateBaseChangeListner);
+            scannedImageListener);
+        plateSettings.removePlateBaseChangeListener(plateSettingsListener);
     }
 
     /* updates text fields in plateBase */
-    public void addPlateWidgetChangeListener(ChangeListener listener) {
+    public void addPlateWidgetChangeListener(PlateGridWidgetListener listener) {
         changeListeners.add(listener);
     }
 
     private void notifyChangeListener() {
         Object[] listeners = changeListeners.getListeners();
         for (int i = 0; i < listeners.length; ++i) {
-            final ChangeListener l = (ChangeListener) listeners[i];
+            final PlateGridWidgetListener l =
+                (PlateGridWidgetListener) listeners[i];
             SafeRunnable.run(new SafeRunnable() {
                 @Override
                 public void run() {
-                    Event e = new Event();
-                    e.type = ChangeListener.PALLET_WIDGET_CGHANGED;
-                    l.change(e);
+                    l.sizeChanged();
                 }
             });
         }

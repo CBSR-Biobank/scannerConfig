@@ -32,9 +32,10 @@ import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid.Orientation;
 import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
 import edu.ualberta.med.scannerconfig.widgets.PlateGridWidget;
+import edu.ualberta.med.scannerconfig.widgets.PlateGridWidgetListener;
 
 public class PlateSettings extends FieldEditorPreferencePage implements
-    IWorkbenchPreferencePage {
+    IWorkbenchPreferencePage, PlateGridWidgetListener {
 
     protected ListenerList changeListeners = new ListenerList();
 
@@ -53,22 +54,6 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     private Orientation orientation;
 
     private Label statusLabel;
-
-    private ChangeListener scannedImageListner = new ChangeListener() {
-        @Override
-        public void change(Event e) {
-            if (e.type == ChangeListener.IMAGE_SCANNED) {
-
-                /* new image scanned */
-                if (e.detail == 1) {
-                    statusLabel
-                        .setText("Align the green grid with the barcodes");
-                } else {
-                    statusLabel.setText("An error occured scanning an image");
-                }
-            }
-        }
-    };
 
     public PlateSettings(int plateId) {
         super(GRID);
@@ -148,7 +133,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 PlateSettings.this.notifyChangeListener(
-                    ChangeListener.PLATE_BASE_REFRESH, 0);
+                    PlateSettingsListener.PLATE_BASE_REFRESH, 0);
             }
         });
 
@@ -203,7 +188,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 @Override
                 public void modifyText(ModifyEvent e) {
                     PlateSettings.this.notifyChangeListener(
-                        ChangeListener.PLATE_BASE_TEXT_CHANGE, 0);
+                        PlateSettingsListener.PLATE_BASE_TEXT_CHANGE, 0);
                 }
 
             });
@@ -222,7 +207,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 @Override
                 public void propertyChange(PropertyChangeEvent event) {
                     PlateSettings.this.notifyChangeListener(
-                        ChangeListener.PLATE_BASE_ORIENTATION, event
+                        PlateSettingsListener.PLATE_BASE_ORIENTATION, event
                             .getNewValue().equals("Portrait") ? 1 : 0);
 
                 }
@@ -245,20 +230,20 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 : Orientation.LANDSCAPE;
 
         plateBoundsWidget = new PlateGridWidget(this, canvas);
+        plateBoundsWidget.addPlateWidgetChangeListener(this);
+    }
 
-        plateBoundsWidget.addPlateWidgetChangeListener(new ChangeListener() {
-            @Override
-            public void change(Event e) {
-                PlateGrid r = plateBoundsWidget.getPlateRegion();
-                textControls[0].setText(String.valueOf(r.left));
-                textControls[1].setText(String.valueOf(r.top));
-                textControls[2].setText(String.valueOf(r.width));
-                textControls[3].setText(String.valueOf(r.height));
-                textControls[4].setText(String.valueOf(r.gapX));
-                textControls[5].setText(String.valueOf(r.gapY));
-                PlateSettings.this.orientation = r.orientation;
-            }
-        });
+    @Override
+    public void sizeChanged() {
+        statusLabel.setText("Align the green grid with the barcodes");
+        PlateGrid r = plateBoundsWidget.getPlateRegion();
+        textControls[0].setText(String.valueOf(r.left));
+        textControls[1].setText(String.valueOf(r.top));
+        textControls[2].setText(String.valueOf(r.width));
+        textControls[3].setText(String.valueOf(r.height));
+        textControls[4].setText(String.valueOf(r.gapX));
+        textControls[5].setText(String.valueOf(r.gapY));
+        orientation = r.orientation;
     }
 
     private String formatInput(String s) {
@@ -318,22 +303,24 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             statusLabel.setText("Plate is not enabled");
         }
 
-        notifyChangeListener(ChangeListener.PLATE_BASE_ENABLED, enabled ? 1 : 0);
+        notifyChangeListener(PlateSettingsListener.PLATE_BASE_ENABLED,
+            enabled ? 1 : 0);
 
     }
 
-    public void removePlateBaseChangeListener(ChangeListener listener) {
+    public void removePlateBaseChangeListener(PlateSettingsListener listener) {
         changeListeners.remove(listener);
     }
 
-    public void addPlateBaseChangeListener(ChangeListener listener) {
+    public void addPlateBaseChangeListener(PlateSettingsListener listener) {
         changeListeners.add(listener);
     }
 
     private void notifyChangeListener(final int message, final int detail) {
         Object[] listeners = changeListeners.getListeners();
         for (int i = 0; i < listeners.length; ++i) {
-            final ChangeListener l = (ChangeListener) listeners[i];
+            final PlateSettingsListener l =
+                (PlateSettingsListener) listeners[i];
             SafeRunnable.run(new SafeRunnable() {
                 @Override
                 public void run() {
@@ -341,7 +328,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                     Event e = new Event();
                     e.type = message;
                     e.detail = detail;
-                    l.change(e);
+                    l.plateGridChange(e);
                 }
             });
         }
@@ -349,14 +336,6 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     private void saveSettings() {
         setEnabled(enabledFieldEditor.getBooleanValue());
-    }
-
-    @Override
-    public void dispose() {
-        PlateImage.instance().removeScannedImageChangeListener(
-            scannedImageListner);
-        plateBoundsWidget.dispose();
-        super.dispose();
     }
 
     @Override
