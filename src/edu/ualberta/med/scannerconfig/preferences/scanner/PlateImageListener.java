@@ -2,5 +2,7 @@ package edu.ualberta.med.scannerconfig.preferences.scanner;
 
 public interface PlateImageListener {
 
-    void newImage();
+    void plateImageNew();
+
+    void plateImageDeleted();
 }

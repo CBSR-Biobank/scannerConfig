@@ -44,7 +44,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     private Text[] textControls;
     private Canvas canvas;
-    private PlateGridWidget plateBoundsWidget;
+    private PlateGridWidget plateGridWidget = null;
 
     private BooleanFieldEditor enabledFieldEditor;
     private AdvancedRadioGroupFieldEditor orientationFieldEditor;
@@ -61,6 +61,14 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
         setPreferenceStore(ScannerConfigPlugin.getDefault()
             .getPreferenceStore());
+    }
+
+    @Override
+    public void dispose() {
+        if (plateGridWidget != null) {
+            plateGridWidget.dispose();
+        }
+
     }
 
     @Override
@@ -229,14 +237,16 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 .getBoolean(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1]) ? Orientation.PORTRAIT
                 : Orientation.LANDSCAPE;
 
-        plateBoundsWidget = new PlateGridWidget(this, canvas);
-        plateBoundsWidget.addPlateWidgetChangeListener(this);
+        if (plateGridWidget == null) {
+            plateGridWidget = new PlateGridWidget(this, canvas);
+            plateGridWidget.addPlateWidgetChangeListener(this);
+        }
     }
 
     @Override
     public void sizeChanged() {
         statusLabel.setText("Align the green grid with the barcodes");
-        PlateGrid r = plateBoundsWidget.getPlateRegion();
+        PlateGrid r = plateGridWidget.getPlateRegion();
         textControls[0].setText(String.valueOf(r.left));
         textControls[1].setText(String.valueOf(r.top));
         textControls[2].setText(String.valueOf(r.width));
@@ -308,7 +318,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     }
 
-    public void removePlateBaseChangeListener(PlateSettingsListener listener) {
+    public void removePlateSettingsChangeListener(PlateSettingsListener listener) {
         changeListeners.remove(listener);
     }
 

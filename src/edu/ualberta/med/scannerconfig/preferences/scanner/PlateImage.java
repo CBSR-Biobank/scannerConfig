@@ -4,7 +4,6 @@ import java.io.File;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
@@ -66,31 +65,25 @@ public class PlateImage {
                 .getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
         cleanAll();
+        notifyListeners(false);
+
         final int result =
             ScanLib.getInstance().slScanImage(debugLevel,
                 (int) PlateImage.PLATE_IMAGE_DPI, brightness, contrast, 0, 0,
                 20, 20, PlateImage.PALLET_IMAGE_FILE);
 
-        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
-            .getDisplay().asyncExec(new Runnable() {
-                @Override
-                public void run() {
-                    if (result != ScanLib.SC_SUCCESS) {
-                        MessageDialog.openError(PlatformUI.getWorkbench()
-                            .getActiveWorkbenchWindow().getShell(),
-                            "Scanner error", ScanLib.getErrMsg(result));
-                        return;
-                    }
-                    Assert.isTrue((new File(PlateImage.PALLET_IMAGE_FILE))
-                        .exists());
-                    scannedImage =
-                        new Image(
-                            PlatformUI.getWorkbench()
-                                .getActiveWorkbenchWindow().getShell()
-                                .getDisplay(), PlateImage.PALLET_IMAGE_FILE);
-                    notifyListeners();
-                }
-            });
+        if (result != ScanLib.SC_SUCCESS) {
+            ScannerConfigPlugin.openAsyncError("Scanner error",
+                ScanLib.getErrMsg(result));
+            return;
+        }
+
+        Assert.isTrue((new File(PlateImage.PALLET_IMAGE_FILE)).exists());
+
+        scannedImage =
+            new Image(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                .getShell().getDisplay(), PlateImage.PALLET_IMAGE_FILE);
+        notifyListeners(true);
     }
 
     public void addScannedImageChangeListener(PlateImageListener listener) {
@@ -101,14 +94,18 @@ public class PlateImage {
         listenerList.remove(listener);
     }
 
-    private void notifyListeners() {
+    private void notifyListeners(final boolean haveNewImage) {
         Object[] listeners = listenerList.getListeners();
         for (int i = 0; i < listeners.length; ++i) {
             final PlateImageListener l = (PlateImageListener) listeners[i];
             SafeRunnable.run(new SafeRunnable() {
                 @Override
                 public void run() {
-                    l.newImage();
+                    if (haveNewImage) {
+                        l.plateImageNew();
+                    } else {
+                        l.plateImageDeleted();
+                    }
                 }
             });
         }

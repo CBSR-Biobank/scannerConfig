@@ -118,4 +118,10 @@ public class PlateGrid {
     public void setOrientation(Orientation orientation) {
         this.orientation = orientation;
     }
+
+    @Override
+    public String toString() {
+        return "left/" + left + " top/" + top + " width/" + width + " height/"
+            + height + " gapX/" + gapX + " gapY/" + gapY;
+    }
 }
