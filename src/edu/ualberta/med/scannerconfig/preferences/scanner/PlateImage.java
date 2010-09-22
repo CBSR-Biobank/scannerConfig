@@ -13,8 +13,8 @@ import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 
-public class PlateScannedImage {
-    private static PlateScannedImage instance = null;
+public class PlateImage {
+    private static PlateImage instance = null;
 
     /* please note that PALLET_IMAGE_DPI may change value */
     public static double PLATE_IMAGE_DPI = 300.0;
@@ -25,13 +25,13 @@ public class PlateScannedImage {
 
     private Image scannedImage;
 
-    protected PlateScannedImage() {
+    protected PlateImage() {
         cleanAll();
     }
 
-    public static PlateScannedImage instance() {
+    public static PlateImage instance() {
         if (instance == null) {
-            instance = new PlateScannedImage();
+            instance = new PlateImage();
         }
         return instance;
     }
@@ -45,7 +45,7 @@ public class PlateScannedImage {
     }
 
     public void cleanAll() {
-        final File platesFile = new File(PlateScannedImage.PALLET_IMAGE_FILE);
+        final File platesFile = new File(PlateImage.PALLET_IMAGE_FILE);
         platesFile.delete();
 
         if (scannedImage != null) {
@@ -64,8 +64,8 @@ public class PlateScannedImage {
 
         cleanAll();
         final int result = ScanLib.getInstance().slScanImage(debugLevel,
-            (int) PlateScannedImage.PLATE_IMAGE_DPI, brightness, contrast, 0,
-            0, 20, 20, PlateScannedImage.PALLET_IMAGE_FILE);
+            (int) PlateImage.PLATE_IMAGE_DPI, brightness, contrast, 0,
+            0, 20, 20, PlateImage.PALLET_IMAGE_FILE);
 
         PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
             .getDisplay().asyncExec(new Runnable() {
@@ -78,13 +78,13 @@ public class PlateScannedImage {
                         notifyChangeListener(false);
                         return;
                     }
-                    if ((new File(PlateScannedImage.PALLET_IMAGE_FILE))
+                    if ((new File(PlateImage.PALLET_IMAGE_FILE))
                         .exists()) {
                         scannedImage = new Image(
                             PlatformUI.getWorkbench()
                                 .getActiveWorkbenchWindow().getShell()
                                 .getDisplay(),
-                            PlateScannedImage.PALLET_IMAGE_FILE);
+                            PlateImage.PALLET_IMAGE_FILE);
                         notifyChangeListener(true);
                         return;
                     }

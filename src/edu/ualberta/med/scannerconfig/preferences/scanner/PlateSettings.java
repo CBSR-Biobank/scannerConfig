@@ -4,6 +4,8 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -28,9 +30,10 @@ import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid.Orientation;
-import edu.ualberta.med.scannerconfig.widgets.PlateBoundsWidget;
+import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
+import edu.ualberta.med.scannerconfig.widgets.PlateGridWidget;
 
-public class PlateBase extends FieldEditorPreferencePage implements
+public class PlateSettings extends FieldEditorPreferencePage implements
     IWorkbenchPreferencePage {
 
     protected ListenerList changeListeners = new ListenerList();
@@ -40,10 +43,10 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
     private Text[] textControls;
     private Canvas canvas;
-    private PlateBoundsWidget plateBoundsWidget;
+    private PlateGridWidget plateBoundsWidget;
 
     private BooleanFieldEditor enabledFieldEditor;
-    private BooleanFieldEditor verticalFieldEditor;
+    private AdvancedRadioGroupFieldEditor orientationFieldEditor;
     private Button scanBtn;
     private Button refreshBtn;
 
@@ -67,7 +70,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
         }
     };
 
-    public PlateBase(int plateId) {
+    public PlateSettings(int plateId) {
         super(GRID);
         this.plateId = plateId;
 
@@ -131,7 +134,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                PlateScannedImage.instance().scanPlateImage();
+                PlateImage.instance().scanPlateImage();
             }
         });
         refreshBtn = new Button(buttonComposite, SWT.NONE);
@@ -144,7 +147,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                PlateBase.this.notifyChangeListener(
+                PlateSettings.this.notifyChangeListener(
                     ChangeListener.PLATE_BASE_REFRESH, 0);
             }
         });
@@ -162,12 +165,14 @@ public class PlateBase extends FieldEditorPreferencePage implements
     @Override
     protected void createFieldEditors() {
         DoubleFieldEditor fe;
-        String[] labels = { "Left", "Top", "Right", "Bottom",
-            "Cell Gap Horizontal", "Cell Gap Vertical" };
+        String[] labels =
+            { "Left", "Top", "Right", "Bottom", "Cell Gap Horizontal",
+                "Cell Gap Vertical" };
 
-        enabledFieldEditor = new BooleanFieldEditor(
-            PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1], "Enable",
-            getFieldEditorParent());
+        enabledFieldEditor =
+            new BooleanFieldEditor(
+                PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1],
+                "Enable", getFieldEditorParent());
         addField(enabledFieldEditor);
         ((Button) enabledFieldEditor
             .getDescriptionControl(getFieldEditorParent()))
@@ -182,47 +187,46 @@ public class PlateBase extends FieldEditorPreferencePage implements
                 }
             });
 
-        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
+        String[] prefsArr =
+            PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
 
         textControls = new Text[6];
 
         for (int i = 0; i < 6; ++i) {
-            fe = new DoubleFieldEditor(prefsArr[i], labels[i] + ":",
-                getFieldEditorParent());
+            fe =
+                new DoubleFieldEditor(prefsArr[i], labels[i] + ":",
+                    getFieldEditorParent());
             fe.setValidRange(0, 20);
             addField(fe);
             textControls[i] = fe.getTextControl(getFieldEditorParent());
             textControls[i].addModifyListener(new ModifyListener() {
                 @Override
                 public void modifyText(ModifyEvent e) {
-                    PlateBase.this.notifyChangeListener(
+                    PlateSettings.this.notifyChangeListener(
                         ChangeListener.PLATE_BASE_TEXT_CHANGE, 0);
                 }
 
             });
         }
 
-        verticalFieldEditor = new BooleanFieldEditor(
-            PreferenceConstants.SCANNER_PALLET_VERTICAL[plateId - 1],
-            "Vertical", getFieldEditorParent());
-        addField(verticalFieldEditor);
-        Button verticalButton = ((Button) verticalFieldEditor
-            .getDescriptionControl(getFieldEditorParent()));
+        orientationFieldEditor =
+            new AdvancedRadioGroupFieldEditor(
+                PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1],
+                "Orientation", 2, new String[][] {
+                    { "Landscape", "Landscape" }, { "Portrait", "Portrait" } },
+                getFieldEditorParent(), true);
+        addField(orientationFieldEditor);
+        orientationFieldEditor
+            .setPropertyChangeListener(new IPropertyChangeListener() {
 
-        verticalButton.addSelectionListener(new SelectionListener() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                orientation = verticalFieldEditor.getBooleanValue() ? Orientation.VERTICAL
-                    : Orientation.HORIZONTAL;
-                PlateBase.this.notifyChangeListener(
-                    ChangeListener.PLATE_BASE_ORIENTATION,
-                    orientation == Orientation.VERTICAL ? 1 : 0);
-            }
+                @Override
+                public void propertyChange(PropertyChangeEvent event) {
+                    PlateSettings.this.notifyChangeListener(
+                        ChangeListener.PLATE_BASE_ORIENTATION, event
+                            .getNewValue().equals("Portrait") ? 1 : 0);
 
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
-        });
+                }
+            });
     }
 
     /* create canvas and plate widget */
@@ -232,14 +236,15 @@ public class PlateBase extends FieldEditorPreferencePage implements
         canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         canvas.setBackground(new Color(Display.getCurrent(), 255, 255, 255));
 
-        IPreferenceStore prefs = ScannerConfigPlugin.getDefault()
-            .getPreferenceStore();
+        IPreferenceStore prefs =
+            ScannerConfigPlugin.getDefault().getPreferenceStore();
 
-        orientation = prefs
-            .getBoolean(PreferenceConstants.SCANNER_PALLET_VERTICAL[plateId - 1]) ? Orientation.VERTICAL
-            : Orientation.HORIZONTAL;
+        orientation =
+            prefs
+                .getBoolean(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1]) ? Orientation.PORTRAIT
+                : Orientation.LANDSCAPE;
 
-        plateBoundsWidget = new PlateBoundsWidget(this, canvas);
+        plateBoundsWidget = new PlateGridWidget(this, canvas);
 
         plateBoundsWidget.addPlateWidgetChangeListener(new ChangeListener() {
             @Override
@@ -251,7 +256,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
                 textControls[3].setText(String.valueOf(r.height));
                 textControls[4].setText(String.valueOf(r.gapX));
                 textControls[5].setText(String.valueOf(r.gapY));
-                PlateBase.this.orientation = r.orientation;
+                PlateSettings.this.orientation = r.orientation;
             }
         });
     }
@@ -265,16 +270,32 @@ public class PlateBase extends FieldEditorPreferencePage implements
         }
     }
 
-    public PlateGrid getScannerRegionText() {
-        return new PlateGrid("" + plateId,
-            Double.parseDouble(formatInput(textControls[0].getText())),
-            Double.parseDouble(formatInput(textControls[1].getText())),
-            Double.parseDouble(formatInput(textControls[2].getText())),
-            Double.parseDouble(formatInput(textControls[3].getText())),
-            Double.parseDouble(formatInput(textControls[4].getText())),
-            Double.parseDouble(formatInput(textControls[5].getText())),
-            orientation);
+    public double getLeft() {
+        return Double.parseDouble(formatInput(textControls[0].getText()));
+    }
 
+    public double getTop() {
+        return Double.parseDouble(formatInput(textControls[1].getText()));
+    }
+
+    public double getRight() {
+        return Double.parseDouble(formatInput(textControls[2].getText()));
+    }
+
+    public double getBottom() {
+        return Double.parseDouble(formatInput(textControls[3].getText()));
+    }
+
+    public double getGapX() {
+        return Double.parseDouble(formatInput(textControls[4].getText()));
+    }
+
+    public double getGapY() {
+        return Double.parseDouble(formatInput(textControls[5].getText()));
+    }
+
+    public Orientation getOrientation() {
+        return orientation;
     }
 
     public boolean isEnabled() {
@@ -289,8 +310,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
                 textControls[i].setEnabled(enabled);
         }
 
-        ((Button) verticalFieldEditor
-            .getDescriptionControl(getFieldEditorParent())).setEnabled(enabled);
+        orientationFieldEditor.setEnabled(isEnabled, getFieldEditorParent());
 
         if (isEnabled) {
             statusLabel.setText("A scan is required");
@@ -333,7 +353,7 @@ public class PlateBase extends FieldEditorPreferencePage implements
 
     @Override
     public void dispose() {
-        PlateScannedImage.instance().removeScannedImageChangeListener(
+        PlateImage.instance().removeScannedImageChangeListener(
             scannedImageListner);
         plateBoundsWidget.dispose();
         super.dispose();

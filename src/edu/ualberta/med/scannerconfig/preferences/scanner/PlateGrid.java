@@ -9,7 +9,7 @@ import org.eclipse.swt.graphics.Rectangle;
  */
 public class PlateGrid {
     public enum Orientation {
-        HORIZONTAL, VERTICAL
+        LANDSCAPE, PORTRAIT
     };
 
     public String name;
@@ -30,7 +30,7 @@ public class PlateGrid {
 
     public PlateGrid() {
         left = top = width = height = gapX = gapY = 0;
-        orientation = Orientation.HORIZONTAL;
+        orientation = Orientation.LANDSCAPE;
     }
 
     public PlateGrid(String name, int left, int top, int right, int bottom,

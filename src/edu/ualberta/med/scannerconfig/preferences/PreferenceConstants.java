@@ -26,7 +26,8 @@ public class PreferenceConstants {
 
     public static final String LIBDMTX_CELL_DISTANCE = "libdmtx.cell_distance";
 
-    public static final String SCANNER_PALLET_PROFILES = "scanner.pallet.profiles";
+    public static final String SCANNER_PALLET_PROFILES =
+        "scanner.pallet.profiles";
 
     public static final String[] SCANNER_PALLET_ENABLED = {
         "scanner.plate.coords.enabled.1", "scanner.plate.coords.enabled.2",
@@ -54,8 +55,8 @@ public class PreferenceConstants {
             "scanner.plate.coords.right.5", "scanner.plate.coords.bottom.5",
             "scanner.plate.coords.gapx.5", "scanner.plate.coords.gapy.5" } };
 
-    public static final String[] SCANNER_PALLET_VERTICAL = {
-        "scanner.plate.vertical.1", "scanner.plate.vertical.2",
-        "scanner.plate.vertical.3", "scanner.plate.vertical.4",
-        "scanner.plate.vertical.5" };
+    public static final String[] SCANNER_PALLET_ORIENTATION = {
+        "scanner.plate.orientation.1", "scanner.plate.orientation.2",
+        "scanner.plate.orientation.3", "scanner.plate.orientation.4",
+        "scanner.plate.orientation.5" };
 }

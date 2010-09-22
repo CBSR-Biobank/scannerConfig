@@ -28,7 +28,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
                 false);
         }
         for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_CONFIG.length; i++) {
-            store.setDefault(PreferenceConstants.SCANNER_PALLET_VERTICAL[i],
+            store.setDefault(PreferenceConstants.SCANNER_PALLET_ORIENTATION[i],
                 false);
 
         }

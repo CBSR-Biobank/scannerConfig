@@ -237,7 +237,7 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 
 		if (!useGroup) {
 			super.setEnabled(enabled[0], parent);
-			return getRatioSelected();
+			return getRadioSelected();
 		}
 
 		Assert.isTrue(enabled.length == radioButtons.length);
@@ -269,7 +269,7 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 				break;
 			}
 		}
-		return getRatioSelected();
+		return getRadioSelected();
 	}
 
 	public void setSelectionArray(boolean[] enabled) {
@@ -288,7 +288,7 @@ public class AdvancedRadioGroupFieldEditor extends FieldEditor {
 
 	}
 
-	public int getRatioSelected() {
+	public int getRadioSelected() {
 
 		if (!useGroup) {
 			return -1;

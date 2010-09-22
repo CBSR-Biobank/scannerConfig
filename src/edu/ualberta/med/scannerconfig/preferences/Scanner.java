@@ -15,7 +15,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
-import edu.ualberta.med.scannerconfig.preferences.scanner.PlateScannedImage;
+import edu.ualberta.med.scannerconfig.preferences.scanner.PlateImage;
 import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
 
 public class Scanner extends FieldEditorPreferencePage implements
@@ -261,7 +261,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 					dpiRadio.setSelectionArray(new boolean[] { true, false,
 							false });
 					store.setValue(PreferenceConstants.SCANNER_DPI, 300);
-					PlateScannedImage.PLATE_IMAGE_DPI = 300;
+					PlateImage.PLATE_IMAGE_DPI = 300;
 
 				}
 				else
@@ -270,7 +270,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 						dpiRadio.setSelectionArray(new boolean[] { false, true,
 								false });
 						store.setValue(PreferenceConstants.SCANNER_DPI, 400);
-						PlateScannedImage.PLATE_IMAGE_DPI = 400;
+						PlateImage.PLATE_IMAGE_DPI = 400;
 
 					}
 					else
@@ -279,7 +279,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 							dpiRadio.setSelectionArray(new boolean[] { false,
 									false, true });
 							store.setValue(PreferenceConstants.SCANNER_DPI, 600);
-							PlateScannedImage.PLATE_IMAGE_DPI = 600;
+							PlateImage.PLATE_IMAGE_DPI = 600;
 						}
 				dpiRadio.doLoad();
 

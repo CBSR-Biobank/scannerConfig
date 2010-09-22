@@ -39,31 +39,31 @@
     </page>    
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate1"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate1Settings"
           id="scannerConfig.page1"
           name="Plate 1 Position">
     </page> 
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate2"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate2Settings"
           id="scannerConfig.page2"
           name="Plate 2 Position">
     </page> 
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate3"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate3Settings"
           id="scannerConfig.page3"
           name="Plate 3 Position">
     </page> 
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate4"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate4Settings"
           id="scannerConfig.page4"
           name="Plate 4 Position">
     </page> 
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate5"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate5Settings"
           id="scannerConfig.page5"
           name="Plate 5 Position">
     </page>

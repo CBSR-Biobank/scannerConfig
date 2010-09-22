@@ -25,7 +25,6 @@ import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibWin32;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.profiles.ProfileManager;
 import edu.ualberta.med.scannerconfig.preferences.profiles.ProfileSettings;
-import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid.Orientation;
 import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
 
@@ -73,13 +72,16 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                 public void propertyChange(PropertyChangeEvent event) {
                     if (event.getProperty().startsWith(
                         "scanner.plate.coords.enabled.")) {
-                        IWorkbenchWindow window = PlatformUI.getWorkbench()
-                            .getActiveWorkbenchWindow();
-                        ISourceProviderService service = (ISourceProviderService) window
-                            .getService(ISourceProviderService.class);
+                        IWorkbenchWindow window =
+                            PlatformUI.getWorkbench()
+                                .getActiveWorkbenchWindow();
+                        ISourceProviderService service =
+                            (ISourceProviderService) window
+                                .getService(ISourceProviderService.class);
 
-                        PlateEnabledState plateEnabledSourceProvider = (PlateEnabledState) service
-                            .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
+                        PlateEnabledState plateEnabledSourceProvider =
+                            (PlateEnabledState) service
+                                .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
                         Assert.isNotNull(plateEnabledSourceProvider);
                         plateEnabledSourceProvider.setPlateEnabled();
                     }
@@ -132,17 +134,22 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
     public static void scanImage(double left, double top, double right,
         double bottom, String filename) throws Exception {
-        int dpi = getDefault().getPreferenceStore().getInt(
-            PreferenceConstants.SCANNER_DPI);
-        int brightness = getDefault().getPreferenceStore().getInt(
-            PreferenceConstants.SCANNER_BRIGHTNESS);
-        int contrast = getDefault().getPreferenceStore().getInt(
-            PreferenceConstants.SCANNER_CONTRAST);
-        int debugLevel = getDefault().getPreferenceStore().getInt(
-            PreferenceConstants.DLL_DEBUG_LEVEL);
+        int dpi =
+            getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.SCANNER_DPI);
+        int brightness =
+            getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.SCANNER_BRIGHTNESS);
+        int contrast =
+            getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.SCANNER_CONTRAST);
+        int debugLevel =
+            getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.DLL_DEBUG_LEVEL);
 
-        int res = ScanLibWin32.getInstance().slScanImage(debugLevel, dpi,
-            brightness, contrast, left, top, right, bottom, filename);
+        int res =
+            ScanLibWin32.getInstance().slScanImage(debugLevel, dpi, brightness,
+                contrast, left, top, right, bottom, filename);
 
         if (res < ScanLibWin32.SC_SUCCESS) {
             throw new Exception("Could not decode image. "
@@ -153,69 +160,83 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     public static void scanPlate(int plateNumber, String filename)
         throws Exception {
 
-        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
+        String[] prefsArr =
+            PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
         IPreferenceStore store = getDefault().getPreferenceStore();
 
-        Orientation o = store
-            .getBoolean(PreferenceConstants.SCANNER_PALLET_VERTICAL[plateNumber - 1]) ? Orientation.VERTICAL
-            : Orientation.VERTICAL;
+        ScanRegion region =
+            new ScanRegion(store.getDouble(prefsArr[0]),
+                store.getDouble(prefsArr[1]), store.getDouble(prefsArr[2]),
+                store.getDouble(prefsArr[3]));
 
-        PlateGrid region = new PlateGrid("" + plateNumber,
-            store.getDouble(prefsArr[0]), store.getDouble(prefsArr[1]),
-            store.getDouble(prefsArr[2]), store.getDouble(prefsArr[3]),
-            store.getDouble(prefsArr[4]), store.getDouble(prefsArr[5]), o);
         regionModifyIfScannerWia(region);
-        scanImage(region.left, region.top, region.width, region.height,
-            filename);
+
+        scanImage(region.getLeft(), region.getTop(), region.getRight(),
+            region.getBottom(), filename);
     }
 
     public static ScanCell[][] scan(int plateNumber, String profileName)
         throws Exception {
-        int dpi = getDefault().getPreferenceStore().getInt(
-            PreferenceConstants.SCANNER_DPI);
-        int brightness = getDefault().getPreferenceStore().getInt(
-            PreferenceConstants.SCANNER_BRIGHTNESS);
-        int contrast = getDefault().getPreferenceStore().getInt(
-            PreferenceConstants.SCANNER_CONTRAST);
-        int debugLevel = getDefault().getPreferenceStore().getInt(
-            PreferenceConstants.DLL_DEBUG_LEVEL);
-        int edgeThresh = getDefault().getPreferenceStore().getInt(
-            PreferenceConstants.LIBDMTX_EDGE_THRESH);
-        double scanGap = getDefault().getPreferenceStore().getDouble(
-            PreferenceConstants.LIBDMTX_SCAN_GAP);
-        int squareDev = getDefault().getPreferenceStore().getInt(
-            PreferenceConstants.LIBDMTX_SQUARE_DEV);
-        int corrections = getDefault().getPreferenceStore().getInt(
-            PreferenceConstants.LIBDMTX_CORRECTIONS);
-        double cellDistance = getDefault().getPreferenceStore().getDouble(
-            PreferenceConstants.LIBDMTX_CELL_DISTANCE);
+        int dpi =
+            getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.SCANNER_DPI);
+        int brightness =
+            getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.SCANNER_BRIGHTNESS);
+        int contrast =
+            getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.SCANNER_CONTRAST);
+        int debugLevel =
+            getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.DLL_DEBUG_LEVEL);
+        int edgeThresh =
+            getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.LIBDMTX_EDGE_THRESH);
+        double scanGap =
+            getDefault().getPreferenceStore().getDouble(
+                PreferenceConstants.LIBDMTX_SCAN_GAP);
+        int squareDev =
+            getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.LIBDMTX_SQUARE_DEV);
+        int corrections =
+            getDefault().getPreferenceStore().getInt(
+                PreferenceConstants.LIBDMTX_CORRECTIONS);
+        double cellDistance =
+            getDefault().getPreferenceStore().getDouble(
+                PreferenceConstants.LIBDMTX_CELL_DISTANCE);
 
-        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
+        String[] prefsArr =
+            PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
         IPreferenceStore store = getDefault().getPreferenceStore();
 
-        Orientation o = store
-            .getBoolean(PreferenceConstants.SCANNER_PALLET_VERTICAL[plateNumber - 1]) ? Orientation.VERTICAL
-            : Orientation.VERTICAL;
+        Orientation o =
+            store
+                .getBoolean(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1]) ? Orientation.PORTRAIT
+                : Orientation.LANDSCAPE;
 
-        PlateGrid region = new PlateGrid("" + plateNumber,
-            store.getDouble(prefsArr[0]), store.getDouble(prefsArr[1]),
-            store.getDouble(prefsArr[2]), store.getDouble(prefsArr[3]),
-            store.getDouble(prefsArr[4]), store.getDouble(prefsArr[5]), o);
+        ScanRegion region =
+            new ScanRegion(store.getDouble(prefsArr[0]),
+                store.getDouble(prefsArr[1]), store.getDouble(prefsArr[2]),
+                store.getDouble(prefsArr[3]));
+
+        double gapX = store.getDouble(prefsArr[4]);
+        double gapY = store.getDouble(prefsArr[5]);
+
         regionModifyIfScannerWia(region);
 
-        ProfileSettings profile = ProfileManager.instance().getProfile(
-            profileName);
+        ProfileSettings profile =
+            ProfileManager.instance().getProfile(profileName);
 
         int[] words = profile.toWords();
 
-        int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
-            brightness, contrast, plateNumber, region.left, region.top,
-            region.width, region.height, scanGap, squareDev, edgeThresh,
-            corrections, cellDistance, region.gapX, region.gapY, words[0],
-            words[1], words[2],
-            region.orientation == Orientation.HORIZONTAL ? 0 : 1);
+        int res =
+            ScanLib.getInstance().slDecodePlate(debugLevel, dpi, brightness,
+                contrast, plateNumber, region.getLeft(), region.getTop(),
+                region.getRight(), region.getBottom(), scanGap, squareDev,
+                edgeThresh, corrections, cellDistance, gapX, gapY, words[0],
+                words[1], words[2], o == Orientation.LANDSCAPE ? 0 : 1);
 
         if (res < ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. "
@@ -232,14 +253,14 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1]);
     }
 
-    private static void regionModifyIfScannerWia(PlateGrid region) {
+    private static void regionModifyIfScannerWia(ScanRegion region) {
         if (!ScannerConfigPlugin.getDefault().getPreferenceStore()
             .getString(PreferenceConstants.SCANNER_DRV_TYPE)
             .equals(PreferenceConstants.SCANNER_DRV_TYPE_WIA))
             return;
 
-        region.width = region.width - region.left;
-        region.height = region.height - region.top;
+        region.setRight(region.getRight() - region.getLeft());
+        region.setBottom(region.getBottom() - region.getTop());
     }
 
     public int getPlateCount() {
