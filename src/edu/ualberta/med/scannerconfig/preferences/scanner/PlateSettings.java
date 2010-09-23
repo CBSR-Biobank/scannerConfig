@@ -55,9 +55,12 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     private Label statusLabel;
 
+    private boolean internalUpdate;
+
     public PlateSettings(int plateId) {
         super(GRID);
         this.plateId = plateId;
+        internalUpdate = false;
 
         setPreferenceStore(ScannerConfigPlugin.getDefault()
             .getPreferenceStore());
@@ -197,8 +200,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             textControls[count].addModifyListener(new ModifyListener() {
                 @Override
                 public void modifyText(ModifyEvent e) {
-                    PlateSettings.this.notifyChangeListener(
-                        PlateSettingsListener.TEXT_CHANGE, 0);
+                    notifyChangeListener(PlateSettingsListener.TEXT_CHANGE, 0);
                 }
 
             });
@@ -248,6 +250,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     @Override
     public void sizeChanged() {
+        internalUpdate = true;
         statusLabel.setText("Align the green grid with the barcodes");
         PlateGrid<Double> r = plateGridWidget.getConvertedPlateRegion();
 
@@ -261,6 +264,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         textControls[4].setText(String.valueOf(r.getGapX()));
         textControls[5].setText(String.valueOf(r.getGapY()));
         orientation = r.getOrientation();
+        internalUpdate = false;
     }
 
     private String formatInput(String s) {
@@ -284,40 +288,20 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         return Double.parseDouble(formatInput(textControls[1].getText()));
     }
 
-    public void setTop(double top) {
-        textControls[1].setText(String.valueOf(top));
-    }
-
     public double getRight() {
         return Double.parseDouble(formatInput(textControls[2].getText()));
-    }
-
-    public void setRight(double right) {
-        textControls[2].setText(String.valueOf(right));
     }
 
     public double getBottom() {
         return Double.parseDouble(formatInput(textControls[3].getText()));
     }
 
-    public void setBottom(double bottom) {
-        textControls[3].setText(String.valueOf(bottom));
-    }
-
     public double getGapX() {
         return Double.parseDouble(formatInput(textControls[4].getText()));
     }
 
-    public void setGapX(double gapX) {
-        textControls[4].setText(String.valueOf(gapX));
-    }
-
     public double getGapY() {
         return Double.parseDouble(formatInput(textControls[5].getText()));
-    }
-
-    public void setGapY(double gapY) {
-        textControls[5].setText(String.valueOf(gapY));
     }
 
     public Orientation getOrientation() {
@@ -330,6 +314,16 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     public boolean isEnabled() {
         return isEnabled;
+    }
+
+    public double getWidth() {
+        return Double.parseDouble(textControls[2].getText())
+            - Double.parseDouble(textControls[0].getText());
+    }
+
+    public double getHeight() {
+        return Double.parseDouble(textControls[3].getText())
+            - Double.parseDouble(textControls[1].getText());
     }
 
     private void setEnabled(boolean enabled) {
@@ -361,6 +355,9 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     }
 
     private void notifyChangeListener(final int message, final int detail) {
+        if (internalUpdate)
+            return;
+
         Object[] listeners = changeListeners.getListeners();
         for (int i = 0; i < listeners.length; ++i) {
             final PlateSettingsListener l =
@@ -368,7 +365,6 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             SafeRunnable.run(new SafeRunnable() {
                 @Override
                 public void run() {
-
                     Event e = new Event();
                     e.type = message;
                     e.detail = detail;

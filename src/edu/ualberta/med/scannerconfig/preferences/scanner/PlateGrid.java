@@ -10,21 +10,21 @@ public class PlateGrid<T extends Number> {
         LANDSCAPE, PORTRAIT
     };
 
-    private String name;
+    protected String name;
 
-    private T left;
+    protected T left;
 
-    private T top;
+    protected T top;
 
-    private T width;
+    protected T width;
 
-    private T height;
+    protected T height;
 
-    private T gapX;
+    protected T gapX;
 
-    private T gapY;
+    protected T gapY;
 
-    private Orientation orientation;
+    protected Orientation orientation;
 
     public PlateGrid() {
         left = top = width = height = gapX = gapY = null;
@@ -93,16 +93,34 @@ public class PlateGrid<T extends Number> {
         return gapX;
     }
 
+    @SuppressWarnings("unchecked")
     public void setGapX(T gapX) {
-        this.gapX = gapX;
+        if (gapX instanceof Integer) {
+            int value = gapX.intValue();
+            int maxCellWidth = width.intValue() / 12;
+            if ((value >= 0) && (value <= maxCellWidth)) {
+                this.gapX = (T) new Integer(value);
+            }
+        } else {
+            this.gapX = gapX;
+        }
     }
 
     public T getGapY() {
         return gapY;
     }
 
+    @SuppressWarnings("unchecked")
     public void setGapY(T gapY) {
-        this.gapY = gapY;
+        if (gapX instanceof Integer) {
+            int value = gapY.intValue();
+            int maxCellWidth = height.intValue() / 8;
+            if ((value >= 0) && (value <= maxCellWidth)) {
+                this.gapY = (T) new Integer(value);
+            }
+        } else {
+            this.gapY = gapY;
+        }
     }
 
     public Orientation getOrientation() {

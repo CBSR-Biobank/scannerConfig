@@ -237,9 +237,14 @@ public class PlateGridWidget implements PlateImageListener,
         if (!haveImage)
             return;
 
+        int delta = 1;
+        if (event.count < 0) {
+            delta = -1;
+        }
+
         if (event.type == SWT.MouseWheel) {
-            plateGrid.setGapX(plateGrid.getGapX() + event.count / 10);
-            plateGrid.setGapY(plateGrid.getGapY() + event.count / 10);
+            plateGrid.setGapX(plateGrid.getGapX() + delta);
+            plateGrid.setGapY(plateGrid.getGapY() + delta);
             canvas.redraw();
             notifyChangeListener();
         }
@@ -256,6 +261,7 @@ public class PlateGridWidget implements PlateImageListener,
     public void controlResized(ControlEvent e) {
         if (!haveImage)
             return;
+        resizePlateGrid();
         canvas.redraw();
     }
 
@@ -336,8 +342,6 @@ public class PlateGridWidget implements PlateImageListener,
         imageGC = new GC(imageBuffer);
         imageGC.drawImage(plateImage, 0, 0, imageRect.width, imageRect.height,
             0, 0, canvas.getBounds().width, canvas.getBounds().height);
-
-        resizePlateGrid();
 
         imageGC.setForeground(new Color(canvas.getDisplay(), 255, 0, 0));
 
@@ -471,7 +475,6 @@ public class PlateGridWidget implements PlateImageListener,
         result.setGapX(plateGrid.getGapX() * widthFactor);
         result.setGapY(plateGrid.getGapY() * heightFactor);
         result.setOrientation(plateGrid.getOrientation());
-        System.out.println("plate grid: " + result);
         return result;
     }
 
