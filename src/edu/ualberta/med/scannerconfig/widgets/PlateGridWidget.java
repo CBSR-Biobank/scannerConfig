@@ -369,21 +369,14 @@ public class PlateGridWidget implements PlateImageListener,
     }
 
     private void drawGrid(GC gc) {
-        int rows, cols;
-        Orientation orientation = plateGrid.getOrientation();
-
-        if (orientation == Orientation.LANDSCAPE) {
-            rows = PlateGrid.MAX_ROWS;
-            cols = PlateGrid.MAX_COLS;
-        } else {
-            rows = PlateGrid.MAX_COLS;
-            cols = PlateGrid.MAX_ROWS;
-        }
-
+        Assert.isNotNull(plateGrid);
         Rectangle gridRect =
             new Rectangle(plateGrid.getLeft(), plateGrid.getTop(),
                 plateGrid.getWidth(), plateGrid.getHeight());
 
+        int rows = plateGrid.getMaxRows();
+        int cols = plateGrid.getMaxCols();
+        Orientation orientation = plateGrid.getOrientation();
         double cellWidth = gridRect.width / (double) cols;
         double cellHeight = gridRect.height / (double) rows;
         double gapX = plateGrid.getGapX();

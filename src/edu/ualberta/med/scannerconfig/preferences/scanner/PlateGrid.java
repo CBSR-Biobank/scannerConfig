@@ -140,4 +140,19 @@ public class PlateGrid<T extends Number> {
         return "left/" + left + " top/" + top + " width/" + width + " height/"
             + height + " gapX/" + gapX + " gapY/" + gapY;
     }
+
+    public int getMaxRows() {
+        if (orientation == Orientation.LANDSCAPE) {
+            return PlateGrid.MAX_ROWS;
+        }
+        return PlateGrid.MAX_COLS;
+    }
+
+    public int getMaxCols() {
+        if (orientation == Orientation.LANDSCAPE) {
+            return PlateGrid.MAX_COLS;
+        }
+        return PlateGrid.MAX_ROWS;
+
+    }
 }

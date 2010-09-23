@@ -4,7 +4,6 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
@@ -214,17 +213,16 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                     { "Landscape", "Landscape" }, { "Portrait", "Portrait" } },
                 getFieldEditorParent(), true);
         addField(orientationFieldEditor);
-        orientationFieldEditor
-            .setPropertyChangeListener(new IPropertyChangeListener() {
+    }
 
-                @Override
-                public void propertyChange(PropertyChangeEvent event) {
-                    PlateSettings.this.notifyChangeListener(
-                        PlateSettingsListener.ORIENTATION, event.getNewValue()
-                            .equals("Portrait") ? 1 : 0);
-
-                }
-            });
+    @Override
+    public void propertyChange(PropertyChangeEvent event) {
+        super.propertyChange(event);
+        if (event.getSource() == orientationFieldEditor) {
+            System.out.println("here");
+            notifyChangeListener(PlateSettingsListener.ORIENTATION, event
+                .getNewValue().equals("Portrait") ? 1 : 0);
+        }
     }
 
     /* create canvas and plate widget */
