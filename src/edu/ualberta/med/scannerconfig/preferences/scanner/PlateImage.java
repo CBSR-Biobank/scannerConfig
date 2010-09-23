@@ -24,8 +24,16 @@ public class PlateImage {
 
     private Image scannedImage;
 
+    private boolean debug = true;
+
     protected PlateImage() {
-        cleanAll();
+        if (debug) {
+            scannedImage =
+                new Image(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell().getDisplay(), PlateImage.PALLET_IMAGE_FILE);
+        } else {
+            cleanAll();
+        }
     }
 
     public static PlateImage instance() {
@@ -88,6 +96,9 @@ public class PlateImage {
 
     public void addScannedImageChangeListener(PlateImageListener listener) {
         listenerList.add(listener);
+        if (debug) {
+            notifyListeners(true);
+        }
     }
 
     public void removeScannedImageChangeListener(PlateImageListener listener) {

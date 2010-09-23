@@ -58,8 +58,6 @@ public class PlateGridWidget implements PlateImageListener,
 
     private DragMode dragMode = DragMode.NONE;
 
-    private double imgAspectRatio;
-
     private boolean haveImage;
 
     private PlateGrid plateGrid = null;
@@ -82,6 +80,7 @@ public class PlateGridWidget implements PlateImageListener,
         canvas.addPaintListener(this);
 
         setEnabled();
+
         haveImage = false;
 
         plateSettings.addPlateBaseChangeListener(this);
@@ -94,7 +93,7 @@ public class PlateGridWidget implements PlateImageListener,
         if (plateGrid == null) {
             plateGrid = new PlateGrid();
         }
-        resizePlateGrid();
+        resizePlateGridAndRedraw();
         setEnabled();
     }
 
@@ -106,21 +105,20 @@ public class PlateGridWidget implements PlateImageListener,
 
     @Override
     public void plateGridChange(Event e) {
-
         switch (e.type) {
-        case PlateSettingsListener.PLATE_BASE_ORIENTATION:
+        case PlateSettingsListener.ORIENTATION:
             setPlateOrientation(e.detail);
             break;
 
-        case PlateSettingsListener.PLATE_BASE_TEXT_CHANGE:
-            resizePlateGrid();
+        case PlateSettingsListener.TEXT_CHANGE:
+            resizePlateGridAndRedraw();
             break;
 
-        case PlateSettingsListener.PLATE_BASE_ENABLED:
+        case PlateSettingsListener.ENABLED:
             setEnabled();
             break;
 
-        case PlateSettingsListener.PLATE_BASE_REFRESH:
+        case PlateSettingsListener.REFRESH:
             setEnabled();
             break;
 
@@ -133,6 +131,8 @@ public class PlateGridWidget implements PlateImageListener,
     public void mouseMove(MouseEvent e) {
         if (!haveImage)
             return;
+
+        Assert.isNotNull(plateGrid);
 
         if (plateGrid.getRectangle().contains(e.x, e.y))
             canvas.setFocus();
@@ -192,47 +192,38 @@ public class PlateGridWidget implements PlateImageListener,
          * checks for mouse-rectangle intersection to check for moving and
          * resizing of the widget.
          */
-        if (plateGrid == null)
-            return;
 
-        if (plateGrid.getRectangle().contains(e.x, e.y)) {
+        Rectangle plateRect = plateGrid.getRectangle();
+
+        if (plateRect.contains(e.x, e.y)) {
             canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_HAND));
             dragMode = DragMode.MOVE;
-        } else if (new Rectangle(plateGrid.getRectangle().x
-            + plateGrid.getRectangle().width, plateGrid.getRectangle().y
-            + plateGrid.getRectangle().height, 15, 15).contains(e.x, e.y)) {
+        } else if (new Rectangle(plateRect.x + plateRect.width, plateRect.y
+            + plateRect.height, 15, 15).contains(e.x, e.y)) {
             canvas.setCursor(new Cursor(canvas.getDisplay(),
                 SWT.CURSOR_SIZENWSE));
             dragMode = DragMode.RESIZE_BOTTOM_RIGHT;
-        } else if (new Rectangle(plateGrid.getRectangle().x - 10,
-            plateGrid.getRectangle().y - 10, 15, 15).contains(e.x, e.y)) {
+        } else if (new Rectangle(plateRect.x - 10, plateRect.y - 10, 15, 15)
+            .contains(e.x, e.y)) {
             canvas.setCursor(new Cursor(canvas.getDisplay(),
                 SWT.CURSOR_SIZENWSE));
             dragMode = DragMode.RESIZE_TOP_LEFT;
-
-        }
-
-        else if (new Rectangle(plateGrid.getRectangle().x
-            + plateGrid.getRectangle().width, plateGrid.getRectangle().y, 10,
-            plateGrid.getRectangle().height).contains(e.x, e.y)) {
+        } else if (new Rectangle(plateRect.x + plateRect.width, plateRect.y,
+            10, plateRect.height).contains(e.x, e.y)) {
             canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZEE));
             dragMode = DragMode.RESIZE_HORIZONTAL_RIGHT;
-        } else if (new Rectangle(plateGrid.getRectangle().x - 10,
-            plateGrid.getRectangle().y, 10, plateGrid.getRectangle().height)
-            .contains(e.x, e.y)) {
+        } else if (new Rectangle(plateRect.x - 10, plateRect.y, 10,
+            plateRect.height).contains(e.x, e.y)) {
             canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZEW));
             dragMode = DragMode.RESIZE_HORIZONTAL_LEFT;
-        } else if (new Rectangle(plateGrid.getRectangle().x,
-            plateGrid.getRectangle().y - 10, plateGrid.getRectangle().width, 10)
-            .contains(e.x, e.y)) {
+        } else if (new Rectangle(plateRect.x, plateRect.y - 10,
+            plateRect.width, 10).contains(e.x, e.y)) {
             canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZEN));
             dragMode = DragMode.RESIZE_VERTICAL_TOP;
-        } else if (new Rectangle(plateGrid.getRectangle().x,
-            plateGrid.getRectangle().y + plateGrid.getRectangle().height,
-            plateGrid.getRectangle().width, 10).contains(e.x, e.y)) {
+        } else if (new Rectangle(plateRect.x, plateRect.y + plateRect.height,
+            plateRect.width, 10).contains(e.x, e.y)) {
             canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZES));
             dragMode = DragMode.RESIZE_VERTICAL_BOTTOM;
-
         } else {
             dragMode = DragMode.NONE;
         }
@@ -260,14 +251,14 @@ public class PlateGridWidget implements PlateImageListener,
     public void controlMoved(ControlEvent e) {
         if (!haveImage)
             return;
-        resizePlateGrid();
+        resizePlateGridAndRedraw();
     }
 
     @Override
     public void controlResized(ControlEvent e) {
         if (!haveImage)
             return;
-        resizePlateGrid();
+        resizePlateGridAndRedraw();
     }
 
     @Override
@@ -340,17 +331,7 @@ public class PlateGridWidget implements PlateImageListener,
         }
 
         Image image = PlateImage.instance().getScannedImage();
-        if (image == null)
-            return;
-
-        Rectangle imgBounds = image.getBounds();
-        Point canvasSize = canvas.getSize();
-
-        imgAspectRatio = (double) imgBounds.width / (double) imgBounds.height;
-        if (imgAspectRatio > 1)
-            canvasSize.y = (int) (canvasSize.x / imgAspectRatio);
-        else
-            canvasSize.x = (int) (canvasSize.y * imgAspectRatio);
+        Assert.isNotNull(image);
 
         Image plateImage = PlateImage.instance().getScannedImage();
         Rectangle plateRect = plateImage.getBounds();
@@ -360,13 +341,12 @@ public class PlateGridWidget implements PlateImageListener,
             0, 0, canvas.getBounds().width, canvas.getBounds().height);
 
         imageGC.setForeground(new Color(canvas.getDisplay(), 255, 0, 0));
-
         imageGC.drawRectangle(plateGrid.getRectangle());
 
         drawGrid(imageGC);
-
         imageGC.setForeground(new Color(canvas.getDisplay(), 0, 0, 255));
 
+        // create drag circles
         int left = plateGrid.getLeft() - 1;
         int top = plateGrid.getTop() - 1;
         int right = plateGrid.getLeft() + plateGrid.getWidth() - 3;
@@ -456,6 +436,10 @@ public class PlateGridWidget implements PlateImageListener,
             - plateGrid.getLeft());
         plateGrid.setHeight((int) (plateSettings.getBottom() * heightFactor)
             - plateGrid.getTop());
+    }
+
+    public void resizePlateGridAndRedraw() {
+        resizePlateGrid();
         canvas.redraw();
     }
 

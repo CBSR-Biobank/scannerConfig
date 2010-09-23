@@ -141,7 +141,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 PlateSettings.this.notifyChangeListener(
-                    PlateSettingsListener.PLATE_BASE_REFRESH, 0);
+                    PlateSettingsListener.REFRESH, 0);
             }
         });
 
@@ -196,7 +196,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 @Override
                 public void modifyText(ModifyEvent e) {
                     PlateSettings.this.notifyChangeListener(
-                        PlateSettingsListener.PLATE_BASE_TEXT_CHANGE, 0);
+                        PlateSettingsListener.TEXT_CHANGE, 0);
                 }
 
             });
@@ -215,7 +215,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 @Override
                 public void propertyChange(PropertyChangeEvent event) {
                     PlateSettings.this.notifyChangeListener(
-                        PlateSettingsListener.PLATE_BASE_ORIENTATION, event
+                        PlateSettingsListener.ORIENTATION, event
                             .getNewValue().equals("Portrait") ? 1 : 0);
 
                 }
@@ -313,7 +313,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             statusLabel.setText("Plate is not enabled");
         }
 
-        notifyChangeListener(PlateSettingsListener.PLATE_BASE_ENABLED,
+        notifyChangeListener(PlateSettingsListener.ENABLED,
             enabled ? 1 : 0);
 
     }
