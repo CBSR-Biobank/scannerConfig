@@ -343,23 +343,24 @@ public class PlateGridWidget implements PlateImageListener,
         imageGC.drawImage(plateImage, 0, 0, imageRect.width, imageRect.height,
             0, 0, canvas.getBounds().width, canvas.getBounds().height);
 
-        imageGC.setForeground(new Color(canvas.getDisplay(), 255, 0, 0));
+        drawGrid(imageGC);
 
+        // draw plate rect minus 1 pixel on each side so that it acts as a
+        // border for the grid
         Rectangle plateRect =
-            new Rectangle(plateGrid.getLeft(), plateGrid.getTop(),
-                plateGrid.getWidth(), plateGrid.getHeight());
+            new Rectangle(plateGrid.getLeft() - 1, plateGrid.getTop() - 1,
+                plateGrid.getWidth() + 2, plateGrid.getHeight() + 2);
+        imageGC.setForeground(new Color(canvas.getDisplay(), 255, 0, 0));
         imageGC.drawRectangle(plateRect);
 
-        drawGrid(imageGC);
-        imageGC.setForeground(new Color(canvas.getDisplay(), 0, 0, 255));
-
         // create drag circles
-        int left = plateGrid.getLeft() - 1;
-        int top = plateGrid.getTop() - 1;
-        int right = plateGrid.getLeft() + plateGrid.getWidth() - 3;
-        int bottom = plateGrid.getTop() + plateGrid.getHeight() - 3;
+        int left = plateRect.x;
+        int top = plateRect.y;
+        int right = plateRect.x + plateRect.width - 3;
+        int bottom = plateRect.y + plateRect.height - 3;
 
-        imageGC.drawOval(left, top, 1, 1);
+        imageGC.setForeground(new Color(canvas.getDisplay(), 0, 0, 255));
+        imageGC.drawOval(left, top, 6, 6);
         imageGC.drawOval(right, bottom, 6, 6);
 
         e.gc.drawImage(imageBuffer, 0, 0);
@@ -383,10 +384,12 @@ public class PlateGridWidget implements PlateImageListener,
             new Rectangle(plateGrid.getLeft(), plateGrid.getTop(),
                 plateGrid.getWidth(), plateGrid.getHeight());
 
-        double gapX = plateGrid.getGapX();
-        double gapY = plateGrid.getGapY();
         double cellWidth = gridRect.width / (double) cols;
         double cellHeight = gridRect.height / (double) rows;
+        double gapX = plateGrid.getGapX();
+        double gapY = plateGrid.getGapY();
+        double doubleGapX = 2.0 * gapX;
+        double doubleGapY = 2.0 * gapY;
 
         Rectangle cellRect;
         Color foregroundColor = new Color(canvas.getDisplay(), 0, 255, 0);
@@ -400,8 +403,8 @@ public class PlateGridWidget implements PlateImageListener,
             for (int col = 0; col < cols; col++, cx += cellWidth) {
                 cellRect =
                     new Rectangle((int) (cx + gapX), (int) (cy + gapY),
-                        (int) (cellWidth - 2 * gapX),
-                        (int) (cellHeight - 2 * gapY));
+                        (int) (cellWidth - doubleGapX),
+                        (int) (cellHeight - doubleGapY));
 
                 gc.drawRectangle(cellRect);
 
