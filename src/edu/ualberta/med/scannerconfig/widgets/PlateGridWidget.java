@@ -372,54 +372,47 @@ public class PlateGridWidget implements PlateImageListener,
         Orientation orientation = plateGrid.getOrientation();
 
         if (orientation == Orientation.LANDSCAPE) {
-            cols = 12;
-            rows = 8;
+            rows = PlateGrid.MAX_ROWS;
+            cols = PlateGrid.MAX_COLS;
         } else {
-            cols = 8;
-            rows = 12;
+            rows = PlateGrid.MAX_COLS;
+            cols = PlateGrid.MAX_ROWS;
         }
 
         Rectangle gridRect =
             new Rectangle(plateGrid.getLeft(), plateGrid.getTop(),
                 plateGrid.getWidth(), plateGrid.getHeight());
 
-        double w = gridRect.width / cols;
-        double h = gridRect.height / rows;
-
-        double ox = gridRect.x;
-        double oy = gridRect.y;
-
         double gapX = plateGrid.getGapX();
         double gapY = plateGrid.getGapY();
+        double cellWidth = gridRect.width / (double) cols;
+        double cellHeight = gridRect.height / (double) rows;
 
-        double cx, cy;
         Rectangle cellRect;
-        Color gridColor = new Color(canvas.getDisplay(), 0, 255, 0);
-        gc.setForeground(gridColor);
+        Color foregroundColor = new Color(canvas.getDisplay(), 0, 255, 0);
+        Color a1BackgroundColor = new Color(canvas.getDisplay(), 0, 255, 255);
+        gc.setForeground(foregroundColor);
 
-        for (int row = 0; row < rows; row++) {
-            cy = oy + row * h + h / 2.0;
+        double cx, cy = gridRect.y;
+        for (int row = 0; row < rows; row++, cy += cellHeight) {
+            cx = gridRect.x;
 
-            for (int col = 0; col < cols; col++) {
-                cx = ox + col * w + w / 2.0;
-
+            for (int col = 0; col < cols; col++, cx += cellWidth) {
                 cellRect =
-                    new Rectangle((int) (cx - w / 2.0 + gapX / 2.0), (int) (cy
-                        - h / 2.0 + gapY / 2.0), (int) (w - gapX / 1.0),
-                        (int) (h - gapY / 1.0));
+                    new Rectangle((int) (cx + gapX), (int) (cy + gapY),
+                        (int) (cellWidth - 2 * gapX),
+                        (int) (cellHeight - 2 * gapY));
 
                 gc.drawRectangle(cellRect);
 
                 if (orientation == Orientation.LANDSCAPE) {
                     if ((col == cols - 1) && (row == 0)) {
-                        gc.setBackground(new Color(canvas.getDisplay(), 0, 255,
-                            255));
+                        gc.setBackground(a1BackgroundColor);
                         gc.fillRectangle(cellRect);
                     }
                 } else {
                     if ((col == 0) && (row == 0)) {
-                        gc.setBackground(new Color(canvas.getDisplay(), 0, 255,
-                            255));
+                        gc.setBackground(a1BackgroundColor);
                         gc.fillRectangle(cellRect);
                     }
                 }
