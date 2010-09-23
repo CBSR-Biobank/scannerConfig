@@ -60,7 +60,7 @@ public class PlateGridWidget implements PlateImageListener,
 
     private boolean haveImage;
 
-    private PlateGrid plateGrid = null;
+    private PlateGrid<Integer> plateGrid = null;
 
     public PlateGridWidget(PlateSettings plateSettings, Canvas c) {
 
@@ -91,9 +91,9 @@ public class PlateGridWidget implements PlateImageListener,
     public void plateImageNew() {
         haveImage = true;
         if (plateGrid == null) {
-            plateGrid = new PlateGrid();
+            plateGrid = new PlateGrid<Integer>();
         }
-        resizePlateGridAndRedraw();
+        canvas.redraw();
         setEnabled();
     }
 
@@ -111,7 +111,7 @@ public class PlateGridWidget implements PlateImageListener,
             break;
 
         case PlateSettingsListener.TEXT_CHANGE:
-            resizePlateGridAndRedraw();
+            canvas.redraw();
             break;
 
         case PlateSettingsListener.ENABLED:
@@ -134,7 +134,11 @@ public class PlateGridWidget implements PlateImageListener,
 
         Assert.isNotNull(plateGrid);
 
-        if (plateGrid.getRectangle().contains(e.x, e.y))
+        Rectangle plateRect =
+            new Rectangle(plateGrid.getLeft(), plateGrid.getTop(),
+                plateGrid.getWidth(), plateGrid.getHeight());
+
+        if (plateRect.contains(e.x, e.y))
             canvas.setFocus();
 
         if (drag) {
@@ -193,8 +197,6 @@ public class PlateGridWidget implements PlateImageListener,
          * resizing of the widget.
          */
 
-        Rectangle plateRect = plateGrid.getRectangle();
-
         if (plateRect.contains(e.x, e.y)) {
             canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_HAND));
             dragMode = DragMode.MOVE;
@@ -235,15 +237,11 @@ public class PlateGridWidget implements PlateImageListener,
         if (!haveImage)
             return;
 
-        switch (event.type) {
-        case SWT.MouseWheel:
+        if (event.type == SWT.MouseWheel) {
             plateGrid.setGapX(plateGrid.getGapX() + event.count / 10);
             plateGrid.setGapY(plateGrid.getGapY() + event.count / 10);
-
             canvas.redraw();
             notifyChangeListener();
-
-            break;
         }
     }
 
@@ -251,14 +249,14 @@ public class PlateGridWidget implements PlateImageListener,
     public void controlMoved(ControlEvent e) {
         if (!haveImage)
             return;
-        resizePlateGridAndRedraw();
+        canvas.redraw();
     }
 
     @Override
     public void controlResized(ControlEvent e) {
         if (!haveImage)
             return;
-        resizePlateGridAndRedraw();
+        canvas.redraw();
     }
 
     @Override
@@ -271,9 +269,8 @@ public class PlateGridWidget implements PlateImageListener,
             startDragMousePt.y = e.y;
             startDragMousePt.x = e.x;
             startGridRect =
-                new Rectangle(plateGrid.getRectangle().x,
-                    plateGrid.getRectangle().y, plateGrid.getRectangle().width,
-                    plateGrid.getRectangle().height);
+                new Rectangle(plateGrid.getLeft(), plateGrid.getTop(),
+                    plateGrid.getWidth(), plateGrid.getHeight());
 
         }
         canvas.redraw();
@@ -324,7 +321,7 @@ public class PlateGridWidget implements PlateImageListener,
 
     @Override
     public void paintControl(PaintEvent e) {
-        if (!haveImage) {
+        if (!haveImage || (plateGrid == null)) {
             e.gc.setForeground(new Color(canvas.getDisplay(), 255, 255, 255));
             e.gc.fillRectangle(0, 0, canvas.getSize().x, canvas.getSize().y);
             return;
@@ -334,14 +331,20 @@ public class PlateGridWidget implements PlateImageListener,
         Assert.isNotNull(image);
 
         Image plateImage = PlateImage.instance().getScannedImage();
-        Rectangle plateRect = plateImage.getBounds();
+        Rectangle imageRect = plateImage.getBounds();
         imageBuffer = new Image(canvas.getDisplay(), canvas.getBounds());
         imageGC = new GC(imageBuffer);
-        imageGC.drawImage(plateImage, 0, 0, plateRect.width, plateRect.height,
+        imageGC.drawImage(plateImage, 0, 0, imageRect.width, imageRect.height,
             0, 0, canvas.getBounds().width, canvas.getBounds().height);
 
+        resizePlateGrid();
+
         imageGC.setForeground(new Color(canvas.getDisplay(), 255, 0, 0));
-        imageGC.drawRectangle(plateGrid.getRectangle());
+
+        Rectangle plateRect =
+            new Rectangle(plateGrid.getLeft(), plateGrid.getTop(),
+                plateGrid.getWidth(), plateGrid.getHeight());
+        imageGC.drawRectangle(plateRect);
 
         drawGrid(imageGC);
         imageGC.setForeground(new Color(canvas.getDisplay(), 0, 0, 255));
@@ -372,8 +375,9 @@ public class PlateGridWidget implements PlateImageListener,
             rows = 12;
         }
 
-        resizePlateGrid();
-        Rectangle gridRect = plateGrid.getRectangle();
+        Rectangle gridRect =
+            new Rectangle(plateGrid.getLeft(), plateGrid.getTop(),
+                plateGrid.getWidth(), plateGrid.getHeight());
 
         double w = gridRect.width / cols;
         double h = gridRect.height / rows;
@@ -384,18 +388,22 @@ public class PlateGridWidget implements PlateImageListener,
         double gapX = plateGrid.getGapX();
         double gapY = plateGrid.getGapY();
 
+        double cx, cy;
+        Rectangle cellRect;
+        Color gridColor = new Color(canvas.getDisplay(), 0, 255, 0);
+        gc.setForeground(gridColor);
+
         for (int row = 0; row < rows; row++) {
+            cy = oy + row * h + h / 2.0;
+
             for (int col = 0; col < cols; col++) {
+                cx = ox + col * w + w / 2.0;
 
-                double cx = ox + col * w + w / 2.0;
-                double cy = oy + row * h + h / 2.0;
-
-                Rectangle cellRect =
+                cellRect =
                     new Rectangle((int) (cx - w / 2.0 + gapX / 2.0), (int) (cy
                         - h / 2.0 + gapY / 2.0), (int) (w - gapX / 1.0),
                         (int) (h - gapY / 1.0));
 
-                gc.setForeground(new Color(canvas.getDisplay(), 0, 255, 0));
                 gc.drawRectangle(cellRect);
 
                 if (orientation == Orientation.LANDSCAPE) {
@@ -416,7 +424,7 @@ public class PlateGridWidget implements PlateImageListener,
         }
     }
 
-    public void resizePlateGrid() {
+    private void resizePlateGrid() {
         if (!haveImage)
             return;
 
@@ -436,15 +444,35 @@ public class PlateGridWidget implements PlateImageListener,
             - plateGrid.getLeft());
         plateGrid.setHeight((int) (plateSettings.getBottom() * heightFactor)
             - plateGrid.getTop());
+        plateGrid.setGapX((int) (plateSettings.getGapX() * widthFactor));
+        plateGrid.setGapY((int) (plateSettings.getGapY() * widthFactor));
     }
 
-    public void resizePlateGridAndRedraw() {
-        resizePlateGrid();
-        canvas.redraw();
-    }
+    /**
+     * Converts the plate grid parameters to inches.
+     * 
+     * @return
+     */
+    public PlateGrid<Double> getConvertedPlateRegion() {
+        PlateGrid<Double> result = new PlateGrid<Double>();
+        Rectangle imgBounds =
+            PlateImage.instance().getScannedImage().getBounds();
+        Point canvasSize = canvas.getSize();
 
-    public PlateGrid getPlateRegion() {
-        return plateGrid;
+        double widthFactor =
+            imgBounds.width / PlateImage.PLATE_IMAGE_DPI / canvasSize.x;
+        double heightFactor =
+            imgBounds.height / PlateImage.PLATE_IMAGE_DPI / canvasSize.y;
+
+        result.setLeft(plateGrid.getLeft() * widthFactor);
+        result.setTop(plateGrid.getTop() * heightFactor);
+        result.setWidth(plateGrid.getWidth() * widthFactor);
+        result.setHeight(plateGrid.getHeight() * heightFactor);
+        result.setGapX(plateGrid.getGapX() * widthFactor);
+        result.setGapY(plateGrid.getGapY() * heightFactor);
+        result.setOrientation(plateGrid.getOrientation());
+        System.out.println("plate grid: " + result);
+        return result;
     }
 
     private void setEnabled() {

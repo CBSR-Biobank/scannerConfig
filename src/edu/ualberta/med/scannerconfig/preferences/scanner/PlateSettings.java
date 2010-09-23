@@ -158,9 +158,6 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     @Override
     protected void createFieldEditors() {
         DoubleFieldEditor fe;
-        String[] labels =
-            { "Left", "Top", "Right", "Bottom", "Cell Gap Horizontal",
-                "Cell Gap Vertical" };
 
         enabledFieldEditor =
             new BooleanFieldEditor(
@@ -183,16 +180,21 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         String[] prefsArr =
             PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
 
-        textControls = new Text[6];
+        String[] labels =
+            { "Left", "Top", "Right", "Bottom", "Cell Gap Horizontal",
+                "Cell Gap Vertical" };
 
-        for (int i = 0; i < 6; ++i) {
+        textControls = new Text[labels.length];
+
+        int count = 0;
+        for (String label : labels) {
             fe =
-                new DoubleFieldEditor(prefsArr[i], labels[i] + ":",
+                new DoubleFieldEditor(prefsArr[count], label + ":",
                     getFieldEditorParent());
             fe.setValidRange(0, 20);
             addField(fe);
-            textControls[i] = fe.getTextControl(getFieldEditorParent());
-            textControls[i].addModifyListener(new ModifyListener() {
+            textControls[count] = fe.getTextControl(getFieldEditorParent());
+            textControls[count].addModifyListener(new ModifyListener() {
                 @Override
                 public void modifyText(ModifyEvent e) {
                     PlateSettings.this.notifyChangeListener(
@@ -200,6 +202,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 }
 
             });
+            ++count;
         }
 
         orientationFieldEditor =
@@ -215,8 +218,8 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 @Override
                 public void propertyChange(PropertyChangeEvent event) {
                     PlateSettings.this.notifyChangeListener(
-                        PlateSettingsListener.ORIENTATION, event
-                            .getNewValue().equals("Portrait") ? 1 : 0);
+                        PlateSettingsListener.ORIENTATION, event.getNewValue()
+                            .equals("Portrait") ? 1 : 0);
 
                 }
             });
@@ -246,14 +249,18 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     @Override
     public void sizeChanged() {
         statusLabel.setText("Align the green grid with the barcodes");
-        PlateGrid r = plateGridWidget.getPlateRegion();
-        textControls[0].setText(String.valueOf(r.left));
-        textControls[1].setText(String.valueOf(r.top));
-        textControls[2].setText(String.valueOf(r.width));
-        textControls[3].setText(String.valueOf(r.height));
-        textControls[4].setText(String.valueOf(r.gapX));
-        textControls[5].setText(String.valueOf(r.gapY));
-        orientation = r.orientation;
+        PlateGrid<Double> r = plateGridWidget.getConvertedPlateRegion();
+
+        double left = r.getLeft();
+        double top = r.getTop();
+
+        textControls[0].setText(String.valueOf(left));
+        textControls[1].setText(String.valueOf(top));
+        textControls[2].setText(String.valueOf(left + r.getWidth()));
+        textControls[3].setText(String.valueOf(top + r.getHeight()));
+        textControls[4].setText(String.valueOf(r.getGapX()));
+        textControls[5].setText(String.valueOf(r.getGapY()));
+        orientation = r.getOrientation();
     }
 
     private String formatInput(String s) {
@@ -269,28 +276,56 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         return Double.parseDouble(formatInput(textControls[0].getText()));
     }
 
+    public void setLeft(double left) {
+        textControls[0].setText(String.valueOf(left));
+    }
+
     public double getTop() {
         return Double.parseDouble(formatInput(textControls[1].getText()));
+    }
+
+    public void setTop(double top) {
+        textControls[1].setText(String.valueOf(top));
     }
 
     public double getRight() {
         return Double.parseDouble(formatInput(textControls[2].getText()));
     }
 
+    public void setRight(double right) {
+        textControls[2].setText(String.valueOf(right));
+    }
+
     public double getBottom() {
         return Double.parseDouble(formatInput(textControls[3].getText()));
+    }
+
+    public void setBottom(double bottom) {
+        textControls[3].setText(String.valueOf(bottom));
     }
 
     public double getGapX() {
         return Double.parseDouble(formatInput(textControls[4].getText()));
     }
 
+    public void setGapX(double gapX) {
+        textControls[4].setText(String.valueOf(gapX));
+    }
+
     public double getGapY() {
         return Double.parseDouble(formatInput(textControls[5].getText()));
     }
 
+    public void setGapY(double gapY) {
+        textControls[5].setText(String.valueOf(gapY));
+    }
+
     public Orientation getOrientation() {
         return orientation;
+    }
+
+    public void setOrientation(Orientation o) {
+        orientation = o;
     }
 
     public boolean isEnabled() {
@@ -313,8 +348,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             statusLabel.setText("Plate is not enabled");
         }
 
-        notifyChangeListener(PlateSettingsListener.ENABLED,
-            enabled ? 1 : 0);
+        notifyChangeListener(PlateSettingsListener.ENABLED, enabled ? 1 : 0);
 
     }
 

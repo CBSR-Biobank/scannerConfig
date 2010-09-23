@@ -1,49 +1,47 @@
 package edu.ualberta.med.scannerconfig.preferences.scanner;
 
-import org.eclipse.swt.graphics.Rectangle;
-
 /**
  * Tracks the grid's attributes in number of pixels for the currently scanned
  * plate image.
  * 
  */
-public class PlateGrid {
+public class PlateGrid<T extends Number> {
     public enum Orientation {
         LANDSCAPE, PORTRAIT
     };
 
-    public String name;
+    private String name;
 
-    public int left;
+    private T left;
 
-    public int top;
+    private T top;
 
-    public int width;
+    private T width;
 
-    public int height;
+    private T height;
 
-    public int gapX;
+    private T gapX;
 
-    public int gapY;
+    private T gapY;
 
-    public Orientation orientation;
+    private Orientation orientation;
 
     public PlateGrid() {
-        left = top = width = height = gapX = gapY = 0;
+        left = top = width = height = gapX = gapY = null;
         orientation = Orientation.LANDSCAPE;
     }
 
-    public PlateGrid(String name, int left, int top, int right, int bottom,
-        int gapX, int gapY, Orientation orientation) {
+    public PlateGrid(String name, T left, T top, T right, T bottom, T gapX,
+        T gapY, Orientation orientation) {
         set(name, left, top, right, bottom, gapX, gapY, orientation);
     }
 
-    public PlateGrid(PlateGrid region) {
+    public PlateGrid(PlateGrid<T> region) {
         set(region);
     }
 
-    public void set(String name, int left, int top, int right, int bottom,
-        int gapX, int gapY, Orientation orientation) {
+    public void set(String name, T left, T top, T right, T bottom, T gapX,
+        T gapY, Orientation orientation) {
         this.name = name;
         this.left = left;
         this.top = top;
@@ -54,61 +52,57 @@ public class PlateGrid {
         this.orientation = orientation;
     }
 
-    public void set(PlateGrid region) {
+    public void set(PlateGrid<T> region) {
         set(region.name, region.left, region.top, region.width, region.height,
             region.gapX, region.gapY, region.orientation);
     }
 
-    public int getLeft() {
+    public T getLeft() {
         return left;
     }
 
-    public void setLeft(int left) {
+    public void setLeft(T left) {
         this.left = left;
     }
 
-    public int getTop() {
+    public T getTop() {
         return top;
     }
 
-    public void setTop(int top) {
+    public void setTop(T top) {
         this.top = top;
     }
 
-    public int getWidth() {
+    public T getWidth() {
         return width;
     }
 
-    public void setWidth(int width) {
+    public void setWidth(T width) {
         this.width = width;
     }
 
-    public int getHeight() {
+    public T getHeight() {
         return height;
     }
 
-    public void setHeight(int height) {
+    public void setHeight(T height) {
         this.height = height;
     }
 
-    public int getGapX() {
+    public T getGapX() {
         return gapX;
     }
 
-    public void setGapX(int gapX) {
+    public void setGapX(T gapX) {
         this.gapX = gapX;
     }
 
-    public int getGapY() {
+    public T getGapY() {
         return gapY;
     }
 
-    public void setGapY(int gapY) {
+    public void setGapY(T gapY) {
         this.gapY = gapY;
-    }
-
-    public Rectangle getRectangle() {
-        return new Rectangle(left, top, width, height);
     }
 
     public Orientation getOrientation() {
