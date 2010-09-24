@@ -25,7 +25,6 @@ import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibWin32;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.profiles.ProfileManager;
 import edu.ualberta.med.scannerconfig.preferences.profiles.ProfileSettings;
-import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid.Orientation;
 import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
 
 /**
@@ -134,18 +133,12 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
     public static void scanImage(double left, double top, double right,
         double bottom, String filename) throws Exception {
-        int dpi =
-            getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.SCANNER_DPI);
-        int brightness =
-            getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.SCANNER_BRIGHTNESS);
-        int contrast =
-            getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.SCANNER_CONTRAST);
-        int debugLevel =
-            getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.DLL_DEBUG_LEVEL);
+        IPreferenceStore prefs = getDefault().getPreferenceStore();
+
+        int dpi = prefs.getInt(PreferenceConstants.SCANNER_DPI);
+        int brightness = prefs.getInt(PreferenceConstants.SCANNER_BRIGHTNESS);
+        int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
+        int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
         int res =
             ScanLibWin32.getInstance().slScanImage(debugLevel, dpi, brightness,
@@ -163,12 +156,12 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         String[] prefsArr =
             PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
-        IPreferenceStore store = getDefault().getPreferenceStore();
+        IPreferenceStore prefs = getDefault().getPreferenceStore();
 
         ScanRegion region =
-            new ScanRegion(store.getDouble(prefsArr[0]),
-                store.getDouble(prefsArr[1]), store.getDouble(prefsArr[2]),
-                store.getDouble(prefsArr[3]));
+            new ScanRegion(prefs.getDouble(prefsArr[0]),
+                prefs.getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]),
+                prefs.getDouble(prefsArr[3]));
 
         regionModifyIfScannerWia(region);
 
@@ -178,51 +171,35 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
     public static ScanCell[][] scan(int plateNumber, String profileName)
         throws Exception {
-        int dpi =
-            getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.SCANNER_DPI);
-        int brightness =
-            getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.SCANNER_BRIGHTNESS);
-        int contrast =
-            getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.SCANNER_CONTRAST);
-        int debugLevel =
-            getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.DLL_DEBUG_LEVEL);
-        int edgeThresh =
-            getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.LIBDMTX_EDGE_THRESH);
-        double scanGap =
-            getDefault().getPreferenceStore().getDouble(
-                PreferenceConstants.LIBDMTX_SCAN_GAP);
-        int squareDev =
-            getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.LIBDMTX_SQUARE_DEV);
-        int corrections =
-            getDefault().getPreferenceStore().getInt(
-                PreferenceConstants.LIBDMTX_CORRECTIONS);
+        IPreferenceStore prefs = getDefault().getPreferenceStore();
+
+        int dpi = prefs.getInt(PreferenceConstants.SCANNER_DPI);
+        int brightness = prefs.getInt(PreferenceConstants.SCANNER_BRIGHTNESS);
+        int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
+        int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
+        int edgeThresh = prefs.getInt(PreferenceConstants.LIBDMTX_EDGE_THRESH);
+        double scanGap = prefs.getDouble(PreferenceConstants.LIBDMTX_SCAN_GAP);
+        int squareDev = prefs.getInt(PreferenceConstants.LIBDMTX_SQUARE_DEV);
+        int corrections = prefs.getInt(PreferenceConstants.LIBDMTX_CORRECTIONS);
         double cellDistance =
-            getDefault().getPreferenceStore().getDouble(
-                PreferenceConstants.LIBDMTX_CELL_DISTANCE);
+            prefs.getDouble(PreferenceConstants.LIBDMTX_CELL_DISTANCE);
 
         String[] prefsArr =
             PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
-        IPreferenceStore store = getDefault().getPreferenceStore();
-
-        Orientation o =
-            store
-                .getBoolean(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1]) ? Orientation.PORTRAIT
-                : Orientation.LANDSCAPE;
-
         ScanRegion region =
-            new ScanRegion(store.getDouble(prefsArr[0]),
-                store.getDouble(prefsArr[1]), store.getDouble(prefsArr[2]),
-                store.getDouble(prefsArr[3]));
+            new ScanRegion(prefs.getDouble(prefsArr[0]),
+                prefs.getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]),
+                prefs.getDouble(prefsArr[3]));
 
-        double gapX = store.getDouble(prefsArr[4]);
-        double gapY = store.getDouble(prefsArr[5]);
+        double gapX = prefs.getDouble(prefsArr[4]);
+        double gapY = prefs.getDouble(prefsArr[5]);
+
+        int orientation =
+            prefs
+                .getString(
+                    PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1])
+                .equals("Landscape") ? 0 : 1;
 
         regionModifyIfScannerWia(region);
 
@@ -236,7 +213,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                 contrast, plateNumber, region.getLeft(), region.getTop(),
                 region.getRight(), region.getBottom(), scanGap, squareDev,
                 edgeThresh, corrections, cellDistance, gapX, gapY, words[0],
-                words[1], words[2], o == Orientation.LANDSCAPE ? 0 : 1);
+                words[1], words[2], orientation);
 
         if (res < ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. "
@@ -312,7 +289,6 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     /**
      * Display an error message asynchronously
      */
-
     public static void openAsyncError(final String title, final String message) {
         Display.getDefault().asyncExec(new Runnable() {
             @Override

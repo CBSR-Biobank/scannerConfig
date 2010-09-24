@@ -34,7 +34,13 @@ import edu.ualberta.med.scannerconfig.widgets.PlateGridWidget;
 import edu.ualberta.med.scannerconfig.widgets.PlateGridWidgetListener;
 
 public class PlateSettings extends FieldEditorPreferencePage implements
-    IWorkbenchPreferencePage, PlateGridWidgetListener {
+    IWorkbenchPreferencePage, PlateImageListener, PlateGridWidgetListener {
+
+    private static final String NOT_ENABLED_STATUS_MSG = "Plate is not enabled";
+
+    private static final String ALIGN_STATUS_MSG = "Align grid with barcodes";
+
+    private static final String SCAN_REQ_STATUS_MSG = "A scan is required";
 
     protected ListenerList changeListeners = new ListenerList();
 
@@ -50,11 +56,11 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     private Button scanBtn;
     private Button refreshBtn;
 
-    private Orientation orientation;
-
     private Label statusLabel;
 
     private boolean internalUpdate;
+
+    private PlateImageMgr plateImageMgr;
 
     public PlateSettings(int plateId) {
         super(GRID);
@@ -63,14 +69,17 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
         setPreferenceStore(ScannerConfigPlugin.getDefault()
             .getPreferenceStore());
+
+        plateImageMgr = PlateImageMgr.instance();
+        plateImageMgr.addScannedImageChangeListener(this);
     }
 
     @Override
     public void dispose() {
+        plateImageMgr.removeScannedImageChangeListener(this);
         if (plateGridWidget != null) {
             plateGridWidget.dispose();
         }
-
     }
 
     @Override
@@ -129,7 +138,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                PlateImage.instance().scanPlateImage();
+                PlateImageMgr.instance().scanPlateImage();
             }
         });
         refreshBtn = new Button(buttonComposite, SWT.NONE);
@@ -166,18 +175,6 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1],
                 "Enable", getFieldEditorParent());
         addField(enabledFieldEditor);
-        ((Button) enabledFieldEditor
-            .getDescriptionControl(getFieldEditorParent()))
-            .addSelectionListener(new SelectionListener() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    setEnabled(enabledFieldEditor.getBooleanValue());
-                }
-
-                @Override
-                public void widgetDefaultSelected(SelectionEvent e) {
-                }
-            });
 
         String[] prefsArr =
             PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
@@ -209,8 +206,14 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         orientationFieldEditor =
             new AdvancedRadioGroupFieldEditor(
                 PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1],
-                "Orientation", 2, new String[][] {
-                    { "Landscape", "Landscape" }, { "Portrait", "Portrait" } },
+                "Orientation",
+                2,
+                new String[][] {
+                    {
+                        PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE,
+                        PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE },
+                    { PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT,
+                        PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT } },
                 getFieldEditorParent(), true);
         addField(orientationFieldEditor);
     }
@@ -218,10 +221,20 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         super.propertyChange(event);
-        if (event.getSource() == orientationFieldEditor) {
-            System.out.println("here");
-            notifyChangeListener(PlateSettingsListener.ORIENTATION, event
-                .getNewValue().equals("Portrait") ? 1 : 0);
+        Object source = event.getSource();
+        if (source == enabledFieldEditor) {
+            boolean enabled = enabledFieldEditor.getBooleanValue();
+            if (enabled) {
+                // set default size
+                internalUpdate(0, 0, 4, 3, 0, 0, Orientation.LANDSCAPE);
+            }
+            setEnabled(enabled);
+        } else if (source == orientationFieldEditor) {
+            notifyChangeListener(
+                PlateSettingsListener.ORIENTATION,
+                event.getNewValue().equals(
+                    PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE) ? 0
+                    : 1);
         }
     }
 
@@ -232,37 +245,40 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         canvas.setBackground(new Color(Display.getCurrent(), 255, 255, 255));
 
-        IPreferenceStore prefs =
-            ScannerConfigPlugin.getDefault().getPreferenceStore();
-
-        orientation =
-            prefs
-                .getBoolean(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1]) ? Orientation.PORTRAIT
-                : Orientation.LANDSCAPE;
-
         if (plateGridWidget == null) {
             plateGridWidget = new PlateGridWidget(this, canvas);
             plateGridWidget.addPlateWidgetChangeListener(this);
         }
     }
 
+    private void internalUpdate(double left, double top, double right,
+        double bottom, double gapX, double gapY, Orientation o) {
+        internalUpdate = true;
+        textControls[0].setText(String.valueOf(left));
+        textControls[1].setText(String.valueOf(top));
+        textControls[2].setText(String.valueOf(right));
+        textControls[3].setText(String.valueOf(bottom));
+        textControls[4].setText(String.valueOf(gapX));
+        textControls[5].setText(String.valueOf(gapY));
+
+        boolean[] orientationSettings =
+            new boolean[] { o == Orientation.LANDSCAPE,
+                o == Orientation.PORTRAIT };
+
+        orientationFieldEditor.setSelectionArray(orientationSettings);
+        internalUpdate = false;
+    }
+
     @Override
     public void sizeChanged() {
         internalUpdate = true;
-        statusLabel.setText("Align the green grid with the barcodes");
+        statusLabel.setText(ALIGN_STATUS_MSG);
         PlateGrid<Double> r = plateGridWidget.getConvertedPlateRegion();
 
         double left = r.getLeft();
         double top = r.getTop();
-
-        textControls[0].setText(String.valueOf(left));
-        textControls[1].setText(String.valueOf(top));
-        textControls[2].setText(String.valueOf(left + r.getWidth()));
-        textControls[3].setText(String.valueOf(top + r.getHeight()));
-        textControls[4].setText(String.valueOf(r.getGapX()));
-        textControls[5].setText(String.valueOf(r.getGapY()));
-        orientation = r.getOrientation();
-        internalUpdate = false;
+        internalUpdate(left, top, left + r.getWidth(), top + r.getHeight(),
+            r.getGapX(), r.getGapY(), r.getOrientation());
     }
 
     private String formatInput(String s) {
@@ -303,11 +319,13 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     }
 
     public Orientation getOrientation() {
-        return orientation;
-    }
+        IPreferenceStore prefs =
+            ScannerConfigPlugin.getDefault().getPreferenceStore();
 
-    public void setOrientation(Orientation o) {
-        orientation = o;
+        return prefs.getString(
+            PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1])
+            .equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE) ? Orientation.LANDSCAPE
+            : Orientation.PORTRAIT;
     }
 
     public boolean isEnabled() {
@@ -333,13 +351,8 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         }
 
         orientationFieldEditor.setEnabled(isEnabled, getFieldEditorParent());
-
-        if (isEnabled) {
-            statusLabel.setText("A scan is required");
-        } else {
-            statusLabel.setText("Plate is not enabled");
-        }
-
+        statusLabel.setText(isEnabled ? SCAN_REQ_STATUS_MSG
+            : NOT_ENABLED_STATUS_MSG);
         notifyChangeListener(PlateSettingsListener.ENABLED, enabled ? 1 : 0);
 
     }
@@ -386,5 +399,15 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     protected void performApply() {
         saveSettings();
         super.performApply();
+    }
+
+    @Override
+    public void plateImageNew() {
+        statusLabel.setText(ALIGN_STATUS_MSG);
+    }
+
+    @Override
+    public void plateImageDeleted() {
+        statusLabel.setText(SCAN_REQ_STATUS_MSG);
     }
 }

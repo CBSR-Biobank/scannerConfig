@@ -12,8 +12,8 @@ import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 
-public class PlateImage {
-    private static PlateImage instance = null;
+public class PlateImageMgr {
+    private static PlateImageMgr instance = null;
 
     /* please note that PALLET_IMAGE_DPI may change value */
     public static double PLATE_IMAGE_DPI = 300.0;
@@ -24,26 +24,26 @@ public class PlateImage {
 
     private Image scannedImage;
 
-    private boolean debug = true;
+    private boolean debug = false;
 
-    protected PlateImage() {
+    protected PlateImageMgr() {
         if (debug) {
             scannedImage =
                 new Image(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell().getDisplay(), PlateImage.PALLET_IMAGE_FILE);
+                    .getShell().getDisplay(), PlateImageMgr.PALLET_IMAGE_FILE);
         } else {
             cleanAll();
         }
     }
 
-    public static PlateImage instance() {
+    public static PlateImageMgr instance() {
         if (instance == null) {
-            instance = new PlateImage();
+            instance = new PlateImageMgr();
         }
         return instance;
     }
 
-    public boolean exists() {
+    public boolean hasImage() {
         return (scannedImage != null);
     }
 
@@ -52,7 +52,7 @@ public class PlateImage {
     }
 
     public void cleanAll() {
-        final File platesFile = new File(PlateImage.PALLET_IMAGE_FILE);
+        final File platesFile = new File(PlateImageMgr.PALLET_IMAGE_FILE);
         platesFile.delete();
 
         if (scannedImage != null) {
@@ -77,8 +77,8 @@ public class PlateImage {
 
         final int result =
             ScanLib.getInstance().slScanImage(debugLevel,
-                (int) PlateImage.PLATE_IMAGE_DPI, brightness, contrast, 0, 0,
-                20, 20, PlateImage.PALLET_IMAGE_FILE);
+                (int) PlateImageMgr.PLATE_IMAGE_DPI, brightness, contrast, 0, 0,
+                20, 20, PlateImageMgr.PALLET_IMAGE_FILE);
 
         if (result != ScanLib.SC_SUCCESS) {
             ScannerConfigPlugin.openAsyncError("Scanner error",
@@ -86,11 +86,11 @@ public class PlateImage {
             return;
         }
 
-        Assert.isTrue((new File(PlateImage.PALLET_IMAGE_FILE)).exists());
+        Assert.isTrue((new File(PlateImageMgr.PALLET_IMAGE_FILE)).exists());
 
         scannedImage =
             new Image(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell().getDisplay(), PlateImage.PALLET_IMAGE_FILE);
+                .getShell().getDisplay(), PlateImageMgr.PALLET_IMAGE_FILE);
         notifyListeners(true);
     }
 

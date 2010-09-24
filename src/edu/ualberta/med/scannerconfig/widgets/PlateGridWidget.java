@@ -25,8 +25,8 @@ import org.eclipse.swt.widgets.Listener;
 
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid.Orientation;
-import edu.ualberta.med.scannerconfig.preferences.scanner.PlateImage;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateImageListener;
+import edu.ualberta.med.scannerconfig.preferences.scanner.PlateImageMgr;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateSettings;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateSettingsListener;
 
@@ -62,7 +62,10 @@ public class PlateGridWidget implements PlateImageListener,
 
     private PlateGrid<Integer> plateGrid = null;
 
+    private PlateImageMgr plateImageMgr;
+
     public PlateGridWidget(PlateSettings plateSettings, Canvas c) {
+        Assert.isNotNull(plateSettings);
 
         this.plateSettings = plateSettings;
 
@@ -78,13 +81,16 @@ public class PlateGridWidget implements PlateImageListener,
         canvas.addMouseListener(this);
         canvas.addKeyListener(this);
         canvas.addPaintListener(this);
-
         setEnabled();
-
         haveImage = false;
 
         plateSettings.addPlateBaseChangeListener(this);
-        PlateImage.instance().addScannedImageChangeListener(this);
+        plateImageMgr = PlateImageMgr.instance();
+        plateImageMgr.addScannedImageChangeListener(this);
+
+        if (plateImageMgr.hasImage()) {
+            plateImageNew();
+        }
     }
 
     @Override
@@ -92,6 +98,8 @@ public class PlateGridWidget implements PlateImageListener,
         haveImage = true;
         if (plateGrid == null) {
             plateGrid = new PlateGrid<Integer>();
+            plateGrid.setOrientation(plateSettings.getOrientation());
+            resizePlateGrid();
         }
         canvas.redraw();
         setEnabled();
@@ -111,15 +119,19 @@ public class PlateGridWidget implements PlateImageListener,
             break;
 
         case PlateSettingsListener.TEXT_CHANGE:
+            resizePlateGrid();
             canvas.redraw();
             break;
 
         case PlateSettingsListener.ENABLED:
             setEnabled();
+            resizePlateGrid();
+            canvas.redraw();
             break;
 
         case PlateSettingsListener.REFRESH:
-            setEnabled();
+            resizePlateGrid();
+            canvas.redraw();
             break;
 
         default:
@@ -333,10 +345,10 @@ public class PlateGridWidget implements PlateImageListener,
             return;
         }
 
-        Image image = PlateImage.instance().getScannedImage();
+        Image image = plateImageMgr.getScannedImage();
         Assert.isNotNull(image);
 
-        Image plateImage = PlateImage.instance().getScannedImage();
+        Image plateImage = plateImageMgr.getScannedImage();
         Rectangle imageRect = plateImage.getBounds();
         imageBuffer = new Image(canvas.getDisplay(), canvas.getBounds());
         imageGC = new GC(imageBuffer);
@@ -422,14 +434,13 @@ public class PlateGridWidget implements PlateImageListener,
             return;
 
         Assert.isNotNull(canvas, "canvas is null");
-        Rectangle imgBounds =
-            PlateImage.instance().getScannedImage().getBounds();
+        Rectangle imgBounds = plateImageMgr.getScannedImage().getBounds();
         Point canvasSize = canvas.getSize();
 
         double widthFactor =
-            PlateImage.PLATE_IMAGE_DPI * canvasSize.x / imgBounds.width;
+            PlateImageMgr.PLATE_IMAGE_DPI * canvasSize.x / imgBounds.width;
         double heightFactor =
-            PlateImage.PLATE_IMAGE_DPI * canvasSize.y / imgBounds.height;
+            PlateImageMgr.PLATE_IMAGE_DPI * canvasSize.y / imgBounds.height;
 
         plateGrid.setLeft((int) (plateSettings.getLeft() * widthFactor));
         plateGrid.setTop((int) (plateSettings.getTop() * heightFactor));
@@ -448,14 +459,13 @@ public class PlateGridWidget implements PlateImageListener,
      */
     public PlateGrid<Double> getConvertedPlateRegion() {
         PlateGrid<Double> result = new PlateGrid<Double>();
-        Rectangle imgBounds =
-            PlateImage.instance().getScannedImage().getBounds();
+        Rectangle imgBounds = plateImageMgr.getScannedImage().getBounds();
         Point canvasSize = canvas.getSize();
 
         double widthFactor =
-            imgBounds.width / PlateImage.PLATE_IMAGE_DPI / canvasSize.x;
+            imgBounds.width / PlateImageMgr.PLATE_IMAGE_DPI / canvasSize.x;
         double heightFactor =
-            imgBounds.height / PlateImage.PLATE_IMAGE_DPI / canvasSize.y;
+            imgBounds.height / PlateImageMgr.PLATE_IMAGE_DPI / canvasSize.y;
 
         result.setLeft(plateGrid.getLeft() * widthFactor);
         result.setTop(plateGrid.getTop() * heightFactor);
@@ -485,7 +495,7 @@ public class PlateGridWidget implements PlateImageListener,
     }
 
     public void dispose() {
-        PlateImage.instance().removeScannedImageChangeListener(this);
+        plateImageMgr.removeScannedImageChangeListener(this);
         plateSettings.removePlateSettingsChangeListener(this);
     }
 

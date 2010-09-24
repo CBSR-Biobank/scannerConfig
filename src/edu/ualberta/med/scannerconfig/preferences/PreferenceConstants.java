@@ -4,6 +4,12 @@ public class PreferenceConstants {
 
     public static final String SCANNER_DPI = "scanner.dpi";
 
+    public static final String SCANNER_300_DPI = "300";
+
+    public static final String SCANNER_400_DPI = "400";
+
+    public static final String SCANNER_600_DPI = "600";
+
     public static final String SCANNER_BRIGHTNESS = "scanner.brightness";
 
     public static final String SCANNER_CONTRAST = "scanner.contrast";
@@ -59,4 +65,9 @@ public class PreferenceConstants {
         "scanner.plate.orientation.1", "scanner.plate.orientation.2",
         "scanner.plate.orientation.3", "scanner.plate.orientation.4",
         "scanner.plate.orientation.5" };
+
+    public static final String SCANNER_PALLET_ORIENTATION_LANDSCAPE =
+        "Landscape";
+
+    public static final String SCANNER_PALLET_ORIENTATION_PORTRAIT = "Portrait";
 }
