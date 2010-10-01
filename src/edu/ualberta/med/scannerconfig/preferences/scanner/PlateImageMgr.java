@@ -15,8 +15,7 @@ import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 public class PlateImageMgr {
     private static PlateImageMgr instance = null;
 
-    /* please note that PALLET_IMAGE_DPI may change value */
-    public static double PLATE_IMAGE_DPI = 300.0;
+    public static final int PLATE_IMAGE_DPI = 300;
 
     public static final String PALLET_IMAGE_FILE = "plates.bmp";
 

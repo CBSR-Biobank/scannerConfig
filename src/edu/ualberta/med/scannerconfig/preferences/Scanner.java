@@ -15,11 +15,10 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
-import edu.ualberta.med.scannerconfig.preferences.scanner.PlateImageMgr;
 import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
 
 public class Scanner extends FieldEditorPreferencePage implements
-    IWorkbenchPreferencePage {
+    IWorkbenchPreferencePage, SelectionListener {
 
     private Map<String, DoubleFieldEditor> dblFieldMap =
         new HashMap<String, DoubleFieldEditor>();
@@ -42,6 +41,12 @@ public class Scanner extends FieldEditorPreferencePage implements
     }
 
     @Override
+    public void init(IWorkbench workbench) {
+        setPreferenceStore(ScannerConfigPlugin.getDefault()
+            .getPreferenceStore());
+    }
+
+    @Override
     public void createFieldEditors() {
 
         int scannerCap = ScanLib.getInstance().slGetScannerCapability();
@@ -50,7 +55,7 @@ public class Scanner extends FieldEditorPreferencePage implements
         selectScannerBtn.setText("Select Scanner");
         selectScannerBtn.setImage(ScannerConfigPlugin.getDefault()
             .getImageRegistry().get(ScannerConfigPlugin.IMG_SCANNER));
-        selectScannerBtn.addSelectionListener(scannerSelectionListener);
+        selectScannerBtn.addSelectionListener(this);
 
         // TODO warn about driver-type changing
         driverTypeRadio =
@@ -168,105 +173,71 @@ public class Scanner extends FieldEditorPreferencePage implements
 
     }
 
-    private SelectionListener scannerSelectionListener =
-        new SelectionListener() {
+    @Override
+    public void widgetSelected(SelectionEvent e) {
+        int scanlibReturn = ScanLib.getInstance().slSelectSourceAsDefault();
+        int scannerCap = ScanLib.getInstance().slGetScannerCapability();
 
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
+        if (scanlibReturn != ScanLib.SC_SUCCESS) {
+            // just stay with the last selected source
+            if ((scannerCap & ScanLib.CAP_IS_SCANNER) != 0) {
+                return;
             }
+            setEnableAllWidgets(false);
+            ScannerConfigPlugin
+                .openError("Source Selection Error",
+                    "Please plug in a scanner and select an appropiate source driver.");
+            return;
+        }
 
-            @Override
-            public void widgetSelected(SelectionEvent e) {
+        IPreferenceStore prefs =
+            ScannerConfigPlugin.getDefault().getPreferenceStore();
 
-                boolean anyPlateEnabled = false;
-                for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_ENABLED.length; i++) {
-                    if (ScannerConfigPlugin
-                        .getDefault()
-                        .getPreferenceStore()
-                        .getBoolean(
-                            PreferenceConstants.SCANNER_PALLET_ENABLED[i])) {
-                        anyPlateEnabled = true;
-                        break;
-                    }
-                }
+        String drvSetting = null;
+        boolean[] drvRadioSettings = new boolean[] { false, false };
 
-                if (anyPlateEnabled) {
-                    if (!ScannerConfigPlugin
-                        .openConfim(
-                            "Resetting Plate Configurations",
-                            "By selecting a scanner source you will reset all plate configurations.\nAre you sure you want to continue?")) {
-                        return;
-                    }
-                }
+        if ((scannerCap & ScanLib.CAP_IS_WIA) != 0) {
+            drvSetting = PreferenceConstants.SCANNER_DRV_TYPE_WIA;
+            drvRadioSettings[1] = true;
+        } else {
+            drvSetting = PreferenceConstants.SCANNER_DRV_TYPE_TWAIN;
+            drvRadioSettings[0] = true;
+        }
 
-                int scanlibReturn =
-                    ScanLib.getInstance().slSelectSourceAsDefault();
-                int scannerCap = ScanLib.getInstance().slGetScannerCapability();
+        prefs.setValue(PreferenceConstants.SCANNER_DRV_TYPE, drvSetting);
+        driverTypeRadio.setSelectionArray(drvRadioSettings);
+        driverTypeRadio.doLoad();
 
-                if (scanlibReturn != ScanLib.SC_SUCCESS) {
+        String dpiSetting = null;
+        boolean[] dpiRadioSettings = new boolean[] { false, false };
 
-                    // just stay with the last selected source
-                    if ((scannerCap & ScanLib.CAP_IS_SCANNER) != 0) {
-                        return;
+        if ((scannerCap & ScanLib.CAP_DPI_300) != 0) {
+            dpiRadioSettings[0] = true;
+            dpiSetting = PreferenceConstants.SCANNER_300_DPI;
 
-                    } else {
-                        setEnableAllWidgets(false);
-                        ScannerConfigPlugin
-                            .openError("Source Selection Error",
-                                "Please plug in a scanner and select an appropiate source driver.");
-                    }
-                } else {
+        } else if ((scannerCap & ScanLib.CAP_DPI_400) != 0) {
+            dpiRadioSettings[1] = true;
+            dpiSetting = PreferenceConstants.SCANNER_400_DPI;
 
-                    IPreferenceStore prefs =
-                        ScannerConfigPlugin.getDefault().getPreferenceStore();
+        } else if ((scannerCap & ScanLib.CAP_DPI_600) != 0) {
+            dpiRadioSettings[2] = true;
+            dpiSetting = PreferenceConstants.SCANNER_600_DPI;
+        } else {
+            ScannerConfigPlugin.openAsyncError("Scanner Error",
+                "DPI is not supported");
+            return;
+        }
 
-                    if ((scannerCap & ScanLib.CAP_IS_WIA) != 0) {
-                        prefs.setValue(PreferenceConstants.SCANNER_DRV_TYPE,
-                            PreferenceConstants.SCANNER_DRV_TYPE_WIA);
-                        driverTypeRadio.setSelectionArray(new boolean[] {
-                            false, true });
-                    } else {
-                        prefs.setValue(PreferenceConstants.SCANNER_DRV_TYPE,
-                            PreferenceConstants.SCANNER_DRV_TYPE_TWAIN);
-                        driverTypeRadio.setSelectionArray(new boolean[] { true,
-                            false });
-                    }
-                    driverTypeRadio.doLoad();
+        prefs.setValue(PreferenceConstants.SCANNER_DPI, dpiSetting);
+        dpiRadio.setSelectionArray(dpiRadioSettings);
+        dpiRadio.doLoad();
 
-                    // TODO reset all plate configurations.
-
-                    if ((scannerCap & ScanLib.CAP_DPI_300) != 0) {
-
-                        dpiRadio.setSelectionArray(new boolean[] { true, false,
-                            false });
-                        prefs.setValue(PreferenceConstants.SCANNER_DPI, 300);
-                        PlateImageMgr.PLATE_IMAGE_DPI = 300;
-
-                    } else if ((scannerCap & ScanLib.CAP_DPI_400) != 0) {
-
-                        dpiRadio.setSelectionArray(new boolean[] { false, true,
-                            false });
-                        prefs.setValue(PreferenceConstants.SCANNER_DPI, 400);
-                        PlateImageMgr.PLATE_IMAGE_DPI = 400;
-
-                    } else if ((scannerCap & ScanLib.CAP_DPI_600) != 0) {
-
-                        dpiRadio.setSelectionArray(new boolean[] { false,
-                            false, true });
-                        prefs.setValue(PreferenceConstants.SCANNER_DPI, 600);
-                        PlateImageMgr.PLATE_IMAGE_DPI = 600;
-                    }
-                    dpiRadio.doLoad();
-
-                    setEnableAllWidgets(true);
-                }
-
-            }
-        };
+        setEnableAllWidgets(true);
+    }
 
     @Override
-    public void init(IWorkbench workbench) {
-
+    public void widgetDefaultSelected(SelectionEvent e) {
+        // do nothing
     }
 
 }
