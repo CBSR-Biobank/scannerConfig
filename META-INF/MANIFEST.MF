@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ScannerConfig
 Bundle-SymbolicName: scannerConfig;singleton:=true
-Bundle-Version: 0.9.5
+Bundle-Version: 0.9.6
 Bundle-Activator: edu.ualberta.med.scannerconfig.ScannerConfigPlugin
 Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
@@ -12,8 +12,9 @@ Bundle-NativeCode: dmscanlib.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win
  cxcore210.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",
  OpenThreads.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",*
 Bundle-ClassPath: .
-Export-Package: edu.ualberta.med.scannerconfig,
+Export-Package: edu.ualberta.med.scannerconfig;uses:="org.eclipse.jface.resource,org.eclipse.ui.plugin,org.osgi.framework",
  edu.ualberta.med.scannerconfig.dmscanlib,
  edu.ualberta.med.scannerconfig.preferences,
- edu.ualberta.med.scannerconfig.preferences.scanner.profiles
+ edu.ualberta.med.scannerconfig.preferences.scanner,
+ edu.ualberta.med.scannerconfig.preferences.scanner.profiles;uses:="org.eclipse.jface.preference,org.eclipse.ui,org.eclipse.swt.widgets"
 Bundle-Vendor: AICML
