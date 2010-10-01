@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.preferences;
+package edu.ualberta.med.scannerconfig.preferences.scanner;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +15,8 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
+import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
 
 public class Scanner extends FieldEditorPreferencePage implements
@@ -57,7 +59,6 @@ public class Scanner extends FieldEditorPreferencePage implements
             .getImageRegistry().get(ScannerConfigPlugin.IMG_SCANNER));
         selectScannerBtn.addSelectionListener(this);
 
-        // TODO warn about driver-type changing
         driverTypeRadio =
             new AdvancedRadioGroupFieldEditor(
                 PreferenceConstants.SCANNER_DRV_TYPE, "Driver Type", 2,
@@ -175,6 +176,9 @@ public class Scanner extends FieldEditorPreferencePage implements
 
     @Override
     public void widgetSelected(SelectionEvent e) {
+        if (e.getSource() != selectScannerBtn)
+            return;
+
         int scanlibReturn = ScanLib.getInstance().slSelectSourceAsDefault();
         int scannerCap = ScanLib.getInstance().slGetScannerCapability();
 
@@ -208,28 +212,23 @@ public class Scanner extends FieldEditorPreferencePage implements
         driverTypeRadio.setSelectionArray(drvRadioSettings);
         driverTypeRadio.doLoad();
 
-        String dpiSetting = null;
-        boolean[] dpiRadioSettings = new boolean[] { false, false };
+        boolean[] dpiRadioSettings = new boolean[] { false, false, false };
 
         if ((scannerCap & ScanLib.CAP_DPI_300) != 0) {
             dpiRadioSettings[0] = true;
-            dpiSetting = PreferenceConstants.SCANNER_300_DPI;
 
-        } else if ((scannerCap & ScanLib.CAP_DPI_400) != 0) {
-            dpiRadioSettings[1] = true;
-            dpiSetting = PreferenceConstants.SCANNER_400_DPI;
-
-        } else if ((scannerCap & ScanLib.CAP_DPI_600) != 0) {
-            dpiRadioSettings[2] = true;
-            dpiSetting = PreferenceConstants.SCANNER_600_DPI;
-        } else {
-            ScannerConfigPlugin.openAsyncError("Scanner Error",
-                "DPI is not supported");
-            return;
         }
 
-        prefs.setValue(PreferenceConstants.SCANNER_DPI, dpiSetting);
-        dpiRadio.setSelectionArray(dpiRadioSettings);
+        if ((scannerCap & ScanLib.CAP_DPI_400) != 0) {
+            dpiRadioSettings[1] = true;
+
+        }
+
+        if ((scannerCap & ScanLib.CAP_DPI_600) != 0) {
+            dpiRadioSettings[2] = true;
+        }
+
+        dpiRadio.setEnabledArray(dpiRadioSettings, -1, getFieldEditorParent());
         dpiRadio.doLoad();
 
         setEnableAllWidgets(true);

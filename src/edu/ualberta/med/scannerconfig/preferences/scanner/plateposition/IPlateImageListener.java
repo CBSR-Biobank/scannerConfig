@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.preferences.scanner;
+package edu.ualberta.med.scannerconfig.preferences.scanner.plateposition;
 
 public interface IPlateImageListener {
 

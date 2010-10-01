@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.preferences.scanner;
+package edu.ualberta.med.scannerconfig.preferences.scanner.plateposition;
 
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.preference.BooleanFieldEditor;
@@ -28,7 +28,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
-import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid.Orientation;
+import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid.Orientation;
 import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
 import edu.ualberta.med.scannerconfig.widgets.IPlateGridWidgetListener;
 import edu.ualberta.med.scannerconfig.widgets.PlateGridWidget;

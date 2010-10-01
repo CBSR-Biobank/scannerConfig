@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.preferences.scanner;
+package edu.ualberta.med.scannerconfig.preferences.scanner.plateposition;
 
 import java.io.File;
 
@@ -76,8 +76,8 @@ public class PlateImageMgr {
 
         final int result =
             ScanLib.getInstance().slScanImage(debugLevel,
-                (int) PlateImageMgr.PLATE_IMAGE_DPI, brightness, contrast, 0,
-                0, 20, 20, PlateImageMgr.PALLET_IMAGE_FILE);
+                PlateImageMgr.PLATE_IMAGE_DPI, brightness, contrast, 0, 0, 20,
+                20, PlateImageMgr.PALLET_IMAGE_FILE);
 
         if (result != ScanLib.SC_SUCCESS) {
             ScannerConfigPlugin.openAsyncError("Scanner error",

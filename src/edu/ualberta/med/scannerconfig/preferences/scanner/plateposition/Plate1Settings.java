@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.preferences.scanner;
+package edu.ualberta.med.scannerconfig.preferences.scanner.plateposition;
 
 
 public class Plate1Settings extends PlateSettings {

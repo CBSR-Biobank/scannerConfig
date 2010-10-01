@@ -35,43 +35,43 @@
    <extension point="org.eclipse.ui.preferencePages">
     <page id="Scanner"
         name="Scanning and Decoding"
-            class="edu.ualberta.med.scannerconfig.preferences.Scanner">
-    </page>    
+            class="edu.ualberta.med.scannerconfig.preferences.scanner.Scanner">
+    </page>   
+    <page 
+       category="Scanner"
+       id="Profiles"
+        name="Decoding Profiles"
+            class="edu.ualberta.med.scannerconfig.preferences.scanner.profiles.ProfilePreferences">
+    </page> 
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate1Settings"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.Plate1Settings"
           id="scannerConfig.page1"
           name="Plate 1 Position">
     </page> 
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate2Settings"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.Plate2Settings"
           id="scannerConfig.page2"
           name="Plate 2 Position">
     </page> 
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate3Settings"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.Plate3Settings"
           id="scannerConfig.page3"
           name="Plate 3 Position">
     </page> 
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate4Settings"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.Plate4Settings"
           id="scannerConfig.page4"
           name="Plate 4 Position">
     </page> 
     <page
           category="Scanner"
-          class="edu.ualberta.med.scannerconfig.preferences.scanner.Plate5Settings"
+          class="edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.Plate5Settings"
           id="scannerConfig.page5"
           name="Plate 5 Position">
-    </page>
-       <page 
-       category="Scanner"
-       id="Profiles"
-        name="Decoding Profiles"
-            class="edu.ualberta.med.scannerconfig.preferences.profiles.ProfilePreferences">
     </page>
    </extension>
    <extension

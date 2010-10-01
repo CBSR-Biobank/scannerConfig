@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.preferences.profiles;
+package edu.ualberta.med.scannerconfig.preferences.scanner.profiles;
 
 import java.util.HashMap;
 

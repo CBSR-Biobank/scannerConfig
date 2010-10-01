@@ -23,8 +23,8 @@ import edu.ualberta.med.scannerconfig.dmscanlib.ScanCell;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibWin32;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
-import edu.ualberta.med.scannerconfig.preferences.profiles.ProfileManager;
-import edu.ualberta.med.scannerconfig.preferences.profiles.ProfileSettings;
+import edu.ualberta.med.scannerconfig.preferences.scanner.profiles.ProfileManager;
+import edu.ualberta.med.scannerconfig.preferences.scanner.profiles.ProfileSettings;
 import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
 
 /**

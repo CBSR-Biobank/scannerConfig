@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.preferences.scanner;
+package edu.ualberta.med.scannerconfig.preferences.scanner.plateposition;
 
 /**
  * Tracks the grid's attributes in number of pixels for the currently scanned

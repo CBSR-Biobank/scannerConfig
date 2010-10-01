@@ -23,12 +23,12 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
-import edu.ualberta.med.scannerconfig.preferences.scanner.IPlateImageListener;
-import edu.ualberta.med.scannerconfig.preferences.scanner.IPlateSettingsListener;
-import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid;
-import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid.Orientation;
-import edu.ualberta.med.scannerconfig.preferences.scanner.PlateImageMgr;
-import edu.ualberta.med.scannerconfig.preferences.scanner.PlateSettings;
+import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.IPlateImageListener;
+import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.IPlateSettingsListener;
+import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid;
+import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateImageMgr;
+import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateSettings;
+import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid.Orientation;
 
 public class PlateGridWidget implements IPlateImageListener,
     IPlateSettingsListener, MouseMoveListener, Listener, ControlListener,
