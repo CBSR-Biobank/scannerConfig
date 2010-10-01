@@ -281,8 +281,10 @@ public class PlateGridWidget implements IPlateImageListener,
         if (!haveImage)
             return;
 
-        int delta = 1;
+        int delta = 0;
         if (event.count < 0) {
+            delta = 1;
+        } else if (event.count > 0) {
             delta = -1;
         }
 
@@ -344,19 +346,39 @@ public class PlateGridWidget implements IPlateImageListener,
         if (!haveImage)
             return;
 
+        int left, top, width, height;
+        Point canvasSize;
+
         if (!drag) {
+            // FIXME - range checking required here
             switch (e.keyCode) {
             case SWT.ARROW_LEFT:
-                plateGrid.setLeft(plateGrid.getLeft() - 1);
+                left = plateGrid.getLeft();
+                if (left > 0) {
+                    plateGrid.setLeft(left - 1);
+                }
                 break;
             case SWT.ARROW_RIGHT:
-                plateGrid.setLeft(plateGrid.getLeft() + 1);
+                canvasSize = canvas.getSize();
+                left = plateGrid.getLeft();
+                width = plateGrid.getWidth();
+                if (left + width < canvasSize.x) {
+                    plateGrid.setLeft(left + 1);
+                }
                 break;
             case SWT.ARROW_UP:
-                plateGrid.setTop(plateGrid.getTop() - 1);
+                top = plateGrid.getTop();
+                if (top > 0) {
+                    plateGrid.setTop(top - 1);
+                }
                 break;
             case SWT.ARROW_DOWN:
-                plateGrid.setTop(plateGrid.getTop() + 1);
+                canvasSize = canvas.getSize();
+                top = plateGrid.getTop();
+                height = plateGrid.getHeight();
+                if (top + height < canvasSize.y) {
+                    plateGrid.setTop(top + 1);
+                }
                 break;
             }
             canvas.redraw();
