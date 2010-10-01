@@ -24,7 +24,7 @@ public class PlateImageMgr {
 
     private Image scannedImage;
 
-    private boolean debug = false;
+    private boolean debug = true;
 
     protected PlateImageMgr() {
         if (debug) {
@@ -77,8 +77,8 @@ public class PlateImageMgr {
 
         final int result =
             ScanLib.getInstance().slScanImage(debugLevel,
-                (int) PlateImageMgr.PLATE_IMAGE_DPI, brightness, contrast, 0, 0,
-                20, 20, PlateImageMgr.PALLET_IMAGE_FILE);
+                (int) PlateImageMgr.PLATE_IMAGE_DPI, brightness, contrast, 0,
+                0, 20, 20, PlateImageMgr.PALLET_IMAGE_FILE);
 
         if (result != ScanLib.SC_SUCCESS) {
             ScannerConfigPlugin.openAsyncError("Scanner error",
@@ -94,21 +94,21 @@ public class PlateImageMgr {
         notifyListeners(true);
     }
 
-    public void addScannedImageChangeListener(PlateImageListener listener) {
+    public void addScannedImageChangeListener(IPlateImageListener listener) {
         listenerList.add(listener);
         if (debug) {
             notifyListeners(true);
         }
     }
 
-    public void removeScannedImageChangeListener(PlateImageListener listener) {
+    public void removeScannedImageChangeListener(IPlateImageListener listener) {
         listenerList.remove(listener);
     }
 
     private void notifyListeners(final boolean haveNewImage) {
         Object[] listeners = listenerList.getListeners();
         for (int i = 0; i < listeners.length; ++i) {
-            final PlateImageListener l = (PlateImageListener) listeners[i];
+            final IPlateImageListener l = (IPlateImageListener) listeners[i];
             SafeRunnable.run(new SafeRunnable() {
                 @Override
                 public void run() {

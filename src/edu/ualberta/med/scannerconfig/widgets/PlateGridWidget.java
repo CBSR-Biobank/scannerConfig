@@ -23,15 +23,15 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import edu.ualberta.med.scannerconfig.preferences.scanner.IPlateImageListener;
+import edu.ualberta.med.scannerconfig.preferences.scanner.IPlateSettingsListener;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid.Orientation;
-import edu.ualberta.med.scannerconfig.preferences.scanner.PlateImageListener;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateImageMgr;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateSettings;
-import edu.ualberta.med.scannerconfig.preferences.scanner.PlateSettingsListener;
 
-public class PlateGridWidget implements PlateImageListener,
-    PlateSettingsListener, MouseMoveListener, Listener, ControlListener,
+public class PlateGridWidget implements IPlateImageListener,
+    IPlateSettingsListener, MouseMoveListener, Listener, ControlListener,
     MouseListener, KeyListener, PaintListener {
 
     private enum DragMode {
@@ -114,22 +114,22 @@ public class PlateGridWidget implements PlateImageListener,
     @Override
     public void plateGridChange(Event e) {
         switch (e.type) {
-        case PlateSettingsListener.ORIENTATION:
+        case IPlateSettingsListener.ORIENTATION:
             setPlateOrientation(e.detail);
             break;
 
-        case PlateSettingsListener.TEXT_CHANGE:
+        case IPlateSettingsListener.TEXT_CHANGE:
             resizePlateGrid();
             canvas.redraw();
             break;
 
-        case PlateSettingsListener.ENABLED:
+        case IPlateSettingsListener.ENABLED:
             setEnabled();
             resizePlateGrid();
             canvas.redraw();
             break;
 
-        case PlateSettingsListener.REFRESH:
+        case IPlateSettingsListener.REFRESH:
             resizePlateGrid();
             canvas.redraw();
             break;
@@ -154,44 +154,76 @@ public class PlateGridWidget implements PlateImageListener,
             canvas.setFocus();
 
         if (drag) {
+            int pos;
+            Point canvasSize = canvas.getSize();
+
             switch (dragMode) {
             case MOVE:
-                plateGrid.setLeft((e.x - startDragMousePt.x) + startGridRect.x);
-                plateGrid.setTop((e.y - startDragMousePt.y) + startGridRect.y);
+                pos = e.x - startDragMousePt.x + startGridRect.x;
+                if ((pos >= 0)
+                    && (pos + startGridRect.width + 4 <= canvasSize.x)) {
+                    plateGrid.setLeft(pos);
+                }
+
+                pos = e.y - startDragMousePt.y + startGridRect.y;
+                if ((pos >= 0)
+                    && (pos + startGridRect.height + 4 <= canvasSize.y)) {
+                    plateGrid.setTop(pos);
+                }
                 break;
             case RESIZE_HORIZONTAL_RIGHT:
-                plateGrid.setWidth((e.x - startDragMousePt.x)
-                    + startGridRect.width);
+                if ((e.x <= canvasSize.x) && (e.x > startGridRect.x)) {
+                    plateGrid.setWidth(e.x - startDragMousePt.x
+                        + startGridRect.width);
+                }
                 break;
             case RESIZE_HORIZONTAL_LEFT:
-                plateGrid.setLeft((e.x - startDragMousePt.x) + startGridRect.x);
-                plateGrid.setWidth((startDragMousePt.x - e.x)
-                    + startGridRect.width);
+                if (e.x <= startGridRect.x + startGridRect.width) {
+                    plateGrid.setLeft(e.x - startDragMousePt.x
+                        + startGridRect.x);
+                    plateGrid.setWidth(startDragMousePt.x - e.x
+                        + startGridRect.width);
+                }
                 break;
             case RESIZE_VERTICAL_TOP:
-                plateGrid.setTop((e.y - startDragMousePt.y) + startGridRect.y);
-                plateGrid.setHeight((startDragMousePt.y - e.y)
-                    + startGridRect.height);
+                if (e.y <= startGridRect.y + startGridRect.height) {
+                    plateGrid
+                        .setTop(e.y - startDragMousePt.y + startGridRect.y);
+                    plateGrid.setHeight((startDragMousePt.y - e.y)
+                        + startGridRect.height);
+                }
                 break;
             case RESIZE_VERTICAL_BOTTOM:
-                plateGrid.setHeight((e.y - startDragMousePt.y)
-                    + startGridRect.height);
+                if ((e.y <= canvasSize.y) && (e.y > plateGrid.getTop())) {
+                    plateGrid.setHeight((e.y - startDragMousePt.y)
+                        + startGridRect.height);
+                }
                 break;
 
             case RESIZE_BOTTOM_RIGHT:
-                plateGrid.setWidth((e.x - startDragMousePt.x)
-                    + startGridRect.width);
-                plateGrid.setHeight((e.y - startDragMousePt.y)
-                    + startGridRect.height);
+                if ((e.x <= canvasSize.x) && (e.x > startGridRect.x)
+                    && (e.y <= canvasSize.y) && (e.y > plateGrid.getTop())) {
+                    plateGrid.setWidth((e.x - startDragMousePt.x)
+                        + startGridRect.width);
+                    plateGrid.setHeight((e.y - startDragMousePt.y)
+                        + startGridRect.height);
+                }
                 break;
 
             case RESIZE_TOP_LEFT:
-                plateGrid.setLeft((e.x - startDragMousePt.x) + startGridRect.x);
-                plateGrid.setTop((e.y - startDragMousePt.y) + startGridRect.y);
-                plateGrid.setHeight((startDragMousePt.y - e.y)
-                    + startGridRect.height);
-                plateGrid.setWidth((startDragMousePt.x - e.x)
-                    + startGridRect.width);
+                if ((e.x >= 0)
+                    && (e.x <= startGridRect.x + startGridRect.width)
+                    && (e.y >= 0)
+                    && (e.y <= startGridRect.y + startGridRect.height)) {
+                    plateGrid.setLeft((e.x - startDragMousePt.x)
+                        + startGridRect.x);
+                    plateGrid.setTop((e.y - startDragMousePt.y)
+                        + startGridRect.y);
+                    plateGrid.setHeight((startDragMousePt.y - e.y)
+                        + startGridRect.height);
+                    plateGrid.setWidth((startDragMousePt.x - e.x)
+                        + startGridRect.width);
+                }
             default:
                 // do nothing
             }
@@ -500,15 +532,15 @@ public class PlateGridWidget implements PlateImageListener,
     }
 
     /* updates text fields in plateBase */
-    public void addPlateWidgetChangeListener(PlateGridWidgetListener listener) {
+    public void addPlateWidgetChangeListener(IPlateGridWidgetListener listener) {
         changeListeners.add(listener);
     }
 
     private void notifyChangeListener() {
         Object[] listeners = changeListeners.getListeners();
         for (int i = 0; i < listeners.length; ++i) {
-            final PlateGridWidgetListener l =
-                (PlateGridWidgetListener) listeners[i];
+            final IPlateGridWidgetListener l =
+                (IPlateGridWidgetListener) listeners[i];
             SafeRunnable.run(new SafeRunnable() {
                 @Override
                 public void run() {

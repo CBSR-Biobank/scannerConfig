@@ -1,6 +1,6 @@
 package edu.ualberta.med.scannerconfig.preferences.scanner;
 
-public interface PlateImageListener {
+public interface IPlateImageListener {
 
     void plateImageNew();
 

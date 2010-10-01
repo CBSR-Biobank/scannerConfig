@@ -30,11 +30,11 @@ import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.scanner.PlateGrid.Orientation;
 import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
+import edu.ualberta.med.scannerconfig.widgets.IPlateGridWidgetListener;
 import edu.ualberta.med.scannerconfig.widgets.PlateGridWidget;
-import edu.ualberta.med.scannerconfig.widgets.PlateGridWidgetListener;
 
 public class PlateSettings extends FieldEditorPreferencePage implements
-    IWorkbenchPreferencePage, PlateImageListener, PlateGridWidgetListener {
+    IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
 
     private static final String NOT_ENABLED_STATUS_MSG = "Plate is not enabled";
 
@@ -152,7 +152,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 PlateSettings.this.notifyChangeListener(
-                    PlateSettingsListener.REFRESH, 0);
+                    IPlateSettingsListener.REFRESH, 0);
             }
         });
 
@@ -196,7 +196,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             textControls[count].addModifyListener(new ModifyListener() {
                 @Override
                 public void modifyText(ModifyEvent e) {
-                    notifyChangeListener(PlateSettingsListener.TEXT_CHANGE, 0);
+                    notifyChangeListener(IPlateSettingsListener.TEXT_CHANGE, 0);
                 }
 
             });
@@ -231,7 +231,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             setEnabled(enabled);
         } else if (source == orientationFieldEditor) {
             notifyChangeListener(
-                PlateSettingsListener.ORIENTATION,
+                IPlateSettingsListener.ORIENTATION,
                 event.getNewValue().equals(
                     PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE) ? 0
                     : 1);
@@ -353,15 +353,16 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         orientationFieldEditor.setEnabled(isEnabled, getFieldEditorParent());
         statusLabel.setText(isEnabled ? SCAN_REQ_STATUS_MSG
             : NOT_ENABLED_STATUS_MSG);
-        notifyChangeListener(PlateSettingsListener.ENABLED, enabled ? 1 : 0);
+        notifyChangeListener(IPlateSettingsListener.ENABLED, enabled ? 1 : 0);
 
     }
 
-    public void removePlateSettingsChangeListener(PlateSettingsListener listener) {
+    public void removePlateSettingsChangeListener(
+        IPlateSettingsListener listener) {
         changeListeners.remove(listener);
     }
 
-    public void addPlateBaseChangeListener(PlateSettingsListener listener) {
+    public void addPlateBaseChangeListener(IPlateSettingsListener listener) {
         changeListeners.add(listener);
     }
 
@@ -371,8 +372,8 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
         Object[] listeners = changeListeners.getListeners();
         for (int i = 0; i < listeners.length; ++i) {
-            final PlateSettingsListener l =
-                (PlateSettingsListener) listeners[i];
+            final IPlateSettingsListener l =
+                (IPlateSettingsListener) listeners[i];
             SafeRunnable.run(new SafeRunnable() {
                 @Override
                 public void run() {
@@ -403,11 +404,15 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     @Override
     public void plateImageNew() {
+        if (statusLabel == null)
+            return;
         statusLabel.setText(ALIGN_STATUS_MSG);
     }
 
     @Override
     public void plateImageDeleted() {
+        if (statusLabel == null)
+            return;
         statusLabel.setText(SCAN_REQ_STATUS_MSG);
     }
 }
