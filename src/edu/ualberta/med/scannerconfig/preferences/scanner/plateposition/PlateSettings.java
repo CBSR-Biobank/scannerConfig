@@ -1,5 +1,8 @@
 package edu.ualberta.med.scannerconfig.preferences.scanner.plateposition;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -12,6 +15,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -36,6 +40,45 @@ import edu.ualberta.med.scannerconfig.widgets.PlateGridWidget;
 public class PlateSettings extends FieldEditorPreferencePage implements
     IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
 
+    private enum Settings {
+        LEFT() {
+            @Override
+            public String toString() {
+                return "Left";
+            }
+        },
+        TOP() {
+            @Override
+            public String toString() {
+                return "Top";
+            }
+        },
+        RIGHT() {
+            @Override
+            public String toString() {
+                return "Right";
+            }
+        },
+        BOTTOM() {
+            @Override
+            public String toString() {
+                return "Bottom";
+            }
+        },
+        GAPX() {
+            @Override
+            public String toString() {
+                return "Cell Gap Horizontal";
+            }
+        },
+        GAPY() {
+            @Override
+            public String toString() {
+                return "Cell Gap Vertical";
+            }
+        }
+    };
+
     private static final String NOT_ENABLED_STATUS_MSG = "Plate is not enabled";
 
     private static final String ALIGN_STATUS_MSG = "Align grid with barcodes";
@@ -47,7 +90,8 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     protected int plateId;
     private boolean isEnabled;
 
-    private Text[] textControls;
+    private Map<Settings, DoubleFieldEditor> plateFieldEditors;
+    private Map<Settings, Text> plateTextControls;
     private Canvas canvas;
     private PlateGridWidget plateGridWidget = null;
 
@@ -179,27 +223,25 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         String[] prefsArr =
             PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
 
-        String[] labels =
-            { "Left", "Top", "Right", "Bottom", "Cell Gap Horizontal",
-                "Cell Gap Vertical" };
-
-        textControls = new Text[labels.length];
+        plateFieldEditors = new HashMap<Settings, DoubleFieldEditor>();
+        plateTextControls = new HashMap<Settings, Text>();
+        Composite parent = getFieldEditorParent();
 
         int count = 0;
-        for (String label : labels) {
-            fe =
-                new DoubleFieldEditor(prefsArr[count], label + ":",
-                    getFieldEditorParent());
+        for (Settings setting : Settings.values()) {
+            fe = new DoubleFieldEditor(prefsArr[count], setting + ":", parent);
             fe.setValidRange(0, 20);
             addField(fe);
-            textControls[count] = fe.getTextControl(getFieldEditorParent());
-            textControls[count].addModifyListener(new ModifyListener() {
+            Text text = fe.getTextControl(parent);
+            plateTextControls.put(setting, text);
+            text.addModifyListener(new ModifyListener() {
                 @Override
                 public void modifyText(ModifyEvent e) {
                     notifyChangeListener(IPlateSettingsListener.TEXT_CHANGE, 0);
                 }
 
             });
+            plateFieldEditors.put(setting, fe);
             ++count;
         }
 
@@ -214,7 +256,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                         PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE },
                     { PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT,
                         PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT } },
-                getFieldEditorParent(), true);
+                parent, true);
         addField(orientationFieldEditor);
     }
 
@@ -254,12 +296,18 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     private void internalUpdate(double left, double top, double right,
         double bottom, double gapX, double gapY, Orientation o) {
         internalUpdate = true;
-        textControls[0].setText(String.valueOf(left));
-        textControls[1].setText(String.valueOf(top));
-        textControls[2].setText(String.valueOf(right));
-        textControls[3].setText(String.valueOf(bottom));
-        textControls[4].setText(String.valueOf(gapX));
-        textControls[5].setText(String.valueOf(gapY));
+
+        plateFieldEditors.get(Settings.GAPX).setValidRange(0,
+            (right - left) / 2.0 / PlateGrid.MAX_COLS);
+        plateFieldEditors.get(Settings.GAPY).setValidRange(0,
+            (bottom - top) / 2.0 / PlateGrid.MAX_COLS);
+
+        plateTextControls.get(Settings.LEFT).setText(String.valueOf(left));
+        plateTextControls.get(Settings.TOP).setText(String.valueOf(top));
+        plateTextControls.get(Settings.RIGHT).setText(String.valueOf(right));
+        plateTextControls.get(Settings.BOTTOM).setText(String.valueOf(bottom));
+        plateTextControls.get(Settings.GAPX).setText(String.valueOf(gapX));
+        plateTextControls.get(Settings.GAPY).setText(String.valueOf(gapY));
 
         boolean[] orientationSettings =
             new boolean[] { o == Orientation.LANDSCAPE,
@@ -267,18 +315,6 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
         orientationFieldEditor.setSelectionArray(orientationSettings);
         internalUpdate = false;
-    }
-
-    @Override
-    public void sizeChanged() {
-        internalUpdate = true;
-        statusLabel.setText(ALIGN_STATUS_MSG);
-        PlateGrid<Double> r = plateGridWidget.getConvertedPlateRegion();
-
-        double left = r.getLeft();
-        double top = r.getTop();
-        internalUpdate(left, top, left + r.getWidth(), top + r.getHeight(),
-            r.getGapX(), r.getGapY(), r.getOrientation());
     }
 
     private String formatInput(String s) {
@@ -291,31 +327,33 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     }
 
     public double getLeft() {
-        return Double.parseDouble(formatInput(textControls[0].getText()));
-    }
-
-    public void setLeft(double left) {
-        textControls[0].setText(String.valueOf(left));
+        return Double.parseDouble(formatInput(plateTextControls.get(
+            Settings.LEFT).getText()));
     }
 
     public double getTop() {
-        return Double.parseDouble(formatInput(textControls[1].getText()));
+        return Double.parseDouble(formatInput(plateTextControls.get(
+            Settings.TOP).getText()));
     }
 
     public double getRight() {
-        return Double.parseDouble(formatInput(textControls[2].getText()));
+        return Double.parseDouble(formatInput(plateTextControls.get(
+            Settings.RIGHT).getText()));
     }
 
     public double getBottom() {
-        return Double.parseDouble(formatInput(textControls[3].getText()));
+        return Double.parseDouble(formatInput(plateTextControls.get(
+            Settings.BOTTOM).getText()));
     }
 
     public double getGapX() {
-        return Double.parseDouble(formatInput(textControls[4].getText()));
+        return Double.parseDouble(formatInput(plateTextControls.get(
+            Settings.GAPX).getText()));
     }
 
     public double getGapY() {
-        return Double.parseDouble(formatInput(textControls[5].getText()));
+        return Double.parseDouble(formatInput(plateTextControls.get(
+            Settings.GAPY).getText()));
     }
 
     public Orientation getOrientation() {
@@ -333,21 +371,24 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     }
 
     public double getWidth() {
-        return Double.parseDouble(textControls[2].getText())
-            - Double.parseDouble(textControls[0].getText());
+        return Double.parseDouble(plateTextControls.get(Settings.RIGHT)
+            .getText())
+            - Double
+                .parseDouble(plateTextControls.get(Settings.LEFT).getText());
     }
 
     public double getHeight() {
-        return Double.parseDouble(textControls[3].getText())
-            - Double.parseDouble(textControls[1].getText());
+        return Double.parseDouble(plateTextControls.get(Settings.BOTTOM)
+            .getText())
+            - Double.parseDouble(plateTextControls.get(Settings.TOP).getText());
     }
 
     private void setEnabled(boolean enabled) {
         isEnabled = enabled;
 
-        for (int i = 0; i < 6; ++i) {
-            if (textControls[i] != null)
-                textControls[i].setEnabled(enabled);
+        for (Text text : plateTextControls.values()) {
+            if (text != null)
+                text.setEnabled(enabled);
         }
 
         orientationFieldEditor.setEnabled(isEnabled, getFieldEditorParent());
@@ -407,6 +448,30 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         if (statusLabel == null)
             return;
         statusLabel.setText(ALIGN_STATUS_MSG);
+        Rectangle imgBounds = plateImageMgr.getScannedImage().getBounds();
+        double widthInches =
+            imgBounds.width / (double) PlateImageMgr.PLATE_IMAGE_DPI;
+        double heightInches =
+            imgBounds.height / (double) PlateImageMgr.PLATE_IMAGE_DPI;
+
+        plateFieldEditors.get(Settings.LEFT).setValidRange(0, widthInches);
+        plateFieldEditors.get(Settings.TOP).setValidRange(0, heightInches);
+        plateFieldEditors.get(Settings.RIGHT).setValidRange(0, widthInches);
+        plateFieldEditors.get(Settings.BOTTOM).setValidRange(0, heightInches);
+    }
+
+    @Override
+    public void sizeChanged() {
+        statusLabel.setText(ALIGN_STATUS_MSG);
+        PlateGrid<Double> r = plateGridWidget.getConvertedPlateRegion();
+
+        double left = r.getLeft();
+        double top = r.getTop();
+        double width = r.getWidth();
+        double height = r.getHeight();
+
+        internalUpdate(left, top, left + width, top + height, r.getGapX(),
+            r.getGapY(), r.getOrientation());
     }
 
     @Override

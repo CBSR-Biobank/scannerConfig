@@ -26,9 +26,9 @@ import org.eclipse.swt.widgets.Listener;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.IPlateImageListener;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.IPlateSettingsListener;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid;
+import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid.Orientation;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateImageMgr;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateSettings;
-import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid.Orientation;
 
 public class PlateGridWidget implements IPlateImageListener,
     IPlateSettingsListener, MouseMoveListener, Listener, ControlListener,
@@ -281,14 +281,14 @@ public class PlateGridWidget implements IPlateImageListener,
         if (!haveImage)
             return;
 
-        int delta = 0;
-        if (event.count < 0) {
-            delta = 1;
-        } else if (event.count > 0) {
-            delta = -1;
-        }
-
         if (event.type == SWT.MouseWheel) {
+            int delta = 0;
+            if (event.count < 0) {
+                delta = 1;
+            } else if (event.count > 0) {
+                delta = -1;
+            }
+
             plateGrid.setGapX(plateGrid.getGapX() + delta);
             plateGrid.setGapY(plateGrid.getGapY() + delta);
             canvas.redraw();
@@ -517,9 +517,11 @@ public class PlateGridWidget implements IPlateImageListener,
         Point canvasSize = canvas.getSize();
 
         double widthFactor =
-            imgBounds.width / PlateImageMgr.PLATE_IMAGE_DPI / canvasSize.x;
+            imgBounds.width / (double) PlateImageMgr.PLATE_IMAGE_DPI
+                / canvasSize.x;
         double heightFactor =
-            imgBounds.height / PlateImageMgr.PLATE_IMAGE_DPI / canvasSize.y;
+            imgBounds.height / (double) PlateImageMgr.PLATE_IMAGE_DPI
+                / canvasSize.y;
 
         result.setLeft(plateGrid.getLeft() * widthFactor);
         result.setTop(plateGrid.getTop() * heightFactor);

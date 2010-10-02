@@ -101,7 +101,7 @@ public class PlateGrid<T extends Number> {
     public void setGapX(T gapX) {
         if (gapX instanceof Integer) {
             int value = gapX.intValue();
-            int maxCellWidth = width.intValue() / MAX_COLS;
+            int maxCellWidth = (int) (width.intValue() / 2.0 / MAX_COLS);
             if ((value >= 0) && (value <= maxCellWidth)) {
                 this.gapX = (T) new Integer(value);
             }
@@ -118,7 +118,7 @@ public class PlateGrid<T extends Number> {
     public void setGapY(T gapY) {
         if (gapX instanceof Integer) {
             int value = gapY.intValue();
-            int maxCellWidth = height.intValue() / MAX_ROWS;
+            int maxCellWidth = (int) (height.intValue() / 2.0 / MAX_ROWS);
             if ((value >= 0) && (value <= maxCellWidth)) {
                 this.gapY = (T) new Integer(value);
             }
