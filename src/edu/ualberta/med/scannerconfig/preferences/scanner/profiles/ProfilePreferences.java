@@ -88,8 +88,9 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                InputDialog id = new InputDialog(getShell(), SWT.NONE,
-                    "Profile Name", "Please enter a profile name: ");
+                InputDialog id =
+                    new InputDialog(getShell(), SWT.NONE, "Profile Name",
+                        "Please enter a profile name: ");
 
                 String newProfileName = id.open(); // TODO strip
 
@@ -173,7 +174,7 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
         });
 
         resetBtn = new Button(buttons2, SWT.SIMPLE);
-        resetBtn.setText("Reset");
+        resetBtn.setText("Unselect All");
         resetBtn.addSelectionListener(new SelectionListener() {
 
             @Override
