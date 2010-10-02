@@ -23,7 +23,7 @@ public class PlateImageMgr {
 
     private Image scannedImage;
 
-    private boolean debug = true;
+    private boolean debug = false;
 
     protected PlateImageMgr() {
         if (debug) {
@@ -51,8 +51,10 @@ public class PlateImageMgr {
     }
 
     public void cleanAll() {
-        final File platesFile = new File(PlateImageMgr.PALLET_IMAGE_FILE);
-        platesFile.delete();
+        File platesFile = new File(PlateImageMgr.PALLET_IMAGE_FILE);
+        if (platesFile.exists()) {
+            platesFile.delete();
+        }
 
         if (scannedImage != null) {
             scannedImage.dispose();
