@@ -7,10 +7,10 @@ Bundle-Activator: edu.ualberta.med.scannerconfig.ScannerConfigPlugin
 Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-NativeCode: dmscanlib.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",
- cv210.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",
- cxcore210.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",
- OpenThreads.dll;selection-filter="(&(osgi.arch=x86)(osgi.os=win32))",*
+Bundle-NativeCode: dmscanlib.dll;osname=Win32;processor=x86,
+ cv210.dll;osname=Win32;processor=x86,
+ cxcore210.dll;osname=Win32;processor=x86,
+ OpenThreads.dll;osname=Win32;processor=x86,*
 Bundle-ClassPath: .
 Export-Package: edu.ualberta.med.scannerconfig;uses:="org.eclipse.jface.resource,org.eclipse.ui.plugin,org.osgi.framework",
  edu.ualberta.med.scannerconfig.dmscanlib,
