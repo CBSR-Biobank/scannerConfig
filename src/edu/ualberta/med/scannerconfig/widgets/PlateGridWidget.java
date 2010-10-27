@@ -146,9 +146,8 @@ public class PlateGridWidget implements IPlateImageListener,
 
         Assert.isNotNull(plateGrid);
 
-        Rectangle plateRect =
-            new Rectangle(plateGrid.getLeft(), plateGrid.getTop(),
-                plateGrid.getWidth(), plateGrid.getHeight());
+        Rectangle plateRect = new Rectangle(plateGrid.getLeft(),
+            plateGrid.getTop(), plateGrid.getWidth(), plateGrid.getHeight());
 
         if (plateRect.contains(e.x, e.y))
             canvas.setFocus();
@@ -320,9 +319,8 @@ public class PlateGridWidget implements IPlateImageListener,
             drag = true;
             startDragMousePt.y = e.y;
             startDragMousePt.x = e.x;
-            startGridRect =
-                new Rectangle(plateGrid.getLeft(), plateGrid.getTop(),
-                    plateGrid.getWidth(), plateGrid.getHeight());
+            startGridRect = new Rectangle(plateGrid.getLeft(),
+                plateGrid.getTop(), plateGrid.getWidth(), plateGrid.getHeight());
 
         }
         canvas.redraw();
@@ -413,9 +411,9 @@ public class PlateGridWidget implements IPlateImageListener,
 
         // draw plate rect minus 1 pixel on each side so that it acts as a
         // border for the grid
-        Rectangle plateRect =
-            new Rectangle(plateGrid.getLeft() - 1, plateGrid.getTop() - 1,
-                plateGrid.getWidth() + 2, plateGrid.getHeight() + 2);
+        Rectangle plateRect = new Rectangle(plateGrid.getLeft() - 1,
+            plateGrid.getTop() - 1, plateGrid.getWidth() + 2,
+            plateGrid.getHeight() + 2);
         imageGC.setForeground(new Color(canvas.getDisplay(), 255, 0, 0));
         imageGC.drawRectangle(plateRect);
 
@@ -436,9 +434,8 @@ public class PlateGridWidget implements IPlateImageListener,
 
     private void drawGrid(GC gc) {
         Assert.isNotNull(plateGrid);
-        Rectangle gridRect =
-            new Rectangle(plateGrid.getLeft(), plateGrid.getTop(),
-                plateGrid.getWidth(), plateGrid.getHeight());
+        Rectangle gridRect = new Rectangle(plateGrid.getLeft(),
+            plateGrid.getTop(), plateGrid.getWidth(), plateGrid.getHeight());
 
         int rows = plateGrid.getMaxRows();
         int cols = plateGrid.getMaxCols();
@@ -460,10 +457,9 @@ public class PlateGridWidget implements IPlateImageListener,
             cx = gridRect.x;
 
             for (int col = 0; col < cols; col++, cx += cellWidth) {
-                cellRect =
-                    new Rectangle((int) (cx + gapX), (int) (cy + gapY),
-                        (int) (cellWidth - doubleGapX),
-                        (int) (cellHeight - doubleGapY));
+                cellRect = new Rectangle((int) (cx + gapX), (int) (cy + gapY),
+                    (int) (cellWidth - doubleGapX),
+                    (int) (cellHeight - doubleGapY));
 
                 gc.drawRectangle(cellRect);
 
@@ -491,10 +487,10 @@ public class PlateGridWidget implements IPlateImageListener,
         Rectangle imgBounds = plateImageMgr.getScannedImage().getBounds();
         Point canvasSize = canvas.getSize();
 
-        double widthFactor =
-            PlateImageMgr.PLATE_IMAGE_DPI * canvasSize.x / imgBounds.width;
-        double heightFactor =
-            PlateImageMgr.PLATE_IMAGE_DPI * canvasSize.y / imgBounds.height;
+        double widthFactor = (double) PlateImageMgr.PLATE_IMAGE_DPI
+            * canvasSize.x / imgBounds.width;
+        double heightFactor = (double) PlateImageMgr.PLATE_IMAGE_DPI
+            * canvasSize.y / imgBounds.height;
 
         plateGrid.setLeft((int) (plateSettings.getLeft() * widthFactor));
         plateGrid.setTop((int) (plateSettings.getTop() * heightFactor));
@@ -516,12 +512,10 @@ public class PlateGridWidget implements IPlateImageListener,
         Rectangle imgBounds = plateImageMgr.getScannedImage().getBounds();
         Point canvasSize = canvas.getSize();
 
-        double widthFactor =
-            imgBounds.width / (double) PlateImageMgr.PLATE_IMAGE_DPI
-                / canvasSize.x;
-        double heightFactor =
-            imgBounds.height / (double) PlateImageMgr.PLATE_IMAGE_DPI
-                / canvasSize.y;
+        double widthFactor = imgBounds.width
+            / (double) PlateImageMgr.PLATE_IMAGE_DPI / canvasSize.x;
+        double heightFactor = imgBounds.height
+            / (double) PlateImageMgr.PLATE_IMAGE_DPI / canvasSize.y;
 
         result.setLeft(plateGrid.getLeft() * widthFactor);
         result.setTop(plateGrid.getTop() * heightFactor);
@@ -563,8 +557,7 @@ public class PlateGridWidget implements IPlateImageListener,
     private void notifyChangeListener() {
         Object[] listeners = changeListeners.getListeners();
         for (int i = 0; i < listeners.length; ++i) {
-            final IPlateGridWidgetListener l =
-                (IPlateGridWidgetListener) listeners[i];
+            final IPlateGridWidgetListener l = (IPlateGridWidgetListener) listeners[i];
             SafeRunnable.run(new SafeRunnable() {
                 @Override
                 public void run() {
