@@ -487,10 +487,10 @@ public class PlateGridWidget implements IPlateImageListener,
         Rectangle imgBounds = plateImageMgr.getScannedImage().getBounds();
         Point canvasSize = canvas.getSize();
 
-        double widthFactor = PlateImageMgr.PLATE_IMAGE_DPI * canvasSize.x
-            / imgBounds.width;
-        double heightFactor = PlateImageMgr.PLATE_IMAGE_DPI * canvasSize.y
-            / imgBounds.height;
+        double widthFactor = (double) PlateImageMgr.PLATE_IMAGE_DPI
+            * canvasSize.x / imgBounds.width;
+        double heightFactor = (double) PlateImageMgr.PLATE_IMAGE_DPI
+            * canvasSize.y / imgBounds.height;
 
         plateGrid.setLeft((int) (plateSettings.getLeft() * widthFactor));
         plateGrid.setTop((int) (plateSettings.getTop() * heightFactor));
