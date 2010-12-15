@@ -71,16 +71,13 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                 public void propertyChange(PropertyChangeEvent event) {
                     if (event.getProperty().startsWith(
                         "scanner.plate.coords.enabled.")) {
-                        IWorkbenchWindow window =
-                            PlatformUI.getWorkbench()
-                                .getActiveWorkbenchWindow();
-                        ISourceProviderService service =
-                            (ISourceProviderService) window
-                                .getService(ISourceProviderService.class);
+                        IWorkbenchWindow window = PlatformUI.getWorkbench()
+                            .getActiveWorkbenchWindow();
+                        ISourceProviderService service = (ISourceProviderService) window
+                            .getService(ISourceProviderService.class);
 
-                        PlateEnabledState plateEnabledSourceProvider =
-                            (PlateEnabledState) service
-                                .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
+                        PlateEnabledState plateEnabledSourceProvider = (PlateEnabledState) service
+                            .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
                         Assert.isNotNull(plateEnabledSourceProvider);
                         plateEnabledSourceProvider.setPlateEnabled();
                     }
@@ -140,9 +137,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
-        int res =
-            ScanLibWin32.getInstance().slScanImage(debugLevel, dpi, brightness,
-                contrast, left, top, right, bottom, filename);
+        int res = ScanLibWin32.getInstance().slScanImage(debugLevel, dpi,
+            brightness, contrast, left, top, right, bottom, filename);
 
         if (res < ScanLibWin32.SC_SUCCESS) {
             throw new Exception("Could not decode image. "
@@ -153,15 +149,13 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     public static void scanPlate(int plateNumber, String filename)
         throws Exception {
 
-        String[] prefsArr =
-            PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
+        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
-        ScanRegion region =
-            new ScanRegion(prefs.getDouble(prefsArr[0]),
-                prefs.getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]),
-                prefs.getDouble(prefsArr[3]));
+        ScanRegion region = new ScanRegion(prefs.getDouble(prefsArr[0]),
+            prefs.getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]),
+            prefs.getDouble(prefsArr[3]));
 
         regionModifyIfScannerWia(region);
 
@@ -181,39 +175,34 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         double scanGap = prefs.getDouble(PreferenceConstants.LIBDMTX_SCAN_GAP);
         int squareDev = prefs.getInt(PreferenceConstants.LIBDMTX_SQUARE_DEV);
         int corrections = prefs.getInt(PreferenceConstants.LIBDMTX_CORRECTIONS);
-        double cellDistance =
-            prefs.getDouble(PreferenceConstants.LIBDMTX_CELL_DISTANCE);
+        double cellDistance = prefs
+            .getDouble(PreferenceConstants.LIBDMTX_CELL_DISTANCE);
 
-        String[] prefsArr =
-            PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
+        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
-        ScanRegion region =
-            new ScanRegion(prefs.getDouble(prefsArr[0]),
-                prefs.getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]),
-                prefs.getDouble(prefsArr[3]));
+        ScanRegion region = new ScanRegion(prefs.getDouble(prefsArr[0]),
+            prefs.getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]),
+            prefs.getDouble(prefsArr[3]));
 
         double gapX = prefs.getDouble(prefsArr[4]);
         double gapY = prefs.getDouble(prefsArr[5]);
 
-        int orientation =
-            prefs
-                .getString(
-                    PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1])
-                .equals("Landscape") ? 0 : 1;
+        int orientation = prefs.getString(
+            PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1])
+            .equals("Landscape") ? 0 : 1;
 
         regionModifyIfScannerWia(region);
 
-        ProfileSettings profile =
-            ProfileManager.instance().getProfile(profileName);
+        ProfileSettings profile = ProfileManager.instance().getProfile(
+            profileName);
 
         int[] words = profile.toWords();
 
-        int res =
-            ScanLib.getInstance().slDecodePlate(debugLevel, dpi, brightness,
-                contrast, plateNumber, region.getLeft(), region.getTop(),
-                region.getRight(), region.getBottom(), scanGap, squareDev,
-                edgeThresh, corrections, cellDistance, gapX, gapY, words[0],
-                words[1], words[2], orientation);
+        int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
+            brightness, contrast, plateNumber, region.getLeft(),
+            region.getTop(), region.getRight(), region.getBottom(), scanGap,
+            squareDev, edgeThresh, corrections, cellDistance, gapX, gapY,
+            words[0], words[1], words[2], orientation);
 
         if (res < ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. "
@@ -297,5 +286,31 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                     .getActiveWorkbenchWindow().getShell(), title, message);
             }
         });
+    }
+
+    public int getPlateNumber(String barcode, boolean realscan) {
+        for (int i = 0; i < PreferenceConstants.SCANNER_PLATE_BARCODES.length; i++) {
+            if (realscan
+                && !ScannerConfigPlugin.getDefault().getPlateEnabled(i + 1))
+                continue;
+
+            String pref = getPreferenceStore().getString(
+                PreferenceConstants.SCANNER_PLATE_BARCODES[i]);
+            Assert.isTrue(!pref.isEmpty(), "preference not assigned");
+            if (pref.equals(barcode)) {
+                return i + 1;
+            }
+        }
+        return -1;
+    }
+
+    public static int getPlatesEnabledCount(boolean realscan) {
+        int count = 0;
+        for (int i = 0; i < PreferenceConstants.SCANNER_PLATE_BARCODES.length; i++) {
+            if (!realscan
+                || ScannerConfigPlugin.getDefault().getPlateEnabled(i + 1))
+                count++;
+        }
+        return count;
     }
 }

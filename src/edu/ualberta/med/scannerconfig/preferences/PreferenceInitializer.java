@@ -30,8 +30,12 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_CONFIG.length; i++) {
             store.setDefault(PreferenceConstants.SCANNER_PALLET_ORIENTATION[i],
                 false);
-
         }
+        for (int i = 0; i < PreferenceConstants.SCANNER_PLATE_BARCODES.length; i++) {
+            store.setDefault(PreferenceConstants.SCANNER_PLATE_BARCODES[i],
+                "PLATE" + (i + 1));
+        }
+        store.setDefault(PreferenceConstants.SCANNER_PLATE_SHOW_BARCODE_PREF,
+            false);
     }
-
 }

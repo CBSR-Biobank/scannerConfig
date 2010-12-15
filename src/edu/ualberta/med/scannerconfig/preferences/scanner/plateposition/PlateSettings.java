@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
@@ -214,14 +215,12 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     protected void createFieldEditors() {
         DoubleFieldEditor fe;
 
-        enabledFieldEditor =
-            new BooleanFieldEditor(
-                PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1],
-                "Enable", getFieldEditorParent());
+        enabledFieldEditor = new BooleanFieldEditor(
+            PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1], "Enable",
+            getFieldEditorParent());
         addField(enabledFieldEditor);
 
-        String[] prefsArr =
-            PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
+        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
 
         plateFieldEditors = new HashMap<Settings, DoubleFieldEditor>();
         plateTextControls = new HashMap<Settings, Text>();
@@ -245,19 +244,23 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             ++count;
         }
 
-        orientationFieldEditor =
-            new AdvancedRadioGroupFieldEditor(
-                PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1],
-                "Orientation",
-                2,
-                new String[][] {
-                    {
-                        PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE,
-                        PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE },
-                    { PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT,
-                        PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT } },
-                parent, true);
+        orientationFieldEditor = new AdvancedRadioGroupFieldEditor(
+            PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1],
+            "Orientation",
+            2,
+            new String[][] {
+                { PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE,
+                    PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE },
+                { PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT,
+                    PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT } },
+            parent, true);
         addField(orientationFieldEditor);
+
+        if (getPreferenceStore().getBoolean(
+            PreferenceConstants.SCANNER_PLATE_SHOW_BARCODE_PREF))
+            addField(new StringFieldEditor(
+                PreferenceConstants.SCANNER_PLATE_BARCODES[plateId - 1],
+                "Barcode:", getFieldEditorParent()));
     }
 
     @Override
@@ -309,9 +312,8 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         plateTextControls.get(Settings.GAPX).setText(String.valueOf(gapX));
         plateTextControls.get(Settings.GAPY).setText(String.valueOf(gapY));
 
-        boolean[] orientationSettings =
-            new boolean[] { o == Orientation.LANDSCAPE,
-                o == Orientation.PORTRAIT };
+        boolean[] orientationSettings = new boolean[] {
+            o == Orientation.LANDSCAPE, o == Orientation.PORTRAIT };
 
         orientationFieldEditor.setSelectionArray(orientationSettings);
         internalUpdate = false;
@@ -357,8 +359,8 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     }
 
     public Orientation getOrientation() {
-        IPreferenceStore prefs =
-            ScannerConfigPlugin.getDefault().getPreferenceStore();
+        IPreferenceStore prefs = ScannerConfigPlugin.getDefault()
+            .getPreferenceStore();
 
         return prefs.getString(
             PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1])
@@ -413,8 +415,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
         Object[] listeners = changeListeners.getListeners();
         for (int i = 0; i < listeners.length; ++i) {
-            final IPlateSettingsListener l =
-                (IPlateSettingsListener) listeners[i];
+            final IPlateSettingsListener l = (IPlateSettingsListener) listeners[i];
             SafeRunnable.run(new SafeRunnable() {
                 @Override
                 public void run() {
@@ -449,10 +450,10 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             return;
         statusLabel.setText(ALIGN_STATUS_MSG);
         Rectangle imgBounds = plateImageMgr.getScannedImage().getBounds();
-        double widthInches =
-            imgBounds.width / (double) PlateImageMgr.PLATE_IMAGE_DPI;
-        double heightInches =
-            imgBounds.height / (double) PlateImageMgr.PLATE_IMAGE_DPI;
+        double widthInches = imgBounds.width
+            / (double) PlateImageMgr.PLATE_IMAGE_DPI;
+        double heightInches = imgBounds.height
+            / (double) PlateImageMgr.PLATE_IMAGE_DPI;
 
         plateFieldEditors.get(Settings.LEFT).setValidRange(0, widthInches);
         plateFieldEditors.get(Settings.TOP).setValidRange(0, heightInches);
