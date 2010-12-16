@@ -77,6 +77,12 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             public String toString() {
                 return "Cell Gap Vertical";
             }
+        },
+        BARCODE() {
+            @Override
+            public String toString() {
+                return "Barcode";
+            }
         }
     };
 
@@ -91,7 +97,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     protected int plateId;
     private boolean isEnabled;
 
-    private Map<Settings, DoubleFieldEditor> plateFieldEditors;
+    private Map<Settings, StringFieldEditor> plateFieldEditors;
     private Map<Settings, Text> plateTextControls;
     private Canvas canvas;
     private PlateGridWidget plateGridWidget = null;
@@ -213,7 +219,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     @Override
     protected void createFieldEditors() {
-        DoubleFieldEditor fe;
+        StringFieldEditor fe;
 
         enabledFieldEditor = new BooleanFieldEditor(
             PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1], "Enable",
@@ -222,27 +228,9 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
         String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
 
-        plateFieldEditors = new HashMap<Settings, DoubleFieldEditor>();
+        plateFieldEditors = new HashMap<Settings, StringFieldEditor>();
         plateTextControls = new HashMap<Settings, Text>();
         Composite parent = getFieldEditorParent();
-
-        int count = 0;
-        for (Settings setting : Settings.values()) {
-            fe = new DoubleFieldEditor(prefsArr[count], setting + ":", parent);
-            fe.setValidRange(0, 20);
-            addField(fe);
-            Text text = fe.getTextControl(parent);
-            plateTextControls.put(setting, text);
-            text.addModifyListener(new ModifyListener() {
-                @Override
-                public void modifyText(ModifyEvent e) {
-                    notifyChangeListener(IPlateSettingsListener.TEXT_CHANGE, 0);
-                }
-
-            });
-            plateFieldEditors.put(setting, fe);
-            ++count;
-        }
 
         orientationFieldEditor = new AdvancedRadioGroupFieldEditor(
             PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1],
@@ -256,11 +244,37 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             parent, true);
         addField(orientationFieldEditor);
 
-        if (getPreferenceStore().getBoolean(
-            PreferenceConstants.SCANNER_PLATE_SHOW_BARCODE_PREF))
-            addField(new StringFieldEditor(
-                PreferenceConstants.SCANNER_PLATE_BARCODES[plateId - 1],
-                "Barcode:", getFieldEditorParent()));
+        int count = 0;
+        for (Settings setting : Settings.values()) {
+            if (setting.equals(Settings.BARCODE)) {
+                if (!getPreferenceStore().getBoolean(
+                    PreferenceConstants.SCANNER_PLATE_SHOW_BARCODE_PREF))
+                    continue;
+                fe = new StringFieldEditor(
+                    PreferenceConstants.SCANNER_PLATE_BARCODES[plateId - 1],
+                    "Barcode:", getFieldEditorParent());
+            } else {
+                fe = new DoubleFieldEditor(prefsArr[count], setting + ":",
+                    parent);
+                ((DoubleFieldEditor) fe).setValidRange(0, 20);
+                addField(fe);
+            }
+            Text text = fe.getTextControl(parent);
+            plateTextControls.put(setting, text);
+            plateFieldEditors.put(setting, fe);
+
+            if (!setting.equals(Settings.BARCODE)) {
+                text.addModifyListener(new ModifyListener() {
+                    @Override
+                    public void modifyText(ModifyEvent e) {
+                        notifyChangeListener(
+                            IPlateSettingsListener.TEXT_CHANGE, 0);
+                    }
+
+                });
+            }
+            ++count;
+        }
     }
 
     @Override
@@ -300,10 +314,10 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         double bottom, double gapX, double gapY, Orientation o) {
         internalUpdate = true;
 
-        plateFieldEditors.get(Settings.GAPX).setValidRange(0,
-            (right - left) / 2.0 / PlateGrid.MAX_COLS);
-        plateFieldEditors.get(Settings.GAPY).setValidRange(0,
-            (bottom - top) / 2.0 / PlateGrid.MAX_COLS);
+        ((DoubleFieldEditor) plateFieldEditors.get(Settings.GAPX))
+            .setValidRange(0, (right - left) / 2.0 / PlateGrid.MAX_COLS);
+        ((DoubleFieldEditor) plateFieldEditors.get(Settings.GAPY))
+            .setValidRange(0, (bottom - top) / 2.0 / PlateGrid.MAX_COLS);
 
         plateTextControls.get(Settings.LEFT).setText(String.valueOf(left));
         plateTextControls.get(Settings.TOP).setText(String.valueOf(top));
@@ -311,6 +325,9 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         plateTextControls.get(Settings.BOTTOM).setText(String.valueOf(bottom));
         plateTextControls.get(Settings.GAPX).setText(String.valueOf(gapX));
         plateTextControls.get(Settings.GAPY).setText(String.valueOf(gapY));
+        plateTextControls.get(Settings.BARCODE).setText(
+            getPreferenceStore().getString(
+                PreferenceConstants.SCANNER_PLATE_BARCODES[plateId - 1]));
 
         boolean[] orientationSettings = new boolean[] {
             o == Orientation.LANDSCAPE, o == Orientation.PORTRAIT };
@@ -455,10 +472,14 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         double heightInches = imgBounds.height
             / (double) PlateImageMgr.PLATE_IMAGE_DPI;
 
-        plateFieldEditors.get(Settings.LEFT).setValidRange(0, widthInches);
-        plateFieldEditors.get(Settings.TOP).setValidRange(0, heightInches);
-        plateFieldEditors.get(Settings.RIGHT).setValidRange(0, widthInches);
-        plateFieldEditors.get(Settings.BOTTOM).setValidRange(0, heightInches);
+        ((DoubleFieldEditor) plateFieldEditors.get(Settings.LEFT))
+            .setValidRange(0, widthInches);
+        ((DoubleFieldEditor) plateFieldEditors.get(Settings.TOP))
+            .setValidRange(0, heightInches);
+        ((DoubleFieldEditor) plateFieldEditors.get(Settings.RIGHT))
+            .setValidRange(0, widthInches);
+        ((DoubleFieldEditor) plateFieldEditors.get(Settings.BOTTOM))
+            .setValidRange(0, heightInches);
     }
 
     @Override
