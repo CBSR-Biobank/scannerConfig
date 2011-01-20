@@ -27,9 +27,9 @@ public class PlateImageMgr {
 
     protected PlateImageMgr() {
         if (debug) {
-            scannedImage =
-                new Image(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell().getDisplay(), PlateImageMgr.PALLET_IMAGE_FILE);
+            scannedImage = new Image(PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow().getShell().getDisplay(),
+                PlateImageMgr.PALLET_IMAGE_FILE);
         } else {
             cleanAll();
         }
@@ -63,23 +63,19 @@ public class PlateImageMgr {
     }
 
     public void scanPlateImage() {
-        int brightness =
-            ScannerConfigPlugin.getDefault().getPreferenceStore()
-                .getInt(PreferenceConstants.SCANNER_BRIGHTNESS);
-        int contrast =
-            ScannerConfigPlugin.getDefault().getPreferenceStore()
-                .getInt(PreferenceConstants.SCANNER_CONTRAST);
-        int debugLevel =
-            ScannerConfigPlugin.getDefault().getPreferenceStore()
-                .getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
+        int brightness = ScannerConfigPlugin.getDefault().getPreferenceStore()
+            .getInt(PreferenceConstants.SCANNER_BRIGHTNESS);
+        int contrast = ScannerConfigPlugin.getDefault().getPreferenceStore()
+            .getInt(PreferenceConstants.SCANNER_CONTRAST);
+        int debugLevel = ScannerConfigPlugin.getDefault().getPreferenceStore()
+            .getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
         cleanAll();
         notifyListeners(false);
 
-        final int result =
-            ScanLib.getInstance().slScanImage(debugLevel,
-                PlateImageMgr.PLATE_IMAGE_DPI, brightness, contrast, 0, 0, 20,
-                20, PlateImageMgr.PALLET_IMAGE_FILE);
+        final int result = ScanLib.getInstance().slScanImage(debugLevel,
+            PlateImageMgr.PLATE_IMAGE_DPI, brightness, contrast, 0, 0, 20, 20,
+            PlateImageMgr.PALLET_IMAGE_FILE);
 
         if (result != ScanLib.SC_SUCCESS) {
             ScannerConfigPlugin.openAsyncError("Scanner error",
@@ -89,9 +85,9 @@ public class PlateImageMgr {
 
         Assert.isTrue((new File(PlateImageMgr.PALLET_IMAGE_FILE)).exists());
 
-        scannedImage =
-            new Image(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell().getDisplay(), PlateImageMgr.PALLET_IMAGE_FILE);
+        scannedImage = new Image(PlatformUI.getWorkbench()
+            .getActiveWorkbenchWindow().getShell().getDisplay(),
+            PlateImageMgr.PALLET_IMAGE_FILE);
         notifyListeners(true);
     }
 

@@ -45,6 +45,10 @@ public class ProfileSettings extends BitSet {
         }
     }
 
+    public boolean equals() {
+        return false;
+    }
+
     public String getName() {
         return name;
     }
