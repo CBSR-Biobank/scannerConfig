@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -61,19 +62,16 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
 
         profileList = new List(left, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
         profileList.setLayoutData(gridData);
-        profileList.addSelectionListener(new SelectionListener() {
-
+        profileList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 if (profileList.getSelectionIndex() >= 0) {
                     setEnabledProfile(true);
                     loadActiveProfile();
+                    deleteBtn.setEnabled(!getActiveName().equals(
+                        ProfileManager.ALL_PROFILE_NAME));
                 } else
                     setEnabledProfile(false);
-            }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
 
@@ -84,13 +82,11 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
 
         Button addButton = new Button(buttons, SWT.SIMPLE);
         addButton.setText("Add...");
-        addButton.addSelectionListener(new SelectionListener() {
-
+        addButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                InputDialog id =
-                    new InputDialog(getShell(), SWT.NONE, "Profile Name",
-                        "Please enter a profile name: ");
+                InputDialog id = new InputDialog(getShell(), SWT.NONE,
+                    "Profile Name", "Please enter a profile name: ");
 
                 String newProfileName = id.open(); // TODO strip
 
@@ -99,23 +95,14 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
                 }
 
             }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
         });
 
         deleteBtn = new Button(buttons, SWT.SIMPLE);
         deleteBtn.setText("Delete Profile");
-        deleteBtn.addSelectionListener(new SelectionListener() {
-
+        deleteBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 removeProfile();
-            }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
 

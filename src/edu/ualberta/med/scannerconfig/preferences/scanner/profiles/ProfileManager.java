@@ -12,6 +12,7 @@ public class ProfileManager {
 
     private HashMap<String, ProfileSettings> profiles = new HashMap<String, ProfileSettings>();
 
+    public static final String ALL_PROFILE_NAME = "All";
     protected ProfileManager() {
         reloadProfiles();
     }
@@ -33,21 +34,20 @@ public class ProfileManager {
     }
 
     private String profilesToString() {
-        StringBuffer out = new StringBuffer();
+        String out = "";
         for (String key : profiles.keySet()) {
             ProfileSettings profile = profiles.get(key);
             int[] words = profile.toWords();
-            out.append(key + "," + words[0] + "," + words[1] + "," + words[2]
-                + ";");
+            out += key + "," + words[0] + "," + words[1] + "," + words[2] + ";";
         }
-        return out.toString();
+        return out;
     }
 
     public static HashMap<String, ProfileSettings> loadProfilesFromString()
         throws Exception {
         HashMap<String, ProfileSettings> profilesMap = new HashMap<String, ProfileSettings>();
 
-        ProfileSettings allProfile = new ProfileSettings("All");
+        ProfileSettings allProfile = new ProfileSettings(ALL_PROFILE_NAME);
         allProfile.setAll();
         profilesMap.put(allProfile.getName(), allProfile);
 
@@ -66,7 +66,7 @@ public class ProfileManager {
                 continue;
             }
             String key = elements[0];
-            if (key.equals("All"))
+            if (key.equals(ALL_PROFILE_NAME))
                 continue;
             int[] settingsAsInts = new int[] { Integer.parseInt(elements[1]),
                 Integer.parseInt(elements[2]), Integer.parseInt(elements[3]) };

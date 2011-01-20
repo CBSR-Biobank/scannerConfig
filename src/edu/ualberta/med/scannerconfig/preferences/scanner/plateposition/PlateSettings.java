@@ -325,9 +325,13 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         plateTextControls.get(Settings.BOTTOM).setText(String.valueOf(bottom));
         plateTextControls.get(Settings.GAPX).setText(String.valueOf(gapX));
         plateTextControls.get(Settings.GAPY).setText(String.valueOf(gapY));
-        plateTextControls.get(Settings.BARCODE).setText(
-            getPreferenceStore().getString(
-                PreferenceConstants.SCANNER_PLATE_BARCODES[plateId - 1]));
+
+        if (getPreferenceStore().getBoolean(
+            PreferenceConstants.SCANNER_PLATE_SHOW_BARCODE_PREF)) {
+            plateTextControls.get(Settings.BARCODE).setText(
+                getPreferenceStore().getString(
+                    PreferenceConstants.SCANNER_PLATE_BARCODES[plateId - 1]));
+        }
 
         boolean[] orientationSettings = new boolean[] {
             o == Orientation.LANDSCAPE, o == Orientation.PORTRAIT };
