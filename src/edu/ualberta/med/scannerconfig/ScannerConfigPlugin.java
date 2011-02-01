@@ -146,6 +146,23 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         }
     }
 
+    public static void scanFlatbed(String filename) throws Exception {
+        IPreferenceStore prefs = getDefault().getPreferenceStore();
+
+        int dpi = prefs.getInt(PreferenceConstants.SCANNER_DPI);
+        int brightness = prefs.getInt(PreferenceConstants.SCANNER_BRIGHTNESS);
+        int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
+        int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
+
+        int res = ScanLibWin32.getInstance().slScanFlatbed(debugLevel, dpi,
+            brightness, contrast, filename);
+
+        if (res < ScanLibWin32.SC_SUCCESS) {
+            throw new Exception("Could not decode image. "
+                + ScanLib.getErrMsg(res));
+        }
+    }
+
     public static void scanPlate(int plateNumber, String filename)
         throws Exception {
 

@@ -30,6 +30,12 @@ public class ScanLibSimulate extends ScanLib {
     }
 
     @Override
+    public int slScanFlatbed(long verbose, long dpi, int brightness,
+        int contrast, String filename) {
+        return -1;
+    }
+
+    @Override
     public int slDecodePlate(long verbose, long dpi, int brightness,
         int contrast, long plateNum, double left, double top, double right,
         double bottom, double scanGap, long squareDev, long edgeThresh,
