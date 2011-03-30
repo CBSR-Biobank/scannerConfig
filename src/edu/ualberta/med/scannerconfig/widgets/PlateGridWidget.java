@@ -35,9 +35,7 @@ public class PlateGridWidget implements IPlateImageListener,
     MouseListener, KeyListener, PaintListener {
 
     private enum DragMode {
-        NONE, MOVE, RESIZE_HORIZONTAL_LEFT, RESIZE_HORIZONTAL_RIGHT,
-        RESIZE_VERTICAL_TOP, RESIZE_VERTICAL_BOTTOM, RESIZE_BOTTOM_RIGHT,
-        RESIZE_TOP_LEFT
+        NONE, MOVE, RESIZE_HORIZONTAL_LEFT, RESIZE_HORIZONTAL_RIGHT, RESIZE_VERTICAL_TOP, RESIZE_VERTICAL_BOTTOM, RESIZE_BOTTOM_RIGHT, RESIZE_TOP_LEFT
     };
 
     private PlateSettings plateSettings;
@@ -492,14 +490,30 @@ public class PlateGridWidget implements IPlateImageListener,
         double heightFactor = (double) PlateImageMgr.PLATE_IMAGE_DPI
             * canvasSize.y / imgBounds.height;
 
-        plateGrid.setLeft((int) (plateSettings.getLeft() * widthFactor));
-        plateGrid.setTop((int) (plateSettings.getTop() * heightFactor));
-        plateGrid.setWidth((int) (plateSettings.getRight() * widthFactor)
-            - plateGrid.getLeft());
-        plateGrid.setHeight((int) (plateSettings.getBottom() * heightFactor)
-            - plateGrid.getTop());
-        plateGrid.setGapX((int) (plateSettings.getGapX() * widthFactor));
-        plateGrid.setGapY((int) (plateSettings.getGapY() * widthFactor));
+        int left = (int) (plateSettings.getLeft() * widthFactor);
+        int top = (int) (plateSettings.getTop() * heightFactor);
+        int right = (int) (plateSettings.getRight() * widthFactor);
+        int bottom = (int) (plateSettings.getBottom() * heightFactor);
+        int gapX = (int) (plateSettings.getGapX() * widthFactor);
+        int gapY = (int) (plateSettings.getGapY() * widthFactor);
+
+        if ((left < 0) || (right < 0) || (top < 0) || (bottom < 0)
+            || (left > canvasSize.x) || (right > canvasSize.x)
+            || (left > right) || (top > canvasSize.y)
+            || (bottom > canvasSize.y) || (top > bottom)) {
+            // outside image boundaries, no need to update grid image
+            return;
+        }
+
+        int width = right - left;
+        int height = bottom - left;
+
+        plateGrid.setLeft(left);
+        plateGrid.setTop(top);
+        plateGrid.setWidth(width);
+        plateGrid.setHeight(height);
+        plateGrid.setGapX(gapX);
+        plateGrid.setGapY(gapY);
     }
 
     /**
