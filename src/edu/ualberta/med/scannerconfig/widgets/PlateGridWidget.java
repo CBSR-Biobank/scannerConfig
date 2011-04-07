@@ -490,6 +490,8 @@ public class PlateGridWidget implements IPlateImageListener,
         double heightFactor = (double) PlateImageMgr.PLATE_IMAGE_DPI
             * canvasSize.y / imgBounds.height;
 
+        // ----------------------------------
+
         int left = (int) (plateSettings.getLeft() * widthFactor);
         int top = (int) (plateSettings.getTop() * heightFactor);
         int right = (int) (plateSettings.getRight() * widthFactor);
@@ -505,13 +507,10 @@ public class PlateGridWidget implements IPlateImageListener,
             return;
         }
 
-        int width = right - left;
-        int height = bottom - left;
-
         plateGrid.setLeft(left);
         plateGrid.setTop(top);
-        plateGrid.setWidth(width);
-        plateGrid.setHeight(height);
+        plateGrid.setWidth(right - left);
+        plateGrid.setHeight(bottom - top);
         plateGrid.setGapX(gapX);
         plateGrid.setGapY(gapY);
     }

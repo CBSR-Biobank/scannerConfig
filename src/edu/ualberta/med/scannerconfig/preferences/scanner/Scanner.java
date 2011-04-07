@@ -51,8 +51,8 @@ public class Scanner extends FieldEditorPreferencePage implements
         driverTypeRadio = new AdvancedRadioGroupFieldEditor(
             PreferenceConstants.SCANNER_DRV_TYPE, "Driver Type", 2,
             new String[][] {
-                { "TWAIN", PreferenceConstants.SCANNER_DRV_TYPE_TWAIN },
-                { "WIA", PreferenceConstants.SCANNER_DRV_TYPE_WIA } },
+                { "WIA", PreferenceConstants.SCANNER_DRV_TYPE_WIA },
+                { "TWAIN", PreferenceConstants.SCANNER_DRV_TYPE_TWAIN } },
             getFieldEditorParent(), true);
         addField(driverTypeRadio);
 

@@ -18,6 +18,8 @@ public class PreferenceConstants {
 
     public static final String SCANNER_DRV_TYPE = "scanner.drvtype";
 
+    public static final String SCANNER_DRV_TYPE_NONE = "scanner.drvtype.none";
+
     public static final String SCANNER_DRV_TYPE_WIA = "scanner.drvtype.wia";
 
     public static final String SCANNER_DRV_TYPE_TWAIN = "scanner.drvtype.twain";

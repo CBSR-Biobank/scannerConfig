@@ -63,6 +63,14 @@ public class PlateImageMgr {
     }
 
     public void scanPlateImage() {
+        if (ScannerConfigPlugin.getDefault().getPreferenceStore()
+            .getString(PreferenceConstants.SCANNER_DRV_TYPE)
+            .equals(PreferenceConstants.SCANNER_DRV_TYPE_NONE)) {
+            ScannerConfigPlugin.openAsyncError("Scanner Driver Not Selected",
+                "Please select and configure the scanner in preferences");
+            return;
+        }
+
         int brightness = ScannerConfigPlugin.getDefault().getPreferenceStore()
             .getInt(PreferenceConstants.SCANNER_BRIGHTNESS);
         int contrast = ScannerConfigPlugin.getDefault().getPreferenceStore()
