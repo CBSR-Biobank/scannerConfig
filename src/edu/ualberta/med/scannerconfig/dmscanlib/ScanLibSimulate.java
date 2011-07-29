@@ -11,19 +11,19 @@ public class ScanLibSimulate extends ScanLib {
 
     @Override
     public ScanLibResult slIsTwainAvailable() {
-        return new ScanLibResult(SC_FAIL,
+        return new ScanLibResult(SC_FAIL, 0,
             "function not supported in simulation environment");
     }
 
     @Override
     public ScanLibResult slSelectSourceAsDefault() {
-        return new ScanLibResult(SC_FAIL,
+        return new ScanLibResult(SC_FAIL, 0,
             "function not supported in simulation environment");
     }
 
     @Override
     public ScanLibResult slGetScannerCapability() {
-        return new ScanLibResult(SC_FAIL,
+        return new ScanLibResult(SC_FAIL, 0,
             "function not supported in simulation environment");
     }
 
@@ -31,14 +31,14 @@ public class ScanLibSimulate extends ScanLib {
     public ScanLibResult slScanImage(long verbose, long dpi, int brightness,
         int contrast, double left, double top, double right, double bottom,
         String filename) {
-        return new ScanLibResult(SC_FAIL,
+        return new ScanLibResult(SC_FAIL, 0,
             "function not supported in simulation environment");
     }
 
     @Override
     public ScanLibResult slScanFlatbed(long verbose, long dpi, int brightness,
         int contrast, String filename) {
-        return new ScanLibResult(SC_FAIL,
+        return new ScanLibResult(SC_FAIL, 0,
             "function not supported in simulation environment");
     }
 
@@ -48,7 +48,7 @@ public class ScanLibSimulate extends ScanLib {
         double bottom, double scanGap, long squareDev, long edgeThresh,
         long corrections, double cellDistance, double gapX, double gapY,
         long profileA, long profileB, long profileC, long isVertical) {
-        DecodeResult result = new DecodeResult(SC_SUCCESS, null);
+        DecodeResult result = new DecodeResult(SC_SUCCESS, 0, null);
 
         List<Integer> sampleIds = new ArrayList<Integer>();
         int samples = r.nextInt(96) + 1;
@@ -77,7 +77,7 @@ public class ScanLibSimulate extends ScanLib {
         String filename, double scanGap, long squareDev, long edgeThresh,
         long corrections, double cellDistance, double gapX, double gapY,
         long profileA, long profileB, long profileC, long isVertical) {
-        return new DecodeResult(SC_FAIL,
+        return new DecodeResult(SC_FAIL, 0,
             "function not supported in simulation environment");
     }
 

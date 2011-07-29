@@ -4,8 +4,8 @@ public class DecodeResult extends ScanLibResult {
 
     private ScanCell[][] cells = null;
 
-    public DecodeResult(int resultCode, String message) {
-        super(resultCode, message);
+    public DecodeResult(int resultCode, int value, String message) {
+        super(resultCode, value, message);
     }
 
     public ScanCell getCell(int row, int col) {

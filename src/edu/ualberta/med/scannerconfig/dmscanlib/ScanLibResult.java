@@ -4,10 +4,13 @@ public class ScanLibResult {
 
     private int resultCode;
 
+    private int value; // used by API call to return its value (if any)
+
     private String message;
 
-    public ScanLibResult(int resultCode, String message) {
+    public ScanLibResult(int resultCode, int value, String message) {
         this.resultCode = resultCode;
+        this.setValue(value);
         this.message = message;
     }
 
@@ -25,6 +28,14 @@ public class ScanLibResult {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
     }
 
 }
