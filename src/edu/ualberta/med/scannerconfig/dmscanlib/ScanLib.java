@@ -1,8 +1,5 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class ScanLib {
     /**
@@ -25,52 +22,6 @@ public abstract class ScanLib {
      */
     public static final int SC_FAIL = -1;
 
-    /**
-     * The TWAIN driver was not found.
-     */
-    public static final int SC_TWAIN_UAVAIL = -2;
-
-    /**
-     * An invalid DPI value was specified.
-     */
-    public static final int SC_INVALID_DPI = -3;
-
-    /**
-     * The plate number used is invalid. Must be 1 to 5.
-     */
-    public static final int SC_INVALID_PLATE_NUM = -4;
-
-    /**
-     * The user did not select a valid scanning source.
-     */
-    public static final int SC_INVALID_VALUE = -5;
-
-    /**
-     * The scanned image is invalid.
-     */
-    public static final int SC_INVALID_IMAGE = -6;
-
-    /**
-     * Incorrect DPI.
-     */
-    public static final int SC_INCORRECT_DPI_SCANNED = -9;
-
-    private static final Map<Integer, String> ERROR_MSG;
-    static {
-        Map<Integer, String> aMap = new HashMap<Integer, String>();
-        aMap.put(SC_SUCCESS, "The call to ScanLib was successful.");
-        aMap.put(SC_FAIL,
-            "Unable to scan an image, please ensure a working scanner source is selected.");
-        aMap.put(SC_TWAIN_UAVAIL, "The TWAIN driver was not found.");
-        aMap.put(SC_INVALID_DPI, "An invalid DPI value was specified.");
-        aMap.put(SC_INVALID_PLATE_NUM, "The plate number used is invalid.");
-        aMap.put(SC_INVALID_VALUE,
-            "The user did not select a valid scanning source.");
-        aMap.put(SC_INVALID_IMAGE, "The scanned image is invalid.");
-        aMap.put(SC_INCORRECT_DPI_SCANNED, "Incorrect DPI.");
-        ERROR_MSG = Collections.unmodifiableMap(aMap);
-    };
-
     public static final int CAP_IS_WIA = 0x01;
 
     public static final int CAP_DPI_300 = 0x02;
@@ -85,14 +36,6 @@ public abstract class ScanLib {
 
     protected ScanLib() {
 
-    }
-
-    public static String getErrMsg(int err) throws IllegalArgumentException {
-        if ((err < SC_INCORRECT_DPI_SCANNED) || (err > SC_SUCCESS)) {
-            throw new IllegalArgumentException("value " + err
-                + " is not a valid error code");
-        }
-        return ERROR_MSG.get(err);
     }
 
     public static ScanLib getInstance() {
@@ -117,7 +60,7 @@ public abstract class ScanLib {
      * 
      * @return SC_SUCCESS if available, and SC_INVALID_VALUE if unavailable.
      */
-    public abstract int slIsTwainAvailable();
+    public abstract ScanLibResult slIsTwainAvailable();
 
     /**
      * Creates a dialog box to allow the user to select the scanner to use by
@@ -126,7 +69,7 @@ public abstract class ScanLib {
      * @return SC_SUCCESS when selected by the user, and SC_INVALID_VALUE if the
      *         user cancelled the selection dialog.
      */
-    public abstract int slSelectSourceAsDefault();
+    public abstract ScanLibResult slSelectSourceAsDefault();
 
     /**
      * Queries the selected scanner for the driver type and supported dpi.
@@ -135,7 +78,7 @@ public abstract class ScanLib {
      *         supports 300,400,600 dpi. Bit 5 is set if a proper scanner source
      *         is selected.
      */
-    public abstract int slGetScannerCapability();
+    public abstract ScanLibResult slGetScannerCapability();
 
     /**
      * Scans an image for the specified dimensions. The image is in Windows BMP
@@ -156,9 +99,9 @@ public abstract class ScanLib {
      * 
      * @return SC_SUCCESS if valid. SC_FAIL unable to scan an image.
      */
-    public abstract int slScanImage(long verbose, long dpi, int brightness,
-        int contrast, double left, double top, double right, double bottom,
-        String filename);
+    public abstract ScanLibResult slScanImage(long verbose, long dpi,
+        int brightness, int contrast, double left, double top, double right,
+        double bottom, String filename);
 
     /**
      * Scans the whole flatbed region. The image is in Windows BMP format.
@@ -174,8 +117,8 @@ public abstract class ScanLib {
      * 
      * @return SC_SUCCESS if valid. SC_FAIL unable to scan an image.
      */
-    public abstract int slScanFlatbed(long verbose, long dpi, int brightness,
-        int contrast, String filename);
+    public abstract ScanLibResult slScanFlatbed(long verbose, long dpi,
+        int brightness, int contrast, String filename);
 
     /**
      * From the regions specified in the INI file for the corresponding plate,
@@ -220,11 +163,12 @@ public abstract class ScanLib {
      *         the pallet. SC_POS_CALC_ERROR if sample positions could not be
      *         determined.
      */
-    public abstract int slDecodePlate(long verbose, long dpi, int brightness,
-        int contrast, long plateNum, double left, double top, double right,
-        double bottom, double scanGap, long squareDev, long edgeThresh,
-        long corrections, double cellDistance, double gapX, double gapY,
-        long profileA, long profileB, long profileC, long isVertical);
+    public abstract DecodeResult slDecodePlate(long verbose, long dpi,
+        int brightness, int contrast, long plateNum, double left, double top,
+        double right, double bottom, double scanGap, long squareDev,
+        long edgeThresh, long corrections, double cellDistance, double gapX,
+        double gapY, long profileA, long profileB, long profileC,
+        long isVertical);
 
     /**
      * From the regions specified in the INI file for the corresponding plate,
@@ -265,7 +209,7 @@ public abstract class ScanLib {
      *         the pallet. SC_POS_CALC_ERROR if sample positions could not be
      *         determined.
      */
-    public abstract int slDecodeImage(long verbose, long plateNum,
+    public abstract DecodeResult slDecodeImage(long verbose, long plateNum,
         String filename, double scanGap, long squareDev, long edgeThresh,
         long corrections, double cellDistance, double gapX, double gapY,
         long profileA, long profileB, long profileC, long isVertical);

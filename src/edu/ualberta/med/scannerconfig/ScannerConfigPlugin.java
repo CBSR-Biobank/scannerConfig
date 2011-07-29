@@ -19,8 +19,10 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.services.ISourceProviderService;
 import org.osgi.framework.BundleContext;
 
+import edu.ualberta.med.scannerconfig.dmscanlib.DecodeResult;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanCell;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibWin32;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.scanner.profiles.ProfileManager;
@@ -137,12 +139,11 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
-        int res = ScanLibWin32.getInstance().slScanImage(debugLevel, dpi,
-            brightness, contrast, left, top, right, bottom, filename);
+        ScanLibResult res = ScanLibWin32.getInstance().slScanImage(debugLevel,
+            dpi, brightness, contrast, left, top, right, bottom, filename);
 
-        if (res < ScanLibWin32.SC_SUCCESS) {
-            throw new Exception("Could not decode image. "
-                + ScanLib.getErrMsg(res));
+        if (res.getResultCode() != ScanLib.SC_SUCCESS) {
+            throw new Exception("Could not decode image. " + res.getMessage());
         }
     }
 
@@ -154,12 +155,11 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
-        int res = ScanLibWin32.getInstance().slScanFlatbed(debugLevel, dpi,
-            brightness, contrast, filename);
+        ScanLibResult res = ScanLibWin32.getInstance().slScanFlatbed(
+            debugLevel, dpi, brightness, contrast, filename);
 
-        if (res < ScanLibWin32.SC_SUCCESS) {
-            throw new Exception("Could not decode image. "
-                + ScanLib.getErrMsg(res));
+        if (res.getResultCode() != ScanLib.SC_SUCCESS) {
+            throw new Exception("Could not decode image. " + res.getMessage());
         }
     }
 
@@ -215,15 +215,14 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         int[] words = profile.toWords();
 
-        int res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
+        DecodeResult res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
             brightness, contrast, plateNumber, region.getLeft(),
             region.getTop(), region.getRight(), region.getBottom(), scanGap,
             squareDev, edgeThresh, corrections, cellDistance, gapX, gapY,
             words[0], words[1], words[2], orientation);
 
-        if (res < ScanLib.SC_SUCCESS) {
-            throw new Exception("Could not decode image. "
-                + ScanLib.getErrMsg(res));
+        if (res.getResultCode() != ScanLib.SC_SUCCESS) {
+            throw new Exception("Could not decode image. " + res.getMessage());
         }
         return ScanCell.getScanLibResults();
     }

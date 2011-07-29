@@ -1,8 +1,5 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,58 +10,58 @@ public class ScanLibSimulate extends ScanLib {
     private static Random r = new Random();
 
     @Override
-    public int slIsTwainAvailable() {
-        return -1;
+    public ScanLibResult slIsTwainAvailable() {
+        return new ScanLibResult(SC_FAIL,
+            "function not supported in simulation environment");
     }
 
     @Override
-    public int slSelectSourceAsDefault() {
-        return -1;
+    public ScanLibResult slSelectSourceAsDefault() {
+        return new ScanLibResult(SC_FAIL,
+            "function not supported in simulation environment");
     }
 
     @Override
-    public int slScanImage(long verbose, long dpi, int brightness,
+    public ScanLibResult slGetScannerCapability() {
+        return new ScanLibResult(SC_FAIL,
+            "function not supported in simulation environment");
+    }
+
+    @Override
+    public ScanLibResult slScanImage(long verbose, long dpi, int brightness,
         int contrast, double left, double top, double right, double bottom,
         String filename) {
-        return -1;
+        return new ScanLibResult(SC_FAIL,
+            "function not supported in simulation environment");
     }
 
     @Override
-    public int slScanFlatbed(long verbose, long dpi, int brightness,
+    public ScanLibResult slScanFlatbed(long verbose, long dpi, int brightness,
         int contrast, String filename) {
-        return -1;
+        return new ScanLibResult(SC_FAIL,
+            "function not supported in simulation environment");
     }
 
     @Override
-    public int slDecodePlate(long verbose, long dpi, int brightness,
+    public DecodeResult slDecodePlate(long verbose, long dpi, int brightness,
         int contrast, long plateNum, double left, double top, double right,
         double bottom, double scanGap, long squareDev, long edgeThresh,
         long corrections, double cellDistance, double gapX, double gapY,
         long profileA, long profileB, long profileC, long isVertical) {
-        try {
-            // simulate decode
-            BufferedWriter out = new BufferedWriter(new FileWriter(
-                "dmscanlib.txt"));
+        DecodeResult result = new DecodeResult(SC_SUCCESS, null);
 
-            List<Integer> sampleIds = new ArrayList<Integer>();
-            int samples = r.nextInt(96) + 1;
-            for (int i = 0; i < samples; ++i) {
-                sampleIds.add(r.nextInt(samples));
-            }
-            Collections.sort(sampleIds);
-
-            out.write("#Plate,Row,Col,Barcode");
-            out.newLine();
-            for (Integer id : sampleIds) {
-                out.write(String.format("%d,%c,%d,%s", plateNum,
-                    (id / 12) + 'A', id % 12 + 1, getRandomString(10)));
-                out.newLine();
-            }
-            out.flush();
-            return ScanLib.SC_SUCCESS;
-        } catch (IOException e) {
-            return ScanLib.SC_INVALID_IMAGE;
+        List<Integer> sampleIds = new ArrayList<Integer>();
+        int samples = r.nextInt(96) + 1;
+        for (int i = 0; i < samples; ++i) {
+            sampleIds.add(r.nextInt(samples));
         }
+        Collections.sort(sampleIds);
+
+        for (Integer id : sampleIds) {
+            result.setCell(id / 12, id % 12, getRandomString(10));
+        }
+
+        return result;
     }
 
     private static String getRandomString(int maxlen) {
@@ -76,16 +73,12 @@ public class ScanLibSimulate extends ScanLib {
     }
 
     @Override
-    public int slDecodeImage(long verbose, long plateNum, String filename,
-        double scanGap, long squareDev, long edgeThresh, long corrections,
-        double cellDistance, double gapX, double gapY, long profileA,
-        long profileB, long profileC, long isVertical) {
-        return -1;
-    }
-
-    @Override
-    public int slGetScannerCapability() {
-        return 255;
+    public DecodeResult slDecodeImage(long verbose, long plateNum,
+        String filename, double scanGap, long squareDev, long edgeThresh,
+        long corrections, double cellDistance, double gapX, double gapY,
+        long profileA, long profileB, long profileC, long isVertical) {
+        return new DecodeResult(SC_FAIL,
+            "function not supported in simulation environment");
     }
 
 }
