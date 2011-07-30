@@ -23,7 +23,7 @@ import edu.ualberta.med.scannerconfig.dmscanlib.DecodeResult;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanCell;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
-import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibWin32;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibImpl;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.scanner.profiles.ProfileManager;
 import edu.ualberta.med.scannerconfig.preferences.scanner.profiles.ProfileSettings;
@@ -139,7 +139,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
-        ScanLibResult res = ScanLibWin32.getInstance().slScanImage(debugLevel,
+        ScanLibResult res = ScanLibImpl.getInstance().slScanImage(debugLevel,
             dpi, brightness, contrast, left, top, right, bottom, filename);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
@@ -155,7 +155,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
-        ScanLibResult res = ScanLibWin32.getInstance().slScanFlatbed(
+        ScanLibResult res = ScanLibImpl.getInstance().slScanFlatbed(
             debugLevel, dpi, brightness, contrast, filename);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {

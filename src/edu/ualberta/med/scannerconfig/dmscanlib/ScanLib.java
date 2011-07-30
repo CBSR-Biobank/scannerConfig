@@ -44,7 +44,7 @@ public abstract class ScanLib {
 
         String osname = System.getProperty("os.name");
         if (osname.startsWith("Windows")) {
-            instance = new ScanLibWin32();
+            instance = new ScanLibImpl();
         } else if (osname.startsWith("Linux")) {
             instance = new ScanLibSimulate();
         }

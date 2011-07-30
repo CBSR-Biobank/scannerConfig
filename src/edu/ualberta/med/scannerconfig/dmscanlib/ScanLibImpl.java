@@ -1,6 +1,6 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
-public class ScanLibWin32 extends ScanLib {
+public class ScanLibImpl extends ScanLib {
 
     @Override
     public native ScanLibResult slIsTwainAvailable();
