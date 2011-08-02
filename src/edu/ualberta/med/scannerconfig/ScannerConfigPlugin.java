@@ -22,8 +22,8 @@ import org.osgi.framework.BundleContext;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodeResult;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanCell;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
-import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibImpl;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.scanner.profiles.ProfileManager;
 import edu.ualberta.med.scannerconfig.preferences.scanner.profiles.ProfileSettings;
@@ -47,10 +47,19 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
      */
     public ScannerConfigPlugin() {
         String osname = System.getProperty("os.name");
-        if (osname.startsWith("Windows")) {
-            System.loadLibrary("OpenThreadsWin32");
-            System.loadLibrary("cxcore210");
-            System.loadLibrary("cv210");
+        boolean isMsWindows = osname.startsWith("Windows");
+        boolean isLinux = osname.startsWith("Linux");
+
+        if (isMsWindows || isLinux) {
+            if (isMsWindows) {
+                System.loadLibrary("OpenThreadsWin32");
+                System.loadLibrary("cxcore210");
+                System.loadLibrary("cv210");
+            } else {
+                System.loadLibrary("OpenThreads");
+                System.loadLibrary("cxcore");
+                System.loadLibrary("cv");
+            }
             System.loadLibrary("dmscanlib");
         }
     }
@@ -155,8 +164,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
-        ScanLibResult res = ScanLibImpl.getInstance().slScanFlatbed(
-            debugLevel, dpi, brightness, contrast, filename);
+        ScanLibResult res = ScanLibImpl.getInstance().slScanFlatbed(debugLevel,
+            dpi, brightness, contrast, filename);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. " + res.getMessage());

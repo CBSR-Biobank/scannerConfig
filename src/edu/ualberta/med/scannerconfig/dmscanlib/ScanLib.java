@@ -1,6 +1,5 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
-
 public abstract class ScanLib {
     /**
      * The first plate number.
@@ -50,7 +49,8 @@ public abstract class ScanLib {
         }
 
         if (instance == null) {
-            throw new RuntimeException("scanlib not supported on your os");
+            throw new RuntimeException(
+                "scanlib not supported on your operating system");
         }
         return instance;
     }
