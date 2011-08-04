@@ -7,16 +7,17 @@ import org.eclipse.core.commands.IHandler;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
 
 public class SelectSource extends AbstractHandler implements IHandler {
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		int scanlibReturn = ScanLib.getInstance().slSelectSourceAsDefault();
+    @Override
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        ScanLibResult result = ScanLib.getInstance().selectSourceAsDefault();
 
-		if (scanlibReturn != ScanLib.SC_SUCCESS) {
-			ScannerConfigPlugin.openError("Source Selection Error",
-					ScanLib.getErrMsg(scanlibReturn));
-		}
-		return null;
-	}
+        if (result.getResultCode() != ScanLib.SC_SUCCESS) {
+            ScannerConfigPlugin.openError("Source Selection Error",
+                result.getMessage());
+        }
+        return null;
+    }
 }

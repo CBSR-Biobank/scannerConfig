@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig;
+package edu.ualberta.med.scannerconfig.dmscanlib;
 
 public class ScanRegion {
 
@@ -10,7 +10,7 @@ public class ScanRegion {
 
     private double bottom;
 
-    ScanRegion(double left, double top, double right, double bottom) {
+    public ScanRegion(double left, double top, double right, double bottom) {
         this.left = left;
         this.top = top;
         this.right = right;

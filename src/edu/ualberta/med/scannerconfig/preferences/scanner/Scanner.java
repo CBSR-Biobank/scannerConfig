@@ -15,6 +15,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
 
@@ -87,7 +88,9 @@ public class Scanner extends FieldEditorPreferencePage implements
 
     private void setEnableAllWidgets(boolean enableSettings) {
         if (enableSettings) {
-            int scannerCap = ScanLib.getInstance().slGetScannerCapability();
+            ScanLibResult result = ScanLib.getInstance()
+                .getScannerCapability();
+            int scannerCap = result.getValue();
             dpiRadio.setEnabledArray(new boolean[] {
                 (scannerCap & ScanLib.CAP_DPI_300) != 0,
                 (scannerCap & ScanLib.CAP_DPI_400) != 0,
@@ -108,10 +111,14 @@ public class Scanner extends FieldEditorPreferencePage implements
         if (e.getSource() != selectScannerBtn)
             return;
 
-        int scanlibReturn = ScanLib.getInstance().slSelectSourceAsDefault();
-        int scannerCap = ScanLib.getInstance().slGetScannerCapability();
+        ScanLibResult scanlibResult = ScanLib.getInstance()
+            .selectSourceAsDefault();
+        ScanLibResult scannerCapResult = ScanLib.getInstance()
+            .getScannerCapability();
 
-        if (scanlibReturn != ScanLib.SC_SUCCESS) {
+        int scannerCap = scannerCapResult.getValue();
+
+        if (scanlibResult.getResultCode() != ScanLib.SC_SUCCESS) {
             // just stay with the last selected source
             if ((scannerCap & ScanLib.CAP_IS_SCANNER) != 0) {
                 return;

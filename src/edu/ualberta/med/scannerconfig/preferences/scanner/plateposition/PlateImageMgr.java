@@ -10,6 +10,7 @@ import org.eclipse.ui.PlatformUI;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 
 public class PlateImageMgr {
@@ -81,13 +82,13 @@ public class PlateImageMgr {
         cleanAll();
         notifyListeners(false);
 
-        final int result = ScanLib.getInstance().slScanFlatbed(debugLevel,
-            PlateImageMgr.PLATE_IMAGE_DPI, brightness, contrast,
+        final ScanLibResult result = ScanLib.getInstance().scanFlatbed(
+            debugLevel, PlateImageMgr.PLATE_IMAGE_DPI, brightness, contrast,
             PlateImageMgr.PALLET_IMAGE_FILE);
 
-        if (result != ScanLib.SC_SUCCESS) {
+        if (result.getResultCode() != ScanLib.SC_SUCCESS) {
             ScannerConfigPlugin.openAsyncError("Scanner error",
-                ScanLib.getErrMsg(result));
+                result.getMessage());
             return;
         }
 
