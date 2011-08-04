@@ -89,7 +89,7 @@ public class Scanner extends FieldEditorPreferencePage implements
     private void setEnableAllWidgets(boolean enableSettings) {
         if (enableSettings) {
             ScanLibResult result = ScanLib.getInstance()
-                .slGetScannerCapability();
+                .getScannerCapability();
             int scannerCap = result.getValue();
             dpiRadio.setEnabledArray(new boolean[] {
                 (scannerCap & ScanLib.CAP_DPI_300) != 0,
@@ -112,9 +112,9 @@ public class Scanner extends FieldEditorPreferencePage implements
             return;
 
         ScanLibResult scanlibResult = ScanLib.getInstance()
-            .slSelectSourceAsDefault();
+            .selectSourceAsDefault();
         ScanLibResult scannerCapResult = ScanLib.getInstance()
-            .slGetScannerCapability();
+            .getScannerCapability();
 
         int scannerCap = scannerCapResult.getValue();
 

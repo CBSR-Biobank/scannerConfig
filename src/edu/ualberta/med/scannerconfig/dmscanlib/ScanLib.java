@@ -1,6 +1,6 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
-public abstract class ScanLib {
+public class ScanLib {
     /**
      * The first plate number.
      */
@@ -33,23 +33,17 @@ public abstract class ScanLib {
 
     private static ScanLib instance = null;
 
-    protected ScanLib() {
-
+    private ScanLib() {
     }
 
     public static ScanLib getInstance() {
         if (instance != null)
             return instance;
 
-        String osname = System.getProperty("os.name");
-        if (osname.startsWith("Windows")) {
-            instance = new ScanLibImpl();
-        } else if (osname.startsWith("Linux")) {
-            instance = new ScanLibSimulate();
-        }
+        instance = new ScanLib();
 
         if (instance == null) {
-            throw new RuntimeException(
+            throw new NullPointerException(
                 "scanlib not supported on your operating system");
         }
         return instance;
@@ -60,7 +54,7 @@ public abstract class ScanLib {
      * 
      * @return SC_SUCCESS if available, and SC_INVALID_VALUE if unavailable.
      */
-    public abstract ScanLibResult slIsTwainAvailable();
+    public native ScanLibResult isTwainAvailable();
 
     /**
      * Creates a dialog box to allow the user to select the scanner to use by
@@ -69,7 +63,7 @@ public abstract class ScanLib {
      * @return SC_SUCCESS when selected by the user, and SC_INVALID_VALUE if the
      *         user cancelled the selection dialog.
      */
-    public abstract ScanLibResult slSelectSourceAsDefault();
+    public native ScanLibResult selectSourceAsDefault();
 
     /**
      * Queries the selected scanner for the driver type and supported dpi.
@@ -78,7 +72,7 @@ public abstract class ScanLib {
      *         supports 300,400,600 dpi. Bit 5 is set if a proper scanner source
      *         is selected.
      */
-    public abstract ScanLibResult slGetScannerCapability();
+    public native ScanLibResult getScannerCapability();
 
     /**
      * Scans an image for the specified dimensions. The image is in Windows BMP
@@ -99,9 +93,8 @@ public abstract class ScanLib {
      * 
      * @return SC_SUCCESS if valid. SC_FAIL unable to scan an image.
      */
-    public abstract ScanLibResult slScanImage(long verbose, long dpi,
-        int brightness, int contrast, double left, double top, double right,
-        double bottom, String filename);
+    public native ScanLibResult scanImage(long verbose, long dpi,
+        int brightness, int contrast, ScanRegion region, String filename);
 
     /**
      * Scans the whole flatbed region. The image is in Windows BMP format.
@@ -117,7 +110,7 @@ public abstract class ScanLib {
      * 
      * @return SC_SUCCESS if valid. SC_FAIL unable to scan an image.
      */
-    public abstract ScanLibResult slScanFlatbed(long verbose, long dpi,
+    public native ScanLibResult scanFlatbed(long verbose, long dpi,
         int brightness, int contrast, String filename);
 
     /**
@@ -156,6 +149,7 @@ public abstract class ScanLib {
      *            contrast or blurry images.
      * @param corrections The number of corrections to make while decoding.
      * @param cellDistance The distance in inches to use between cells.
+     * @param orientation 0 for landscape, 1 for portrait.
      * 
      * @return SC_SUCCESS if the decoding process was successful.
      *         SC_INVALID_IMAGE if the scanned image is invalid.he INI file.
@@ -163,12 +157,11 @@ public abstract class ScanLib {
      *         the pallet. SC_POS_CALC_ERROR if sample positions could not be
      *         determined.
      */
-    public abstract DecodeResult slDecodePlate(long verbose, long dpi,
-        int brightness, int contrast, long plateNum, double left, double top,
-        double right, double bottom, double scanGap, long squareDev,
-        long edgeThresh, long corrections, double cellDistance, double gapX,
-        double gapY, long profileA, long profileB, long profileC,
-        long isVertical);
+    public native DecodeResult decodePlate(long verbose, long dpi,
+        int brightness, int contrast, long plateNum, ScanRegion region,
+        double scanGap, long squareDev, long edgeThresh, long corrections,
+        double cellDistance, double gapX, double gapY, long profileA,
+        long profileB, long profileC, long orientation);
 
     /**
      * From the regions specified in the INI file for the corresponding plate,
@@ -202,6 +195,7 @@ public abstract class ScanLib {
      *            contrast or blurry images.
      * @param corrections The number of corrections to make while decoding.
      * @param cellDistance The distance in inches to use between cells.
+     * @param orientation 0 for landscape, 1 for portrait.
      * 
      * @return SC_SUCCESS if the decoding process was successful.
      *         SC_INVALID_IMAGE if the scanned image is invalid.
@@ -209,9 +203,9 @@ public abstract class ScanLib {
      *         the pallet. SC_POS_CALC_ERROR if sample positions could not be
      *         determined.
      */
-    public abstract DecodeResult slDecodeImage(long verbose, long plateNum,
+    public native DecodeResult decodeImage(long verbose, long plateNum,
         String filename, double scanGap, long squareDev, long edgeThresh,
         long corrections, double cellDistance, double gapX, double gapY,
-        long profileA, long profileB, long profileC, long isVertical);
+        long profileA, long profileB, long profileC, long orientation);
 
 }

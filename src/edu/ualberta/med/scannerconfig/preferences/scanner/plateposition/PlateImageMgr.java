@@ -82,7 +82,7 @@ public class PlateImageMgr {
         cleanAll();
         notifyListeners(false);
 
-        final ScanLibResult result = ScanLib.getInstance().slScanFlatbed(
+        final ScanLibResult result = ScanLib.getInstance().scanFlatbed(
             debugLevel, PlateImageMgr.PLATE_IMAGE_DPI, brightness, contrast,
             PlateImageMgr.PALLET_IMAGE_FILE);
 

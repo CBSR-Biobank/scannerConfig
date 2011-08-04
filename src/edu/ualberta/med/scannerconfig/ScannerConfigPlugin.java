@@ -1,6 +1,7 @@
 package edu.ualberta.med.scannerconfig;
 
 import java.net.URL;
+import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.FileLocator;
@@ -21,9 +22,10 @@ import org.osgi.framework.BundleContext;
 
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodeResult;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanCell;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanCellPos;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
-import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibImpl;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanRegion;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.scanner.profiles.ProfileManager;
 import edu.ualberta.med.scannerconfig.preferences.scanner.profiles.ProfileSettings;
@@ -148,8 +150,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
-        ScanLibResult res = ScanLibImpl.getInstance().slScanImage(debugLevel,
-            dpi, brightness, contrast, left, top, right, bottom, filename);
+        ScanLibResult res = ScanLib.getInstance().scanImage(debugLevel, dpi,
+            brightness, contrast, new ScanRegion(left, top, right, bottom),
+            filename);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. " + res.getMessage());
@@ -164,8 +167,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
-        ScanLibResult res = ScanLibImpl.getInstance().slScanFlatbed(debugLevel,
-            dpi, brightness, contrast, filename);
+        ScanLibResult res = ScanLib.getInstance().scanFlatbed(debugLevel, dpi,
+            brightness, contrast, filename);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. " + res.getMessage());
@@ -189,7 +192,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             region.getBottom(), filename);
     }
 
-    public static ScanCell[][] scan(int plateNumber, String profileName)
+    public static ScanCell[][] decodePlate(int plateNumber, String profileName)
         throws Exception {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
@@ -224,16 +227,58 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         int[] words = profile.toWords();
 
-        DecodeResult res = ScanLib.getInstance().slDecodePlate(debugLevel, dpi,
-            brightness, contrast, plateNumber, region.getLeft(),
-            region.getTop(), region.getRight(), region.getBottom(), scanGap,
-            squareDev, edgeThresh, corrections, cellDistance, gapX, gapY,
-            words[0], words[1], words[2], orientation);
+        DecodeResult res = ScanLib.getInstance().decodePlate(debugLevel, dpi,
+            brightness, contrast, plateNumber, region, scanGap, squareDev,
+            edgeThresh, corrections, cellDistance, gapX, gapY, words[0],
+            words[1], words[2], orientation);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. " + res.getMessage());
         }
         return ScanCell.getScanLibResults();
+    }
+
+    public static Map<ScanCellPos, ScanCell> decodeImage(int plateNumber,
+        String profileName, String filename) throws Exception {
+        IPreferenceStore prefs = getDefault().getPreferenceStore();
+
+        int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
+        int edgeThresh = prefs.getInt(PreferenceConstants.LIBDMTX_EDGE_THRESH);
+        double scanGap = prefs.getDouble(PreferenceConstants.LIBDMTX_SCAN_GAP);
+        int squareDev = prefs.getInt(PreferenceConstants.LIBDMTX_SQUARE_DEV);
+        int corrections = prefs.getInt(PreferenceConstants.LIBDMTX_CORRECTIONS);
+        double cellDistance = prefs
+            .getDouble(PreferenceConstants.LIBDMTX_CELL_DISTANCE);
+
+        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
+
+        ScanRegion region = new ScanRegion(prefs.getDouble(prefsArr[0]),
+            prefs.getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]),
+            prefs.getDouble(prefsArr[3]));
+
+        double gapX = prefs.getDouble(prefsArr[4]);
+        double gapY = prefs.getDouble(prefsArr[5]);
+
+        int orientation = prefs.getString(
+            PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1])
+            .equals("Landscape") ? 0 : 1;
+
+        regionModifyIfScannerWia(region);
+
+        ProfileSettings profile = ProfileManager.instance().getProfile(
+            profileName);
+
+        int[] words = profile.toWords();
+
+        DecodeResult res = ScanLib.getInstance()
+            .decodeImage(debugLevel, plateNumber, filename, scanGap, squareDev,
+                edgeThresh, corrections, cellDistance, gapX, gapY, words[0],
+                words[1], words[2], orientation);
+
+        if (res.getResultCode() != ScanLib.SC_SUCCESS) {
+            throw new Exception("Could not decode image. " + res.getMessage());
+        }
+        return res.getCells();
     }
 
     public boolean getPlateEnabled(int plateId) {

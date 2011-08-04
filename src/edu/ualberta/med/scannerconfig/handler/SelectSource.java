@@ -12,7 +12,7 @@ import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
 public class SelectSource extends AbstractHandler implements IHandler {
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        ScanLibResult result = ScanLib.getInstance().slSelectSourceAsDefault();
+        ScanLibResult result = ScanLib.getInstance().selectSourceAsDefault();
 
         if (result.getResultCode() != ScanLib.SC_SUCCESS) {
             ScannerConfigPlugin.openError("Source Selection Error",
