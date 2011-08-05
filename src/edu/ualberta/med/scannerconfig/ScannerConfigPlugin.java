@@ -192,8 +192,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             region.getBottom(), filename);
     }
 
-    public static ScanCell[][] decodePlate(int plateNumber, String profileName)
-        throws Exception {
+    public static Map<ScanCellPos, ScanCell> decodePlate(int plateNumber,
+        String profileName) throws Exception {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
         int dpi = prefs.getInt(PreferenceConstants.SCANNER_DPI);
@@ -235,7 +235,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception("Could not decode image. " + res.getMessage());
         }
-        return ScanCell.getScanLibResults();
+        return res.getCells();
     }
 
     public static Map<ScanCellPos, ScanCell> decodeImage(int plateNumber,
