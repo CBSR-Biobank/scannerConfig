@@ -154,7 +154,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             filename);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
-            throw new Exception("Could not decode image. " + res.getMessage());
+            throw new Exception("Could not scan image: " + res.getMessage());
         }
     }
 
@@ -170,7 +170,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             brightness, contrast, filename);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
-            throw new Exception("Could not decode image. " + res.getMessage());
+            throw new Exception("Could not scan flatbed: " + res.getMessage());
         }
     }
 
@@ -232,7 +232,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             words[1], words[2], orientation);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
-            throw new Exception("Could not decode image. " + res.getMessage());
+            throw new Exception("Could not decode plate: " + res.getMessage());
         }
         return res.getCells();
     }
@@ -275,7 +275,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                 words[1], words[2], orientation);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
-            throw new Exception("Could not decode image. " + res.getMessage());
+            throw new Exception("Could not decode image: " + res.getMessage());
         }
         return res.getCells();
     }

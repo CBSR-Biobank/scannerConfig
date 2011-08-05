@@ -88,8 +88,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 
     private void setEnableAllWidgets(boolean enableSettings) {
         if (enableSettings) {
-            ScanLibResult result = ScanLib.getInstance()
-                .getScannerCapability();
+            ScanLibResult result = ScanLib.getInstance().getScannerCapability();
             int scannerCap = result.getValue();
             dpiRadio.setEnabledArray(new boolean[] {
                 (scannerCap & ScanLib.CAP_DPI_300) != 0,
@@ -124,9 +123,8 @@ public class Scanner extends FieldEditorPreferencePage implements
                 return;
             }
             setEnableAllWidgets(false);
-            ScannerConfigPlugin
-                .openError("Source Selection Error",
-                    "Please plug in a scanner and select an appropiate source driver.");
+            ScannerConfigPlugin.openError("Scanning Source Error",
+                scanlibResult.getMessage());
             return;
         }
 
