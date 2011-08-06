@@ -1,32 +1,23 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DecodeResult extends ScanLibResult {
 
-    private Map<ScanCellPos, ScanCell> cells = null;
+    private List<ScanCell> cells = null;
 
     public DecodeResult(int resultCode, int value, String message) {
         super(resultCode, value, message);
     }
 
-    public ScanCell getCell(int row, int col) {
-        if ((row < 0) || (row >= ScanCellPos.ROW_MAX)) {
-            throw new IndexOutOfBoundsException("invalid row: " + row);
-        }
-
-        if ((col < 0) || (col >= ScanCellPos.COL_MAX)) {
-            throw new IndexOutOfBoundsException("invalid column: " + col);
-        }
-
-        if (cells == null) {
-            throw new NullPointerException("cells were not initialized");
-        }
-
-        return cells.get(new ScanCellPos(row, col));
-    }
-
+    /**
+     * Called by JNI interface to dmscanlib.
+     * 
+     * @param row
+     * @param col
+     * @param message
+     */
     public void setCell(int row, int col, String message) {
         if ((row < 0) || (row >= ScanCellPos.ROW_MAX)) {
             throw new IndexOutOfBoundsException("invalid row: " + row);
@@ -37,15 +28,15 @@ public class DecodeResult extends ScanLibResult {
         }
 
         if (cells == null) {
-            cells = new HashMap<ScanCellPos, ScanCell>();
+            cells = new ArrayList<ScanCell>();
         }
 
-        cells.put(new ScanCellPos(row, col), new ScanCell(row, col, message));
+        cells.add(new ScanCell(row, col, message));
     }
 
-    public Map<ScanCellPos, ScanCell> getCells() {
+    public List<ScanCell> getCells() {
         if (cells == null) {
-            cells = new HashMap<ScanCellPos, ScanCell>();
+            throw new NullPointerException("cells not initialized");
         }
         return cells;
     }

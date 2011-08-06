@@ -1,7 +1,7 @@
 package edu.ualberta.med.scannerconfig;
 
 import java.net.URL;
-import java.util.Map;
+import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.FileLocator;
@@ -22,7 +22,6 @@ import org.osgi.framework.BundleContext;
 
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodeResult;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanCell;
-import edu.ualberta.med.scannerconfig.dmscanlib.ScanCellPos;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanRegion;
@@ -192,8 +191,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             region.getBottom(), filename);
     }
 
-    public static Map<ScanCellPos, ScanCell> decodePlate(int plateNumber,
-        String profileName) throws Exception {
+    public static List<ScanCell> decodePlate(int plateNumber, String profileName)
+        throws Exception {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
         int dpi = prefs.getInt(PreferenceConstants.SCANNER_DPI);
@@ -238,7 +237,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         return res.getCells();
     }
 
-    public static Map<ScanCellPos, ScanCell> decodeImage(int plateNumber,
+    public static List<ScanCell> decodeImage(int plateNumber,
         String profileName, String filename) throws Exception {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
