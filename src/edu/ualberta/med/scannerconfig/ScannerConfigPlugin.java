@@ -64,10 +64,10 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
             String osarch = System.getProperty("os.arch");
 
-            if (!isMsWindows && osarch.equals("amd64")) {
-                System.loadLibrary("dmscanlib64");
-            } else {
+            if (!isMsWindows && osarch.equals("x86")) {
                 System.loadLibrary("dmscanlib");
+            } else {
+                System.loadLibrary("dmscanlib64");
             }
         }
     }
