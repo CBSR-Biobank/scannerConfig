@@ -123,7 +123,7 @@ public class Scanner extends FieldEditorPreferencePage implements
                 return;
             }
             setEnableAllWidgets(false);
-            ScannerConfigPlugin.openError("Scanning Source Error",
+            ScannerConfigPlugin.openError("Scanning Sourcethin Error",
                 scanlibResult.getMessage());
             return;
         }

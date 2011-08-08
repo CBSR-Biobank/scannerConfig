@@ -61,7 +61,14 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                 System.loadLibrary("cxcore");
                 System.loadLibrary("cv");
             }
-            System.loadLibrary("dmscanlib");
+
+            String osarch = System.getProperty("os.arch");
+
+            if (!isMsWindows && osarch.equals("amd64")) {
+                System.loadLibrary("dmscanlib64");
+            } else {
+                System.loadLibrary("dmscanlib");
+            }
         }
     }
 
