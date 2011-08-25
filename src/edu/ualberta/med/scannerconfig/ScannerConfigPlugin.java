@@ -56,10 +56,12 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                 System.loadLibrary("OpenThreadsWin32");
                 System.loadLibrary("cxcore210");
                 System.loadLibrary("cv210");
+                System.loadLibrary("libglog");
             } else {
                 System.loadLibrary("OpenThreads");
                 System.loadLibrary("cxcore");
                 System.loadLibrary("cv");
+                System.loadLibrary("glog");
             }
 
             String osarch = System.getProperty("os.arch");
