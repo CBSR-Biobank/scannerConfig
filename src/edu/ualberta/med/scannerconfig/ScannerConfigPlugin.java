@@ -66,7 +66,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
             String osarch = System.getProperty("os.arch");
 
-            if (!isMsWindows && (osarch.equals("x86") || osarch.equals("i386"))) {
+            if (isMsWindows || (osarch.equals("x86") || osarch.equals("i386"))) {
                 System.loadLibrary("dmscanlib");
             } else {
                 System.loadLibrary("dmscanlib64");
