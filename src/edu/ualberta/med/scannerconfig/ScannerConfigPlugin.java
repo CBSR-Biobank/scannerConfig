@@ -1,6 +1,7 @@
 package edu.ualberta.med.scannerconfig;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
@@ -380,6 +381,21 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             }
         }
         return -1;
+    }
+
+    public List<String> getPossibleBarcodes(boolean realscan) {
+        List<String> barcodes = new ArrayList<String>();
+        for (int i = 0; i < PreferenceConstants.SCANNER_PLATE_BARCODES.length; i++) {
+            if (realscan
+                && !ScannerConfigPlugin.getDefault().getPlateEnabled(i + 1))
+                continue;
+
+            String pref = getPreferenceStore().getString(
+                PreferenceConstants.SCANNER_PLATE_BARCODES[i]);
+            Assert.isTrue(!pref.isEmpty(), "preference not assigned");
+            barcodes.add(pref);
+        }
+        return barcodes;
     }
 
     public static int getPlatesEnabledCount(boolean realscan) {
