@@ -32,7 +32,7 @@ public class ProfileSettings extends BitSet {
     public ProfileSettings(String name, int[] words) throws Exception {
         this(name);
         if (words.length != NUM_WORDS) {
-            throw new Exception("invalid int array");
+            throw new Exception("invalid int array"); //$NON-NLS-1$
         }
         for (int i = 0; i < words.length; i++) {
             int flag = 1;

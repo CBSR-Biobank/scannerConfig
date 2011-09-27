@@ -44,21 +44,21 @@ public class Scanner extends FieldEditorPreferencePage implements
     @Override
     public void createFieldEditors() {
         selectScannerBtn = new Button(getFieldEditorParent(), SWT.NONE);
-        selectScannerBtn.setText("Select Scanner");
+        selectScannerBtn.setText(Messages.Scanner_select_label);
         selectScannerBtn.setImage(ScannerConfigPlugin.getDefault()
             .getImageRegistry().get(ScannerConfigPlugin.IMG_SCANNER));
         selectScannerBtn.addSelectionListener(this);
 
         driverTypeRadio = new AdvancedRadioGroupFieldEditor(
-            PreferenceConstants.SCANNER_DRV_TYPE, "Driver Type", 2,
+            PreferenceConstants.SCANNER_DRV_TYPE, Messages.Scanner_driver_type_label, 2,
             new String[][] {
-                { "WIA", PreferenceConstants.SCANNER_DRV_TYPE_WIA },
-                { "TWAIN", PreferenceConstants.SCANNER_DRV_TYPE_TWAIN } },
+                { "WIA", PreferenceConstants.SCANNER_DRV_TYPE_WIA }, //$NON-NLS-1$
+                { "TWAIN", PreferenceConstants.SCANNER_DRV_TYPE_TWAIN } }, //$NON-NLS-1$
             getFieldEditorParent(), true);
         addField(driverTypeRadio);
 
         dpiRadio = new AdvancedRadioGroupFieldEditor(
-            PreferenceConstants.SCANNER_DPI, "DPI", 5, new String[][] {
+            PreferenceConstants.SCANNER_DPI, "DPI", 5, new String[][] { //$NON-NLS-1$
                 { PreferenceConstants.SCANNER_300_DPI,
                     PreferenceConstants.SCANNER_300_DPI },
                 { PreferenceConstants.SCANNER_400_DPI,
@@ -70,7 +70,7 @@ public class Scanner extends FieldEditorPreferencePage implements
         addField(dpiRadio);
 
         brightnessInputField = new IntegerFieldEditor(
-            PreferenceConstants.SCANNER_BRIGHTNESS, "Brightness:",
+            PreferenceConstants.SCANNER_BRIGHTNESS, Messages.Scanner_brightness_label,
             getFieldEditorParent());
         brightnessInputField.setValidRange(-1000, 1000);
         addField(brightnessInputField);
@@ -78,7 +78,7 @@ public class Scanner extends FieldEditorPreferencePage implements
             brightnessInputField);
 
         contrastInputField = new IntegerFieldEditor(
-            PreferenceConstants.SCANNER_CONTRAST, "Contrast:",
+            PreferenceConstants.SCANNER_CONTRAST, Messages.Scanner_contrast_label,
             getFieldEditorParent());
         contrastInputField.setValidRange(-1000, 1000);
         addField(contrastInputField);
@@ -123,7 +123,7 @@ public class Scanner extends FieldEditorPreferencePage implements
                 return;
             }
             setEnableAllWidgets(false);
-            ScannerConfigPlugin.openError("Scanning Sourcethin Error",
+            ScannerConfigPlugin.openError(Messages.Scanner_scann_error_title,
                 scanlibResult.getMessage());
             return;
         }

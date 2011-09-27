@@ -15,7 +15,7 @@ public class SelectSource extends AbstractHandler implements IHandler {
         ScanLibResult result = ScanLib.getInstance().selectSourceAsDefault();
 
         if (result.getResultCode() != ScanLib.SC_SUCCESS) {
-            ScannerConfigPlugin.openError("Source Selection Error",
+            ScannerConfigPlugin.openError(Messages.SelectSource_error_msg,
                 result.getMessage());
         }
         return null;

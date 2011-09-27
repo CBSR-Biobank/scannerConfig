@@ -35,7 +35,9 @@ public class PlateGridWidget implements IPlateImageListener,
     MouseListener, KeyListener, PaintListener {
 
     private enum DragMode {
-        NONE, MOVE, RESIZE_HORIZONTAL_LEFT, RESIZE_HORIZONTAL_RIGHT, RESIZE_VERTICAL_TOP, RESIZE_VERTICAL_BOTTOM, RESIZE_BOTTOM_RIGHT, RESIZE_TOP_LEFT
+        NONE, MOVE, RESIZE_HORIZONTAL_LEFT, RESIZE_HORIZONTAL_RIGHT,
+        RESIZE_VERTICAL_TOP, RESIZE_VERTICAL_BOTTOM, RESIZE_BOTTOM_RIGHT,
+        RESIZE_TOP_LEFT
     };
 
     private PlateSettings plateSettings;
@@ -133,7 +135,7 @@ public class PlateGridWidget implements IPlateImageListener,
             break;
 
         default:
-            Assert.isTrue(false, "invalid event received: " + e);
+            Assert.isTrue(false, "invalid event received: " + e); //$NON-NLS-1$
         }
     }
 
@@ -481,7 +483,7 @@ public class PlateGridWidget implements IPlateImageListener,
         if (!haveImage)
             return;
 
-        Assert.isNotNull(canvas, "canvas is null");
+        Assert.isNotNull(canvas, "canvas is null"); //$NON-NLS-1$
         Rectangle imgBounds = plateImageMgr.getScannedImage().getBounds();
         Point canvasSize = canvas.getSize();
 

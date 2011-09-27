@@ -44,7 +44,7 @@ public class ScanLib {
 
         if (instance == null) {
             throw new NullPointerException(
-                "scanlib not supported on your operating system");
+                "scanlib not supported on your operating system"); //$NON-NLS-1$
         }
         return instance;
     }

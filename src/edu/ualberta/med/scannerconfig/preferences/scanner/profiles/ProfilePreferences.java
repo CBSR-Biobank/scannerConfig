@@ -81,12 +81,12 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
             .setLayoutData(new GridData(SWT.FILL, GridData.FILL, true, true));
 
         Button addButton = new Button(buttons, SWT.SIMPLE);
-        addButton.setText("Add...");
+        addButton.setText(Messages.ProfilePreferences_add_label);
         addButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 InputDialog id = new InputDialog(getShell(), SWT.NONE,
-                    "Profile Name", "Please enter a profile name: ");
+                    Messages.ProfilePreferences_profile_label, Messages.ProfilePreferences_profile_msg);
 
                 String newProfileName = id.open(); // TODO strip
 
@@ -98,7 +98,7 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
         });
 
         deleteBtn = new Button(buttons, SWT.SIMPLE);
-        deleteBtn.setText("Delete Profile");
+        deleteBtn.setText(Messages.ProfilePreferences_delete_label);
         deleteBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -120,7 +120,7 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
             final int c = i;
 
             profileBtns[i] = new Button(profile, SWT.CHECK);
-            profileBtns[i].setText("" + ((char) (c / 12 + 'A')) + (c % 12 + 1));
+            profileBtns[i].setText("" + ((char) (c / 12 + 'A')) + (c % 12 + 1)); //$NON-NLS-1$
             profileBtns[i].setEnabled(false);
             profileBtns[i].addSelectionListener(new SelectionListener() {
 
@@ -144,7 +144,7 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
             .setLayoutData(new GridData(SWT.FILL, GridData.FILL, true, true));
 
         allBtn = new Button(buttons2, SWT.SIMPLE);
-        allBtn.setText("Select All");
+        allBtn.setText(Messages.ProfilePreferences_select_all_label);
         allBtn.addSelectionListener(new SelectionListener() {
 
             @Override
@@ -161,7 +161,7 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
         });
 
         resetBtn = new Button(buttons2, SWT.SIMPLE);
-        resetBtn.setText("Unselect All");
+        resetBtn.setText(Messages.ProfilePreferences_unselect_all_label);
         resetBtn.addSelectionListener(new SelectionListener() {
 
             @Override

@@ -41,7 +41,7 @@ public class DoubleFieldEditor extends StringFieldEditor {
         init(name, labelText);
         setTextLimit(textLimit);
         setEmptyStringAllowed(false);
-        setErrorMessage("Invalid value");
+        setErrorMessage(Messages.DoubleFieldEditor_invalid_value_text);
         createControl(parent);
     }
 
@@ -54,7 +54,7 @@ public class DoubleFieldEditor extends StringFieldEditor {
     public void setValidRange(double min, double max) {
         minValidValue = min;
         maxValidValue = max;
-        setErrorMessage("Invalid value");
+        setErrorMessage(Messages.DoubleFieldEditor_invalid_value_text);
     }
 
     /*

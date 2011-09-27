@@ -18,7 +18,7 @@ public class PlateImageMgr {
 
     public static final int PLATE_IMAGE_DPI = 300;
 
-    public static final String PALLET_IMAGE_FILE = "plates.bmp";
+    public static final String PALLET_IMAGE_FILE = "plates.bmp"; //$NON-NLS-1$
 
     protected ListenerList listenerList = new ListenerList();
 
@@ -67,8 +67,8 @@ public class PlateImageMgr {
         if (ScannerConfigPlugin.getDefault().getPreferenceStore()
             .getString(PreferenceConstants.SCANNER_DRV_TYPE)
             .equals(PreferenceConstants.SCANNER_DRV_TYPE_NONE)) {
-            ScannerConfigPlugin.openAsyncError("Scanner Driver Not Selected",
-                "Please select and configure the scanner in preferences");
+            ScannerConfigPlugin.openAsyncError(Messages.PlateImageMgr_scanner_drive_selection_error,
+                Messages.PlateImageMgr_scanner_drive_selection_msg);
             return;
         }
 
@@ -87,7 +87,7 @@ public class PlateImageMgr {
             PlateImageMgr.PALLET_IMAGE_FILE);
 
         if (result.getResultCode() != ScanLib.SC_SUCCESS) {
-            ScannerConfigPlugin.openAsyncError("Scanner error",
+            ScannerConfigPlugin.openAsyncError(Messages.PlateImageMgr_scanner_error_title,
                 result.getMessage());
             return;
         }

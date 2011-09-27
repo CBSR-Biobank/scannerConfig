@@ -12,7 +12,8 @@ public class ProfileManager {
 
     private HashMap<String, ProfileSettings> profiles = new HashMap<String, ProfileSettings>();
 
-    public static final String ALL_PROFILE_NAME = "All";
+    public static final String ALL_PROFILE_NAME = "All"; //$NON-NLS-1$
+
     protected ProfileManager() {
         reloadProfiles();
     }
@@ -28,11 +29,13 @@ public class ProfileManager {
         try {
             profiles = loadProfilesFromString();
         } catch (Exception e) {
-            ScannerConfigPlugin.openAsyncError("Profile Manager Settings",
-                "Could not load profile settings");
+            ScannerConfigPlugin.openAsyncError(
+                Messages.ProfileManager_load_error_title,
+                Messages.ProfileManager_load_error_msg);
         }
     }
 
+    @SuppressWarnings("nls")
     private String profilesToString() {
         String out = "";
         for (String key : profiles.keySet()) {
@@ -56,12 +59,12 @@ public class ProfileManager {
         String profileString = store
             .getString(PreferenceConstants.SCANNER_PALLET_PROFILES);
 
-        String entries[] = profileString.split(";");
+        String entries[] = profileString.split(";"); //$NON-NLS-1$
         if (entries.length < 0)
             return profilesMap;
 
         for (String entry : entries) {
-            String elements[] = entry.split(",");
+            String elements[] = entry.split(","); //$NON-NLS-1$
             if (elements.length < 4) {
                 continue;
             }

@@ -20,11 +20,11 @@ public class DecodeResult extends ScanLibResult {
      */
     public void setCell(int row, int col, String message) {
         if ((row < 0) || (row >= ScanCellPos.ROW_MAX)) {
-            throw new IndexOutOfBoundsException("invalid row: " + row);
+            throw new IndexOutOfBoundsException("invalid row: " + row); //$NON-NLS-1$
         }
 
         if ((col < 0) || (col >= ScanCellPos.COL_MAX)) {
-            throw new IndexOutOfBoundsException("invalid column: " + col);
+            throw new IndexOutOfBoundsException("invalid column: " + col); //$NON-NLS-1$
         }
 
         if (cells == null) {
@@ -36,7 +36,7 @@ public class DecodeResult extends ScanLibResult {
 
     public List<ScanCell> getCells() {
         if (cells == null) {
-            throw new NullPointerException("cells not initialized");
+            throw new NullPointerException("cells not initialized"); //$NON-NLS-1$
         }
         return cells;
     }

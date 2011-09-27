@@ -10,7 +10,7 @@ import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 
 public class PlateEnabledState extends AbstractSourceProvider {
 
-    public final static String PLATES_ENABLED = "edu.ualberta.med.scannerconfig.sourceprovider.platesEnabled";
+    public final static String PLATES_ENABLED = "edu.ualberta.med.scannerconfig.sourceprovider.platesEnabled"; //$NON-NLS-1$
 
     @Override
     public void dispose() {

@@ -135,6 +135,7 @@ public class PlateGrid<T extends Number> {
         this.orientation = orientation;
     }
 
+    @SuppressWarnings("nls")
     @Override
     public String toString() {
         return "left/" + left + " top/" + top + " width/" + width + " height/"
