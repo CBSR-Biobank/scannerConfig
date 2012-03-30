@@ -58,6 +58,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                 System.loadLibrary("OpenThreadsWin32"); //$NON-NLS-1$
                 System.loadLibrary("cxcore210"); //$NON-NLS-1$
                 System.loadLibrary("cv210"); //$NON-NLS-1$
+                System.loadLibrary("msvcr100");
+                System.loadLibrary("msvcp100");
                 System.loadLibrary("libglog"); //$NON-NLS-1$
             } else {
                 System.loadLibrary("OpenThreads"); //$NON-NLS-1$
@@ -96,11 +98,13 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                         "scanner.plate.coords.enabled.")) { //$NON-NLS-1$
                         IWorkbenchWindow window = PlatformUI.getWorkbench()
                             .getActiveWorkbenchWindow();
-                        ISourceProviderService service = (ISourceProviderService) window
-                            .getService(ISourceProviderService.class);
+                        ISourceProviderService service =
+                            (ISourceProviderService) window
+                                .getService(ISourceProviderService.class);
 
-                        PlateEnabledState plateEnabledSourceProvider = (PlateEnabledState) service
-                            .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
+                        PlateEnabledState plateEnabledSourceProvider =
+                            (PlateEnabledState) service
+                                .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
                         Assert.isNotNull(plateEnabledSourceProvider);
                         plateEnabledSourceProvider.setPlateEnabled();
                     }
@@ -191,7 +195,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     public static void scanPlate(int plateNumber, String filename)
         throws Exception {
 
-        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
+        String[] prefsArr =
+            PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
@@ -220,7 +225,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         double cellDistance = prefs
             .getDouble(PreferenceConstants.LIBDMTX_CELL_DISTANCE);
 
-        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
+        String[] prefsArr =
+            PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
         ScanRegion region = new ScanRegion(prefs.getDouble(prefsArr[0]),
             prefs.getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]),
@@ -265,7 +271,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         double cellDistance = prefs
             .getDouble(PreferenceConstants.LIBDMTX_CELL_DISTANCE);
 
-        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
+        String[] prefsArr =
+            PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
         ScanRegion region = new ScanRegion(prefs.getDouble(prefsArr[0]),
             prefs.getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]),
