@@ -12,7 +12,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         IPreferenceStore store = ScannerConfigPlugin.getDefault()
             .getPreferenceStore();
         store.setDefault(PreferenceConstants.SCANNER_DPI, 600);
-        store.setDefault(PreferenceConstants.SCANNER_PALLET_PROFILES, ""); //$NON-NLS-1$
+        store.setDefault(PreferenceConstants.SCANNER_PALLET_PROFILES, ""); 
         store.setDefault(PreferenceConstants.SCANNER_BRIGHTNESS, 0);
         store.setDefault(PreferenceConstants.SCANNER_CONTRAST, 0);
         store.setDefault(PreferenceConstants.SCANNER_DRV_TYPE,
@@ -33,7 +33,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         }
         for (int i = 0; i < PreferenceConstants.SCANNER_PLATE_BARCODES.length; i++) {
             store.setDefault(PreferenceConstants.SCANNER_PLATE_BARCODES[i],
-                "PLATE" + (i + 1)); //$NON-NLS-1$
+                "PLATE" + (i + 1)); 
         }
         store.setDefault(PreferenceConstants.SCANNER_PLATE_SHOW_BARCODE_PREF,
             false);

@@ -42,10 +42,10 @@ public class InputDialog extends Dialog {
 		final Text text = new Text(shell, SWT.SINGLE | SWT.BORDER);
 
 		final Button buttonOK = new Button(shell, SWT.PUSH);
-		buttonOK.setText(Messages.InputDialog_OK_button);
+		buttonOK.setText("OK");
 		buttonOK.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
 		Button buttonCancel = new Button(shell, SWT.PUSH);
-		buttonCancel.setText(Messages.InputDialog_Cancel_button);
+		buttonCancel.setText("Cancel");
 
 		text.addListener(SWT.Modify, new Listener() {
 			@Override
@@ -92,7 +92,7 @@ public class InputDialog extends Dialog {
 			}
 		});
 
-		text.setText(""); //$NON-NLS-1$
+		text.setText(""); 
 		shell.pack();
 		shell.open();
 
@@ -110,8 +110,8 @@ public class InputDialog extends Dialog {
 		InputDialog dialog = new InputDialog(
 				shell,
 				SWT.NONE,
-				"Bacon", //$NON-NLS-1$
-				"Enter fish:"); //$NON-NLS-1$
+				"Bacon", 
+				"Enter fish:"); 
 		System.out.println(dialog.open());
 	}
 }

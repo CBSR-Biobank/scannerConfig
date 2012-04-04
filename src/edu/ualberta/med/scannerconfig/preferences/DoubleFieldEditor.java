@@ -41,7 +41,7 @@ public class DoubleFieldEditor extends StringFieldEditor {
         init(name, labelText);
         setTextLimit(textLimit);
         setEmptyStringAllowed(false);
-        setErrorMessage(Messages.DoubleFieldEditor_invalid_value_text);
+        setErrorMessage("Invalid value");
         createControl(parent);
     }
 
@@ -54,7 +54,7 @@ public class DoubleFieldEditor extends StringFieldEditor {
     public void setValidRange(double min, double max) {
         minValidValue = min;
         maxValidValue = max;
-        setErrorMessage(Messages.DoubleFieldEditor_invalid_value_text);
+        setErrorMessage("Invalid value");
     }
 
     /*
@@ -95,8 +95,8 @@ public class DoubleFieldEditor extends StringFieldEditor {
         Text text = getTextControl();
         if (text != null) {
             double value = getPreferenceStore().getDouble(getPreferenceName());
-            text.setText("" + value);//$NON-NLS-1$
-            oldValue = "" + value; //$NON-NLS-1$
+            text.setText("" + value);
+            oldValue = "" + value; 
         }
 
     }
@@ -110,7 +110,7 @@ public class DoubleFieldEditor extends StringFieldEditor {
         if (text != null) {
             double value = getPreferenceStore().getDefaultDouble(
                 getPreferenceName());
-            text.setText("" + value);//$NON-NLS-1$
+            text.setText("" + value);
         }
         valueChanged();
     }

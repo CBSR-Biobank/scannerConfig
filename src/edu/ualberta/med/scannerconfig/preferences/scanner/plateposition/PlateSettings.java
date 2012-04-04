@@ -45,52 +45,52 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         LEFT() {
             @Override
             public String toString() {
-                return Messages.PlateSettings_left_label;
+                return "Left";
             }
         },
         TOP() {
             @Override
             public String toString() {
-                return Messages.PlateSettings_top_label;
+                return "Top";
             }
         },
         RIGHT() {
             @Override
             public String toString() {
-                return Messages.PlateSettings_right_label;
+                return "Right";
             }
         },
         BOTTOM() {
             @Override
             public String toString() {
-                return Messages.PlateSettings_bottom_label;
+                return "Bottom";
             }
         },
         GAPX() {
             @Override
             public String toString() {
-                return Messages.PlateSettings_gap_horizontal_label;
+                return "Cell Gap Horizontal";
             }
         },
         GAPY() {
             @Override
             public String toString() {
-                return Messages.PlateSettings_gap_vertical_label;
+                return "Cell Gap Vertical";
             }
         },
         BARCODE() {
             @Override
             public String toString() {
-                return Messages.PlateSettings_barcode_label;
+                return "Barcode";
             }
         }
     };
 
-    private static final String NOT_ENABLED_STATUS_MSG = Messages.PlateSettings_not_enabled_msg;
+    private static final String NOT_ENABLED_STATUS_MSG = "Plate is not enabled";
 
-    private static final String ALIGN_STATUS_MSG = Messages.PlateSettings_align_label;
+    private static final String ALIGN_STATUS_MSG = "Align grid with barcodes";
 
-    private static final String SCAN_REQ_STATUS_MSG = Messages.PlateSettings_scan_status_msg;
+    private static final String SCAN_REQ_STATUS_MSG = "A scan is required";
 
     protected ListenerList changeListeners = new ListenerList();
 
@@ -180,7 +180,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         buttonComposite.setLayout(new GridLayout(2, false));
 
         scanBtn = new Button(buttonComposite, SWT.NONE);
-        scanBtn.setText(Messages.PlateSettings_scan_button_label);
+        scanBtn.setText("Scan");
         scanBtn.addSelectionListener(new SelectionListener() {
 
             @Override
@@ -193,7 +193,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             }
         });
         refreshBtn = new Button(buttonComposite, SWT.NONE);
-        refreshBtn.setText(Messages.PlateSettings_refresh_label);
+        refreshBtn.setText("Refresh");
         refreshBtn.addSelectionListener(new SelectionListener() {
 
             @Override
@@ -207,7 +207,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             }
         });
 
-        if (System.getProperty("os.name").startsWith("Windows") //$NON-NLS-1$ //$NON-NLS-2$
+        if (System.getProperty("os.name").startsWith("Windows")  
             && ScannerConfigPlugin.getDefault().getPlateEnabled(plateId)) {
             setEnabled(true);
         } else {
@@ -222,7 +222,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         StringFieldEditor fe;
 
         enabledFieldEditor = new BooleanFieldEditor(
-            PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1], Messages.PlateSettings_enable_check_label,
+            PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1], "Enable",
             getFieldEditorParent());
         addField(enabledFieldEditor);
 
@@ -234,7 +234,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
         orientationFieldEditor = new AdvancedRadioGroupFieldEditor(
             PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1],
-            Messages.PlateSettings_orientation_label,
+            "Orientation",
             2,
             new String[][] {
                 { PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE,
@@ -252,9 +252,9 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                     continue;
                 fe = new StringFieldEditor(
                     PreferenceConstants.SCANNER_PLATE_BARCODES[plateId - 1],
-                    Messages.PlateSettings_barcode_label_bis, getFieldEditorParent());
+                    "Barcode:", getFieldEditorParent());
             } else {
-                fe = new DoubleFieldEditor(prefsArr[count], setting + ":", //$NON-NLS-1$
+                fe = new DoubleFieldEditor(prefsArr[count], setting + ":", 
                     parent);
                 ((DoubleFieldEditor) fe).setValidRange(0, 20);
                 addField(fe);
@@ -345,7 +345,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             Double.parseDouble(s);
             return s;
         } catch (NumberFormatException e) {
-            return "0"; //$NON-NLS-1$
+            return "0"; 
         }
     }
 

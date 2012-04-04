@@ -36,10 +36,10 @@ import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
  */
 public class ScannerConfigPlugin extends AbstractUIPlugin {
 
-    public static final String IMG_SCANNER = "scanner"; //$NON-NLS-1$
+    public static final String IMG_SCANNER = "scanner"; 
 
     // The plug-in ID
-    public static final String PLUGIN_ID = "scannerConfig"; //$NON-NLS-1$
+    public static final String PLUGIN_ID = "scannerConfig"; 
 
     // The shared instance
     private static ScannerConfigPlugin plugin;
@@ -49,31 +49,31 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
      */
 
     public ScannerConfigPlugin() {
-        String osname = System.getProperty("os.name"); //$NON-NLS-1$
-        boolean isMsWindows = osname.startsWith("Windows"); //$NON-NLS-1$
-        boolean isLinux = osname.startsWith("Linux"); //$NON-NLS-1$
+        String osname = System.getProperty("os.name"); 
+        boolean isMsWindows = osname.startsWith("Windows"); 
+        boolean isLinux = osname.startsWith("Linux"); 
 
         if (isMsWindows || isLinux) {
             if (isMsWindows) {
-                System.loadLibrary("OpenThreadsWin32"); //$NON-NLS-1$
-                System.loadLibrary("cxcore210"); //$NON-NLS-1$
-                System.loadLibrary("cv210"); //$NON-NLS-1$
+                System.loadLibrary("OpenThreadsWin32"); 
+                System.loadLibrary("cxcore210"); 
+                System.loadLibrary("cv210"); 
                 System.loadLibrary("msvcr100");
                 System.loadLibrary("msvcp100");
-                System.loadLibrary("libglog"); //$NON-NLS-1$
+                System.loadLibrary("libglog"); 
             } else {
-                System.loadLibrary("OpenThreads"); //$NON-NLS-1$
-                System.loadLibrary("cxcore"); //$NON-NLS-1$
-                System.loadLibrary("cv"); //$NON-NLS-1$
-                System.loadLibrary("glog"); //$NON-NLS-1$
+                System.loadLibrary("OpenThreads"); 
+                System.loadLibrary("cxcore"); 
+                System.loadLibrary("cv"); 
+                System.loadLibrary("glog"); 
             }
 
-            String osarch = System.getProperty("os.arch"); //$NON-NLS-1$
+            String osarch = System.getProperty("os.arch"); 
 
-            if (isMsWindows || (osarch.equals("x86") || osarch.equals("i386"))) { //$NON-NLS-1$ //$NON-NLS-2$
-                System.loadLibrary("dmscanlib"); //$NON-NLS-1$
+            if (isMsWindows || (osarch.equals("x86") || osarch.equals("i386"))) {  
+                System.loadLibrary("dmscanlib"); 
             } else {
-                System.loadLibrary("dmscanlib64"); //$NON-NLS-1$
+                System.loadLibrary("dmscanlib64"); 
             }
         }
     }
@@ -95,7 +95,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                 @Override
                 public void propertyChange(PropertyChangeEvent event) {
                     if (event.getProperty().startsWith(
-                        "scanner.plate.coords.enabled.")) { //$NON-NLS-1$
+                        "scanner.plate.coords.enabled.")) { 
                         IWorkbenchWindow window = PlatformUI.getWorkbench()
                             .getActiveWorkbenchWindow();
                         ISourceProviderService service =
@@ -114,13 +114,13 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
     @Override
     protected void initializeImageRegistry(ImageRegistry registry) {
-        registerImage(registry, IMG_SCANNER, "selectScanner.png"); //$NON-NLS-1$
+        registerImage(registry, IMG_SCANNER, "selectScanner.png"); 
     }
 
     private void registerImage(ImageRegistry registry, String key,
         String fileName) {
         try {
-            IPath path = new Path("icons/" + fileName); //$NON-NLS-1$
+            IPath path = new Path("icons/" + fileName); 
             URL url = FileLocator.find(getBundle(), path, null);
             if (url != null) {
                 ImageDescriptor desc = ImageDescriptor.createFromURL(url);
@@ -169,7 +169,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             filename);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
-            throw new Exception(Messages.ScannerConfigPlugin_scan_error_msg
+            throw new Exception("Could not scan image:\n"
                 + res.getMessage());
         }
     }
@@ -187,7 +187,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(
-                Messages.ScannerConfigPlugin_scan_flatbed_error_msg
+                "Could not scan flatbed:\n"
                     + res.getMessage());
         }
     }
@@ -237,7 +237,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         int orientation = prefs.getString(
             PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1])
-            .equals("Landscape") ? 0 : 1; //$NON-NLS-1$
+            .equals("Landscape") ? 0 : 1; 
 
         regionModifyIfScannerWia(region);
 
@@ -253,7 +253,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(
-                Messages.ScannerConfigPlugin_decode_plate_error_msg
+                "Could not decode plate:\n"
                     + res.getMessage());
         }
         return res.getCells();
@@ -283,7 +283,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         int orientation = prefs.getString(
             PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1])
-            .equals("Landscape") ? 0 : 1; //$NON-NLS-1$
+            .equals("Landscape") ? 0 : 1; 
 
         regionModifyIfScannerWia(region);
 
@@ -299,7 +299,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(
-                Messages.ScannerConfigPlugin_decode_image_error_msg
+                "Could not decode image: "
                     + res.getMessage());
         }
         return res.getCells();
@@ -308,7 +308,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     public boolean getPlateEnabled(int plateId) {
         Assert.isTrue((plateId > 0)
             && (plateId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
-            "plate id is invalid: " + plateId); //$NON-NLS-1$
+            "plate id is invalid: " + plateId); 
         return getPreferenceStore().getBoolean(
             PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1]);
     }
@@ -390,7 +390,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
             String pref = getPreferenceStore().getString(
                 PreferenceConstants.SCANNER_PLATE_BARCODES[i]);
-            Assert.isTrue(!pref.isEmpty(), "preference not assigned"); //$NON-NLS-1$
+            Assert.isTrue(!pref.isEmpty(), "preference not assigned"); 
             if (pref.equals(barcode)) {
                 return i + 1;
             }
@@ -407,7 +407,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
             String pref = getPreferenceStore().getString(
                 PreferenceConstants.SCANNER_PLATE_BARCODES[i]);
-            Assert.isTrue(!pref.isEmpty(), "preference not assigned"); //$NON-NLS-1$
+            Assert.isTrue(!pref.isEmpty(), "preference not assigned"); 
             barcodes.add(pref);
         }
         return barcodes;

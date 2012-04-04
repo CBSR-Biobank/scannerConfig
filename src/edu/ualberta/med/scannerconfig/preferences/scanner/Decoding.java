@@ -38,7 +38,7 @@ public class Decoding extends FieldEditorPreferencePage implements
     @Override
     protected void createFieldEditors() {
         debugLevelInputField = new IntegerFieldEditor(
-            PreferenceConstants.DLL_DEBUG_LEVEL, Messages.Decoding_debug_level,
+            PreferenceConstants.DLL_DEBUG_LEVEL, "Decode Library Debug Level:",
             getFieldEditorParent());
         debugLevelInputField.setValidRange(0, 9);
         addField(debugLevelInputField);
@@ -46,7 +46,7 @@ public class Decoding extends FieldEditorPreferencePage implements
             debugLevelInputField);
 
         thresholdInputField = new IntegerFieldEditor(
-            PreferenceConstants.LIBDMTX_EDGE_THRESH, Messages.Decoding_edge_treshold,
+            PreferenceConstants.LIBDMTX_EDGE_THRESH, "Decode Edge Threshold:",
             getFieldEditorParent());
         thresholdInputField.setValidRange(0, 100);
         addField(thresholdInputField);
@@ -54,7 +54,7 @@ public class Decoding extends FieldEditorPreferencePage implements
             thresholdInputField);
 
         squaredevInputField = new IntegerFieldEditor(
-            PreferenceConstants.LIBDMTX_SQUARE_DEV, Messages.Decoding_square_deviation,
+            PreferenceConstants.LIBDMTX_SQUARE_DEV, "Decode Square Deviation:",
             getFieldEditorParent());
         squaredevInputField.setValidRange(0, 90);
         addField(squaredevInputField);
@@ -62,7 +62,7 @@ public class Decoding extends FieldEditorPreferencePage implements
             squaredevInputField);
 
         correctionsInputField = new IntegerFieldEditor(
-            PreferenceConstants.LIBDMTX_CORRECTIONS, Messages.Decoding_corrections,
+            PreferenceConstants.LIBDMTX_CORRECTIONS, "Decode Corrections:",
             getFieldEditorParent());
         correctionsInputField.setValidRange(0, 100);
         addField(correctionsInputField);
@@ -70,14 +70,14 @@ public class Decoding extends FieldEditorPreferencePage implements
             correctionsInputField);
 
         scanGapDblInput = new DoubleFieldEditor(
-            PreferenceConstants.LIBDMTX_SCAN_GAP, Messages.Decoding_scan_gap,
+            PreferenceConstants.LIBDMTX_SCAN_GAP, "Decode Scan Gap:",
             getFieldEditorParent());
         scanGapDblInput.setValidRange(0.0, 1.0);
         addField(scanGapDblInput);
         dblFieldMap.put(PreferenceConstants.LIBDMTX_SCAN_GAP, scanGapDblInput);
 
         celldistDblInput = new DoubleFieldEditor(
-            PreferenceConstants.LIBDMTX_CELL_DISTANCE, Messages.Decoding_cell_distance,
+            PreferenceConstants.LIBDMTX_CELL_DISTANCE, "Decode Cell Distance:",
             getFieldEditorParent());
         celldistDblInput.setValidRange(0.0, 1.0);
         addField(celldistDblInput);
