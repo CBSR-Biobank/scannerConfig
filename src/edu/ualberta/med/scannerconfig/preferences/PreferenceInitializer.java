@@ -2,17 +2,23 @@ package edu.ualberta.med.scannerconfig.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.xnap.commons.i18n.I18n;
+import org.xnap.commons.i18n.I18nFactory;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
+    private static final I18n i18n = I18nFactory
+        .getI18n(PreferenceInitializer.class);
+
+    @SuppressWarnings("nls")
     @Override
     public void initializeDefaultPreferences() {
         IPreferenceStore store = ScannerConfigPlugin.getDefault()
             .getPreferenceStore();
         store.setDefault(PreferenceConstants.SCANNER_DPI, 600);
-        store.setDefault(PreferenceConstants.SCANNER_PALLET_PROFILES, ""); 
+        store.setDefault(PreferenceConstants.SCANNER_PALLET_PROFILES, "");
         store.setDefault(PreferenceConstants.SCANNER_BRIGHTNESS, 0);
         store.setDefault(PreferenceConstants.SCANNER_CONTRAST, 0);
         store.setDefault(PreferenceConstants.SCANNER_DRV_TYPE,
@@ -33,7 +39,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         }
         for (int i = 0; i < PreferenceConstants.SCANNER_PLATE_BARCODES.length; i++) {
             store.setDefault(PreferenceConstants.SCANNER_PLATE_BARCODES[i],
-                "PLATE" + (i + 1)); 
+                i18n.tr("PLATE") + (i + 1));
         }
         store.setDefault(PreferenceConstants.SCANNER_PLATE_SHOW_BARCODE_PREF,
             false);

@@ -3,6 +3,8 @@ package edu.ualberta.med.scannerconfig.preferences.scanner.profiles;
 import java.util.HashMap;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.xnap.commons.i18n.I18n;
+import org.xnap.commons.i18n.I18nFactory;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
@@ -10,9 +12,12 @@ import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 public class ProfileManager {
     private static ProfileManager instance = null;
 
-    private HashMap<String, ProfileSettings> profiles = new HashMap<String, ProfileSettings>();
+    private HashMap<String, ProfileSettings> profiles =
+        new HashMap<String, ProfileSettings>();
 
-    public static final String ALL_PROFILE_NAME = "All"; 
+    private static final I18n i18n = I18nFactory.getI18n(ProfileManager.class);
+
+    public static final String ALL_PROFILE_NAME = i18n.tr("All"); //$NON-NLS-1$
 
     protected ProfileManager() {
         reloadProfiles();
@@ -25,13 +30,14 @@ public class ProfileManager {
         return instance;
     }
 
+    @SuppressWarnings("nls")
     public void reloadProfiles() {
         try {
             profiles = loadProfilesFromString();
         } catch (Exception e) {
             ScannerConfigPlugin.openAsyncError(
-                "Profile Manager Settings",
-                "Could not load profile settings");
+                i18n.tr("Profile Manager Settings"),
+                i18n.tr("Could not load profile settings"));
         }
     }
 
@@ -46,9 +52,11 @@ public class ProfileManager {
         return out;
     }
 
+    @SuppressWarnings("nls")
     public static HashMap<String, ProfileSettings> loadProfilesFromString()
         throws Exception {
-        HashMap<String, ProfileSettings> profilesMap = new HashMap<String, ProfileSettings>();
+        HashMap<String, ProfileSettings> profilesMap =
+            new HashMap<String, ProfileSettings>();
 
         ProfileSettings allProfile = new ProfileSettings(ALL_PROFILE_NAME);
         allProfile.setAll();
@@ -59,12 +67,12 @@ public class ProfileManager {
         String profileString = store
             .getString(PreferenceConstants.SCANNER_PALLET_PROFILES);
 
-        String entries[] = profileString.split(";"); 
+        String entries[] = profileString.split(";");
         if (entries.length < 0)
             return profilesMap;
 
         for (String entry : entries) {
-            String elements[] = entry.split(","); 
+            String elements[] = entry.split(",");
             if (elements.length < 4) {
                 continue;
             }

@@ -17,6 +17,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.xnap.commons.i18n.I18n;
+import org.xnap.commons.i18n.I18nFactory;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dialogs.InputDialog;
@@ -29,6 +31,9 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
     Label profileNameLbl;
     List profileList;
 
+    private static final I18n i18n = I18nFactory
+        .getI18n(ProfilePreferences.class);
+
     @Override
     public void init(IWorkbench workbench) {
         setPreferenceStore(ScannerConfigPlugin.getDefault()
@@ -36,6 +41,7 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
 
     }
 
+    @SuppressWarnings("nls")
     @Override
     protected Control createContents(final Composite parent) {
 
@@ -81,12 +87,14 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
             .setLayoutData(new GridData(SWT.FILL, GridData.FILL, true, true));
 
         Button addButton = new Button(buttons, SWT.SIMPLE);
-        addButton.setText("Add...");
+        addButton.setText(i18n.tr("Add..."));
         addButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                InputDialog id = new InputDialog(getShell(), SWT.NONE,
-                    "Profile Name", "Please enter a profile name: ");
+                InputDialog id =
+                    new InputDialog(getShell(), SWT.NONE,
+                        i18n.tr("Profile Name"), i18n
+                            .tr("Please enter a profile name: "));
 
                 String newProfileName = id.open(); // TODO strip
 
@@ -98,7 +106,7 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
         });
 
         deleteBtn = new Button(buttons, SWT.SIMPLE);
-        deleteBtn.setText("Delete Profile");
+        deleteBtn.setText(i18n.tr("Delete Profile"));
         deleteBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -120,7 +128,7 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
             final int c = i;
 
             profileBtns[i] = new Button(profile, SWT.CHECK);
-            profileBtns[i].setText("" + ((char) (c / 12 + 'A')) + (c % 12 + 1)); 
+            profileBtns[i].setText("" + ((char) (c / 12 + 'A')) + (c % 12 + 1));
             profileBtns[i].setEnabled(false);
             profileBtns[i].addSelectionListener(new SelectionListener() {
 
@@ -144,7 +152,7 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
             .setLayoutData(new GridData(SWT.FILL, GridData.FILL, true, true));
 
         allBtn = new Button(buttons2, SWT.SIMPLE);
-        allBtn.setText("Select All");
+        allBtn.setText(i18n.tr("Select All"));
         allBtn.addSelectionListener(new SelectionListener() {
 
             @Override
@@ -161,7 +169,7 @@ public class ProfilePreferences extends FieldEditorPreferencePage implements
         });
 
         resetBtn = new Button(buttons2, SWT.SIMPLE);
-        resetBtn.setText("Unselect All");
+        resetBtn.setText(i18n.tr("Unselect All"));
         resetBtn.addSelectionListener(new SelectionListener() {
 
             @Override

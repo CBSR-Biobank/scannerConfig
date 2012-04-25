@@ -3,6 +3,8 @@ package edu.ualberta.med.scannerconfig.preferences;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
+import org.xnap.commons.i18n.I18n;
+import org.xnap.commons.i18n.I18nFactory;
 
 public class DoubleFieldEditor extends StringFieldEditor {
     private double minValidValue = 0;
@@ -10,6 +12,9 @@ public class DoubleFieldEditor extends StringFieldEditor {
     private double maxValidValue = Double.MAX_VALUE;
 
     private static final int DEFAULT_TEXT_LIMIT = 10;
+
+    private static final I18n i18n = I18nFactory
+        .getI18n(DoubleFieldEditor.class);
 
     /**
      * Creates a new integer field editor
@@ -36,12 +41,13 @@ public class DoubleFieldEditor extends StringFieldEditor {
      * @param parent the parent of the field editor's control
      * @param textLimit the maximum number of characters in the text.
      */
+    @SuppressWarnings("nls")
     public DoubleFieldEditor(String name, String labelText, Composite parent,
         int textLimit) {
         init(name, labelText);
         setTextLimit(textLimit);
         setEmptyStringAllowed(false);
-        setErrorMessage("Invalid value");
+        setErrorMessage(i18n.tr("Invalid value"));
         createControl(parent);
     }
 
@@ -51,10 +57,11 @@ public class DoubleFieldEditor extends StringFieldEditor {
      * @param min the minimum allowed value (inclusive)
      * @param max the maximum allowed value (inclusive)
      */
+    @SuppressWarnings("nls")
     public void setValidRange(double min, double max) {
         minValidValue = min;
         maxValidValue = max;
-        setErrorMessage("Invalid value");
+        setErrorMessage(i18n.tr("Invalid value"));
     }
 
     /*
@@ -95,8 +102,8 @@ public class DoubleFieldEditor extends StringFieldEditor {
         Text text = getTextControl();
         if (text != null) {
             double value = getPreferenceStore().getDouble(getPreferenceName());
-            text.setText("" + value);
-            oldValue = "" + value; 
+            text.setText("" + value); //$NON-NLS-1$
+            oldValue = "" + value; //$NON-NLS-1$
         }
 
     }
@@ -110,7 +117,7 @@ public class DoubleFieldEditor extends StringFieldEditor {
         if (text != null) {
             double value = getPreferenceStore().getDefaultDouble(
                 getPreferenceName());
-            text.setText("" + value);
+            text.setText("" + value); //$NON-NLS-1$
         }
         valueChanged();
     }

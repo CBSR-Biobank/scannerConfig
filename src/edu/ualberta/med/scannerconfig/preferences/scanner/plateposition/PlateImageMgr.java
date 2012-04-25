@@ -7,6 +7,8 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
+import org.xnap.commons.i18n.I18n;
+import org.xnap.commons.i18n.I18nFactory;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
@@ -18,10 +20,11 @@ public class PlateImageMgr {
 
     public static final int PLATE_IMAGE_DPI = 300;
 
-    public static final String PALLET_IMAGE_FILE = "plates.bmp"; 
+    public static final String PALLET_IMAGE_FILE = "plates.bmp"; //$NON-NLS-1$
 
     protected ListenerList listenerList = new ListenerList();
 
+    private static final I18n i18n = I18nFactory.getI18n(PlateImageMgr.class);
     private Image scannedImage;
 
     private boolean debug = false;
@@ -63,12 +66,15 @@ public class PlateImageMgr {
         }
     }
 
+    @SuppressWarnings("nls")
     public void scanPlateImage() {
         if (ScannerConfigPlugin.getDefault().getPreferenceStore()
             .getString(PreferenceConstants.SCANNER_DRV_TYPE)
             .equals(PreferenceConstants.SCANNER_DRV_TYPE_NONE)) {
-            ScannerConfigPlugin.openAsyncError("Scanner Driver Not Selected",
-                "Please select and configure the scanner in preferences");
+            ScannerConfigPlugin
+                .openAsyncError(
+                    i18n.tr("Scanner Driver Not Selected"),
+                    i18n.tr("Please select and configure the scanner in preferences"));
             return;
         }
 
@@ -87,7 +93,7 @@ public class PlateImageMgr {
             PlateImageMgr.PALLET_IMAGE_FILE);
 
         if (result.getResultCode() != ScanLib.SC_SUCCESS) {
-            ScannerConfigPlugin.openAsyncError("Scanner error",
+            ScannerConfigPlugin.openAsyncError(i18n.tr("Scanner error"),
                 result.getMessage());
             return;
         }

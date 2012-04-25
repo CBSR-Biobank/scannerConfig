@@ -12,6 +12,8 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.xnap.commons.i18n.I18n;
+import org.xnap.commons.i18n.I18nFactory;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
@@ -22,7 +24,10 @@ import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
 public class Scanner extends FieldEditorPreferencePage implements
     IWorkbenchPreferencePage, SelectionListener {
 
-    private Map<String, IntegerFieldEditor> intFieldMap = new HashMap<String, IntegerFieldEditor>();
+    private Map<String, IntegerFieldEditor> intFieldMap =
+        new HashMap<String, IntegerFieldEditor>();
+
+    private static final I18n i18n = I18nFactory.getI18n(Scanner.class);
 
     Button selectScannerBtn;
     AdvancedRadioGroupFieldEditor dpiRadio, driverTypeRadio;
@@ -41,24 +46,25 @@ public class Scanner extends FieldEditorPreferencePage implements
             .getPreferenceStore());
     }
 
+    @SuppressWarnings("nls")
     @Override
     public void createFieldEditors() {
         selectScannerBtn = new Button(getFieldEditorParent(), SWT.NONE);
-        selectScannerBtn.setText("Select Scanner");
+        selectScannerBtn.setText(i18n.tr("Select Scanner"));
         selectScannerBtn.setImage(ScannerConfigPlugin.getDefault()
             .getImageRegistry().get(ScannerConfigPlugin.IMG_SCANNER));
         selectScannerBtn.addSelectionListener(this);
 
         driverTypeRadio = new AdvancedRadioGroupFieldEditor(
-            PreferenceConstants.SCANNER_DRV_TYPE, "Driver Type", 2,
+            PreferenceConstants.SCANNER_DRV_TYPE, i18n.tr("Driver Type"), 2,
             new String[][] {
-                { "WIA", PreferenceConstants.SCANNER_DRV_TYPE_WIA }, 
-                { "TWAIN", PreferenceConstants.SCANNER_DRV_TYPE_TWAIN } }, 
+                { "WIA", PreferenceConstants.SCANNER_DRV_TYPE_WIA },
+                { "TWAIN", PreferenceConstants.SCANNER_DRV_TYPE_TWAIN } },
             getFieldEditorParent(), true);
         addField(driverTypeRadio);
 
         dpiRadio = new AdvancedRadioGroupFieldEditor(
-            PreferenceConstants.SCANNER_DPI, "DPI", 5, new String[][] { 
+            PreferenceConstants.SCANNER_DPI, "DPI", 5, new String[][] {
                 { PreferenceConstants.SCANNER_300_DPI,
                     PreferenceConstants.SCANNER_300_DPI },
                 { PreferenceConstants.SCANNER_400_DPI,
@@ -70,7 +76,7 @@ public class Scanner extends FieldEditorPreferencePage implements
         addField(dpiRadio);
 
         brightnessInputField = new IntegerFieldEditor(
-            PreferenceConstants.SCANNER_BRIGHTNESS, "Brightness:",
+            PreferenceConstants.SCANNER_BRIGHTNESS, i18n.tr("Brightness:"),
             getFieldEditorParent());
         brightnessInputField.setValidRange(-1000, 1000);
         addField(brightnessInputField);
@@ -78,7 +84,7 @@ public class Scanner extends FieldEditorPreferencePage implements
             brightnessInputField);
 
         contrastInputField = new IntegerFieldEditor(
-            PreferenceConstants.SCANNER_CONTRAST, "Contrast:",
+            PreferenceConstants.SCANNER_CONTRAST, i18n.tr("Contrast:"),
             getFieldEditorParent());
         contrastInputField.setValidRange(-1000, 1000);
         addField(contrastInputField);
@@ -105,6 +111,7 @@ public class Scanner extends FieldEditorPreferencePage implements
         contrastInputField.setEnabled(enableSettings, getFieldEditorParent());
     }
 
+    @SuppressWarnings("nls")
     @Override
     public void widgetSelected(SelectionEvent e) {
         if (e.getSource() != selectScannerBtn)
@@ -123,7 +130,7 @@ public class Scanner extends FieldEditorPreferencePage implements
                 return;
             }
             setEnableAllWidgets(false);
-            ScannerConfigPlugin.openError("Scanning Source Error",
+            ScannerConfigPlugin.openError(i18n.tr("Scanning Source Error"),
                 scanlibResult.getMessage());
             return;
         }

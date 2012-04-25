@@ -11,5 +11,6 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="scannerConfig"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/gettext-commons-0.9.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

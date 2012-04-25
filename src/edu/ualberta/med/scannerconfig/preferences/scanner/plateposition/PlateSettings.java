@@ -29,6 +29,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.xnap.commons.i18n.I18n;
+import org.xnap.commons.i18n.I18nFactory;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
@@ -41,56 +43,62 @@ import edu.ualberta.med.scannerconfig.widgets.PlateGridWidget;
 public class PlateSettings extends FieldEditorPreferencePage implements
     IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
 
+    private static final I18n i18n = I18nFactory.getI18n(PlateSettings.class);
+
+    @SuppressWarnings("nls")
     private enum Settings {
         LEFT() {
             @Override
             public String toString() {
-                return "Left";
+                return i18n.tr("Left");
             }
         },
         TOP() {
             @Override
             public String toString() {
-                return "Top";
+                return i18n.tr("Top");
             }
         },
         RIGHT() {
             @Override
             public String toString() {
-                return "Right";
+                return i18n.tr("Right");
             }
         },
         BOTTOM() {
             @Override
             public String toString() {
-                return "Bottom";
+                return i18n.tr("Bottom");
             }
         },
         GAPX() {
             @Override
             public String toString() {
-                return "Cell Gap Horizontal";
+                return i18n.tr("Cell Gap Horizontal");
             }
         },
         GAPY() {
             @Override
             public String toString() {
-                return "Cell Gap Vertical";
+                return i18n.tr("Cell Gap Vertical");
             }
         },
         BARCODE() {
             @Override
             public String toString() {
-                return "Barcode";
+                return i18n.tr("Barcode");
             }
         }
     };
 
-    private static final String NOT_ENABLED_STATUS_MSG = "Plate is not enabled";
+    private static final String NOT_ENABLED_STATUS_MSG = i18n
+        .tr("Plate is not enabled"); //$NON-NLS-1$
 
-    private static final String ALIGN_STATUS_MSG = "Align grid with barcodes";
+    private static final String ALIGN_STATUS_MSG = i18n
+        .tr("Align grid with barcodes"); //$NON-NLS-1$
 
-    private static final String SCAN_REQ_STATUS_MSG = "A scan is required";
+    private static final String SCAN_REQ_STATUS_MSG = i18n
+        .tr("A scan is required"); //$NON-NLS-1$
 
     protected ListenerList changeListeners = new ListenerList();
 
@@ -149,6 +157,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             .getPreferenceStore());
     }
 
+    @SuppressWarnings("nls")
     @Override
     protected Control createContents(final Composite parent) {
 
@@ -180,7 +189,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         buttonComposite.setLayout(new GridLayout(2, false));
 
         scanBtn = new Button(buttonComposite, SWT.NONE);
-        scanBtn.setText("Scan");
+        scanBtn.setText(i18n.tr("Scan"));
         scanBtn.addSelectionListener(new SelectionListener() {
 
             @Override
@@ -193,7 +202,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             }
         });
         refreshBtn = new Button(buttonComposite, SWT.NONE);
-        refreshBtn.setText("Refresh");
+        refreshBtn.setText(i18n.tr("Refresh"));
         refreshBtn.addSelectionListener(new SelectionListener() {
 
             @Override
@@ -207,7 +216,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             }
         });
 
-        if (System.getProperty("os.name").startsWith("Windows")  
+        if (System.getProperty("os.name").startsWith("Windows")
             && ScannerConfigPlugin.getDefault().getPlateEnabled(plateId)) {
             setEnabled(true);
         } else {
@@ -217,31 +226,37 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         return top;
     }
 
+    @SuppressWarnings("nls")
     @Override
     protected void createFieldEditors() {
         StringFieldEditor fe;
 
-        enabledFieldEditor = new BooleanFieldEditor(
-            PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1], "Enable",
-            getFieldEditorParent());
+        enabledFieldEditor =
+            new BooleanFieldEditor(
+                PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1],
+                i18n.tr("Enable"),
+                getFieldEditorParent());
         addField(enabledFieldEditor);
 
-        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
+        String[] prefsArr =
+            PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
 
         plateFieldEditors = new HashMap<Settings, StringFieldEditor>();
         plateTextControls = new HashMap<Settings, Text>();
         Composite parent = getFieldEditorParent();
 
-        orientationFieldEditor = new AdvancedRadioGroupFieldEditor(
-            PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1],
-            "Orientation",
-            2,
-            new String[][] {
-                { PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE,
-                    PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE },
-                { PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT,
-                    PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT } },
-            parent, true);
+        orientationFieldEditor =
+            new AdvancedRadioGroupFieldEditor(
+                PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1],
+                i18n.tr("Orientation"),
+                2,
+                new String[][] {
+                    {
+                        PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE,
+                        PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE },
+                    { PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT,
+                        PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT } },
+                parent, true);
         addField(orientationFieldEditor);
 
         int count = 0;
@@ -252,9 +267,9 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                     continue;
                 fe = new StringFieldEditor(
                     PreferenceConstants.SCANNER_PLATE_BARCODES[plateId - 1],
-                    "Barcode:", getFieldEditorParent());
+                    i18n.tr("Barcode:"), getFieldEditorParent());
             } else {
-                fe = new DoubleFieldEditor(prefsArr[count], setting + ":", 
+                fe = new DoubleFieldEditor(prefsArr[count], setting + ":",
                     parent);
                 ((DoubleFieldEditor) fe).setValidRange(0, 20);
                 addField(fe);
@@ -340,12 +355,13 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         internalUpdate = false;
     }
 
+    @SuppressWarnings("nls")
     private String formatInput(String s) {
         try {
             Double.parseDouble(s);
             return s;
         } catch (NumberFormatException e) {
-            return "0"; 
+            return "0";
         }
     }
 
@@ -436,7 +452,8 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
         Object[] listeners = changeListeners.getListeners();
         for (int i = 0; i < listeners.length; ++i) {
-            final IPlateSettingsListener l = (IPlateSettingsListener) listeners[i];
+            final IPlateSettingsListener l =
+                (IPlateSettingsListener) listeners[i];
             SafeRunnable.run(new SafeRunnable() {
                 @Override
                 public void run() {
