@@ -38,6 +38,9 @@ import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
  */
 public class ScannerConfigPlugin extends AbstractUIPlugin {
 
+    private static final I18n i18n = I18nFactory
+        .getI18n(ScannerConfigPlugin.class);
+
     public static final String IMG_SCANNER = "scanner"; //$NON-NLS-1$
 
     // The plug-in ID
@@ -45,9 +48,6 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
     // The shared instance
     private static ScannerConfigPlugin plugin;
-
-    private static final I18n i18n = I18nFactory
-        .getI18n(ScannerConfigPlugin.class);
 
     /**
      * The constructor
