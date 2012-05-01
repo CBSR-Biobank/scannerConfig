@@ -57,30 +57,16 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     public ScannerConfigPlugin() {
         String osname = System.getProperty("os.name");
         boolean isMsWindows = osname.startsWith("Windows");
-        boolean isLinux = osname.startsWith("Linux");
+        // boolean isLinux = osname.startsWith("Linux");
 
-        if (isMsWindows || isLinux) {
-            if (isMsWindows) {
-                System.loadLibrary("OpenThreadsWin32");
-                System.loadLibrary("cxcore210");
-                System.loadLibrary("cv210");
-                System.loadLibrary("msvcr100");
-                System.loadLibrary("msvcp100");
-                System.loadLibrary("libglog");
-            } else {
-                System.loadLibrary("OpenThreads");
-                System.loadLibrary("cxcore");
-                System.loadLibrary("cv");
-                System.loadLibrary("glog");
-            }
-
-            String osarch = System.getProperty("os.arch");
-
-            if (isMsWindows || (osarch.equals("x86") || osarch.equals("i386"))) {
-                System.loadLibrary("dmscanlib");
-            } else {
-                System.loadLibrary("dmscanlib64");
-            }
+        if (isMsWindows) {
+            System.loadLibrary("OpenThreadsWin32");
+            System.loadLibrary("cxcore210");
+            System.loadLibrary("cv210");
+            System.loadLibrary("msvcr100");
+            System.loadLibrary("msvcp100");
+            System.loadLibrary("libglog");
+            System.loadLibrary("dmscanlib");
         }
     }
 
