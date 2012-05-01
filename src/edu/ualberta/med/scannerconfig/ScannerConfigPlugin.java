@@ -49,32 +49,18 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
      */
 
     public ScannerConfigPlugin() {
-        String osname = System.getProperty("os.name"); //$NON-NLS-1$
-        boolean isMsWindows = osname.startsWith("Windows"); //$NON-NLS-1$
-        boolean isLinux = osname.startsWith("Linux"); //$NON-NLS-1$
+        String osname = System.getProperty("os.name");
+        boolean isMsWindows = osname.startsWith("Windows");
+        // boolean isLinux = osname.startsWith("Linux");
 
-        if (isMsWindows || isLinux) {
-            if (isMsWindows) {
-                System.loadLibrary("OpenThreadsWin32"); //$NON-NLS-1$
-                System.loadLibrary("cxcore210"); //$NON-NLS-1$
-                System.loadLibrary("cv210"); //$NON-NLS-1$
-                System.loadLibrary("msvcr100");
-                System.loadLibrary("msvcp100");
-                System.loadLibrary("libglog"); //$NON-NLS-1$
-            } else {
-                System.loadLibrary("OpenThreads"); //$NON-NLS-1$
-                System.loadLibrary("cxcore"); //$NON-NLS-1$
-                System.loadLibrary("cv"); //$NON-NLS-1$
-                System.loadLibrary("glog"); //$NON-NLS-1$
-            }
-
-            String osarch = System.getProperty("os.arch"); //$NON-NLS-1$
-
-            if (isMsWindows || (osarch.equals("x86") || osarch.equals("i386"))) { //$NON-NLS-1$ //$NON-NLS-2$
-                System.loadLibrary("dmscanlib"); //$NON-NLS-1$
-            } else {
-                System.loadLibrary("dmscanlib64"); //$NON-NLS-1$
-            }
+        if (isMsWindows) {
+            System.loadLibrary("OpenThreadsWin32");
+            System.loadLibrary("cxcore210");
+            System.loadLibrary("cv210");
+            System.loadLibrary("msvcr100");
+            System.loadLibrary("msvcp100");
+            System.loadLibrary("libglog");
+            System.loadLibrary("dmscanlib");
         }
     }
 

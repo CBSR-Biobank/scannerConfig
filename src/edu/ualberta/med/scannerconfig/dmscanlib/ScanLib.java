@@ -33,14 +33,21 @@ public class ScanLib {
 
     private static ScanLib instance = null;
 
-    private ScanLib() {
+    protected ScanLib() {
     }
 
     public static ScanLib getInstance() {
         if (instance != null)
             return instance;
 
-        instance = new ScanLib();
+        String osname = System.getProperty("os.name"); //$NON-NLS-1$
+        boolean isLinux = osname.startsWith("Linux"); //$NON-NLS-1$
+
+        if (isLinux) {
+            instance = new ScanLibLinux();
+        } else {
+            instance = new ScanLib();
+        }
 
         if (instance == null) {
             throw new NullPointerException(
