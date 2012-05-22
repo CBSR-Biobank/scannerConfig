@@ -1,5 +1,6 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
+@SuppressWarnings("nls")
 public class ScanLibLinux extends ScanLib {
 
     public ScanLibLinux() {
