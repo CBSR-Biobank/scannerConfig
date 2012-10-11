@@ -114,11 +114,8 @@ public class ScanLib {
         int brightness, int contrast, String filename);
 
     /**
-     * From the regions specified in the INI file for the corresponding plate,
-     * scans an image and then decodes all the regions. The decoded barcodes are
-     * written to the file "dmscanlib.txt". The scanlib.txt file is a comma
-     * separated value file with the following columns: Plate, Row, Column,
-     * Barcode.
+     * Scans an image specified by region and then decodes sub regions. The
+     * decoded barcodes are returned by the method.
      * 
      * Calling this function also creates the "decoded.bmp" windows bitmap file.
      * This file shows a green square around the barcodes that were successfully
@@ -128,6 +125,7 @@ public class ScanLib {
      * @param verbose The amount of logging information to generate. 1 is
      *            minimal and 9 is very detailed. Logging information is
      *            appended to file scanlib.log.
+     * @param
      * @param plateNum The plate number. Must be a number between 1 and 5.
      * @param left The left margin in inches.
      * @param top The top margin in inches.
