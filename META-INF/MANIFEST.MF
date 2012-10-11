@@ -26,3 +26,4 @@ Export-Package: edu.ualberta.med.scannerconfig;uses:="org.eclipse.jface.resource
  edu.ualberta.med.scannerconfig.preferences.scanner,
  edu.ualberta.med.scannerconfig.preferences.scanner.profiles;uses:="org.eclipse.jface.preference,org.eclipse.ui,org.eclipse.swt.widgets"
 Bundle-Vendor: AICML
+Import-Package: org.junit
