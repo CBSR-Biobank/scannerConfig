@@ -201,9 +201,7 @@ public class ScanLib {
      *         the pallet. SC_POS_CALC_ERROR if sample positions could not be
      *         determined.
      */
-    public native DecodeResult decodeImage(long verbose, long plateNum,
-        String filename, double scanGap, long squareDev, long edgeThresh,
-        long corrections, double cellDistance, double gapX, double gapY,
-        long profileA, long profileB, long profileC, long orientation);
+    public native DecodeResult decodeImage(long verbose, String filename,
+        DecodeOptions decodeOptions, Well[] wells);
 
 }
