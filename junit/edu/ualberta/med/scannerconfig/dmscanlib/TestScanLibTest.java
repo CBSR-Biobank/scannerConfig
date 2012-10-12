@@ -56,9 +56,6 @@ public class TestScanLibTest {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
-
-        r = scanLib.decodeImage(0, 0, "tmp.txt", 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0);
     }
 
     /*
@@ -71,11 +68,18 @@ public class TestScanLibTest {
         String fname = System.getenv("HOME")
             + "/Dropbox/CBSR/scanlib/testImages/96tubes_cropped.bmp";
 
-        DecodeResult r = scanLib.decodeImage(0, 1, fname, 0.085, 15, 5, 10,
-            0.345, 0, 0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0);
+        DecodeOptions decodeOptions = new DecodeOptions(0.085, 15, 5, 10,
+            0.345, 0, 0);
 
-        log.debug("cells decoded: {}", r.getCells().size());
-        Assert.assertTrue(r.getCells().size() > 0);
+        WellRectangle[] wells =
+            new WellRectangle[] {
+                new WellRectangle("A12", 10.0 / 400.0, 20.0 / 400.0, 130.0 / 400.0,
+                    130.0 / 400.0)
+            };
+
+        DecodeResult r = scanLib.decodeImage(0, fname, decodeOptions, wells);
+
+        log.debug("cells decoded: {}", r.getDecodedWells().size());
+        Assert.assertTrue(r.getDecodedWells().size() > 0);
     }
-
 }

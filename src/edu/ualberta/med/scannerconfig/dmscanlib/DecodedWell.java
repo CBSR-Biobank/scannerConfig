@@ -1,20 +1,20 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
-public class DecodedWell extends Well {
+public class DecodedWell {
 
-    String message;
+    final String label;
+    final String message;
 
-    public DecodedWell(String label, double left, double top, double right,
-        double bottom) {
-        super(label, left, top, right, bottom);
+    public DecodedWell(String label, String message) {
+        this.label = label;
+        this.message = message;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
     public String getMessage() {
         return message;
     }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
 }

@@ -114,94 +114,16 @@ public class ScanLib {
         int brightness, int contrast, String filename);
 
     /**
-     * Scans an image specified by region and then decodes sub regions. The
-     * decoded barcodes are returned by the method.
      * 
-     * Calling this function also creates the "decoded.bmp" windows bitmap file.
-     * This file shows a green square around the barcodes that were successfully
-     * decoded. If the regions failed to decode then a red square is drawn
-     * around it.
-     * 
-     * @param verbose The amount of logging information to generate. 1 is
-     *            minimal and 9 is very detailed. Logging information is
-     *            appended to file scanlib.log.
-     * @param
-     * @param plateNum The plate number. Must be a number between 1 and 5.
-     * @param left The left margin in inches.
-     * @param top The top margin in inches.
-     * @param right The width in inches.
-     * @param bottom The height in inches.
-     * @param scanGap The number of pixels to use for scan grid gap. This is a
-     *            libdmtx parameter.
-     * @param squareDev Maximum deviation (degrees) from squareness between
-     *            adjacent barcode sides. Default value is N=40, but N=10 is
-     *            recommended for flat applications like faxes and other scanned
-     *            documents. Barcode regions found with corners <(90-N) or
-     *            >(90+N) will be ignored by the decoder.
-     * @param edgeThresh Set the minimum edge threshold as a percentage of
-     *            maximum. For example, an edge between a pure white and pure
-     *            black pixel would have an intensity of 100. Edges with
-     *            intensities below the indicated threshold will be ignored by
-     *            the decoding process. Lowering the threshold will increase the
-     *            amount of work to be done, but may be necessary for low
-     *            contrast or blurry images.
-     * @param corrections The number of corrections to make while decoding.
-     * @param cellDistance The distance in inches to use between cells.
-     * @param orientation 0 for landscape, 1 for portrait.
-     * 
-     * @return SC_SUCCESS if the decoding process was successful.
-     *         SC_INVALID_IMAGE if the scanned image is invalid.he INI file.
-     *         SC_INVALID_POSITION if no sample found on row A or column 1 of
-     *         the pallet. SC_POS_CALC_ERROR if sample positions could not be
-     *         determined.
      */
-    public native DecodeResult decodePlate(long verbose, long dpi,
-        int brightness, int contrast, long plateNum, ScanRegion region,
-        double scanGap, long squareDev, long edgeThresh, long corrections,
-        double cellDistance, double gapX, double gapY, long profileA,
-        long profileB, long profileC, long orientation);
+    public native DecodeResult scanAndDecode(long verbose, long dpi,
+        int brightness, int contrast, ScanRegion region,
+        DecodeOptions decodeOptions, WellRectangle[] wells);
 
     /**
-     * From the regions specified in the INI file for the corresponding plate,
-     * decodes all the regions. The decoded barcodes are written to the file
-     * "dmscanlib.txt". The scanlib.txt file is a comma separated value file
-     * with the following columns: Plate, Row, Column, Barcode.
      * 
-     * Calling this function also creates the "decoded.bmp" windows bitmap file.
-     * This file shows a green square around the barcodes that were successfully
-     * decoded. If the regions failed to decode then a red square is drawn
-     * around it.
-     * 
-     * @param verbose The amount of logging information to generate. 1 is
-     *            minimal and 9 is very detailed. Logging information is
-     *            appended to file scanlib.log.
-     * @param plateNum The plate number. Must be a number beteen 1 and 4.
-     * @param filename The windows bitmap file to decode.
-     * @param scanGap The number of pixels to use for scan grid gap. This is a
-     *            libdmtx parameter.
-     * @param squareDev Maximum deviation (degrees) from squareness between
-     *            adjacent barcode sides. Default value is N=40, but N=10 is
-     *            recommended for flat applications like faxes and other scanned
-     *            documents. Barcode regions found with corners <(90-N) or
-     *            >(90+N) will be ignored by the decoder.
-     * @param edgeThresh Set the minimum edge threshold as a percentage of
-     *            maximum. For example, an edge between a pure white and pure
-     *            black pixel would have an intensity of 100. Edges with
-     *            intensities below the indicated threshold will be ignored by
-     *            the decoding process. Lowering the threshold will increase the
-     *            amount of work to be done, but may be necessary for low
-     *            contrast or blurry images.
-     * @param corrections The number of corrections to make while decoding.
-     * @param cellDistance The distance in inches to use between cells.
-     * @param orientation 0 for landscape, 1 for portrait.
-     * 
-     * @return SC_SUCCESS if the decoding process was successful.
-     *         SC_INVALID_IMAGE if the scanned image is invalid.
-     *         SC_INVALID_POSITION if no sample found on row A or column 1 of
-     *         the pallet. SC_POS_CALC_ERROR if sample positions could not be
-     *         determined.
      */
     public native DecodeResult decodeImage(long verbose, String filename,
-        DecodeOptions decodeOptions, Well[] wells);
+        DecodeOptions decodeOptions, WellRectangle[] wells);
 
 }

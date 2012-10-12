@@ -1,52 +1,31 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ScanRegion {
 
-    private double left;
-
-    private double top;
-
-    private double right;
-
-    private double bottom;
+    private final List<Point<Double>> points = new ArrayList<Point<Double>>(2);
 
     public ScanRegion(double left, double top, double right, double bottom) {
-        this.left = left;
-        this.top = top;
-        this.right = right;
-        this.bottom = bottom;
+        this.points.set(0, new Point<Double>(left, top));
+        this.points.set(1, new Point<Double>(right, bottom));
     }
 
-    public double getLeft() {
-        return left;
+    public Double getPointX(int pointId) {
+        if (pointId >= points.size()) {
+            throw new IllegalArgumentException("point id is invalid: "
+                + pointId);
+        }
+        return points.get(pointId).getX();
     }
 
-    public void setLeft(double left) {
-        this.left = left;
-    }
-
-    public double getTop() {
-        return top;
-    }
-
-    public void setTop(double top) {
-        this.top = top;
-    }
-
-    public double getRight() {
-        return right;
-    }
-
-    public void setRight(double right) {
-        this.right = right;
-    }
-
-    public double getBottom() {
-        return bottom;
-    }
-
-    public void setBottom(double bottom) {
-        this.bottom = bottom;
+    public Double getPointY(int pointId) {
+        if (pointId >= points.size()) {
+            throw new IllegalArgumentException("point id is invalid: "
+                + pointId);
+        }
+        return points.get(pointId).getY();
     }
 
 }

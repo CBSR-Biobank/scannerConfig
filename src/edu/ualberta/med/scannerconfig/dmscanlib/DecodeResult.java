@@ -5,14 +5,14 @@ import java.util.TreeSet;
 
 public class DecodeResult extends ScanLibResult {
 
-    private Set<DecodedWell> wells = new TreeSet<DecodedWell>();
+    private final Set<DecodedWell> wells = new TreeSet<DecodedWell>();
 
     public DecodeResult(int resultCode, int value, String message) {
         super(resultCode, value, message);
     }
 
-    public void addWell(DecodedWell well) {
-        wells.add(well);
+    public void addWell(String label, String message) {
+        wells.add(new DecodedWell(label, message));
     }
 
     public Set<DecodedWell> getDecodedWells() {

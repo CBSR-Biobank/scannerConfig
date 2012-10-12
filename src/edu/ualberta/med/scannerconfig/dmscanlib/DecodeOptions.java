@@ -6,8 +6,6 @@ public class DecodeOptions {
     final long edgeThresh;
     final long corrections;
     final double cellDistance;
-    final double gapX;
-    final double gapY;
 
     public DecodeOptions(double scanGap, long squareDev, long edgeThresh,
         long corrections, double cellDistance, double gapX, double gapY) {
@@ -16,8 +14,6 @@ public class DecodeOptions {
         this.edgeThresh = edgeThresh;
         this.corrections = corrections;
         this.cellDistance = cellDistance;
-        this.gapX = gapX;
-        this.gapY = gapY;
 
     }
 
@@ -39,13 +35,5 @@ public class DecodeOptions {
 
     public double getCellDistance() {
         return cellDistance;
-    }
-
-    public double getGapX() {
-        return gapX;
-    }
-
-    public double getGapY() {
-        return gapY;
     }
 }

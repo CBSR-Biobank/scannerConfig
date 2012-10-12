@@ -24,7 +24,7 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodeResult;
-import edu.ualberta.med.scannerconfig.dmscanlib.Well;
+import edu.ualberta.med.scannerconfig.dmscanlib.WellRectangle;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanRegion;
@@ -208,7 +208,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public static List<Well> decodePlate(int plateNumber, String profileName)
+    public static List<WellRectangle> decodePlate(int plateNumber, String profileName)
         throws Exception {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
@@ -258,7 +258,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public static List<Well> decodeImage(int plateNumber,
+    public static List<WellRectangle> decodeImage(int plateNumber,
         String profileName, String filename) throws Exception {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
