@@ -8,7 +8,7 @@ public class DecodeOptions {
     final double cellDistance;
 
     public DecodeOptions(double scanGap, long squareDev, long edgeThresh,
-        long corrections, double cellDistance, double gapX, double gapY) {
+        long corrections, double cellDistance) {
         this.scanGap = scanGap;
         this.squareDev = squareDev;
         this.edgeThresh = edgeThresh;

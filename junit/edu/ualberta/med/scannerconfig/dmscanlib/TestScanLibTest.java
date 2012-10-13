@@ -52,8 +52,8 @@ public class TestScanLibTest {
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
-        r = scanLib.decodePlate(0, 0, 0, 0, 0, new ScanRegion(0, 0, 0, 0),
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        r = scanLib.scanAndDecode(0, 0, 0, 0, new ScanRegion(0, 0, 0, 0),
+            new DecodeOptions(0, 0, 0, 0, 0), new WellRectangle[] {});
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
     }
@@ -68,16 +68,17 @@ public class TestScanLibTest {
         String fname = System.getenv("HOME")
             + "/Dropbox/CBSR/scanlib/testImages/96tubes_cropped.bmp";
 
-        DecodeOptions decodeOptions = new DecodeOptions(0.085, 15, 5, 10,
-            0.345, 0, 0);
+        DecodeOptions decodeOptions =
+            new DecodeOptions(0.085, 15, 5, 10, 0.345);
 
-        WellRectangle[] wells =
-            new WellRectangle[] {
-                new WellRectangle("A12", 10.0 / 400.0, 20.0 / 400.0, 130.0 / 400.0,
-                    130.0 / 400.0)
-            };
+        final WellRectangle[] wells = new WellRectangle[] {
+            new WellRectangle("A12", 10.0 / 400.0, 20.0 / 400.0,
+                130.0 / 400.0, 130.0 / 400.0)
+        };
 
         DecodeResult r = scanLib.decodeImage(0, fname, decodeOptions, wells);
+
+        Assert.assertNotNull(r);
 
         log.debug("cells decoded: {}", r.getDecodedWells().size());
         Assert.assertTrue(r.getDecodedWells().size() > 0);

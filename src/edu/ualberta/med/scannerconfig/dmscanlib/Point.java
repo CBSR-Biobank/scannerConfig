@@ -17,4 +17,11 @@ public class Point<T> {
         return y;
     }
 
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("(").append(x).append(",").append(y).append(")");
+        return sb.toString();
+    }
+
 }

@@ -18,10 +18,19 @@ public class Rectangle<T> {
     }
 
     Point<T> getCorner(int cornerId) {
-        if (cornerId >= corners.size()) {
+        if ((cornerId < 0) || (cornerId >= corners.size())) {
             throw new IllegalArgumentException("corner id is invalid: "
                 + cornerId);
         }
         return corners.get(cornerId);
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        for (Point<T> point : corners) {
+            sb.append(point);
+        }
+        return sb.toString();
     }
 }

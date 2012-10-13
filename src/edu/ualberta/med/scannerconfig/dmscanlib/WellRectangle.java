@@ -43,4 +43,11 @@ public class WellRectangle {
         return rectangle.getCorner(cornerId).getY();
     }
 
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(label).append("").append(rectangle);
+        return sb.toString();
+    }
+
 }
