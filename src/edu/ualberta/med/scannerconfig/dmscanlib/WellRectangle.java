@@ -16,8 +16,8 @@ public class WellRectangle {
         this.rectangle = new Rectangle<Double>(Arrays.asList(
             new Point<Double>(left, top),
             new Point<Double>(right, top),
-            new Point<Double>(left, bottom),
-            new Point<Double>(right, bottom)
+            new Point<Double>(right, bottom),
+            new Point<Double>(left, bottom)
             ));
     }
 

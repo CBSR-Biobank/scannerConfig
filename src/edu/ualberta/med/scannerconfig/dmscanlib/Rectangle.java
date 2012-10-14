@@ -9,12 +9,9 @@ public class Rectangle<T> {
     Rectangle(List<Point<T>> corners) {
         if (corners.size() > 4) {
             throw new IllegalArgumentException(
-                "number of corner id is invalid: "
-                    + corners.size());
+                "number of corner id is invalid: " + corners.size());
         }
-        for (int i = 0, n = this.corners.size(); i < n; ++i) {
-            this.corners.set(i, corners.get(i));
-        }
+        this.corners.addAll(corners);
     }
 
     Point<T> getCorner(int cornerId) {

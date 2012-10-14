@@ -76,11 +76,13 @@ public class TestScanLibTest {
                 130.0 / 400.0, 130.0 / 400.0)
         };
 
+        log.debug("well rectangle: {}", wells[0]);
+
         DecodeResult r = scanLib.decodeImage(0, fname, decodeOptions, wells);
 
         Assert.assertNotNull(r);
 
-        log.debug("cells decoded: {}", r.getDecodedWells().size());
+        log.debug("wells decoded: {}", r.getDecodedWells().size());
         Assert.assertTrue(r.getDecodedWells().size() > 0);
     }
 }
