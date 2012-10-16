@@ -71,10 +71,13 @@ public class TestScanLibTest {
         DecodeOptions decodeOptions =
             new DecodeOptions(0.085, 15, 5, 10, 0.345);
 
-        final WellRectangle[] wells = new WellRectangle[] {
-            new WellRectangle("A12", 10.0 / 400.0, 20.0 / 400.0,
-                130.0 / 400.0, 130.0 / 400.0)
-        };
+        final WellRectangle[] wells =
+            new WellRectangle[] {
+                new WellRectangle("A12", 10.0 / 400.0, 20.0 / 400.0,
+                    130.0 / 400.0, 130.0 / 400.0),
+                new WellRectangle("A11", 150.0 / 400.0, 24.0 / 400.0,
+                    250.0 / 400.0, 120.0 / 400.0)
+            };
 
         log.debug("well rectangle: {}", wells[0]);
 
@@ -84,5 +87,9 @@ public class TestScanLibTest {
 
         log.debug("wells decoded: {}", r.getDecodedWells().size());
         Assert.assertTrue(r.getDecodedWells().size() > 0);
+
+        for (DecodedWell decodedWell : r.getDecodedWells()) {
+            log.debug("decoded well: {}", decodedWell);
+        }
     }
 }

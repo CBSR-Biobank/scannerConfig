@@ -1,6 +1,6 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
-public class DecodedWell {
+public class DecodedWell implements Comparable<DecodedWell> {
 
     final String label;
     final String message;
@@ -16,5 +16,17 @@ public class DecodedWell {
 
     public String getMessage() {
         return message;
+    }
+
+    @Override
+    public int compareTo(DecodedWell o) {
+        return label.compareTo(o.label);
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(label).append(": ").append(message);
+        return sb.toString();
     }
 }
