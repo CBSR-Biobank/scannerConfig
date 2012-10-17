@@ -1,34 +1,26 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class WellRectangle {
 
     final String label;
 
-    final Rectangle<Double> rectangle;
+    final Rectangle rectangle;
 
-    @SuppressWarnings("unchecked")
-    public WellRectangle(String label, double left, double top, double right,
-        double bottom) {
+    public WellRectangle(String label, BoundingBox boundingBox) {
         this.label = label;
-        this.rectangle = new Rectangle<Double>(Arrays.asList(
-            new Point<Double>(left, top),
-            new Point<Double>(right, top),
-            new Point<Double>(right, bottom),
-            new Point<Double>(left, bottom)
-            ));
+        this.rectangle = new Rectangle(boundingBox);
     }
 
-    public WellRectangle(String label, Rectangle<Double> rectangle) {
+    public WellRectangle(String label, Rectangle rectangle) {
         this.label = label;
         this.rectangle = rectangle;
     }
 
-    public WellRectangle(String label, List<Point<Double>> corners) {
+    public WellRectangle(String label, List<Point> corners) {
         this.label = label;
-        this.rectangle = new Rectangle<Double>(corners);
+        this.rectangle = new Rectangle(corners);
     }
 
     public String getLabel() {
@@ -36,11 +28,11 @@ public class WellRectangle {
     }
 
     public double getCornerX(int cornerId) {
-        return rectangle.getCorner(cornerId).getX();
+        return rectangle.getPoint(cornerId).getX();
     }
 
     public double getCornerY(int cornerId) {
-        return rectangle.getCorner(cornerId).getY();
+        return rectangle.getPoint(cornerId).getY();
     }
 
     @Override

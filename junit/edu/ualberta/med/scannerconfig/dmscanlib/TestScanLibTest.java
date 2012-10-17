@@ -73,10 +73,10 @@ public class TestScanLibTest {
 
         final WellRectangle[] wells =
             new WellRectangle[] {
-                new WellRectangle("A12", 10.0 / 400.0, 20.0 / 400.0,
-                    130.0 / 400.0, 130.0 / 400.0),
-                new WellRectangle("A11", 150.0 / 400.0, 24.0 / 400.0,
-                    250.0 / 400.0, 120.0 / 400.0)
+                new WellRectangle("A12", new BoundingBox(10.0 / 400.0,
+                    20.0 / 400.0, 130.0 / 400.0, 130.0 / 400.0)),
+                new WellRectangle("A11", new BoundingBox(150.0 / 400.0,
+                    24.0 / 400.0, 250.0 / 400.0, 120.0 / 400.0))
             };
 
         log.debug("well rectangle: {}", wells[0]);

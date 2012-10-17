@@ -1,19 +1,24 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
-public class Point<T> {
-    private final T x;
-    private final T y;
+public class Point {
+    final double x;
+    final double y;
 
-    Point(T x, T y) {
+    Point(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
-    public T getX() {
+    public Point(Point point) {
+        this.x = point.x;
+        this.y = point.y;
+    }
+
+    public double getX() {
         return x;
     }
 
-    public T getY() {
+    public double getY() {
         return y;
     }
 

@@ -1,31 +1,44 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class Rectangle<T> {
-    final List<Point<T>> corners = new ArrayList<Point<T>>(4);
+public class Rectangle {
+    final List<Point> points = new ArrayList<Point>(4);
 
-    Rectangle(List<Point<T>> corners) {
+    Rectangle(BoundingBox boundingBox) {
+        points
+            .addAll(Arrays.asList(
+                new Point(boundingBox.points.get(0)),
+                new Point(boundingBox.points.get(0).x, boundingBox.points
+                    .get(1).y),
+                new Point(boundingBox.points.get(1)),
+                new Point(boundingBox.points.get(1).x, boundingBox.points
+                    .get(0).y)
+                ));
+    }
+
+    Rectangle(List<Point> corners) {
         if (corners.size() > 4) {
             throw new IllegalArgumentException(
                 "number of corner id is invalid: " + corners.size());
         }
-        this.corners.addAll(corners);
+        this.points.addAll(corners);
     }
 
-    Point<T> getCorner(int cornerId) {
-        if ((cornerId < 0) || (cornerId >= corners.size())) {
+    Point getPoint(int cornerId) {
+        if ((cornerId < 0) || (cornerId >= points.size())) {
             throw new IllegalArgumentException("corner id is invalid: "
                 + cornerId);
         }
-        return corners.get(cornerId);
+        return points.get(cornerId);
     }
 
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        for (Point<T> point : corners) {
+        for (Point point : points) {
             sb.append(point);
         }
         return sb.toString();

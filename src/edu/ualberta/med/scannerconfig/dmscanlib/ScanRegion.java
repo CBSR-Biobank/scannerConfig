@@ -5,11 +5,11 @@ import java.util.List;
 
 public class ScanRegion {
 
-    private final List<Point<Double>> points = new ArrayList<Point<Double>>(2);
+    private final List<Point> points = new ArrayList<Point>(2);
 
     public ScanRegion(double left, double top, double right, double bottom) {
-        this.points.set(0, new Point<Double>(left, top));
-        this.points.set(1, new Point<Double>(right, bottom));
+        this.points.set(0, new Point(left, top));
+        this.points.set(1, new Point(right, bottom));
     }
 
     public Double getPointX(int pointId) {
