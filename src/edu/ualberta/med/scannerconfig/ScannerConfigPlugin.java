@@ -33,8 +33,6 @@ import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
 import edu.ualberta.med.scannerconfig.dmscanlib.WellRectangle;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
-import edu.ualberta.med.scannerconfig.preferences.scanner.profiles.ProfileManager;
-import edu.ualberta.med.scannerconfig.preferences.scanner.profiles.ProfileSettings;
 import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
 
 /**
@@ -210,8 +208,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public static Set<DecodedWell> decodePlate(int plateNumber,
-        String profileName)
+    public static Set<DecodedWell> decodePlate(int plateNumber)
         throws Exception {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
@@ -250,8 +247,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public static List<WellRectangle> decodeImage(int plateNumber,
-        String profileName, String filename) throws Exception {
+    public static Set<DecodedWell> decodeImage(int plateNumber, String filename)
+        throws Exception {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
@@ -265,35 +262,25 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         String[] prefsArr =
             PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
-        ScanRegion region = new ScanRegion(prefs.getDouble(prefsArr[0]),
+        BoundingBox region = new BoundingBox(prefs.getDouble(prefsArr[0]),
             prefs.getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]),
             prefs.getDouble(prefsArr[3]));
 
-        double gapX = prefs.getDouble(prefsArr[4]);
-        double gapY = prefs.getDouble(prefsArr[5]);
-
-        int orientation = prefs.getString(
-            PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1])
-            .equals(i18n.tr("Landscape")) ? 0 : 1;
-
         regionModifyIfScannerWia(region);
 
-        ProfileSettings profile = ProfileManager.instance().getProfile(
-            profileName);
+        WellRectangle[] wells = new WellRectangle[8 * 12];
 
-        int[] words = profile.toWords();
-
-        DecodeResult res = ScanLib.getInstance()
-            .decodeImage(debugLevel, plateNumber, filename, scanGap, squareDev,
-                edgeThresh, corrections, cellDistance, gapX, gapY, words[0],
-                words[1], words[2], orientation);
+        DecodeResult res =
+            ScanLib.getInstance().decodeImage(debugLevel, filename,
+                new DecodeOptions(scanGap, squareDev, edgeThresh, corrections,
+                    cellDistance), wells);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(
                 i18n.tr("Could not decode image: ")
                     + res.getMessage());
         }
-        return res.getCells();
+        return res.getDecodedWells();
     }
 
     @SuppressWarnings("nls")

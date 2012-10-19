@@ -44,7 +44,7 @@ public class TestScanLibTest {
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
         r = scanLib.scanImage(
-            0, 0, 0, 0, new ScanRegion(0, 0, 0, 0), "tmp.txt");
+            0, 0, 0, 0, new BoundingBox(0, 0, 0, 0), "tmp.txt");
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
@@ -52,7 +52,7 @@ public class TestScanLibTest {
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
-        r = scanLib.scanAndDecode(0, 0, 0, 0, new ScanRegion(0, 0, 0, 0),
+        r = scanLib.scanAndDecode(0, 0, 0, 0, new BoundingBox(0, 0, 0, 0),
             new DecodeOptions(0, 0, 0, 0, 0), new WellRectangle[] {});
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
