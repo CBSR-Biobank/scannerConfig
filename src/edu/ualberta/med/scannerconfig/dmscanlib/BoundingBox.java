@@ -37,7 +37,7 @@ public class BoundingBox {
         points.add(new Point(x2, y2));
     }
 
-    Point getCorner(int cornerId) {
+    public Point getCorner(int cornerId) {
         if ((cornerId < 0) || (cornerId >= points.size())) {
             throw new IllegalArgumentException("corner id is invalid: "
                 + cornerId);

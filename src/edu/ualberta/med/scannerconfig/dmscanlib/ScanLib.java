@@ -94,7 +94,7 @@ public class ScanLib {
      * @return SC_SUCCESS if valid. SC_FAIL unable to scan an image.
      */
     public native ScanLibResult scanImage(long verbose, long dpi,
-        int brightness, int contrast, ScanRegion region, String filename);
+        int brightness, int contrast, BoundingBox region, String filename);
 
     /**
      * Scans the whole flatbed region. The image is in Windows BMP format.
@@ -117,7 +117,7 @@ public class ScanLib {
      * 
      */
     public native DecodeResult scanAndDecode(long verbose, long dpi,
-        int brightness, int contrast, ScanRegion region,
+        int brightness, int contrast, BoundingBox region,
         DecodeOptions decodeOptions, WellRectangle[] wells);
 
     /**
