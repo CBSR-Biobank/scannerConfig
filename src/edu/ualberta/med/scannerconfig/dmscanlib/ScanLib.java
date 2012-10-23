@@ -21,6 +21,15 @@ public class ScanLib {
      */
     public static final int SC_FAIL = -1;
 
+    /**
+     * no tubes found in wells.
+     */
+    public static final int SC_INVALID_NOTHING_DECODED = -4;
+
+    public static final int SC_INVALID_IMAGE = -6;
+
+    public static final int SC_INVALID_NOTHING_TO_DECODE = -7;
+
     public static final int CAP_IS_WIA = 0x01;
 
     public static final int CAP_DPI_300 = 0x02;

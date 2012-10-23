@@ -69,6 +69,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             System.loadLibrary("msvcp100");
             System.loadLibrary("libglog");
             System.loadLibrary("dmscanlib");
+        } else {
+            System.loadLibrary("dmscanlib64");
         }
     }
 
