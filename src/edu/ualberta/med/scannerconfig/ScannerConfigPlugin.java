@@ -238,7 +238,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         DecodeResult res = ScanLib.getInstance().scanAndDecode(debugLevel, dpi,
             brightness, contrast, region, new DecodeOptions(scanGap, squareDev,
-                edgeThresh, corrections, cellDistance), wells);
+                edgeThresh, corrections, 1, cellDistance), wells);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(
@@ -275,7 +275,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         DecodeResult res =
             ScanLib.getInstance().decodeImage(debugLevel, filename,
                 new DecodeOptions(scanGap, squareDev, edgeThresh, corrections,
-                    cellDistance), wells);
+                    1, cellDistance), wells);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(

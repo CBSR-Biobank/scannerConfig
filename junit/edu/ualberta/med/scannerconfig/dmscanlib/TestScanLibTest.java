@@ -55,7 +55,7 @@ public class TestScanLibTest {
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
         r = scanLib.scanAndDecode(0, 0, 0, 0, new BoundingBox(0, 0, 0, 0),
-            new DecodeOptions(0, 0, 0, 0, 0), new WellRectangle[] {});
+            new DecodeOptions(0, 0, 0, 0, 0, 0), new WellRectangle[] {});
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
     }
@@ -71,7 +71,7 @@ public class TestScanLibTest {
             + "/Dropbox/CBSR/scanlib/testImages/96tubes_cropped.bmp";
 
         DecodeOptions decodeOptions =
-            new DecodeOptions(0.085, 15, 5, 10, 0.345);
+            new DecodeOptions(0.085, 10, 5, 10, 1, 0.345);
 
         final WellRectangle[] wells =
             new WellRectangle[] {
@@ -83,7 +83,7 @@ public class TestScanLibTest {
 
         log.debug("well rectangle: {}", wells[0]);
 
-        DecodeResult r = scanLib.decodeImage(5, fname, decodeOptions, wells);
+        DecodeResult r = scanLib.decodeImage(3, fname, decodeOptions, wells);
 
         Assert.assertNotNull(r);
 
@@ -106,7 +106,7 @@ public class TestScanLibTest {
             + "/Dropbox/CBSR/scanlib/testImages/96tubes_cropped.bmp";
 
         DecodeOptions decodeOptions =
-            new DecodeOptions(0.085, 15, 5, 10, 0.345);
+            new DecodeOptions(0.085, 15, 5, 10, 1, 0.345);
 
         DecodeResult r = scanLib.decodeImage(3, fname, decodeOptions, null);
 
@@ -130,7 +130,7 @@ public class TestScanLibTest {
                 20.0 / 400.0, 130.0 / 400.0, 130.0 / 400.0)),
         };
 
-        r = scanLib.decodeImage(3, new UUID(128, 256).toString(),
+        r = scanLib.decodeImage(5, new UUID(128, 256).toString(),
             decodeOptions, wells);
 
         Assert.assertNotNull(r);
