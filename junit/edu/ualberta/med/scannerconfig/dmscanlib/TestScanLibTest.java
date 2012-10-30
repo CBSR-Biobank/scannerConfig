@@ -87,23 +87,22 @@ public class TestScanLibTest {
         int height = image.getHeight();
 
         Set<WellRectangle> wells = new HashSet<WellRectangle>();
-        Point translation = new Point(width / 12.0, height / 8.0);
-        BoundingBox bbox = new BoundingBox(0, 0, width / 12.0, height / 8.0);
+        double wellWidth = width / 12.0;
+        double wellHeight = height / 8.0;
+        Point horTranslation = new Point(wellWidth, 0);
+
         for (int row = 0; row < 8; ++row) {
+            BoundingBox bbox =
+                new BoundingBox(0, wellHeight * row, wellWidth, wellHeight
+                    * (row + 1) - 0.5);
             for (int col = 0; col < 12; ++col) {
-                wells.add(new WellRectangle(SbsLabeling.fromRowCol(row, col),
-                    bbox));
-                bbox.translate(translation);
+                WellRectangle well = new WellRectangle(
+                    SbsLabeling.fromRowCol(row, 11 - col), bbox);
+                log.debug("{}", well);
+                wells.add(well);
+                bbox = bbox.translate(horTranslation);
             }
         }
-
-        // final WellRectangle[] wells =
-        // new WellRectangle[] {
-        // new WellRectangle("A12", new BoundingBox(10.0 / 400.0,
-        // 20.0 / 400.0, 130.0 / 400.0, 130.0 / 400.0)),
-        // new WellRectangle("A11", new BoundingBox(150.0 / 400.0,
-        // 20.0 / 400.0, 270.0 / 400.0, 130.0 / 400.0))
-        // };
 
         // log.debug("well rectangle: {}", wells[0]);
 
@@ -111,13 +110,13 @@ public class TestScanLibTest {
             wells.toArray(new WellRectangle[] {}));
 
         Assert.assertNotNull(r);
-
-        log.debug("wells decoded: {}", r.getDecodedWells().size());
         Assert.assertTrue(r.getDecodedWells().size() > 0);
 
         for (DecodedWell decodedWell : r.getDecodedWells()) {
             log.debug("decoded well: {}", decodedWell);
         }
+
+        log.debug("wells decoded: {}", r.getDecodedWells().size());
     }
 
     /*

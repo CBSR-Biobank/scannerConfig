@@ -38,7 +38,7 @@ public class WellRectangle {
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        sb.append(label).append("").append(rectangle);
+        sb.append(label).append(" ").append(rectangle);
         return sb.toString();
     }
 

@@ -39,7 +39,7 @@ public class Rectangle {
     public String toString() {
         StringBuffer sb = new StringBuffer();
         for (Point point : points) {
-            sb.append(point);
+            sb.append(point).append(" ");
         }
         return sb.toString();
     }
