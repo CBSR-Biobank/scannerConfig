@@ -9,6 +9,10 @@ public class BoundingBox {
     BoundingBox(Point point1, Point point2) {
         this.points.add(point1);
         this.points.add(point2);
+
+        if (!isValid()) {
+            throw new IllegalArgumentException("invalid size");
+        }
     }
 
     BoundingBox(List<Point> corners) {
@@ -16,14 +20,18 @@ public class BoundingBox {
             throw new IllegalArgumentException(
                 "number of corner id is invalid: " + corners.size());
         }
-        this.points.addAll(corners);
+        points.addAll(corners);
+
+        if (!isValid()) {
+            throw new IllegalArgumentException("invalid size");
+        }
     }
 
     BoundingBox(Rectangle rect) {
-        double maxX = Double.MAX_VALUE;
-        double maxY = Double.MAX_VALUE;
-        double minX = 0;
-        double minY = 0;
+        int maxX = Integer.MAX_VALUE;
+        int maxY = Integer.MAX_VALUE;
+        int minX = 0;
+        int minY = 0;
 
         for (int i = 0; i < 4; ++i) {
             maxX = Math.min(maxX, rect.points.get(i).x);
@@ -35,11 +43,19 @@ public class BoundingBox {
 
         points.add(new Point(minX, minY));
         points.add(new Point(maxX, maxY));
+
+        if (!isValid()) {
+            throw new IllegalArgumentException("invalid size");
+        }
     }
 
-    public BoundingBox(double x1, double y1, double x2, double y2) {
+    public BoundingBox(int x1, int y1, int x2, int y2) {
         points.add(new Point(x1, y1));
         points.add(new Point(x2, y2));
+
+        if (!isValid()) {
+            throw new IllegalArgumentException("invalid size");
+        }
     }
 
     public Point getCorner(int cornerId) {
@@ -48,6 +64,16 @@ public class BoundingBox {
                 + cornerId);
         }
         return points.get(cornerId);
+    }
+
+    private boolean isValid() {
+        return (points.get(0).getX() < points.get(1).getX())
+            && (points.get(0).getY() < points.get(1).getY());
+    }
+
+    public double getArea() {
+        return (points.get(1).getX() - points.get(0).getX())
+            * (points.get(1).getY() - points.get(0).getY());
     }
 
     public BoundingBox translate(Point point) {

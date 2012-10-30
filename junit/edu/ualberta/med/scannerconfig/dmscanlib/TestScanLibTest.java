@@ -80,21 +80,26 @@ public class TestScanLibTest {
             new DecodeOptions(0.05, 10, 5, 10, 1, 0.345);
 
         String fname = System.getenv("HOME")
-            + "/Dropbox/CBSR/scanlib/testImages/96tubes_cropped_threshold.bmp";
-
-        BufferedImage image = ImageIO.read(new File(fname));
-        int width = image.getWidth();
-        int height = image.getHeight();
+            + "/Dropbox/CBSR/scanlib/testImages/96tubes_cropped.bmp";
+        // + "/Dropbox/CBSR/scanlib/testImages/ohs_pallet.bmp";
 
         Set<WellRectangle> wells = new HashSet<WellRectangle>();
+
+        BufferedImage image = ImageIO.read(new File(fname));
+        double width = image.getWidth();
+        double height = image.getHeight();
         double wellWidth = width / 12.0;
         double wellHeight = height / 8.0;
-        Point horTranslation = new Point(wellWidth, 0);
+        Point horTranslation = new Point(new Double(wellWidth).intValue(), 0);
+        Point verTranslation = new Point(0, new Double(wellHeight).intValue());
 
         for (int row = 0; row < 8; ++row) {
             BoundingBox bbox =
-                new BoundingBox(0, wellHeight * row, wellWidth, wellHeight
-                    * (row + 1) - 0.5);
+                new BoundingBox(0, 0,
+                    new Double(wellWidth).intValue(),
+                    new Double(wellHeight).intValue()).translate(verTranslation
+                    .scale(row));
+
             for (int col = 0; col < 12; ++col) {
                 WellRectangle well = new WellRectangle(
                     SbsLabeling.fromRowCol(row, 11 - col), bbox);
@@ -150,8 +155,7 @@ public class TestScanLibTest {
 
         // try and invalid filename
         wells = new WellRectangle[] {
-            new WellRectangle("A12", new BoundingBox(10.0 / 400.0,
-                20.0 / 400.0, 130.0 / 400.0, 130.0 / 400.0)),
+            new WellRectangle("A12", new BoundingBox(10, 20, 130, 130)),
         };
 
         r = scanLib.decodeImage(5, new UUID(128, 256).toString(),

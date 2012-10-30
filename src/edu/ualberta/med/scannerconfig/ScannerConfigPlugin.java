@@ -200,9 +200,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
-        BoundingBox region = new BoundingBox(prefs.getDouble(prefsArr[0]),
-            prefs.getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]),
-            prefs.getDouble(prefsArr[3]));
+        BoundingBox region = new BoundingBox(
+            prefs.getInt(prefsArr[0]), prefs.getInt(prefsArr[1]),
+            prefs.getInt(prefsArr[2]), prefs.getInt(prefsArr[3]));
 
         regionModifyIfScannerWia(region);
 
@@ -228,9 +228,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         String[] prefsArr =
             PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
-        BoundingBox region = new BoundingBox(prefs.getDouble(prefsArr[0]),
-            prefs.getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]),
-            prefs.getDouble(prefsArr[3]));
+        BoundingBox region = new BoundingBox(
+            prefs.getInt(prefsArr[0]), prefs.getInt(prefsArr[1]),
+            prefs.getInt(prefsArr[2]), prefs.getInt(prefsArr[3]));
 
         regionModifyIfScannerWia(region);
 
@@ -264,9 +264,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         String[] prefsArr =
             PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
-        BoundingBox region = new BoundingBox(prefs.getDouble(prefsArr[0]),
-            prefs.getDouble(prefsArr[1]), prefs.getDouble(prefsArr[2]),
-            prefs.getDouble(prefsArr[3]));
+        BoundingBox region = new BoundingBox(
+            prefs.getInt(prefsArr[0]), prefs.getInt(prefsArr[1]),
+            prefs.getInt(prefsArr[2]), prefs.getInt(prefsArr[3]));
 
         regionModifyIfScannerWia(region);
 

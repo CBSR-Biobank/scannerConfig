@@ -1,10 +1,10 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
 public class Point {
-    final double x;
-    final double y;
+    final int x;
+    final int y;
 
-    Point(double x, double y) {
+    Point(int x, int y) {
         this.x = x;
         this.y = y;
     }
@@ -14,16 +14,20 @@ public class Point {
         this.y = point.y;
     }
 
-    public double getX() {
+    public int getX() {
         return x;
     }
 
-    public double getY() {
+    public int getY() {
         return y;
     }
 
     public Point translate(Point point) {
         return new Point(x + point.x, y + point.y);
+    }
+
+    public Point scale(int factor) {
+        return new Point(x * factor, y * factor);
     }
 
     @Override

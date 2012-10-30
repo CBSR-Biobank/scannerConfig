@@ -27,11 +27,11 @@ public class WellRectangle {
         return label;
     }
 
-    public double getCornerX(int cornerId) {
+    public int getCornerX(int cornerId) {
         return rectangle.getPoint(cornerId).getX();
     }
 
-    public double getCornerY(int cornerId) {
+    public int getCornerY(int cornerId) {
         return rectangle.getPoint(cornerId).getY();
     }
 
