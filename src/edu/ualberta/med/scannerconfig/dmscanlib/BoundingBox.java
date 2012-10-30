@@ -6,6 +6,11 @@ import java.util.List;
 public class BoundingBox {
     final List<Point> points = new ArrayList<Point>(2);
 
+    BoundingBox(Point point1, Point point2) {
+        this.points.add(point1);
+        this.points.add(point2);
+    }
+
     BoundingBox(List<Point> corners) {
         if (corners.size() > 2) {
             throw new IllegalArgumentException(
@@ -43,6 +48,11 @@ public class BoundingBox {
                 + cornerId);
         }
         return points.get(cornerId);
+    }
+
+    public BoundingBox translate(Point point) {
+        return new BoundingBox(points.get(0).translate(point), points.get(1)
+            .translate(point));
     }
 
     @Override

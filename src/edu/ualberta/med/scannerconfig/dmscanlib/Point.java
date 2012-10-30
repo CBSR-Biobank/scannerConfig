@@ -22,6 +22,10 @@ public class Point {
         return y;
     }
 
+    public Point translate(Point point) {
+        return new Point(x + point.x, y + point.y);
+    }
+
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();

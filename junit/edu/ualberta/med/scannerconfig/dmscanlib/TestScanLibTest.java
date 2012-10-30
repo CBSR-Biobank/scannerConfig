@@ -1,12 +1,20 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
+
+import javax.imageio.ImageIO;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import edu.ualberta.med.biobank.util.SbsLabeling;
 
 public class TestScanLibTest {
 
@@ -67,23 +75,40 @@ public class TestScanLibTest {
     public void testDecodeImage() throws Exception {
         ScanLib scanLib = ScanLib.getInstance();
 
-        String fname = System.getenv("HOME")
-            + "/Dropbox/CBSR/scanlib/testImages/96tubes_cropped.bmp";
-
         DecodeOptions decodeOptions =
-            new DecodeOptions(0.085, 10, 5, 10, 1, 0.345);
+            // new DecodeOptions(0.085, 10, 5, 10, 1, 0.345);
+            new DecodeOptions(0.05, 10, 5, 10, 1, 0.345);
 
-        final WellRectangle[] wells =
-            new WellRectangle[] {
-                new WellRectangle("A12", new BoundingBox(10.0 / 400.0,
-                    20.0 / 400.0, 130.0 / 400.0, 130.0 / 400.0)),
-                new WellRectangle("A11", new BoundingBox(150.0 / 400.0,
-                    20.0 / 400.0, 270.0 / 400.0, 130.0 / 400.0))
-            };
+        String fname = System.getenv("HOME")
+            + "/Dropbox/CBSR/scanlib/testImages/96tubes_cropped_threshold.bmp";
 
-        log.debug("well rectangle: {}", wells[0]);
+        BufferedImage image = ImageIO.read(new File(fname));
+        int width = image.getWidth();
+        int height = image.getHeight();
 
-        DecodeResult r = scanLib.decodeImage(3, fname, decodeOptions, wells);
+        Set<WellRectangle> wells = new HashSet<WellRectangle>();
+        Point translation = new Point(width / 12.0, height / 8.0);
+        BoundingBox bbox = new BoundingBox(0, 0, width / 12.0, height / 8.0);
+        for (int row = 0; row < 8; ++row) {
+            for (int col = 0; col < 12; ++col) {
+                wells.add(new WellRectangle(SbsLabeling.fromRowCol(row, col),
+                    bbox));
+                bbox.translate(translation);
+            }
+        }
+
+        // final WellRectangle[] wells =
+        // new WellRectangle[] {
+        // new WellRectangle("A12", new BoundingBox(10.0 / 400.0,
+        // 20.0 / 400.0, 130.0 / 400.0, 130.0 / 400.0)),
+        // new WellRectangle("A11", new BoundingBox(150.0 / 400.0,
+        // 20.0 / 400.0, 270.0 / 400.0, 130.0 / 400.0))
+        // };
+
+        // log.debug("well rectangle: {}", wells[0]);
+
+        DecodeResult r = scanLib.decodeImage(3, fname, decodeOptions,
+            wells.toArray(new WellRectangle[] {}));
 
         Assert.assertNotNull(r);
 
