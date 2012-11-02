@@ -2,8 +2,6 @@ package edu.ualberta.med.scannerconfig.dmscanlib;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,24 +35,6 @@ public class TestScanLibTest {
         } else {
             System.loadLibrary("dmscanlib64");
         }
-    }
-
-    private int getImageDpi(File file) throws FileNotFoundException {
-        ImageInfo ii = new ImageInfo();
-        ii.setInput(new FileInputStream(file)); // in can be
-                                                // InputStream or
-                                                // RandomAccessFile
-        ii.setDetermineImageNumber(true); // default is false
-        ii.setCollectComments(true); // default is false
-        if (!ii.check()) {
-            throw new IllegalArgumentException("Not a supported image file format.");
-        }
-
-        if (ii.getPhysicalWidthDpi() != ii.getPhysicalHeightDpi()) {
-            throw new IllegalArgumentException("width and height dpis dont match");
-        }
-
-        return ii.getPhysicalWidthDpi();
     }
 
     @Test
@@ -98,7 +78,7 @@ public class TestScanLibTest {
         File imageFile = new File(fname);
 
         BufferedImage image = ImageIO.read(imageFile);
-        double dpi = new Double(getImageDpi(imageFile)).doubleValue();
+        double dpi = new Double(ImageInfo.getImageDpi(imageFile)).doubleValue();
         BoundingBox imageBbox = new BoundingBox(new Point(0, 0),
             new Point(image.getWidth(), image.getHeight()).scale(1 / dpi));
         

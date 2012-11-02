@@ -1,9 +1,13 @@
 package edu.ualberta.med.scannerconfig;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import javax.imageio.ImageIO;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.FileLocator;
@@ -28,6 +32,7 @@ import edu.ualberta.med.scannerconfig.dmscanlib.BoundingBox;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodeOptions;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodeResult;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodedWell;
+import edu.ualberta.med.scannerconfig.dmscanlib.ImageInfo;
 import edu.ualberta.med.scannerconfig.dmscanlib.Point;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
@@ -247,7 +252,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public static Set<DecodedWell> decodeImage(int plateNumber, String filename)
+    public static Set<DecodedWell> decodeImage(String filename)
         throws Exception {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
@@ -257,20 +262,18 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         int squareDev = prefs.getInt(PreferenceConstants.LIBDMTX_SQUARE_DEV);
         int corrections = prefs.getInt(PreferenceConstants.LIBDMTX_CORRECTIONS);
 
-        String[] prefsArr =
-            PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
+        File imageFile = new File(filename);
+        BufferedImage image = ImageIO.read(imageFile);
+        double dpi = new Double(ImageInfo.getImageDpi(imageFile)).doubleValue();
+        BoundingBox imageBbox = new BoundingBox(new Point(0, 0),
+            new Point(image.getWidth(), image.getHeight()).scale(1 / dpi));
 
-        BoundingBox region = new BoundingBox(
-            prefs.getInt(prefsArr[0]), prefs.getInt(prefsArr[1]),
-            prefs.getInt(prefsArr[2]), prefs.getInt(prefsArr[3]));
-
-        regionModifyIfScannerWia(region);
-
-        WellRectangle[] wells = new WellRectangle[8 * 12];
+        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(imageBbox, 8, 12);
 
         DecodeResult res =
             ScanLib.getInstance().decodeImage(debugLevel, filename,
-                new DecodeOptions(scanGap, squareDev, edgeThresh, corrections, 1), wells);
+                new DecodeOptions(scanGap, squareDev, edgeThresh, corrections, 1), 
+                wells.toArray(new WellRectangle[] {}));
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(

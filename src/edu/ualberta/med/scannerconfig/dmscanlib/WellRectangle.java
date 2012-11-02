@@ -49,13 +49,13 @@ public class WellRectangle {
     public static Set<WellRectangle> getWellRectanglesForBoundingBox(final BoundingBox bbox,
         final int rows, final int cols) {
         
+        // need to make this box slightly smaller so the image dimensions are not exceeded
         final Point whPt = bbox.getWidthAndHeightAsPoint().scale(
             new Point(1 / new Double(cols).doubleValue(),
-                    1 / new Double(rows).doubleValue()));
+                    1 / new Double(rows).doubleValue())).scale(0.9925);
         
-        // need to make slightli smaller so the image dimensions are not exceeded
         final BoundingBox startBbox = new BoundingBox(bbox.getCorner(0), 
-            whPt.translate(bbox.getCorner(0)).scale(0.9));
+            whPt.translate(bbox.getCorner(0)));
         
         final Point horTranslation = new Point(whPt.getX(), 0);
         final Point verTranslation = new Point(0, whPt.getY());
