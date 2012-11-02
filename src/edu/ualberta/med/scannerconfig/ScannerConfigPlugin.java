@@ -222,8 +222,6 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         double scanGap = prefs.getDouble(PreferenceConstants.LIBDMTX_SCAN_GAP);
         int squareDev = prefs.getInt(PreferenceConstants.LIBDMTX_SQUARE_DEV);
         int corrections = prefs.getInt(PreferenceConstants.LIBDMTX_CORRECTIONS);
-        double cellDistance = prefs
-            .getDouble(PreferenceConstants.LIBDMTX_CELL_DISTANCE);
 
         String[] prefsArr =
             PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
@@ -238,7 +236,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         DecodeResult res = ScanLib.getInstance().scanAndDecode(debugLevel, dpi,
             brightness, contrast, region, new DecodeOptions(scanGap, squareDev,
-                edgeThresh, corrections, 1, cellDistance), wells);
+                edgeThresh, corrections, 1), wells);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(
@@ -258,8 +256,6 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         double scanGap = prefs.getDouble(PreferenceConstants.LIBDMTX_SCAN_GAP);
         int squareDev = prefs.getInt(PreferenceConstants.LIBDMTX_SQUARE_DEV);
         int corrections = prefs.getInt(PreferenceConstants.LIBDMTX_CORRECTIONS);
-        double cellDistance = prefs
-            .getDouble(PreferenceConstants.LIBDMTX_CELL_DISTANCE);
 
         String[] prefsArr =
             PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
@@ -274,8 +270,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         DecodeResult res =
             ScanLib.getInstance().decodeImage(debugLevel, filename,
-                new DecodeOptions(scanGap, squareDev, edgeThresh, corrections,
-                    1, cellDistance), wells);
+                new DecodeOptions(scanGap, squareDev, edgeThresh, corrections, 1), wells);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(
@@ -302,9 +297,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         }
 
         Point lt = region.getCorner(0);
-        Point rb = region.getCorner(1);
-        return new BoundingBox(lt.getX(), lt.getY(),
-            rb.getX() - lt.getX(), rb.getY() - lt.getY());
+        Point ltInv = new Point(-lt.getX(), -lt.getY());
+        Point rb = region.getCorner(1).translate(ltInv);
+        return new BoundingBox(lt, rb);
     }
 
     public int getPlateCount() {

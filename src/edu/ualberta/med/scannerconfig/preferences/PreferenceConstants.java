@@ -33,8 +33,6 @@ public class PreferenceConstants {
 
     public static final String LIBDMTX_CORRECTIONS = "libdmtx.corrections";
 
-    public static final String LIBDMTX_CELL_DISTANCE = "libdmtx.cell_distance";
-
     public static final String SCANNER_PALLET_PROFILES = "scanner.pallet.profiles";
 
     public static final String[] SCANNER_PALLET_ENABLED = {

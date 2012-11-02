@@ -17,9 +17,9 @@ import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 public class Decoding extends FieldEditorPreferencePage implements
     IWorkbenchPreferencePage {
 
-    private Map<String, DoubleFieldEditor> dblFieldMap =
+    private final Map<String, DoubleFieldEditor> dblFieldMap =
         new HashMap<String, DoubleFieldEditor>();
-    private Map<String, IntegerFieldEditor> intFieldMap =
+    private final Map<String, IntegerFieldEditor> intFieldMap =
         new HashMap<String, IntegerFieldEditor>();
     private static final I18n i18n = I18nFactory.getI18n(Decoding.class);
 
@@ -89,16 +89,6 @@ public class Decoding extends FieldEditorPreferencePage implements
         scanGapDblInput.setValidRange(0.0, 1.0);
         addField(scanGapDblInput);
         dblFieldMap.put(PreferenceConstants.LIBDMTX_SCAN_GAP, scanGapDblInput);
-
-        celldistDblInput =
-            new DoubleFieldEditor(
-                PreferenceConstants.LIBDMTX_CELL_DISTANCE,
-                i18n.tr("Decode Cell Distance:"),
-                getFieldEditorParent());
-        celldistDblInput.setValidRange(0.0, 1.0);
-        addField(celldistDblInput);
-        dblFieldMap.put(PreferenceConstants.LIBDMTX_CELL_DISTANCE,
-            celldistDblInput);
     }
 
 }

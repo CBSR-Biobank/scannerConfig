@@ -27,7 +27,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         store.setDefault(PreferenceConstants.LIBDMTX_SCAN_GAP, 0.085);
         store.setDefault(PreferenceConstants.LIBDMTX_SQUARE_DEV, 15);
         store.setDefault(PreferenceConstants.LIBDMTX_CORRECTIONS, 10);
-        store.setDefault(PreferenceConstants.LIBDMTX_CELL_DISTANCE, 0.345);
 
         for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_ENABLED.length; i++) {
             store.setDefault(PreferenceConstants.SCANNER_PALLET_ENABLED[i],

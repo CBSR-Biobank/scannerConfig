@@ -6,7 +6,7 @@ import java.util.List;
 public class BoundingBox {
     final List<Point> points = new ArrayList<Point>(2);
 
-    BoundingBox(Point point1, Point point2) {
+    public BoundingBox(Point point1, Point point2) {
         this.points.add(point1);
         this.points.add(point2);
 
@@ -15,7 +15,7 @@ public class BoundingBox {
         }
     }
 
-    BoundingBox(List<Point> corners) {
+    public BoundingBox(List<Point> corners) {
         if (corners.size() > 2) {
             throw new IllegalArgumentException(
                 "number of corner id is invalid: " + corners.size());
@@ -27,11 +27,11 @@ public class BoundingBox {
         }
     }
 
-    BoundingBox(Rectangle rect) {
-        int maxX = Integer.MAX_VALUE;
-        int maxY = Integer.MAX_VALUE;
-        int minX = 0;
-        int minY = 0;
+    public BoundingBox(Rectangle rect) {
+        double maxX = Integer.MAX_VALUE;
+        double maxY = Integer.MAX_VALUE;
+        double minX = 0;
+        double minY = 0;
 
         for (int i = 0; i < 4; ++i) {
             maxX = Math.min(maxX, rect.points.get(i).x);
@@ -58,6 +58,12 @@ public class BoundingBox {
         }
     }
 
+    public Point getWidthAndHeightAsPoint() {
+        // get the bounding box width and height - note that the bounding box
+        // may not originate at (0,0)
+        return getCorner(1).translate(getCorner(0).scale(-1)); 
+    }
+
     public Point getCorner(int cornerId) {
         if ((cornerId < 0) || (cornerId >= points.size())) {
             throw new IllegalArgumentException("corner id is invalid: "
@@ -79,6 +85,10 @@ public class BoundingBox {
     public BoundingBox translate(Point point) {
         return new BoundingBox(points.get(0).translate(point), points.get(1)
             .translate(point));
+    }
+
+    public BoundingBox scale(Point factor) {
+        return new BoundingBox(points.get(0).scale(factor), points.get(1).scale(factor));
     }
 
     @Override
