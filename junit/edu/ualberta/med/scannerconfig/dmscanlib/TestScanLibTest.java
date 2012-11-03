@@ -26,10 +26,8 @@ public class TestScanLibTest {
 
         if (isMsWindows) {
             System.loadLibrary("OpenThreadsWin32");
-            System.loadLibrary("cxcore210");
-            System.loadLibrary("cv210");
-            System.loadLibrary("msvcr100");
-            System.loadLibrary("msvcp100");
+            System.loadLibrary("msvcr110");
+            System.loadLibrary("msvcp110");
             System.loadLibrary("libglog");
             System.loadLibrary("dmscanlib");
         } else {
@@ -50,8 +48,7 @@ public class TestScanLibTest {
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
-        r = scanLib.scanImage(
-            0, 0, 0, 0, new BoundingBox(0, 0, 0, 0), "tmp.txt");
+        r = scanLib.scanImage(0, 0, 0, 0, new BoundingBox(0, 0, 0, 0), "tmp.txt");
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
@@ -59,8 +56,9 @@ public class TestScanLibTest {
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
-        r = scanLib.scanAndDecode(0, 0, 0, 0, new BoundingBox(0, 0, 0, 0),
-            new DecodeOptions(0, 0, 0, 0, 0), new WellRectangle[] {});
+        r =
+            scanLib.scanAndDecode(0, 0, 0, 0, new BoundingBox(0, 0, 0, 0), new DecodeOptions(0, 0,
+                0, 0, 0), new WellRectangle[] {});
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
     }
@@ -79,18 +77,18 @@ public class TestScanLibTest {
 
         BufferedImage image = ImageIO.read(imageFile);
         double dpi = new Double(ImageInfo.getImageDpi(imageFile)).doubleValue();
-        BoundingBox imageBbox = new BoundingBox(new Point(0, 0),
-            new Point(image.getWidth(), image.getHeight()).scale(1 / dpi));
-        
+        BoundingBox imageBbox =
+            new BoundingBox(new Point(0, 0),
+                new Point(image.getWidth(), image.getHeight()).scale(1 / dpi));
+
         log.debug("image dimensions: {}", imageBbox);
 
-        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(
-            imageBbox, 8, 12);
+        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(imageBbox, 8, 12);
 
         // log.debug("well rectangle: {}", wells[0]);
 
-        DecodeResult r = scanLib.decodeImage(3, fname, decodeOptions,
-            wells.toArray(new WellRectangle[] {}));
+        DecodeResult r =
+            scanLib.decodeImage(3, fname, decodeOptions, wells.toArray(new WellRectangle[] {}));
 
         Assert.assertNotNull(r);
         Assert.assertTrue(r.getDecodedWells().size() > 0);
@@ -109,11 +107,10 @@ public class TestScanLibTest {
     public void testDecodeBadParams() throws Exception {
         ScanLib scanLib = ScanLib.getInstance();
 
-        String fname = System.getenv("HOME")
-            + "/Dropbox/CBSR/scanlib/testImages/96tubes_cropped.bmp";
+        String fname =
+            System.getenv("HOME") + "/Dropbox/CBSR/scanlib/testImages/96tubes_cropped.bmp";
 
-        DecodeOptions decodeOptions =
-            new DecodeOptions(0.085, 15, 5, 10, 1);
+        DecodeOptions decodeOptions = new DecodeOptions(0.085, 15, 5, 10, 1);
 
         DecodeResult r = scanLib.decodeImage(3, fname, decodeOptions, null);
 
@@ -127,17 +124,14 @@ public class TestScanLibTest {
         r = scanLib.decodeImage(3, fname, decodeOptions, wells);
 
         Assert.assertNotNull(r);
-        Assert.assertEquals(ScanLib.SC_INVALID_NOTHING_TO_DECODE,
-            r.getResultCode());
+        Assert.assertEquals(ScanLib.SC_INVALID_NOTHING_TO_DECODE, r.getResultCode());
         Assert.assertEquals(0, r.getDecodedWells().size());
 
         // try and invalid filename
-        wells = new WellRectangle[] {
-            new WellRectangle("A12", new BoundingBox(10, 20, 130, 130)),
-        };
+        wells =
+            new WellRectangle[] { new WellRectangle("A12", new BoundingBox(10, 20, 130, 130)), };
 
-        r = scanLib.decodeImage(5, new UUID(128, 256).toString(),
-            decodeOptions, wells);
+        r = scanLib.decodeImage(5, new UUID(128, 256).toString(), decodeOptions, wells);
 
         Assert.assertNotNull(r);
         Assert.assertEquals(ScanLib.SC_INVALID_IMAGE, r.getResultCode());
