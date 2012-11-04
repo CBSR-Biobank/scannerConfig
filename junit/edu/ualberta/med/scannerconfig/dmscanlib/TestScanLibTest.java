@@ -36,8 +36,36 @@ public class TestScanLibTest {
     }
 
     @Test
-    public void testLinuxEmptyImplementationJNI() throws Exception {
-        if (isMsWindows) return;
+    public void boundingBoxGetCorner() throws Exception {
+        
+    }
+
+    @Test
+    public void boundingBoxScale() throws Exception {
+        
+    }
+
+    @Test
+    public void invalidBoundingBox() throws Exception {        
+        try {
+            new BoundingBox(0, 0, 0, 0);
+            Assert.fail("should not be allowed to create a bounding box with zero area");
+        } catch (IllegalArgumentException e) {
+            // do nothing here
+        }
+        
+        try {
+            new BoundingBox(10, 10, 10, 10);
+            Assert.fail("should not be allowed to create a bounding box with zero area");
+        } catch (IllegalArgumentException e) {
+            // do nothing here
+        }        
+    }
+
+    @Test
+    public void linuxEmptyImplementationJNI() throws Exception {
+        // this test is valid only when not running on windows
+        Assert.assertEquals(false, isMsWindows);
 
         ScanLib scanLib = ScanLib.getInstance();
         ScanLibResult r = scanLib.isTwainAvailable();
@@ -48,7 +76,7 @@ public class TestScanLibTest {
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
-        r = scanLib.scanImage(0, 0, 0, 0, new BoundingBox(0, 0, 0, 0), "tmp.txt");
+        r = scanLib.scanImage(0, 0, 0, 0, null, "tmp.txt");
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
@@ -56,9 +84,7 @@ public class TestScanLibTest {
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
-        r =
-            scanLib.scanAndDecode(0, 0, 0, 0, new BoundingBox(0, 0, 0, 0), new DecodeOptions(0, 0,
-                0, 0, 0), new WellRectangle[] {});
+        r = scanLib.scanAndDecode(0, 0, 0, 0, null, null, new WellRectangle[] {});
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
     }
@@ -67,28 +93,28 @@ public class TestScanLibTest {
      * Uses files from Dropbox shared folder.
      */
     @Test
-    public void testDecodeImage() throws Exception {
+    public void decodeImage() throws Exception {
         ScanLib scanLib = ScanLib.getInstance();
 
-        DecodeOptions decodeOptions = new DecodeOptions(0.05, 10, 5, 10, 1);
-
-        String fname = System.getProperty("user.dir") + "/testImages/96tubes.bmp";
+        final String fname = System.getProperty("user.dir") + "/testImages/96tubes.bmp";
         File imageFile = new File(fname);
 
         BufferedImage image = ImageIO.read(imageFile);
-        double dpi = new Double(ImageInfo.getImageDpi(imageFile)).doubleValue();
+        final int dpi = ImageInfo.getImageDpi(imageFile);
+        final double dotWidth = 1 / new Double(dpi).doubleValue();
         BoundingBox imageBbox =
             new BoundingBox(new Point(0, 0),
-                new Point(image.getWidth(), image.getHeight()).scale(1 / dpi));
+                new Point(image.getWidth(), image.getHeight()).scale(dotWidth));
 
         log.debug("image dimensions: {}", imageBbox);
 
-        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(imageBbox, 8, 12);
+        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(
+            imageBbox, 8, 12, dpi);
 
         // log.debug("well rectangle: {}", wells[0]);
 
-        DecodeResult r =
-            scanLib.decodeImage(3, fname, decodeOptions, wells.toArray(new WellRectangle[] {}));
+        DecodeResult r = scanLib.decodeImage(3, fname, DecodeOptions.getDefaultDecodeOptions(), 
+            wells.toArray(new WellRectangle[] {}));
 
         Assert.assertNotNull(r);
         Assert.assertTrue(r.getDecodedWells().size() > 0);
@@ -104,13 +130,12 @@ public class TestScanLibTest {
      * Uses files from Dropbox shared folder.
      */
     @Test
-    public void testDecodeBadParams() throws Exception {
+    public void decodeBadParams() throws Exception {
         ScanLib scanLib = ScanLib.getInstance();
 
-        String fname =
-            System.getenv("HOME") + "/Dropbox/CBSR/scanlib/testImages/96tubes_cropped.bmp";
+        final String fname = System.getProperty("user.dir") + "/testImages/96tubes.bmp";
 
-        DecodeOptions decodeOptions = new DecodeOptions(0.085, 15, 5, 10, 1);
+        DecodeOptions decodeOptions = DecodeOptions.getDefaultDecodeOptions();
 
         DecodeResult r = scanLib.decodeImage(3, fname, decodeOptions, null);
 

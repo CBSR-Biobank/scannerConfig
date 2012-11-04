@@ -1,13 +1,17 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
-public class DecodeOptions {
+public class DecodeOptions {  
+    public static final double DEFAULT_SCAN_GAP = 0.085;
+    public static final long   DEFAULT_SQUARE_DEV = 10;
+    public static final long   DEFAULT_EDGE_THRESH = 5;
+    public static final long   DEFAULT_CORRECTIONS = 10;
+    public static final long   DEFAULT_SHRINK = 1;  
+    
     private final double scanGap;
     private final long squareDev;
     private final long edgeThresh;
     private final long corrections;
     private final long shrink;
-
-    // DecodeOptions(0.085, 15, 5, 10, 0.345);
 
     public DecodeOptions(double scanGap, long squareDev, long edgeThresh,
         long corrections, long shrink) {
@@ -37,5 +41,11 @@ public class DecodeOptions {
 
     public long getShrink() {
         return shrink;
+    }
+    
+    public static DecodeOptions getDefaultDecodeOptions() {
+        return new DecodeOptions(DecodeOptions.DEFAULT_SCAN_GAP, 
+            DecodeOptions.DEFAULT_SQUARE_DEV, DecodeOptions.DEFAULT_EDGE_THRESH,
+            DecodeOptions.DEFAULT_CORRECTIONS, DecodeOptions.DEFAULT_SHRINK);   
     }
 }

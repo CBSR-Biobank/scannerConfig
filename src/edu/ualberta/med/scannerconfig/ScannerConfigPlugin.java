@@ -160,9 +160,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
-        ScanLibResult res =
-            ScanLib.getInstance()
-                .scanImage(debugLevel, dpi, brightness, contrast, region, filename);
+        ScanLibResult res =ScanLib.getInstance().scanImage(debugLevel, dpi, 
+            brightness, contrast, region, filename);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(i18n.tr("Could not scan image:\n") + res.getMessage());
@@ -196,7 +195,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             new BoundingBox(prefs.getInt(prefsArr[0]), prefs.getInt(prefsArr[1]),
                 prefs.getInt(prefsArr[2]), prefs.getInt(prefsArr[3]));
 
-        regionModifyIfScannerWia(region);
+        region = regionModifyIfScannerWia(region);
 
         scanImage(region, filename);
     }
@@ -220,13 +219,14 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             new BoundingBox(prefs.getInt(prefsArr[0]), prefs.getInt(prefsArr[1]),
                 prefs.getInt(prefsArr[2]), prefs.getInt(prefsArr[3]));
 
-        regionModifyIfScannerWia(region);
+        region = regionModifyIfScannerWia(region);
 
-        WellRectangle[] wells = new WellRectangle[8 * 12];
+        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(
+            region, 8, 12, dpi);
 
-        DecodeResult res =
-            ScanLib.getInstance().scanAndDecode(debugLevel, dpi, brightness, contrast, region,
-                new DecodeOptions(scanGap, squareDev, edgeThresh, corrections, 1), wells);
+        DecodeResult res = ScanLib.getInstance().scanAndDecode(debugLevel, dpi, brightness, 
+            contrast, region, new DecodeOptions(scanGap, squareDev, edgeThresh, corrections, 1), 
+            wells.toArray(new WellRectangle[] {}));
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(i18n.tr("Could not decode plate:\n") + res.getMessage());
@@ -246,17 +246,17 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         File imageFile = new File(filename);
         BufferedImage image = ImageIO.read(imageFile);
-        double dpi = new Double(ImageInfo.getImageDpi(imageFile)).doubleValue();
-        BoundingBox imageBbox =
-            new BoundingBox(new Point(0, 0),
-                new Point(image.getWidth(), image.getHeight()).scale(1 / dpi));
+        final int dpi = ImageInfo.getImageDpi(imageFile);
+        final double dotWidth = 1 / new Double(dpi).doubleValue();
+        BoundingBox imageBbox = new BoundingBox(new Point(0, 0),
+            new Point(image.getWidth(), image.getHeight()).scale(dotWidth));
 
-        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(imageBbox, 8, 12);
+        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(
+            imageBbox, 8, 12, dpi);
 
-        DecodeResult res =
-            ScanLib.getInstance().decodeImage(debugLevel, filename,
-                new DecodeOptions(scanGap, squareDev, edgeThresh, corrections, 1),
-                wells.toArray(new WellRectangle[] {}));
+        DecodeResult res = ScanLib.getInstance().decodeImage(debugLevel, filename,
+            new DecodeOptions(scanGap, squareDev, edgeThresh, corrections, 1),
+            wells.toArray(new WellRectangle[] {}));
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(i18n.tr("Could not decode image: ") + res.getMessage());

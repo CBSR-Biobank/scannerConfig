@@ -87,10 +87,6 @@ public class BoundingBox {
             .translate(point));
     }
 
-    public BoundingBox scale(Point factor) {
-        return new BoundingBox(points.get(0).scale(factor), points.get(1).scale(factor));
-    }
-
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();

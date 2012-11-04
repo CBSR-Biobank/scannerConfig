@@ -30,10 +30,6 @@ public class Point {
         return new Point(x * factor, y * factor);
     }
 
-    public Point scale(Point factor) {
-        return new Point(x * factor.getX(), y * factor.getY());
-    }
-
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();

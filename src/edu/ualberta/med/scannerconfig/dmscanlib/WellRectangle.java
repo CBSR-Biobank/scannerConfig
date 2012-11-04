@@ -47,18 +47,20 @@ public class WellRectangle {
     }
     
     public static Set<WellRectangle> getWellRectanglesForBoundingBox(final BoundingBox bbox,
-        final int rows, final int cols) {
+        final int rows, final int cols, final int dpi) {
         
         // need to make this box slightly smaller so the image dimensions are not exceeded
-        final Point whPt = bbox.getWidthAndHeightAsPoint().scale(
-            new Point(1 / new Double(cols).doubleValue(),
-                    1 / new Double(rows).doubleValue())).scale(0.9925);
+        double dotWidth = 1 / new Double(dpi).doubleValue();
+        final Point whPt = bbox.getWidthAndHeightAsPoint();
+        final Point wellWhPt = new Point(
+            whPt.getX() / new Double(cols).doubleValue() - dotWidth,
+            whPt.getY() / new Double(rows).doubleValue() - dotWidth);
         
         final BoundingBox startBbox = new BoundingBox(bbox.getCorner(0), 
-            whPt.translate(bbox.getCorner(0)));
+            wellWhPt.translate(bbox.getCorner(0)));
         
-        final Point horTranslation = new Point(whPt.getX(), 0);
-        final Point verTranslation = new Point(0, whPt.getY());
+        final Point horTranslation = new Point(wellWhPt.getX(), 0);
+        final Point verTranslation = new Point(0, wellWhPt.getY());
 
         Set<WellRectangle> wells = new HashSet<WellRectangle>();
 
