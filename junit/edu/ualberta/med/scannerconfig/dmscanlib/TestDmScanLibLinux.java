@@ -8,64 +8,20 @@ import java.util.UUID;
 import javax.imageio.ImageIO;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestScanLibTest {
+public class TestDmScanLibLinux extends BaseTest {
 
-    private static Logger log = LoggerFactory.getLogger(TestScanLibTest.class);
-
-    private boolean isMsWindows = false;
-
-    @Before
-    public void setUp() throws Exception {
-        String osname = System.getProperty("os.name");
-        isMsWindows = osname.startsWith("Windows");
-
-        if (isMsWindows) {
-            System.loadLibrary("OpenThreadsWin32");
-            System.loadLibrary("msvcr110");
-            System.loadLibrary("msvcp110");
-            System.loadLibrary("libglog");
-            System.loadLibrary("dmscanlib");
-        } else {
-            System.loadLibrary("dmscanlib64");
-        }
-    }
-
-    @Test
-    public void boundingBoxGetCorner() throws Exception {
-        
-    }
-
-    @Test
-    public void boundingBoxScale() throws Exception {
-        
-    }
-
-    @Test
-    public void invalidBoundingBox() throws Exception {        
-        try {
-            new BoundingBox(0, 0, 0, 0);
-            Assert.fail("should not be allowed to create a bounding box with zero area");
-        } catch (IllegalArgumentException e) {
-            // do nothing here
-        }
-        
-        try {
-            new BoundingBox(10, 10, 10, 10);
-            Assert.fail("should not be allowed to create a bounding box with zero area");
-        } catch (IllegalArgumentException e) {
-            // do nothing here
-        }        
-    }
+    private static Logger log = LoggerFactory
+        .getLogger(TestDmScanLibLinux.class);
 
     @Test
     public void linuxEmptyImplementationJNI() throws Exception {
         // this test is valid only when not running on windows
-        Assert.assertEquals(false, isMsWindows);
+        Assert.assertEquals(false, LibraryLoader.getInstance()
+            .runningMsWindows());
 
         ScanLib scanLib = ScanLib.getInstance();
         ScanLibResult r = scanLib.isTwainAvailable();
@@ -84,7 +40,9 @@ public class TestScanLibTest {
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
-        r = scanLib.scanAndDecode(0, 0, 0, 0, null, null, new WellRectangle[] {});
+        r =
+            scanLib.scanAndDecode(0, 0, 0, 0, null, null,
+                new WellRectangle[] {});
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
     }
@@ -96,25 +54,28 @@ public class TestScanLibTest {
     public void decodeImage() throws Exception {
         ScanLib scanLib = ScanLib.getInstance();
 
-        final String fname = System.getProperty("user.dir") + "/testImages/96tubes.bmp";
+        final String fname =
+            System.getProperty("user.dir") + "/testImages/96tubes.bmp";
         File imageFile = new File(fname);
 
         BufferedImage image = ImageIO.read(imageFile);
         final int dpi = ImageInfo.getImageDpi(imageFile);
         final double dotWidth = 1 / new Double(dpi).doubleValue();
-        BoundingBox imageBbox =
-            new BoundingBox(new Point(0, 0),
-                new Point(image.getWidth(), image.getHeight()).scale(dotWidth));
+        BoundingBox imageBbox = new BoundingBox(new Point(0, 0),
+            new Point(image.getWidth(), image.getHeight()).scale(dotWidth));
 
         log.debug("image dimensions: {}", imageBbox);
 
-        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(
-            imageBbox, 8, 12, dpi);
+        Set<WellRectangle> wells =
+            WellRectangle.getWellRectanglesForBoundingBox(
+                imageBbox, 8, 12, dpi);
 
         // log.debug("well rectangle: {}", wells[0]);
 
-        DecodeResult r = scanLib.decodeImage(3, fname, DecodeOptions.getDefaultDecodeOptions(), 
-            wells.toArray(new WellRectangle[] {}));
+        DecodeResult r =
+            scanLib.decodeImage(3, fname,
+                DecodeOptions.getDefaultDecodeOptions(),
+                wells.toArray(new WellRectangle[] {}));
 
         Assert.assertNotNull(r);
         Assert.assertTrue(r.getDecodedWells().size() > 0);
@@ -133,7 +94,8 @@ public class TestScanLibTest {
     public void decodeBadParams() throws Exception {
         ScanLib scanLib = ScanLib.getInstance();
 
-        final String fname = System.getProperty("user.dir") + "/testImages/96tubes.bmp";
+        final String fname =
+            System.getProperty("user.dir") + "/testImages/96tubes.bmp";
 
         DecodeOptions decodeOptions = DecodeOptions.getDefaultDecodeOptions();
 
@@ -149,14 +111,20 @@ public class TestScanLibTest {
         r = scanLib.decodeImage(3, fname, decodeOptions, wells);
 
         Assert.assertNotNull(r);
-        Assert.assertEquals(ScanLib.SC_INVALID_NOTHING_TO_DECODE, r.getResultCode());
+        Assert.assertEquals(ScanLib.SC_INVALID_NOTHING_TO_DECODE,
+            r.getResultCode());
         Assert.assertEquals(0, r.getDecodedWells().size());
 
         // try and invalid filename
         wells =
-            new WellRectangle[] { new WellRectangle("A12", new BoundingBox(10, 20, 130, 130)), };
+            new WellRectangle[] {
+                new WellRectangle("A12", new BoundingBox(new Point(10, 20),
+                    new Point(130, 130))),
+            };
 
-        r = scanLib.decodeImage(5, new UUID(128, 256).toString(), decodeOptions, wells);
+        r =
+            scanLib.decodeImage(5, new UUID(128, 256).toString(),
+                decodeOptions, wells);
 
         Assert.assertNotNull(r);
         Assert.assertEquals(ScanLib.SC_INVALID_IMAGE, r.getResultCode());
