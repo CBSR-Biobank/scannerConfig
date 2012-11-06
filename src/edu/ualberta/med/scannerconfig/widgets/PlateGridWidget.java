@@ -35,8 +35,13 @@ public class PlateGridWidget implements IPlateImageListener,
     MouseListener, KeyListener, PaintListener {
 
     private enum DragMode {
-        NONE, MOVE, RESIZE_HORIZONTAL_LEFT, RESIZE_HORIZONTAL_RIGHT,
-        RESIZE_VERTICAL_TOP, RESIZE_VERTICAL_BOTTOM, RESIZE_BOTTOM_RIGHT,
+        NONE,
+        MOVE,
+        RESIZE_HORIZONTAL_LEFT,
+        RESIZE_HORIZONTAL_RIGHT,
+        RESIZE_VERTICAL_TOP,
+        RESIZE_VERTICAL_BOTTOM,
+        RESIZE_BOTTOM_RIGHT,
         RESIZE_TOP_LEFT
     };
 
@@ -76,7 +81,6 @@ public class PlateGridWidget implements IPlateImageListener,
         canvas.redraw();
         canvas.update();
         canvas.addMouseMoveListener(this);
-        canvas.addListener(SWT.MouseWheel, this);
         canvas.addControlListener(this);
         canvas.addMouseListener(this);
         canvas.addKeyListener(this);
@@ -277,22 +281,7 @@ public class PlateGridWidget implements IPlateImageListener,
 
     @Override
     public void handleEvent(Event event) {
-        if (!haveImage)
-            return;
-
-        if (event.type == SWT.MouseWheel) {
-            int delta = 0;
-            if (event.count < 0) {
-                delta = 1;
-            } else if (event.count > 0) {
-                delta = -1;
-            }
-
-            plateGrid.setGapX(plateGrid.getGapX() + delta);
-            plateGrid.setGapY(plateGrid.getGapY() + delta);
-            canvas.redraw();
-            notifyChangeListener();
-        }
+        // do nothing
     }
 
     @Override
@@ -319,8 +308,10 @@ public class PlateGridWidget implements IPlateImageListener,
             drag = true;
             startDragMousePt.y = e.y;
             startDragMousePt.x = e.x;
-            startGridRect = new Rectangle(plateGrid.getLeft(),
-                plateGrid.getTop(), plateGrid.getWidth(), plateGrid.getHeight());
+            startGridRect =
+                new Rectangle(plateGrid.getLeft(),
+                    plateGrid.getTop(), plateGrid.getWidth(),
+                    plateGrid.getHeight());
 
         }
         canvas.redraw();
@@ -442,10 +433,6 @@ public class PlateGridWidget implements IPlateImageListener,
         Orientation orientation = plateGrid.getOrientation();
         double cellWidth = gridRect.width / (double) cols;
         double cellHeight = gridRect.height / (double) rows;
-        double gapX = plateGrid.getGapX();
-        double gapY = plateGrid.getGapY();
-        double doubleGapX = 2.0 * gapX;
-        double doubleGapY = 2.0 * gapY;
 
         Rectangle cellRect;
         Color foregroundColor = new Color(canvas.getDisplay(), 0, 255, 0);
@@ -457,9 +444,8 @@ public class PlateGridWidget implements IPlateImageListener,
             cx = gridRect.x;
 
             for (int col = 0; col < cols; col++, cx += cellWidth) {
-                cellRect = new Rectangle((int) (cx + gapX), (int) (cy + gapY),
-                    (int) (cellWidth - doubleGapX),
-                    (int) (cellHeight - doubleGapY));
+                cellRect = new Rectangle((int) cx, (int) cy,
+                    (int) cellWidth, (int) cellHeight);
 
                 gc.drawRectangle(cellRect);
 
@@ -498,8 +484,6 @@ public class PlateGridWidget implements IPlateImageListener,
         int top = (int) (plateSettings.getTop() * heightFactor);
         int right = (int) (plateSettings.getRight() * widthFactor);
         int bottom = (int) (plateSettings.getBottom() * heightFactor);
-        int gapX = (int) (plateSettings.getGapX() * widthFactor);
-        int gapY = (int) (plateSettings.getGapY() * widthFactor);
 
         if ((left < 0) || (right < 0) || (top < 0) || (bottom < 0)
             || (left > canvasSize.x) || (right > canvasSize.x)
@@ -513,8 +497,6 @@ public class PlateGridWidget implements IPlateImageListener,
         plateGrid.setTop(top);
         plateGrid.setWidth(right - left);
         plateGrid.setHeight(bottom - top);
-        plateGrid.setGapX(gapX);
-        plateGrid.setGapY(gapY);
     }
 
     /**
@@ -536,8 +518,6 @@ public class PlateGridWidget implements IPlateImageListener,
         result.setTop(plateGrid.getTop() * heightFactor);
         result.setWidth(plateGrid.getWidth() * widthFactor);
         result.setHeight(plateGrid.getHeight() * heightFactor);
-        result.setGapX(plateGrid.getGapX() * widthFactor);
-        result.setGapY(plateGrid.getGapY() * heightFactor);
         result.setOrientation(plateGrid.getOrientation());
         return result;
     }
@@ -572,7 +552,8 @@ public class PlateGridWidget implements IPlateImageListener,
     private void notifyChangeListener() {
         Object[] listeners = changeListeners.getListeners();
         for (int i = 0; i < listeners.length; ++i) {
-            final IPlateGridWidgetListener l = (IPlateGridWidgetListener) listeners[i];
+            final IPlateGridWidgetListener l =
+                (IPlateGridWidgetListener) listeners[i];
             SafeRunnable.run(new SafeRunnable() {
                 @Override
                 public void run() {

@@ -40,7 +40,5 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
             store.setDefault(PreferenceConstants.SCANNER_PLATE_BARCODES[i],
                 i18n.tr("PLATE") + (i + 1));
         }
-        store.setDefault(PreferenceConstants.SCANNER_PLATE_SHOW_BARCODE_PREF,
-            false);
     }
 }

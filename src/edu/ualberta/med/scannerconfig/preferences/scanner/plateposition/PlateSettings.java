@@ -71,18 +71,6 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 return i18n.tr("Bottom");
             }
         },
-        GAPX() {
-            @Override
-            public String toString() {
-                return i18n.tr("Cell Gap Horizontal");
-            }
-        },
-        GAPY() {
-            @Override
-            public String toString() {
-                return i18n.tr("Cell Gap Vertical");
-            }
-        },
         BARCODE() {
             @Override
             public String toString() {
@@ -262,12 +250,9 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         int count = 0;
         for (Settings setting : Settings.values()) {
             if (setting.equals(Settings.BARCODE)) {
-                if (!getPreferenceStore().getBoolean(
-                    PreferenceConstants.SCANNER_PLATE_SHOW_BARCODE_PREF))
-                    continue;
                 fe = new StringFieldEditor(
                     PreferenceConstants.SCANNER_PLATE_BARCODES[plateId - 1],
-                    i18n.tr("Barcode:"), getFieldEditorParent());
+                    setting + ":", getFieldEditorParent());
             } else {
                 fe = new DoubleFieldEditor(prefsArr[count], setting + ":",
                     parent);
@@ -300,7 +285,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             boolean enabled = enabledFieldEditor.getBooleanValue();
             if (enabled) {
                 // set default size
-                internalUpdate(0, 0, 4, 3, 0, 0, Orientation.LANDSCAPE);
+                internalUpdate(0, 0, 4, 3, Orientation.LANDSCAPE);
             }
             setEnabled(enabled);
         } else if (source == orientationFieldEditor) {
@@ -326,27 +311,17 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     }
 
     private void internalUpdate(double left, double top, double right,
-        double bottom, double gapX, double gapY, Orientation o) {
+        double bottom, Orientation o) {
         internalUpdate = true;
-
-        ((DoubleFieldEditor) plateFieldEditors.get(Settings.GAPX))
-            .setValidRange(0, (right - left) / 2.0 / PlateGrid.MAX_COLS);
-        ((DoubleFieldEditor) plateFieldEditors.get(Settings.GAPY))
-            .setValidRange(0, (bottom - top) / 2.0 / PlateGrid.MAX_COLS);
 
         plateTextControls.get(Settings.LEFT).setText(String.valueOf(left));
         plateTextControls.get(Settings.TOP).setText(String.valueOf(top));
         plateTextControls.get(Settings.RIGHT).setText(String.valueOf(right));
         plateTextControls.get(Settings.BOTTOM).setText(String.valueOf(bottom));
-        plateTextControls.get(Settings.GAPX).setText(String.valueOf(gapX));
-        plateTextControls.get(Settings.GAPY).setText(String.valueOf(gapY));
 
-        if (getPreferenceStore().getBoolean(
-            PreferenceConstants.SCANNER_PLATE_SHOW_BARCODE_PREF)) {
-            plateTextControls.get(Settings.BARCODE).setText(
-                getPreferenceStore().getString(
-                    PreferenceConstants.SCANNER_PLATE_BARCODES[plateId - 1]));
-        }
+        plateTextControls.get(Settings.BARCODE).setText(
+            getPreferenceStore().getString(
+                PreferenceConstants.SCANNER_PLATE_BARCODES[plateId - 1]));
 
         boolean[] orientationSettings = new boolean[] {
             o == Orientation.LANDSCAPE, o == Orientation.PORTRAIT };
@@ -383,16 +358,6 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     public double getBottom() {
         return Double.parseDouble(formatInput(plateTextControls.get(
             Settings.BOTTOM).getText()));
-    }
-
-    public double getGapX() {
-        return Double.parseDouble(formatInput(plateTextControls.get(
-            Settings.GAPX).getText()));
-    }
-
-    public double getGapY() {
-        return Double.parseDouble(formatInput(plateTextControls.get(
-            Settings.GAPY).getText()));
     }
 
     public Orientation getOrientation() {
@@ -513,8 +478,8 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         double width = r.getWidth();
         double height = r.getHeight();
 
-        internalUpdate(left, top, left + width, top + height, r.getGapX(),
-            r.getGapY(), r.getOrientation());
+        internalUpdate(left, top, left + width, top + height,
+            r.getOrientation());
     }
 
     @Override

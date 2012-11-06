@@ -199,6 +199,12 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     public static void scanPlate(int plateNumber, String filename)
         throws Exception {
 
+        if ((plateNumber < 0) ||
+            (plateNumber > PreferenceConstants.SCANNER_PALLET_CONFIG.length)) {
+            throw new IllegalArgumentException("plate number is invalid: "
+                + plateNumber);
+        }
+
         String[] prefsArr =
             PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
