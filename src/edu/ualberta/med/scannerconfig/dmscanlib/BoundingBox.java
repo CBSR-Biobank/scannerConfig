@@ -49,10 +49,19 @@ public class BoundingBox {
         }
     }
 
+    public BoundingBox(int x1, int y1, int x2, int y2) {
+        points.add(new Point(x1, y1));
+        points.add(new Point(x2, y2));
+
+        if (!isValid()) {
+            throw new IllegalArgumentException("invalid size:" + points.get(0) + " " + points.get(1));
+        }
+    }
+
     public Point getWidthAndHeightAsPoint() {
         // get the bounding box width and height - note that the bounding box
         // may not originate at (0,0)
-        return getCorner(1).translate(getCorner(0).scale(-1));
+        return getCorner(1).translate(getCorner(0).scale(-1)); 
     }
 
     public Point getCorner(int cornerId) {
