@@ -68,9 +68,6 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         if (isMsWindows) {
             System.loadLibrary("OpenThreadsWin32");
-            System.loadLibrary("msvcr110");
-            System.loadLibrary("msvcp110");
-            System.loadLibrary("libglog");
             System.loadLibrary("dmscanlib");
         } else {
             System.loadLibrary("dmscanlib64");

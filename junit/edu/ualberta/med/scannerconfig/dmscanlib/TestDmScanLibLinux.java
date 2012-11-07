@@ -72,12 +72,12 @@ public class TestDmScanLibLinux extends BaseTest {
 
         // log.debug("well rectangle: {}", wells[0]);
 
-        DecodeResult r =
-            scanLib.decodeImage(3, fname,
+        DecodeResult r = scanLib.decodeImage(0, fname,
                 DecodeOptions.getDefaultDecodeOptions(),
                 wells.toArray(new WellRectangle[] {}));
 
         Assert.assertNotNull(r);
+        log.debug("result is: {}", r.getResultCode());
         Assert.assertTrue(r.getDecodedWells().size() > 0);
 
         for (DecodedWell decodedWell : r.getDecodedWells()) {
