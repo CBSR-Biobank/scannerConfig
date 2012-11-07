@@ -55,7 +55,7 @@ public class TestDmScanLibLinux extends BaseTest {
         ScanLib scanLib = ScanLib.getInstance();
 
         final String fname =
-            System.getProperty("user.dir") + "/testImages/96tubes.bmp";
+            System.getProperty("user.dir") + "/testImages/ohs_pallet.bmp";
         File imageFile = new File(fname);
 
         BufferedImage image = ImageIO.read(imageFile);
@@ -66,13 +66,10 @@ public class TestDmScanLibLinux extends BaseTest {
 
         log.debug("image dimensions: {}", imageBbox);
 
-        Set<WellRectangle> wells =
-            WellRectangle.getWellRectanglesForBoundingBox(
-                imageBbox, 8, 12, dpi);
+        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(
+            imageBbox, 8, 12, dpi);
 
-        // log.debug("well rectangle: {}", wells[0]);
-
-        DecodeResult r = scanLib.decodeImage(0, fname,
+        DecodeResult r = scanLib.decodeImage(3, fname,
                 DecodeOptions.getDefaultDecodeOptions(),
                 wells.toArray(new WellRectangle[] {}));
 
@@ -111,8 +108,7 @@ public class TestDmScanLibLinux extends BaseTest {
         r = scanLib.decodeImage(3, fname, decodeOptions, wells);
 
         Assert.assertNotNull(r);
-        Assert.assertEquals(ScanLib.SC_INVALID_NOTHING_TO_DECODE,
-            r.getResultCode());
+        Assert.assertEquals(ScanLib.SC_INVALID_NOTHING_TO_DECODE, r.getResultCode());
         Assert.assertEquals(0, r.getDecodedWells().size());
 
         // try and invalid filename

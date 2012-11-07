@@ -9,10 +9,7 @@ public class BoundingBox {
     public BoundingBox(Point point1, Point point2) {
         this.points.add(point1);
         this.points.add(point2);
-
-        if (!isValid()) {
-            throw new IllegalArgumentException("invalid size");
-        }
+        checkValid();
     }
 
     public BoundingBox(List<Point> corners) {
@@ -21,10 +18,7 @@ public class BoundingBox {
                 "number of corner id is invalid: " + corners.size());
         }
         points.addAll(corners);
-
-        if (!isValid()) {
-            throw new IllegalArgumentException("invalid size");
-        }
+        checkValid();
     }
 
     public BoundingBox(Rectangle rect) {
@@ -43,19 +37,16 @@ public class BoundingBox {
 
         points.add(new Point(minX, minY));
         points.add(new Point(maxX, maxY));
-
-        if (!isValid()) {
-            throw new IllegalArgumentException("invalid size");
-        }
+        checkValid();
     }
 
-    public BoundingBox(int x1, int y1, int x2, int y2) {
-        points.add(new Point(x1, y1));
-        points.add(new Point(x2, y2));
-
-        if (!isValid()) {
+    private boolean checkValid() {
+        boolean valid = (points.get(0).getX() < points.get(1).getX())
+            && (points.get(0).getY() < points.get(1).getY());
+        if (!valid) {
             throw new IllegalArgumentException("invalid size:" + points.get(0) + " " + points.get(1));
         }
+        return valid;
     }
 
     public Point getWidthAndHeightAsPoint() {
@@ -80,11 +71,6 @@ public class BoundingBox {
     public double getCornerY(int cornerId) {
         Point pt = getCorner(cornerId);
         return pt.y;
-    }
-
-    private boolean isValid() {
-        return (points.get(0).getX() < points.get(1).getX())
-            && (points.get(0).getY() < points.get(1).getY());
     }
 
     public double getWidth() {
