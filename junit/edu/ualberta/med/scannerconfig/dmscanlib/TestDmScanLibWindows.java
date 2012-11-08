@@ -36,7 +36,10 @@ public class TestDmScanLibWindows {
         File file = new File(filename);
         file.delete(); // dont care if file doesn't exist
 
-        r = scanLib.scanImage(0, dpi, 0, 0, region, filename);
+        r = scanLib.scanImage(3, dpi, 0, 0, region, filename);
+
+        Assert.assertNotNull(r);
+        Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
 
         File imageFile = new File(filename);
         Assert
@@ -47,6 +50,28 @@ public class TestDmScanLibWindows {
             image.getWidth());
         Assert.assertEquals(new Double(region.getHeight() * dpi).intValue(),
             image.getHeight());
+    }
+
+    @Test
+    public void scanImageBadParams() throws Exception {
+        // this test is valid only when not running on windows
+        Assert.assertEquals(true, LibraryLoader.getInstance()
+            .runningMsWindows());
+
+        ScanLib scanLib = ScanLib.getInstance();
+        ScanLibResult r = scanLib.isTwainAvailable();
+        Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
+
+        BoundingBox scanBox = new BoundingBox(new Point(0, 0), new Point(4, 4));
+
+        r = scanLib.scanImage(0, 300, 0, 0, scanBox, null);
+        Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
+
+        r = scanLib.scanImage(0, 300, 0, 0, null, "tempscan.bmp");
+        Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
+
+        r = scanLib.scanImage(0, 0, 0, 0, scanBox, "tempscan.bmp");
+        Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
     }
 
     @Test
@@ -66,9 +91,29 @@ public class TestDmScanLibWindows {
 
         r = scanLib.scanFlatbed(0, dpi, 0, 0, filename);
 
+        Assert.assertNotNull(r);
+        Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
+
         File imageFile = new File(filename);
         Assert
             .assertTrue(Math.abs(dpi - ImageInfo.getImageDpi(imageFile)) <= 1);
+    }
+
+    @Test
+    public void scanFlatbedBadParams() throws Exception {
+        // this test is valid only when not running on windows
+        Assert.assertEquals(true, LibraryLoader.getInstance()
+            .runningMsWindows());
+
+        ScanLib scanLib = ScanLib.getInstance();
+        ScanLibResult r = scanLib.isTwainAvailable();
+        Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
+
+        r = scanLib.scanFlatbed(0, 300, 0, 0, null);
+        Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
+
+        r = scanLib.scanFlatbed(0, 0, 0, 0, "tempscan.bmp");
+        Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
     }
 
     @Test
