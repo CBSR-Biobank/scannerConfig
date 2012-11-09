@@ -4,16 +4,15 @@ public class LibraryLoader {
 
     private static LibraryLoader instance = null;
 
-    private boolean isMsWindows = false;
+    private final boolean IS_MS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
+    private final boolean IS_LINUX = System.getProperty("os.name").startsWith("Linux");
+    private final boolean IS_ARCH_64_BIT = System.getProperty("os.arch").equals("amd64");
 
     private LibraryLoader() {
-        String osname = System.getProperty("os.name");
-        isMsWindows = osname.startsWith("Windows");
-
-        if (isMsWindows) {
+        if (IS_MS_WINDOWS) {
             System.loadLibrary("OpenThreadsWin32");
             System.loadLibrary("dmscanlib");
-        } else {
+        } else if (IS_LINUX && IS_ARCH_64_BIT){
             System.loadLibrary("dmscanlib64");
         }
     }
@@ -26,7 +25,7 @@ public class LibraryLoader {
     }
 
     public boolean runningMsWindows() {
-        return isMsWindows;
+        return IS_MS_WINDOWS;
     }
 
 }

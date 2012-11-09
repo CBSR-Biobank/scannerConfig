@@ -2,14 +2,17 @@ package edu.ualberta.med.scannerconfig.dmscanlib;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestDmScanLibLinux extends BaseTest {
 
-    // private static Logger log = LoggerFactory
-    // .getLogger(TestDmScanLibLinux.class);
+     private static Logger log = LoggerFactory.getLogger(TestDmScanLibLinux.class);
 
     @Test
     public void linuxEmptyImplementationJNI() throws Exception {
+        log.debug(System.getProperty("os.version"));
+        
         // this test is valid only when not running on windows
         Assert.assertEquals(false, LibraryLoader.getInstance()
             .runningMsWindows());

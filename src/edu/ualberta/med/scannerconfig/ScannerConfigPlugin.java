@@ -52,6 +52,10 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     // The plug-in ID
     public static final String PLUGIN_ID = "scannerConfig"; //$NON-NLS-1$
 
+    private final boolean IS_MS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
+    private final boolean IS_LINUX = System.getProperty("os.name").startsWith("Linux");
+    private final boolean IS_ARCH_64_BIT = System.getProperty("os.arch").equals("amd64");
+
     // The shared instance
     private static ScannerConfigPlugin plugin;
 
@@ -61,14 +65,10 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
     @SuppressWarnings("nls")
     public ScannerConfigPlugin() {
-        String osname = System.getProperty("os.name");
-        boolean isMsWindows = osname.startsWith("Windows");
-        // boolean isLinux = osname.startsWith("Linux");
-
-        if (isMsWindows) {
+        if (IS_MS_WINDOWS) {
             System.loadLibrary("OpenThreadsWin32");
             System.loadLibrary("dmscanlib");
-        } else {
+        } else if (IS_LINUX && IS_ARCH_64_BIT){
             System.loadLibrary("dmscanlib64");
         }
     }
