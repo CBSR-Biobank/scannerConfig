@@ -1,22 +1,22 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
 import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class TestDmScanLibLinux extends BaseTest {
+public class TestDmScanLibLinux extends RequiresJniLibraryTest {
 
-     private static Logger log = LoggerFactory.getLogger(TestDmScanLibLinux.class);
+     //private static Logger log = LoggerFactory.getLogger(TestDmScanLibLinux.class);
+     
+     @Before
+     public void beforeMethod() {
+         // this test is valid only when not running on windows
+         Assume.assumeTrue(!LibraryLoader.getInstance().runningMsWindows());        
+     }
 
     @Test
     public void linuxEmptyImplementationJNI() throws Exception {
-        log.debug(System.getProperty("os.version"));
-        
-        // this test is valid only when not running on windows
-        Assert.assertEquals(false, LibraryLoader.getInstance()
-            .runningMsWindows());
-
         ScanLib scanLib = ScanLib.getInstance();
         ScanLibResult r = scanLib.isTwainAvailable();
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());

@@ -7,23 +7,27 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 
 import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 
-public class TestDmScanLibWindows {
+public class TestDmScanLibWindows extends RequiresJniLibraryTest {
 
     private static Logger log = LoggerFactory
         .getLogger(TestDmScanLibWindows.class);
+    
+    @Before
+    public void beforeMethod() {
+        // these tests are valid only when not running on windows
+        Assume.assumeTrue(LibraryLoader.getInstance().runningMsWindows());        
+    }
 
     @Test
     public void scanImage() throws Exception {
-        // this test is valid only when not running on windows
-        Assert.assertEquals(true, LibraryLoader.getInstance()
-            .runningMsWindows());
-
         ScanLib scanLib = ScanLib.getInstance();
         ScanLibResult r = scanLib.isTwainAvailable();
         Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
@@ -54,10 +58,6 @@ public class TestDmScanLibWindows {
 
     @Test
     public void scanImageBadParams() throws Exception {
-        // this test is valid only when not running on windows
-        Assert.assertEquals(true, LibraryLoader.getInstance()
-            .runningMsWindows());
-
         ScanLib scanLib = ScanLib.getInstance();
         ScanLibResult r = scanLib.isTwainAvailable();
         Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
@@ -76,10 +76,6 @@ public class TestDmScanLibWindows {
 
     @Test
     public void scanFlatbed() throws Exception {
-        // this test is valid only when not running on windows
-        Assert.assertEquals(true, LibraryLoader.getInstance()
-            .runningMsWindows());
-
         ScanLib scanLib = ScanLib.getInstance();
         ScanLibResult r = scanLib.isTwainAvailable();
         Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
@@ -101,10 +97,6 @@ public class TestDmScanLibWindows {
 
     @Test
     public void scanFlatbedBadParams() throws Exception {
-        // this test is valid only when not running on windows
-        Assert.assertEquals(true, LibraryLoader.getInstance()
-            .runningMsWindows());
-
         ScanLib scanLib = ScanLib.getInstance();
         ScanLibResult r = scanLib.isTwainAvailable();
         Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
@@ -118,10 +110,6 @@ public class TestDmScanLibWindows {
 
     @Test
     public void scanAndDecode() throws Exception {
-        // this test is valid only when not running on windows
-        Assert.assertEquals(true, LibraryLoader.getInstance()
-            .runningMsWindows());
-
         ScanLib scanLib = ScanLib.getInstance();
         ScanLibResult r = scanLib.isTwainAvailable();
         Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());

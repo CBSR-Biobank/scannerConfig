@@ -2,7 +2,7 @@ package edu.ualberta.med.scannerconfig.dmscanlib;
 
 import org.junit.Before;
 
-public class BaseTest {
+public class RequiresJniLibraryTest {
 
     @Before
     public void setUp() throws Exception {
