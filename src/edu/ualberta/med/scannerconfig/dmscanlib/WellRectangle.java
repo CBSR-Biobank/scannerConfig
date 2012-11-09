@@ -6,7 +6,7 @@ import java.util.Set;
 
 import edu.ualberta.med.biobank.util.SbsLabeling;
 
-public class WellRectangle {
+public final class WellRectangle {
 
     final String label;
 

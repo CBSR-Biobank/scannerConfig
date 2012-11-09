@@ -2,7 +2,7 @@ package edu.ualberta.med.scannerconfig.dmscanlib;
 
 import edu.ualberta.med.biobank.util.SbsLabeling;
 
-public class DecodedWell implements Comparable<DecodedWell> {
+public final class DecodedWell implements Comparable<DecodedWell> {
 
     final String label;
     final String message;

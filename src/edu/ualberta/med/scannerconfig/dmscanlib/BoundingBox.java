@@ -3,7 +3,7 @@ package edu.ualberta.med.scannerconfig.dmscanlib;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BoundingBox {
+public final class BoundingBox {
     final List<Point> points = new ArrayList<Point>(2);
 
     public BoundingBox(Point point1, Point point2) {

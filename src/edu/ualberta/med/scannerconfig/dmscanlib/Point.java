@@ -1,6 +1,6 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
-public class Point {
+public final class Point {
     final double x;
     final double y;
 

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Rectangle {
+public final class Rectangle {
     final List<Point> points = new ArrayList<Point>(4);
 
     Rectangle(BoundingBox boundingBox) {
