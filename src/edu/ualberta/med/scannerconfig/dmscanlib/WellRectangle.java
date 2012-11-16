@@ -45,38 +45,51 @@ public final class WellRectangle {
         sb.append(label).append(" ").append(rectangle);
         return sb.toString();
     }
-    
-    public static Set<WellRectangle> getWellRectanglesForBoundingBox(final BoundingBox bbox,
+
+    public static Set<WellRectangle> getWellRectanglesForBoundingBox(
+        final BoundingBox bbox,
         final int rows, final int cols, final int dpi) {
-        
-        // need to make this box slightly smaller so the image dimensions are not exceeded
+
+        // need to make this box slightly smaller so the image dimensions are
+        // not exceeded
         double dotWidth = 1 / new Double(dpi).doubleValue();
         final Point whPt = bbox.getWidthAndHeightAsPoint();
         final Point wellWhPt = new Point(
             whPt.getX() / new Double(cols).doubleValue() - dotWidth,
             whPt.getY() / new Double(rows).doubleValue() - dotWidth);
-        
-        final BoundingBox startBbox = new BoundingBox(bbox.getCorner(0), 
+
+        final BoundingBox startBbox = new BoundingBox(bbox.getCorner(0),
             wellWhPt.translate(bbox.getCorner(0)));
-        
+
         final Point horTranslation = new Point(wellWhPt.getX(), 0);
         final Point verTranslation = new Point(0, wellWhPt.getY());
 
         Set<WellRectangle> wells = new HashSet<WellRectangle>();
 
+        int orientation = 0;
+        if ((rows == 12) && (cols == 8)) {
+            orientation = 1;
+        }
+
         for (int row = 0; row < rows; ++row) {
-            
-            BoundingBox wellBbox = startBbox.translate(verTranslation.scale(row));
+
+            BoundingBox wellBbox =
+                startBbox.translate(verTranslation.scale(row));
 
             for (int col = 0; col < cols; ++col) {
-                WellRectangle well = new WellRectangle(
-                    SbsLabeling.fromRowCol(row, 11 - col), wellBbox);
+                String label;
+                if (orientation == 0) {
+                    label = SbsLabeling.fromRowCol(row, 11 - col);
+                } else {
+                    label = SbsLabeling.fromRowCol(col, row);
+                }
+                WellRectangle well = new WellRectangle(label, wellBbox);
                 wells.add(well);
                 wellBbox = wellBbox.translate(horTranslation);
             }
         }
-        
-        return wells;        
+
+        return wells;
     }
 
 }
