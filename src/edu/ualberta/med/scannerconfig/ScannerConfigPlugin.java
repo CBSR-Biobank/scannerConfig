@@ -96,7 +96,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
                     PlateEnabledState plateEnabledSourceProvider =
                         (PlateEnabledState) service
-                            .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
+                        .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
                     Assert.isNotNull(plateEnabledSourceProvider);
                     plateEnabledSourceProvider.setPlateEnabled();
                 }
@@ -159,7 +159,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         ScanLibResult res =
             ScanLib.getInstance()
-                .scanImage(debugLevel, dpi, brightness, contrast, region, filename);
+            .scanImage(debugLevel, dpi, brightness, contrast, region, filename);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(i18n.tr("Could not scan image:\n") + res.getMessage());
@@ -247,8 +247,17 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         final BoundingBox scanBbox = regionModifyIfScannerWia(scanRegion);
         final BoundingBox wellsBbox = getWellsBoundingBox(scanRegion);
 
+        int rows = 8;
+        int cols = 12;
+
+        if (prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1])
+            .equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT)) {
+            rows = 12;
+            cols = 8;
+        }
+
         Set<WellRectangle> wells =
-            WellRectangle.getWellRectanglesForBoundingBox(wellsBbox, 8, 12, dpi);
+            WellRectangle.getWellRectanglesForBoundingBox(wellsBbox, rows, cols, dpi);
 
         DecodeResult res =
             ScanLib.getInstance().scanAndDecode(debugLevel, dpi, brightness, contrast, scanBbox,
