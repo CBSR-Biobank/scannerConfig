@@ -3,6 +3,7 @@ package edu.ualberta.med.scannerconfig.dmscanlib;
 import org.junit.Assert;
 import org.junit.Test;
 
+@SuppressWarnings("nls")
 public class TestBoundingBox {
 
     //private static Logger log = LoggerFactory

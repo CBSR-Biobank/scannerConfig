@@ -30,6 +30,7 @@ public final class DecodedWell implements Comparable<DecodedWell> {
         return label.compareTo(o.label);
     }
 
+    @SuppressWarnings("nls")
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();

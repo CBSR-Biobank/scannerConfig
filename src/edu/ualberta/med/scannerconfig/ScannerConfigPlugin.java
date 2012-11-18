@@ -52,8 +52,13 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     // The plug-in ID
     public static final String PLUGIN_ID = "scannerConfig"; //$NON-NLS-1$
 
+    @SuppressWarnings("nls")
     private final boolean IS_MS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
+    
+    @SuppressWarnings("nls")
     private final boolean IS_LINUX = System.getProperty("os.name").startsWith("Linux");
+    
+    @SuppressWarnings("nls")
     private final boolean IS_ARCH_64_BIT = System.getProperty("os.arch").equals("amd64");
 
     // The shared instance
@@ -183,6 +188,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         }
     }
 
+    @SuppressWarnings("nls")
     public static void scanPlate(int plateNumber, String filename) throws Exception {
 
         if ((plateNumber < 0) || (plateNumber > PreferenceConstants.SCANNER_PALLET_CONFIG.length)) {

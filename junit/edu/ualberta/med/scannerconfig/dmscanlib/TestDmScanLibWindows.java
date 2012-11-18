@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 
+@SuppressWarnings("nls")
 public class TestDmScanLibWindows extends RequiresJniLibraryTest {
 
     private static Logger log = LoggerFactory

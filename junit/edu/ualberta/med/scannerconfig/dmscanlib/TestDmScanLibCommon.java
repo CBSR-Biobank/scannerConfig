@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("nls")
 public class TestDmScanLibCommon extends RequiresJniLibraryTest {
 
     private static Logger log = LoggerFactory

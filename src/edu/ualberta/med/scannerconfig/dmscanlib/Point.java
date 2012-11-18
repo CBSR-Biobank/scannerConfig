@@ -30,6 +30,7 @@ public final class Point {
         return new Point(x * factor, y * factor);
     }
 
+    @SuppressWarnings("nls")
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();

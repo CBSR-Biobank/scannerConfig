@@ -5,6 +5,7 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
+@SuppressWarnings("nls")
 public class TestDmScanLibLinux extends RequiresJniLibraryTest {
 
      //private static Logger log = LoggerFactory.getLogger(TestDmScanLibLinux.class);

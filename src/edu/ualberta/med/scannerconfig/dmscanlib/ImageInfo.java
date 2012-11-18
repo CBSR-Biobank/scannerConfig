@@ -215,6 +215,7 @@ public class ImageInfo {
      * The names of all supported file formats. The FORMAT_xyz int constants can
      * be used as index values for this array.
      */
+    @SuppressWarnings("nls")
     public static final String[] FORMAT_NAMES = { "jpeg", "gif", "png", "bmp", "pcx", "iff", "ras",
         "pbm", "pgm", "ppm", "psd", "swf" };
 
@@ -222,6 +223,7 @@ public class ImageInfo {
      * The names of the MIME types for all supported file formats. The
      * FORMAT_xyz int constants can be used as index values for this array.
      */
+    @SuppressWarnings("nls")
     public static final String[] MIME_TYPE_STRINGS = { "image/jpeg", "image/gif", "image/png",
         "image/bmp", "image/pcx", "image/iff", "image/ras", "image/x-portable-bitmap",
         "image/x-portable-graymap", "image/x-portable-pixmap", "image/psd",
@@ -507,6 +509,7 @@ public class ImageInfo {
                 if (read(chars, 0, size) != size) {
                     return false;
                 }
+                @SuppressWarnings("nls")
                 String comment = new String(chars, "iso-8859-1");
                 comment = comment.trim();
                 addComment(comment);
@@ -715,6 +718,7 @@ public class ImageInfo {
      * Run over String list, return false iff at least one of the arguments
      * equals <code>-c</code>.
      */
+    @SuppressWarnings("nls")
     private static boolean determineVerbosity(String[] args) {
         if (args != null && args.length > 0) {
             for (int i = 0; i < args.length; i++) {
@@ -753,6 +757,7 @@ public class ImageInfo {
      *             larger than or equal to the number of comments retrieved
      * @see #getNumberOfComments
      */
+    @SuppressWarnings("nls")
     public String getComment(int index) {
         if (comments == null || index < 0 || index >= comments.size()) {
             throw new IllegalArgumentException("Not a valid comment index: " + index);
@@ -777,6 +782,7 @@ public class ImageInfo {
      * 
      * @return file format name
      */
+    @SuppressWarnings("nls")
     public String getFormatName() {
         if (format >= 0 && format < FORMAT_NAMES.length) {
             return FORMAT_NAMES[format];
@@ -810,6 +816,7 @@ public class ImageInfo {
      * 
      * @return MIME type, e.g. <code>image/jpeg</code>
      */
+    @SuppressWarnings("nls")
     public String getMimeType() {
         if (format >= 0 && format < MIME_TYPE_STRINGS.length) {
             if (format == FORMAT_JPEG && progressive) {
@@ -946,6 +953,7 @@ public class ImageInfo {
      * 
      * @param args the program arguments which must be file names
      */
+    @SuppressWarnings("nls")
     public static void main(String[] args) {
         ImageInfo imageInfo = new ImageInfo();
         imageInfo.setDetermineImageNumber(true);
@@ -985,6 +993,7 @@ public class ImageInfo {
         }
     }
 
+    @SuppressWarnings("nls")
     private static void printCompact(@SuppressWarnings("unused") String sourceName,
         ImageInfo imageInfo) {
         System.out.println(imageInfo.getFormatName() + ";" + imageInfo.getMimeType() + ";"
@@ -1008,6 +1017,7 @@ public class ImageInfo {
         }
     }
 
+    @SuppressWarnings("nls")
     private static void printLine(int indentLevels, String text, String value) {
         if (value == null || value.length() == 0) {
             return;
@@ -1022,6 +1032,7 @@ public class ImageInfo {
         System.out.println(value);
     }
 
+    @SuppressWarnings("nls")
     private static void printVerbose(String sourceName, ImageInfo ii) {
         printLine(0, null, sourceName);
         printLine(1, "File format: ", ii.getFormatName());
@@ -1231,6 +1242,7 @@ public class ImageInfo {
         }
     }
 
+    @SuppressWarnings("nls")
     public static int getImageDpi(File file) throws FileNotFoundException {
         ImageInfo ii = new ImageInfo();
         ii.setInput(new FileInputStream(file)); // in can be

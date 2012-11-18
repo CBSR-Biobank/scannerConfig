@@ -15,6 +15,7 @@ public final class Rectangle {
             new Point(boundingBox.points.get(1).x, boundingBox.points.get(0).y)));
     }
 
+    @SuppressWarnings("nls")
     Rectangle(List<Point> corners) {
         if (corners.size() > 4) {
             throw new IllegalArgumentException("number of corner id is invalid: " + corners.size());
@@ -22,6 +23,7 @@ public final class Rectangle {
         this.points.addAll(corners);
     }
 
+    @SuppressWarnings("nls")
     Point getPoint(int cornerId) {
         if ((cornerId < 0) || (cornerId >= points.size())) {
             throw new IllegalArgumentException("corner id is invalid: " + cornerId);
@@ -29,6 +31,7 @@ public final class Rectangle {
         return points.get(cornerId);
     }
 
+    @SuppressWarnings("nls")
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();

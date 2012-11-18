@@ -12,6 +12,7 @@ public final class BoundingBox {
         checkValid();
     }
 
+    @SuppressWarnings("nls")
     public BoundingBox(List<Point> corners) {
         if (corners.size() > 2) {
             throw new IllegalArgumentException(
@@ -40,6 +41,7 @@ public final class BoundingBox {
         checkValid();
     }
 
+    @SuppressWarnings("nls")
     private boolean checkValid() {
         boolean valid = (points.get(0).getX() < points.get(1).getX())
             && (points.get(0).getY() < points.get(1).getY());
@@ -55,6 +57,7 @@ public final class BoundingBox {
         return getCorner(1).translate(getCorner(0).scale(-1)); 
     }
 
+    @SuppressWarnings("nls")
     public Point getCorner(int cornerId) {
         if ((cornerId < 0) || (cornerId >= points.size())) {
             throw new IllegalArgumentException("corner id is invalid: "

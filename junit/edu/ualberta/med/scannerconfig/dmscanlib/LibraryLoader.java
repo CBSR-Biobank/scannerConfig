@@ -1,5 +1,6 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
+@SuppressWarnings("nls")
 public class LibraryLoader {
 
     private static LibraryLoader instance = null;

@@ -39,6 +39,7 @@ public final class WellRectangle {
         return rectangle.getPoint(cornerId).getY();
     }
 
+    @SuppressWarnings("nls")
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
