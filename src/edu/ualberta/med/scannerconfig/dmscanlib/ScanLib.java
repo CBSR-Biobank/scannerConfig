@@ -20,9 +20,9 @@ public class ScanLib {
      * Unable to scan an image.
      */
     public static final int SC_FAIL = -1;
-    
+
     public static final int SC_TWAIN_UNAVAIL = -2;
-    
+
     public static final int SC_INVALID_DPI = -3;
 
     /**
@@ -33,7 +33,7 @@ public class ScanLib {
     public static final int SC_INVALID_IMAGE = -5;
 
     public static final int SC_INVALID_NOTHING_TO_DECODE = -6;
-    
+
     public static final int SC_INCORRECT_DPI_SCANNED = -7;
 
     public static final int CAP_IS_WIA = 0x01;
@@ -58,8 +58,7 @@ public class ScanLib {
         instance = new ScanLib();
 
         if (instance == null) {
-            throw new NullPointerException(
-                "scanlib not supported on your operating system"); //$NON-NLS-1$
+            throw new NullPointerException("scanlib not supported on your operating system"); //$NON-NLS-1$
         }
         return instance;
     }
@@ -98,8 +97,10 @@ public class ScanLib {
      *            appended to file scanlib.log.
      * @param dpi The dots per inch for the image. Function
      *            slGetScannerCapability() returns the valid values.
-     * @param brightness a value between -1000 and 1000.
-     * @param contrast a value between -1000 and 1000.
+     * @param brightness a value between -1000 and 1000. Only used when using
+     *            the TWAIN driver.
+     * @param contrast a value between -1000 and 1000. Only used when using the
+     *            TWAIN driver.
      * @param left The left margin in inches.
      * @param top The top margin in inches.
      * @param right The width in inches.
@@ -119,8 +120,10 @@ public class ScanLib {
      *            appended to file dmscanlib.log.
      * @param dpi The dots per inch for the image. Function
      *            slGetScannerCapability() returns the valid values.
-     * @param brightness a value between -1000 and 1000.
-     * @param contrast a value between -1000 and 1000.
+     * @param brightness a value between -1000 and 1000. Only used when using
+     *            the TWAIN driver.
+     * @param contrast a value between -1000 and 1000. Only used when using the
+     *            TWAIN driver.
      * @param filename The file name to save the bitmap to.
      * 
      * @return SC_SUCCESS if valid. SC_FAIL unable to scan an image.
@@ -129,13 +132,37 @@ public class ScanLib {
         int brightness, int contrast, String filename);
 
     /**
+     * Used to scan a region of the flatbed containing an 2d barcodes and decode
+     * individual rectangles within the image.
      * 
+     * @param verbose set this to non-zero to see debugging output.
+     * @param dpi the dots per inch setting to scan the image. Valid values are
+     *            300, 400, 600.
+     * @param brightness a value between -1000 and 1000. Only used when using
+     *            the TWAIN driver.
+     * @param contrast a value between -1000 and 1000. Only used when using the
+     *            TWAIN driver.
+     * @param region the bounding box for the region to be scanned. The top-left
+     *            and bottom-right points in units of inches.
+     * @param decodeOptions See the constructor for {@link DecodeOptions} for a
+     *            description of these settings.
+     * @param wells An array of {@link WellRectangle} objects defining the well
+     *            regions containing 2D barcode tubes.
      */
     public native DecodeResult scanAndDecode(long verbose, long dpi,
         int brightness, int contrast, BoundingBox region,
         DecodeOptions decodeOptions, WellRectangle[] wells);
 
     /**
+     * Used to decode individual rectangles within the image containing 2D
+     * barcodes.
+     * 
+     * @param verbose set this to non-zero to see debugging output.
+     * @param filename the filename containing an image with 2D barcodes.
+     * @param decodeOptions See the constructor for {@link DecodeOptions} for a
+     *            description of these settings.
+     * @param wells An array of {@link WellRectangle} objects defining the well
+     *            regions containing 2D barcode tubes.
      * 
      */
     public native DecodeResult decodeImage(long verbose, String filename,
