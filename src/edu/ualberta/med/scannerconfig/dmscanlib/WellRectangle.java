@@ -8,7 +8,7 @@ import edu.ualberta.med.biobank.util.SbsLabeling;
 
 /**
  * Defines rectangular coordinates, in inches, for a region of image that contains a single
- * 2D barcode. The region also contains a label that is used to refer to it. This region of the
+ * 2D barcode. The region also contains a label used to refer to it. This region of the
  * image will then be examined and if it contains a valid 2D barcode it will be decoded.
  * 
  * @author Nelson Loyola
