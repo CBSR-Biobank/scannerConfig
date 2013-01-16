@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.ualberta.med.biobank.util.SbsLabeling;
+import edu.ualberta.med.biobank.util.labeling.LabelingScheme;
 
 /**
  * Defines rectangular coordinates, in inches, for a region of image that contains a single
@@ -56,7 +56,7 @@ public final class WellRectangle {
     }
 
     public static Set<WellRectangle> getWellRectanglesForBoundingBox(
-        final BoundingBox bbox,
+        final BoundingBox bbox, final LabelingScheme labelingScheme,
         final int rows, final int cols, final int dpi) {
 
         // need to make this box slightly smaller so the image dimensions are
@@ -81,16 +81,14 @@ public final class WellRectangle {
         }
 
         for (int row = 0; row < rows; ++row) {
-
-            BoundingBox wellBbox =
-                startBbox.translate(verTranslation.scale(row));
+            BoundingBox wellBbox = startBbox.translate(verTranslation.scale(row));
 
             for (int col = 0; col < cols; ++col) {
                 String label;
                 if (orientation == 0) {
-                    label = SbsLabeling.fromRowCol(row, 11 - col);
+                    label = labelingScheme.fromRowCol(row, 11 - col);
                 } else {
-                    label = SbsLabeling.fromRowCol(col, row);
+                    label = labelingScheme.fromRowCol(col, row);
                 }
                 WellRectangle well = new WellRectangle(label, wellBbox);
                 wells.add(well);
