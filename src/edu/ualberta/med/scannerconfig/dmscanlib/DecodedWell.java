@@ -1,5 +1,7 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
+import edu.ualberta.med.biobank.util.SbsLabeling;
+
 
 /**
  * The label matches the {@link WellRectangle} that was successfully decoded. Use
@@ -15,6 +17,11 @@ public final class DecodedWell implements Comparable<DecodedWell> {
 
     public DecodedWell(String label, String message) {
         this.label = label;
+        this.message = message;
+    }
+
+    public DecodedWell(int row, int col, String message) {
+        this.label = SbsLabeling.fromRowCol(row, col);
         this.message = message;
     }
 
