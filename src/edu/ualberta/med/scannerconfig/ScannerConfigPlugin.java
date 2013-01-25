@@ -253,17 +253,14 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         final BoundingBox scanBbox = regionModifyIfScannerWia(scanRegion);
         final BoundingBox wellsBbox = getWellsBoundingBox(scanRegion);
 
-        int rows = 8;
-        int cols = 12;
-
-        if (prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1])
-            .equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT)) {
-            rows = 12;
-            cols = 8;
-        }
+        int rows = PreferenceConstants.gridRows(prefs.getString(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateNumber - 1]),
+            prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1]));
+        int cols = PreferenceConstants.gridCols(prefs.getString(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateNumber - 1]),
+            prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1]));
 
         Set<WellRectangle> wells =
-            WellRectangle.getWellRectanglesForBoundingBox(wellsBbox, rows, cols, dpi);
+            WellRectangle.getWellRectanglesForBoundingBox(wellsBbox, rows, cols,
+                prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1]).equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE), dpi);
 
         DecodeResult res =
             ScanLib.getInstance().scanAndDecode(debugLevel, dpi, brightness, contrast, scanBbox,
@@ -277,7 +274,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public static Set<DecodedWell> decodeImage(String filename) throws Exception {
+    public static Set<DecodedWell> decodeImage(String filename, int rows, int cols) throws Exception {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
@@ -295,7 +292,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                 new Point(image.getWidth(), image.getHeight()).scale(dotWidth));
 
         Set<WellRectangle> wells =
-            WellRectangle.getWellRectanglesForBoundingBox(imageBbox, 8, 12, dpi);
+            WellRectangle.getWellRectanglesForBoundingBox(imageBbox, rows, cols, true, dpi);
 
         DecodeResult res =
             ScanLib.getInstance().decodeImage(debugLevel, filename,
@@ -408,5 +405,23 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             if (!realscan || ScannerConfigPlugin.getDefault().getPlateEnabled(i + 1)) count++;
         }
         return count;
+    }
+
+    @SuppressWarnings("nls")
+    public String getPlateOrientation(int plateId) {
+        Assert.isTrue((plateId > 0)
+            && (plateId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
+            i18n.tr("plate id is invalid: ") + plateId);
+        return getPreferenceStore().getString(
+            PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1]);
+    }
+
+    @SuppressWarnings("nls")
+    public String getPlateGridDimensions(int plateId) {
+        Assert.isTrue((plateId > 0)
+            && (plateId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
+            i18n.tr("plate id is invalid: ") + plateId);
+        return getPreferenceStore().getString(
+            PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateId - 1]);
     }
 }

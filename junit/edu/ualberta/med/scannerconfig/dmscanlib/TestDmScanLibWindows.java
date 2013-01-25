@@ -127,7 +127,7 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
 
         Set<WellRectangle> wells =
             WellRectangle.getWellRectanglesForBoundingBox(
-                wellsBbox, 8, 12, dpi);
+                wellsBbox, 8, 12, true, dpi);
 
         DecodeResult dr = scanLib.scanAndDecode(3, dpi, 0, 0, scanBbox,
             DecodeOptions.getDefaultDecodeOptions(),
