@@ -39,7 +39,7 @@ public class TestDmScanLibCommon extends RequiresJniLibraryTest {
 
         Set<WellRectangle> wells =
             WellRectangle.getWellRectanglesForBoundingBox(
-                imageBbox, 8, 12, dpi);
+                imageBbox, 8, 12, true, dpi);
 
         DecodeResult r = scanLib.decodeImage(3, fname,
             DecodeOptions.getDefaultDecodeOptions(),

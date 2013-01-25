@@ -1,5 +1,7 @@
 package edu.ualberta.med.scannerconfig.preferences.scanner.plateposition;
 
+import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
+
 /**
  * Tracks the grid's attributes in number of pixels for the currently scanned
  * plate image.
@@ -11,9 +13,10 @@ public class PlateGrid<T extends Number> {
         PORTRAIT
     };
 
-    public static final int MAX_ROWS = 8;
-
-    public static final int MAX_COLS = 12;
+    public enum GridDimensions {
+        ROWS8COLS12,
+        ROWS10COLS10
+    };
 
     protected String name;
 
@@ -27,14 +30,17 @@ public class PlateGrid<T extends Number> {
 
     protected Orientation orientation;
 
+    protected GridDimensions gridDimensions;
+
     public PlateGrid() {
         left = top = width = height = null;
         orientation = Orientation.LANDSCAPE;
+        gridDimensions = GridDimensions.ROWS8COLS12;
     }
 
     public PlateGrid(String name, T left, T top, T right, T bottom,
-        Orientation orientation) {
-        set(name, left, top, right, bottom, orientation);
+        Orientation orientation, GridDimensions gridDimensions) {
+        set(name, left, top, right, bottom, orientation, gridDimensions);
     }
 
     public PlateGrid(PlateGrid<T> region) {
@@ -42,18 +48,19 @@ public class PlateGrid<T extends Number> {
     }
 
     public void set(String name, T left, T top, T right, T bottom,
-        Orientation orientation) {
+        Orientation orientation, GridDimensions gridDimensions) {
         this.name = name;
         this.left = left;
         this.top = top;
         this.width = right;
         this.height = bottom;
         this.orientation = orientation;
+        this.gridDimensions = gridDimensions;
     }
 
     public void set(PlateGrid<T> region) {
         set(region.name, region.left, region.top, region.width, region.height,
-            region.orientation);
+            region.orientation, region.gridDimensions);
     }
 
     public T getLeft() {
@@ -96,6 +103,14 @@ public class PlateGrid<T extends Number> {
         this.orientation = orientation;
     }
 
+    public GridDimensions getGridDimensions() {
+        return gridDimensions;
+    }
+
+    public void setGridDimensions(GridDimensions gridDimensions) {
+        this.gridDimensions = gridDimensions;
+    }
+
     @SuppressWarnings("nls")
     @Override
     public String toString() {
@@ -103,18 +118,49 @@ public class PlateGrid<T extends Number> {
             + height;
     }
 
-    public int getMaxRows() {
-        if (orientation == Orientation.LANDSCAPE) {
-            return PlateGrid.MAX_ROWS;
+    public static String orientationToString(Orientation orientation) {
+        switch (orientation) {
+        case LANDSCAPE:
+            return PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE;
+        case PORTRAIT:
+            return PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT;
+        default:
+            return null;
         }
-        return PlateGrid.MAX_COLS;
+    }
+
+    public static String gridDimensionsToString(GridDimensions gridDimensions) {
+        switch (gridDimensions) {
+        case ROWS8COLS12:
+            return PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12;
+        case ROWS10COLS10:
+            return PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10;
+        default:
+            return null;
+        }
+    }
+
+    public static Orientation orientationFromString(String orientation) {
+        if (orientation.equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE))
+            return Orientation.LANDSCAPE;
+        else if (orientation.equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT))
+            return Orientation.PORTRAIT;
+        else return Orientation.LANDSCAPE;
+    }
+
+    public static GridDimensions gridDimensionsFromString(String gridDimensions) {
+        if (gridDimensions.equals(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12))
+            return GridDimensions.ROWS8COLS12;
+        else if (gridDimensions.equals(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10))
+            return GridDimensions.ROWS10COLS10;
+        else return GridDimensions.ROWS8COLS12;
+    }
+
+    public int getMaxRows() {
+        return PreferenceConstants.gridRows(gridDimensionsToString(gridDimensions), orientationToString(orientation));
     }
 
     public int getMaxCols() {
-        if (orientation == Orientation.LANDSCAPE) {
-            return PlateGrid.MAX_COLS;
-        }
-        return PlateGrid.MAX_ROWS;
-
+        return PreferenceConstants.gridCols(gridDimensionsToString(gridDimensions), orientationToString(orientation));
     }
 }

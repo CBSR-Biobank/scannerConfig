@@ -35,6 +35,8 @@ import org.xnap.commons.i18n.I18nFactory;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
+import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid;
+import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid.GridDimensions;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid.Orientation;
 import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
 import edu.ualberta.med.scannerconfig.widgets.IPlateGridWidgetListener;
@@ -100,6 +102,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     private BooleanFieldEditor enabledFieldEditor;
     private AdvancedRadioGroupFieldEditor orientationFieldEditor;
+    private AdvancedRadioGroupFieldEditor gridDimensionsFieldEditor;
     private Button scanBtn;
     private Button refreshBtn;
 
@@ -247,6 +250,20 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 parent, true);
         addField(orientationFieldEditor);
 
+        gridDimensionsFieldEditor =
+            new AdvancedRadioGroupFieldEditor(
+                PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateId - 1],
+                i18n.tr("Grid dimensions"),
+                2,
+                new String[][] {
+                    {
+                        PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12,
+                        PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12 },
+                    { PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10,
+                        PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10 } },
+                parent, true);
+        addField(gridDimensionsFieldEditor);
+
         int count = 0;
         for (Settings setting : Settings.values()) {
             if (setting.equals(Settings.BARCODE)) {
@@ -285,7 +302,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             boolean enabled = enabledFieldEditor.getBooleanValue();
             if (enabled) {
                 // set default size
-                internalUpdate(0, 0, 4, 3, Orientation.LANDSCAPE);
+                internalUpdate(0, 0, 4, 3, Orientation.LANDSCAPE, GridDimensions.ROWS8COLS12);
             }
             setEnabled(enabled);
         } else if (source == orientationFieldEditor) {
@@ -294,6 +311,17 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 event.getNewValue().equals(
                     PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE) ? 0
                     : 1);
+        } else if (source == gridDimensionsFieldEditor) {
+            int gd;
+            if (event.getNewValue().equals(
+                PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12))
+                gd = 0;
+            else if (event.getNewValue().equals(
+                PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10))
+                gd = 1;
+            else gd = 0;
+            notifyChangeListener(
+                IPlateSettingsListener.GRID_DIMENSIONS, gd);
         }
     }
 
@@ -311,7 +339,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     }
 
     private void internalUpdate(double left, double top, double right,
-        double bottom, Orientation o) {
+        double bottom, Orientation o, GridDimensions gd) {
         internalUpdate = true;
 
         plateTextControls.get(Settings.LEFT).setText(String.valueOf(left));
@@ -326,7 +354,11 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         boolean[] orientationSettings = new boolean[] {
             o == Orientation.LANDSCAPE, o == Orientation.PORTRAIT };
 
+        boolean[] gridDimensionsSettings = new boolean[] {
+            gd == GridDimensions.ROWS8COLS12, gd == GridDimensions.ROWS10COLS10 };
+
         orientationFieldEditor.setSelectionArray(orientationSettings);
+        gridDimensionsFieldEditor.setSelectionArray(gridDimensionsSettings);
         internalUpdate = false;
     }
 
@@ -370,6 +402,14 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             : Orientation.PORTRAIT;
     }
 
+    public GridDimensions getGridDimensions() {
+        IPreferenceStore prefs = ScannerConfigPlugin.getDefault()
+            .getPreferenceStore();
+
+        return PlateGrid.gridDimensionsFromString(prefs.getString(
+            PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateId - 1]));
+    }
+
     public boolean isEnabled() {
         return isEnabled;
     }
@@ -396,6 +436,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         }
 
         orientationFieldEditor.setEnabled(isEnabled, getFieldEditorParent());
+        gridDimensionsFieldEditor.setEnabled(isEnabled, getFieldEditorParent());
         statusLabel.setText(isEnabled ? SCAN_REQ_STATUS_MSG
             : NOT_ENABLED_STATUS_MSG);
         notifyChangeListener(IPlateSettingsListener.ENABLED, enabled ? 1 : 0);
@@ -479,7 +520,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         double height = r.getHeight();
 
         internalUpdate(left, top, left + width, top + height,
-            r.getOrientation());
+            r.getOrientation(), r.getGridDimensions());
     }
 
     @Override

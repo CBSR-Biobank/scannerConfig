@@ -27,6 +27,7 @@ import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.IPlateIm
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.IPlateSettingsListener;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid.Orientation;
+import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid.GridDimensions;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateImageMgr;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateSettings;
 
@@ -103,6 +104,7 @@ public class PlateGridWidget implements IPlateImageListener,
         if (plateGrid == null) {
             plateGrid = new PlateGrid<Integer>();
             plateGrid.setOrientation(plateSettings.getOrientation());
+            plateGrid.setGridDimensions(plateSettings.getGridDimensions());
             resizePlateGrid();
         }
         canvas.redraw();
@@ -120,6 +122,10 @@ public class PlateGridWidget implements IPlateImageListener,
         switch (e.type) {
         case IPlateSettingsListener.ORIENTATION:
             setPlateOrientation(e.detail);
+            break;
+
+        case IPlateSettingsListener.GRID_DIMENSIONS:
+            setPlateGridDimensions(e.detail);
             break;
 
         case IPlateSettingsListener.TEXT_CHANGE:
@@ -519,6 +525,7 @@ public class PlateGridWidget implements IPlateImageListener,
         result.setWidth(plateGrid.getWidth() * widthFactor);
         result.setHeight(plateGrid.getHeight() * heightFactor);
         result.setOrientation(plateGrid.getOrientation());
+        result.setGridDimensions(plateGrid.getGridDimensions());
         return result;
     }
 
@@ -536,6 +543,21 @@ public class PlateGridWidget implements IPlateImageListener,
 
         plateGrid.setOrientation(orientation == 1 ? Orientation.PORTRAIT
             : Orientation.LANDSCAPE);
+        canvas.redraw();
+    }
+
+    private void setPlateGridDimensions(int gridDimensions) {
+        if (!haveImage)
+            return;
+
+        switch (gridDimensions) {
+        case 0:
+            plateGrid.setGridDimensions(GridDimensions.ROWS8COLS12);
+            break;
+        case 1:
+            plateGrid.setGridDimensions(GridDimensions.ROWS10COLS10);
+            break;
+        }
         canvas.redraw();
     }
 

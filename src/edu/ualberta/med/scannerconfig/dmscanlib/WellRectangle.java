@@ -56,7 +56,8 @@ public final class WellRectangle {
     }
 
     public static Set<WellRectangle> getWellRectanglesForBoundingBox(
-        final BoundingBox bbox, final int rows, final int cols, final int dpi) {
+        final BoundingBox bbox,
+        final int rows, final int cols, final boolean orientationLandscape, final int dpi) {
 
         // need to make this box slightly smaller so the image dimensions are
         // not exceeded
@@ -74,18 +75,15 @@ public final class WellRectangle {
 
         Set<WellRectangle> wells = new HashSet<WellRectangle>();
 
-        int orientation = 0;
-        if ((rows == 12) && (cols == 8)) {
-            orientation = 1;
-        }
-
         for (int row = 0; row < rows; ++row) {
-            BoundingBox wellBbox = startBbox.translate(verTranslation.scale(row));
+
+            BoundingBox wellBbox =
+                startBbox.translate(verTranslation.scale(row));
 
             for (int col = 0; col < cols; ++col) {
                 String label;
-                if (orientation == 0) {
-                    label = SbsLabeling.fromRowCol(row, 11 - col);
+                if (orientationLandscape) {
+                    label = SbsLabeling.fromRowCol(row, cols - 1 - col);
                 } else {
                     label = SbsLabeling.fromRowCol(col, row);
                 }
