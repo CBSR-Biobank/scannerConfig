@@ -43,12 +43,6 @@
         name="Decoding Parameters"
             class="edu.ualberta.med.scannerconfig.preferences.scanner.Decoding">
     </page> 
-    <page 
-       category="Scanner"
-       id="Profiles"
-        name="Decoding Profiles"
-            class="edu.ualberta.med.scannerconfig.preferences.scanner.profiles.ProfilePreferences">
-    </page>
     <page
           category="Scanner"
           class="edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.Plate1Settings"
