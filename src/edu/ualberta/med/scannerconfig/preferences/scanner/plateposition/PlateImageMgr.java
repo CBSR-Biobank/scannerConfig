@@ -27,7 +27,7 @@ public class PlateImageMgr {
     private static final I18n i18n = I18nFactory.getI18n(PlateImageMgr.class);
     private Image scannedImage;
 
-    private boolean debug = false;
+    private final boolean debug = false;
 
     protected PlateImageMgr() {
         if (debug) {
@@ -72,9 +72,9 @@ public class PlateImageMgr {
             .getString(PreferenceConstants.SCANNER_DRV_TYPE)
             .equals(PreferenceConstants.SCANNER_DRV_TYPE_NONE)) {
             ScannerConfigPlugin
-                .openAsyncError(
-                    i18n.tr("Scanner Driver Not Selected"),
-                    i18n.tr("Please select and configure the scanner in preferences"));
+            .openAsyncError(
+                i18n.tr("Scanner Driver Not Selected"),
+                i18n.tr("Please select and configure the scanner in preferences"));
             return;
         }
 

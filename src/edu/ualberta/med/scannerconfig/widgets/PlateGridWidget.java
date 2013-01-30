@@ -27,13 +27,12 @@ import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.IPlateIm
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.IPlateSettingsListener;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid.Orientation;
-import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid.GridDimensions;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateImageMgr;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateSettings;
 
 public class PlateGridWidget implements IPlateImageListener,
-    IPlateSettingsListener, MouseMoveListener, Listener, ControlListener,
-    MouseListener, KeyListener, PaintListener {
+IPlateSettingsListener, MouseMoveListener, Listener, ControlListener,
+MouseListener, KeyListener, PaintListener {
 
     private enum DragMode {
         NONE,
@@ -46,9 +45,9 @@ public class PlateGridWidget implements IPlateImageListener,
         RESIZE_TOP_LEFT
     };
 
-    private PlateSettings plateSettings;
+    private final PlateSettings plateSettings;
 
-    private Canvas canvas;
+    private final Canvas canvas;
 
     protected ListenerList changeListeners = new ListenerList();
 
@@ -58,17 +57,18 @@ public class PlateGridWidget implements IPlateImageListener,
 
     private boolean drag = false;
 
-    private Point startDragMousePt = new Point(0, 0);
+    private final Point startDragMousePt = new Point(0, 0);
 
     private Rectangle startGridRect = new Rectangle(0, 0, 0, 0);
 
     private DragMode dragMode = DragMode.NONE;
 
-    private boolean haveImage;
+    // set to true for debug
+    private boolean haveImage = false;
 
     private PlateGrid<Integer> plateGrid = null;
 
-    private PlateImageMgr plateImageMgr;
+    private final PlateImageMgr plateImageMgr;
 
     public PlateGridWidget(PlateSettings plateSettings, Canvas c) {
         Assert.isNotNull(plateSettings);
@@ -87,7 +87,6 @@ public class PlateGridWidget implements IPlateImageListener,
         canvas.addKeyListener(this);
         canvas.addPaintListener(this);
         setEnabled();
-        haveImage = false;
 
         plateSettings.addPlateBaseChangeListener(this);
         plateImageMgr = PlateImageMgr.instance();
@@ -101,12 +100,10 @@ public class PlateGridWidget implements IPlateImageListener,
     @Override
     public void plateImageNew() {
         haveImage = true;
-        if (plateGrid == null) {
-            plateGrid = new PlateGrid<Integer>();
-            plateGrid.setOrientation(plateSettings.getOrientation());
-            plateGrid.setGridDimensions(plateSettings.getGridDimensions());
-            resizePlateGrid();
-        }
+        plateGrid = new PlateGrid<Integer>();
+        plateGrid.setOrientation(plateSettings.getOrientation());
+        plateGrid.setGridDimensions(plateSettings.getRows(), plateSettings.getColumns());
+        resizePlateGrid();
         canvas.redraw();
         setEnabled();
     }
@@ -121,11 +118,11 @@ public class PlateGridWidget implements IPlateImageListener,
     public void plateGridChange(Event e) {
         switch (e.type) {
         case IPlateSettingsListener.ORIENTATION:
-            setPlateOrientation(e.detail);
+            setPlateOrientation((String) e.data);
             break;
 
         case IPlateSettingsListener.GRID_DIMENSIONS:
-            setPlateGridDimensions(e.detail);
+            setPlateGridDimensions((String) e.data);
             break;
 
         case IPlateSettingsListener.TEXT_CHANGE:
@@ -197,7 +194,7 @@ public class PlateGridWidget implements IPlateImageListener,
             case RESIZE_VERTICAL_TOP:
                 if (e.y <= startGridRect.y + startGridRect.height) {
                     plateGrid
-                        .setTop(e.y - startDragMousePt.y + startGridRect.y);
+                    .setTop(e.y - startDragMousePt.y + startGridRect.y);
                     plateGrid.setHeight((startDragMousePt.y - e.y)
                         + startGridRect.height);
                 }
@@ -259,7 +256,7 @@ public class PlateGridWidget implements IPlateImageListener,
                 SWT.CURSOR_SIZENWSE));
             dragMode = DragMode.RESIZE_BOTTOM_RIGHT;
         } else if (new Rectangle(plateRect.x - 10, plateRect.y - 10, 15, 15)
-            .contains(e.x, e.y)) {
+        .contains(e.x, e.y)) {
             canvas.setCursor(new Cursor(canvas.getDisplay(),
                 SWT.CURSOR_SIZENWSE));
             dragMode = DragMode.RESIZE_TOP_LEFT;
@@ -434,8 +431,8 @@ public class PlateGridWidget implements IPlateImageListener,
         Rectangle gridRect = new Rectangle(plateGrid.getLeft(),
             plateGrid.getTop(), plateGrid.getWidth(), plateGrid.getHeight());
 
-        int rows = plateGrid.getMaxRows();
-        int cols = plateGrid.getMaxCols();
+        int rows = plateGrid.getRows();
+        int cols = plateGrid.getColumns();
         Orientation orientation = plateGrid.getOrientation();
         double cellWidth = gridRect.width / (double) cols;
         double cellHeight = gridRect.height / (double) rows;
@@ -525,7 +522,8 @@ public class PlateGridWidget implements IPlateImageListener,
         result.setWidth(plateGrid.getWidth() * widthFactor);
         result.setHeight(plateGrid.getHeight() * heightFactor);
         result.setOrientation(plateGrid.getOrientation());
-        result.setGridDimensions(plateGrid.getGridDimensions());
+        result.setRows(plateGrid.getRows());
+        result.setColumns(plateGrid.getColumns());
         return result;
     }
 
@@ -537,27 +535,19 @@ public class PlateGridWidget implements IPlateImageListener,
         canvas.update();
     }
 
-    private void setPlateOrientation(int orientation) {
+    private void setPlateOrientation(String orientation) {
         if (!haveImage)
             return;
 
-        plateGrid.setOrientation(orientation == 1 ? Orientation.PORTRAIT
-            : Orientation.LANDSCAPE);
+        plateGrid.setOrientation(orientation);
         canvas.redraw();
     }
 
-    private void setPlateGridDimensions(int gridDimensions) {
+    private void setPlateGridDimensions(String gridDimensions) {
         if (!haveImage)
             return;
 
-        switch (gridDimensions) {
-        case 0:
-            plateGrid.setGridDimensions(GridDimensions.ROWS8COLS12);
-            break;
-        case 1:
-            plateGrid.setGridDimensions(GridDimensions.ROWS10COLS10);
-            break;
-        }
+        plateGrid.setGridDimensions(gridDimensions);
         canvas.redraw();
     }
 
