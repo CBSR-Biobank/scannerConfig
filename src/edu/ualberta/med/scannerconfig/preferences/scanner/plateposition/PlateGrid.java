@@ -105,8 +105,14 @@ public class PlateGrid<T extends Number> {
     public void setOrientation(String orientationStr) {
         if (orientationStr.equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE)) {
             this.orientation = Orientation.LANDSCAPE;
+            if ((rows == 12) && (columns == 8)) {
+                rows = 8; columns = 12;
+            }
         } else if (orientationStr.equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT)) {
             this.orientation = Orientation.PORTRAIT;
+            if ((rows == 8) && (columns == 12)) {
+                rows = 12; columns = 8;
+            }
         } else {
             throw new RuntimeException("orientation string invalid: " + orientationStr);
         }
@@ -162,8 +168,13 @@ public class PlateGrid<T extends Number> {
     @SuppressWarnings("nls")
     public void setGridDimensions(String dimensionsStr) {
         if (dimensionsStr.equals(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12)) {
-            this.rows = 8;
-            this.columns = 12;
+            if (orientation == Orientation.LANDSCAPE) {
+                this.rows = 8;
+                this.columns = 12;
+            } else {
+                this.rows = 12;
+                this.columns = 8;
+            }
         } else if (dimensionsStr.equals(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10)) {
             this.rows = 10;
             this.columns = 10;
