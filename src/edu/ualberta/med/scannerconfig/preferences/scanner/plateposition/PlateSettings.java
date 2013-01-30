@@ -35,7 +35,6 @@ import org.xnap.commons.i18n.I18nFactory;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
-import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid.GridDimensions;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid.Orientation;
 import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
@@ -43,7 +42,7 @@ import edu.ualberta.med.scannerconfig.widgets.IPlateGridWidgetListener;
 import edu.ualberta.med.scannerconfig.widgets.PlateGridWidget;
 
 public class PlateSettings extends FieldEditorPreferencePage implements
-    IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
+IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
 
     private static final I18n i18n = I18nFactory.getI18n(PlateSettings.class);
 
@@ -81,14 +80,14 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         }
     };
 
-    private static final String NOT_ENABLED_STATUS_MSG = i18n
-        .tr("Plate is not enabled"); //$NON-NLS-1$
+    @SuppressWarnings("nls")
+    private static final String NOT_ENABLED_STATUS_MSG = i18n.tr("Plate is not enabled");
 
-    private static final String ALIGN_STATUS_MSG = i18n
-        .tr("Align grid with barcodes"); //$NON-NLS-1$
+    @SuppressWarnings("nls")
+    private static final String ALIGN_STATUS_MSG = i18n.tr("Align grid with barcodes");
 
-    private static final String SCAN_REQ_STATUS_MSG = i18n
-        .tr("A scan is required"); //$NON-NLS-1$
+    @SuppressWarnings("nls")
+    private static final String SCAN_REQ_STATUS_MSG = i18n.tr("A scan is required");
 
     protected ListenerList changeListeners = new ListenerList();
 
@@ -110,15 +109,14 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     private boolean internalUpdate;
 
-    private PlateImageMgr plateImageMgr;
+    private final PlateImageMgr plateImageMgr;
 
     public PlateSettings(int plateId) {
         super(GRID);
         this.plateId = plateId;
         internalUpdate = false;
 
-        setPreferenceStore(ScannerConfigPlugin.getDefault()
-            .getPreferenceStore());
+        setPreferenceStore(ScannerConfigPlugin.getDefault().getPreferenceStore());
 
         plateImageMgr = PlateImageMgr.instance();
         plateImageMgr.addScannedImageChangeListener(this);
@@ -174,7 +172,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
         statusLabel = new Label(right, SWT.BORDER);
         statusLabel
-            .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+        .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
         Composite buttonComposite = new Composite(right, SWT.NONE);
         buttonComposite.setLayout(new GridLayout(2, false));
@@ -222,32 +220,28 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     protected void createFieldEditors() {
         StringFieldEditor fe;
 
-        enabledFieldEditor =
-            new BooleanFieldEditor(
-                PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1],
-                i18n.tr("Enable"),
-                getFieldEditorParent());
+        enabledFieldEditor = new BooleanFieldEditor(
+            PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1],
+            i18n.tr("Enable"),
+            getFieldEditorParent());
         addField(enabledFieldEditor);
 
-        String[] prefsArr =
-            PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
+        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateId - 1];
 
         plateFieldEditors = new HashMap<Settings, StringFieldEditor>();
         plateTextControls = new HashMap<Settings, Text>();
         Composite parent = getFieldEditorParent();
 
-        orientationFieldEditor =
-            new AdvancedRadioGroupFieldEditor(
-                PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1],
-                i18n.tr("Orientation"),
-                2,
-                new String[][] {
-                    {
-                        PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE,
-                        PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE },
+        orientationFieldEditor = new AdvancedRadioGroupFieldEditor(
+            PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1],
+            i18n.tr("Orientation"),
+            2,
+            new String[][] {
+                { PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE,
+                    PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE },
                     { PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT,
                         PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT } },
-                parent, true);
+                        parent, true);
         addField(orientationFieldEditor);
 
         gridDimensionsFieldEditor =
@@ -259,9 +253,9 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                     {
                         PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12,
                         PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12 },
-                    { PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10,
-                        PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10 } },
-                parent, true);
+                        { PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10,
+                            PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10 } },
+                            parent, true);
         addField(gridDimensionsFieldEditor);
 
         int count = 0;
@@ -310,7 +304,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 IPlateSettingsListener.ORIENTATION,
                 event.getNewValue().equals(
                     PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE) ? 0
-                    : 1);
+                        : 1);
         } else if (source == gridDimensionsFieldEditor) {
             int gd;
             if (event.getNewValue().equals(
@@ -319,7 +313,8 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             else if (event.getNewValue().equals(
                 PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10))
                 gd = 1;
-            else gd = 0;
+            else
+                gd = 0;
             notifyChangeListener(
                 IPlateSettingsListener.GRID_DIMENSIONS, gd);
         }
@@ -373,33 +368,28 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     }
 
     public double getLeft() {
-        return Double.parseDouble(formatInput(plateTextControls.get(
-            Settings.LEFT).getText()));
+        return Double.parseDouble(formatInput(plateTextControls.get(Settings.LEFT).getText()));
     }
 
     public double getTop() {
-        return Double.parseDouble(formatInput(plateTextControls.get(
-            Settings.TOP).getText()));
+        return Double.parseDouble(formatInput(plateTextControls.get(Settings.TOP).getText()));
     }
 
     public double getRight() {
-        return Double.parseDouble(formatInput(plateTextControls.get(
-            Settings.RIGHT).getText()));
+        return Double.parseDouble(formatInput(plateTextControls.get(Settings.RIGHT).getText()));
     }
 
     public double getBottom() {
-        return Double.parseDouble(formatInput(plateTextControls.get(
-            Settings.BOTTOM).getText()));
+        return Double.parseDouble(formatInput(plateTextControls.get(Settings.BOTTOM).getText()));
     }
 
     public Orientation getOrientation() {
-        IPreferenceStore prefs = ScannerConfigPlugin.getDefault()
-            .getPreferenceStore();
+        IPreferenceStore prefs = ScannerConfigPlugin.getDefault().getPreferenceStore();
 
         return prefs.getString(
-            PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1])
-            .equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE) ? Orientation.LANDSCAPE
-            : Orientation.PORTRAIT;
+            PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1]).equals(
+                PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE)
+                ? Orientation.LANDSCAPE : Orientation.PORTRAIT;
     }
 
     public GridDimensions getGridDimensions() {
@@ -415,15 +405,12 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     }
 
     public double getWidth() {
-        return Double.parseDouble(plateTextControls.get(Settings.RIGHT)
-            .getText())
-            - Double
-                .parseDouble(plateTextControls.get(Settings.LEFT).getText());
+        return Double.parseDouble(plateTextControls.get(Settings.RIGHT).getText())
+            - Double.parseDouble(plateTextControls.get(Settings.LEFT).getText());
     }
 
     public double getHeight() {
-        return Double.parseDouble(plateTextControls.get(Settings.BOTTOM)
-            .getText())
+        return Double.parseDouble(plateTextControls.get(Settings.BOTTOM).getText())
             - Double.parseDouble(plateTextControls.get(Settings.TOP).getText());
     }
 
@@ -500,13 +487,13 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             / (double) PlateImageMgr.PLATE_IMAGE_DPI;
 
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.LEFT))
-            .setValidRange(0, widthInches);
+        .setValidRange(0, widthInches);
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.TOP))
-            .setValidRange(0, heightInches);
+        .setValidRange(0, heightInches);
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.RIGHT))
-            .setValidRange(0, widthInches);
+        .setValidRange(0, widthInches);
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.BOTTOM))
-            .setValidRange(0, heightInches);
+        .setValidRange(0, heightInches);
     }
 
     @Override
