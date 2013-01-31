@@ -41,7 +41,7 @@ import edu.ualberta.med.scannerconfig.widgets.IPlateGridWidgetListener;
 import edu.ualberta.med.scannerconfig.widgets.PlateGridWidget;
 
 public class PlateSettings extends FieldEditorPreferencePage implements
-IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
+    IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
 
     private static final I18n i18n = I18nFactory.getI18n(PlateSettings.class);
 
@@ -115,7 +115,23 @@ IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
         this.plateId = plateId;
         internalUpdate = false;
 
-        setPreferenceStore(ScannerConfigPlugin.getDefault().getPreferenceStore());
+        IPreferenceStore prefs = ScannerConfigPlugin.getDefault().getPreferenceStore();
+        setPreferenceStore(prefs);
+
+        // initialize these settings if never assigned
+        String orientation = prefs.getString(
+            PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1]);
+        if ((orientation == null) || orientation.isEmpty()) {
+            prefs.setDefault(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1],
+                PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE);
+        }
+
+        String gridDimensions = prefs.getString(
+            PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateId - 1]);
+        if ((gridDimensions == null) || gridDimensions.isEmpty()) {
+            prefs.setDefault(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateId - 1],
+                PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12);
+        }
 
         plateImageMgr = PlateImageMgr.instance();
         plateImageMgr.addScannedImageChangeListener(this);
@@ -141,8 +157,7 @@ IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
 
     @Override
     public void init(IWorkbench workbench) {
-        setPreferenceStore(ScannerConfigPlugin.getDefault()
-            .getPreferenceStore());
+        setPreferenceStore(ScannerConfigPlugin.getDefault().getPreferenceStore());
     }
 
     @SuppressWarnings("nls")
@@ -171,7 +186,7 @@ IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
 
         statusLabel = new Label(right, SWT.BORDER);
         statusLabel
-        .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+            .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
         Composite buttonComposite = new Composite(right, SWT.NONE);
         buttonComposite.setLayout(new GridLayout(2, false));
@@ -187,6 +202,7 @@ IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 PlateImageMgr.instance().scanPlateImage();
+                updateGridSettings();
             }
         });
         refreshBtn = new Button(buttonComposite, SWT.NONE);
@@ -238,9 +254,9 @@ IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
             new String[][] {
                 { PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE,
                     PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE },
-                    { PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT,
-                        PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT } },
-                        parent, true);
+                { PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT,
+                    PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT } },
+            parent, true);
         addField(orientationFieldEditor);
 
         gridDimensionsFieldEditor =
@@ -252,9 +268,9 @@ IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
                     {
                         PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12,
                         PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12 },
-                        { PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10,
-                            PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10 } },
-                            parent, true);
+                    { PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10,
+                        PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10 } },
+                parent, true);
         addField(gridDimensionsFieldEditor);
 
         int count = 0;
@@ -293,7 +309,8 @@ IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
             boolean enabled = enabledFieldEditor.getBooleanValue();
             if (enabled) {
                 // set default size
-                internalUpdate(0, 0, 4, 3, PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE,
+                internalUpdate(0, 0, 4, 3,
+                    PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE,
                     PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12);
                 updatePlateGridWidget(PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE,
                     PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12);
@@ -316,6 +333,7 @@ IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
         if (plateGridWidget == null) {
             plateGridWidget = new PlateGridWidget(this, canvas);
             plateGridWidget.addPlateWidgetChangeListener(this);
+            updateGridSettingsPerPreferences();
         }
     }
 
@@ -339,10 +357,13 @@ IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
         }
 
         if (gridDimensions != null) {
-            boolean[] gridDimensionsSettings = new boolean[] {
-                gridDimensions.equals(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12),
-                gridDimensions.equals(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10)
-            };
+            boolean[] gridDimensionsSettings =
+                new boolean[] {
+                    gridDimensions
+                        .equals(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12),
+                    gridDimensions
+                        .equals(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10)
+                };
 
             gridDimensionsFieldEditor.setSelectionArray(gridDimensionsSettings);
         }
@@ -364,6 +385,30 @@ IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
         notifyChangeListener(IPlateSettingsListener.ORIENTATION, orientation);
         notifyChangeListener(IPlateSettingsListener.GRID_DIMENSIONS, gridDimensions);
         internalUpdate = internalUpdateCurrentValue;
+    }
+
+    private void updateGridSettingsPerPreferences() {
+        if (plateGridWidget == null) return;
+
+        IPreferenceStore prefs = ScannerConfigPlugin.getDefault().getPreferenceStore();
+
+        updatePlateGridWidget(
+            prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1]),
+            prefs.getString(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateId - 1]));
+    }
+
+    private void updateGridSettings() {
+        if (plateGridWidget == null) return;
+
+        String orientation = PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE;
+        if (orientationFieldEditor.getRadioSelected() == 1) {
+            orientation = PreferenceConstants.SCANNER_PALLET_ORIENTATION_PORTRAIT;
+        }
+        String dimensions = PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12;
+        if (gridDimensionsFieldEditor.getRadioSelected() == 1) {
+            dimensions = PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10;
+        }
+        updatePlateGridWidget(orientation, dimensions);
     }
 
     @SuppressWarnings("nls")
@@ -397,8 +442,8 @@ IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
 
         return prefs.getString(
             PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1]).equals(
-                PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE)
-                ? Orientation.LANDSCAPE : Orientation.PORTRAIT;
+            PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE)
+            ? Orientation.LANDSCAPE : Orientation.PORTRAIT;
     }
 
     public boolean isEnabled() {
@@ -487,13 +532,13 @@ IWorkbenchPreferencePage, IPlateImageListener, IPlateGridWidgetListener {
             / (double) PlateImageMgr.PLATE_IMAGE_DPI;
 
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.LEFT))
-        .setValidRange(0, widthInches);
+            .setValidRange(0, widthInches);
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.TOP))
-        .setValidRange(0, heightInches);
+            .setValidRange(0, heightInches);
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.RIGHT))
-        .setValidRange(0, widthInches);
+            .setValidRange(0, widthInches);
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.BOTTOM))
-        .setValidRange(0, heightInches);
+            .setValidRange(0, heightInches);
     }
 
     @Override

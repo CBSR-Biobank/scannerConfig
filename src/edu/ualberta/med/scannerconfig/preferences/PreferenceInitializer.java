@@ -40,5 +40,13 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
             store.setDefault(PreferenceConstants.SCANNER_PLATE_BARCODES[i],
                 i18n.tr("PLATE") + (i + 1));
         }
+        for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_ORIENTATION.length; i++) {
+            store.setDefault(PreferenceConstants.SCANNER_PALLET_ORIENTATION[i],
+                PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE);
+        }
+        for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS.length; i++) {
+            store.setDefault(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[i],
+                PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12);
+        }
     }
 }
