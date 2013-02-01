@@ -18,13 +18,12 @@ import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 @SuppressWarnings("nls")
 public class TestDmScanLibWindows extends RequiresJniLibraryTest {
 
-    private static Logger log = LoggerFactory
-        .getLogger(TestDmScanLibWindows.class);
-    
+    private static Logger log = LoggerFactory.getLogger(TestDmScanLibWindows.class);
+
     @Before
     public void beforeMethod() {
         // these tests are valid only when not running on windows
-        Assume.assumeTrue(LibraryLoader.getInstance().runningMsWindows());        
+        Assume.assumeTrue(LibraryLoader.getInstance().runningMsWindows());
     }
 
     @Test
@@ -33,8 +32,7 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
         ScanLibResult r = scanLib.isTwainAvailable();
         Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
 
-        BoundingBox region = new BoundingBox(new Point(0, 0),
-            new Point(4, 4));
+        BoundingBox region = new BoundingBox(new Point(0, 0), new Point(4, 4));
 
         final int dpi = 300;
         String filename = "tempscan.bmp";
@@ -47,14 +45,11 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
         Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
 
         File imageFile = new File(filename);
-        Assert
-            .assertTrue(Math.abs(dpi - ImageInfo.getImageDpi(imageFile)) <= 1);
+        Assert.assertTrue(Math.abs(dpi - ImageInfo.getImageDpi(imageFile)) <= 1);
 
         BufferedImage image = ImageIO.read(imageFile);
-        Assert.assertEquals(new Double(region.getWidth() * dpi).intValue(),
-            image.getWidth());
-        Assert.assertEquals(new Double(region.getHeight() * dpi).intValue(),
-            image.getHeight());
+        Assert.assertEquals(new Double(region.getWidth() * dpi).intValue(), image.getWidth());
+        Assert.assertEquals(new Double(region.getHeight() * dpi).intValue(), image.getHeight());
     }
 
     @Test
@@ -92,8 +87,7 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
         Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
 
         File imageFile = new File(filename);
-        Assert
-            .assertTrue(Math.abs(dpi - ImageInfo.getImageDpi(imageFile)) <= 1);
+        Assert.assertTrue(Math.abs(dpi - ImageInfo.getImageDpi(imageFile)) <= 1);
     }
 
     @Test
@@ -115,23 +109,19 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
         ScanLibResult r = scanLib.isTwainAvailable();
         Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
 
-        BoundingBox scanRegion =
-            new BoundingBox(new Point(0.400, 0.265), new Point(4.566, 3.020));
+        BoundingBox scanRegion = new BoundingBox(new Point(0.400, 0.265), new Point(4.566, 3.020));
 
-        BoundingBox wellsBbox =
-            ScannerConfigPlugin.getWellsBoundingBox(scanRegion);
-        BoundingBox scanBbox =
-            ScannerConfigPlugin.getWiaBoundingBox(scanRegion);
+        BoundingBox wellsBbox = ScannerConfigPlugin.getWellsBoundingBox(scanRegion);
+        ScanRegion scanBbox = ScannerConfigPlugin.getWiaBoundingBox(scanRegion);
 
         final int dpi = 300;
 
         Set<WellRectangle> wells =
-            WellRectangle.getWellRectanglesForBoundingBox(
-                wellsBbox, 8, 12, true, dpi);
+            WellRectangle.getWellRectanglesForBoundingBox(wellsBbox, 8, 12, true, dpi);
 
-        DecodeResult dr = scanLib.scanAndDecode(3, dpi, 0, 0, scanBbox,
-            DecodeOptions.getDefaultDecodeOptions(),
-            wells.toArray(new WellRectangle[] {}));
+        DecodeResult dr =
+            scanLib.scanAndDecode(3, dpi, 0, 0, scanBbox, DecodeOptions.getDefaultDecodeOptions(),
+                wells.toArray(new WellRectangle[] {}));
 
         Assert.assertNotNull(dr);
         Assert.assertTrue(dr.getDecodedWells().size() > 0);

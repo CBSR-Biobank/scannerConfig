@@ -52,8 +52,7 @@ public class ScanLib {
     }
 
     public static ScanLib getInstance() {
-        if (instance != null)
-            return instance;
+        if (instance != null) return instance;
 
         instance = new ScanLib();
 
@@ -109,8 +108,8 @@ public class ScanLib {
      * 
      * @return SC_SUCCESS if valid. SC_FAIL unable to scan an image.
      */
-    public native ScanLibResult scanImage(long verbose, long dpi,
-        int brightness, int contrast, BoundingBox region, String filename);
+    public native ScanLibResult scanImage(long verbose, long dpi, int brightness, int contrast,
+        BoundingBox region, String filename);
 
     /**
      * Scans the whole flatbed region. The image is in Windows BMP format.
@@ -128,8 +127,8 @@ public class ScanLib {
      * 
      * @return SC_SUCCESS if valid. SC_FAIL unable to scan an image.
      */
-    public native ScanLibResult scanFlatbed(long verbose, long dpi,
-        int brightness, int contrast, String filename);
+    public native ScanLibResult scanFlatbed(long verbose, long dpi, int brightness, int contrast,
+        String filename);
 
     /**
      * Used to scan a region of the flatbed containing an 2d barcodes and decode
@@ -149,9 +148,8 @@ public class ScanLib {
      * @param wells An array of {@link WellRectangle} objects defining the well
      *            regions containing 2D barcode tubes.
      */
-    public native DecodeResult scanAndDecode(long verbose, long dpi,
-        int brightness, int contrast, BoundingBox region,
-        DecodeOptions decodeOptions, WellRectangle[] wells);
+    public native DecodeResult scanAndDecode(long verbose, long dpi, int brightness, int contrast,
+        ScanRegion region, DecodeOptions decodeOptions, WellRectangle[] wells);
 
     /**
      * Used to decode individual rectangles within the image containing 2D

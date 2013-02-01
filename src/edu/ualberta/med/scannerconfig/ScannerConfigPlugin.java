@@ -36,6 +36,7 @@ import edu.ualberta.med.scannerconfig.dmscanlib.ImageInfo;
 import edu.ualberta.med.scannerconfig.dmscanlib.Point;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanRegion;
 import edu.ualberta.med.scannerconfig.dmscanlib.WellRectangle;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
@@ -54,10 +55,10 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
     @SuppressWarnings("nls")
     private final boolean IS_MS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
-    
+
     @SuppressWarnings("nls")
     private final boolean IS_LINUX = System.getProperty("os.name").startsWith("Linux");
-    
+
     @SuppressWarnings("nls")
     private final boolean IS_ARCH_64_BIT = System.getProperty("os.arch").equals("amd64");
 
@@ -73,7 +74,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         if (IS_MS_WINDOWS) {
             System.loadLibrary("OpenThreadsWin32");
             System.loadLibrary("dmscanlib");
-        } else if (IS_LINUX && IS_ARCH_64_BIT){
+        } else if (IS_LINUX && IS_ARCH_64_BIT) {
             System.loadLibrary("dmscanlib64");
         }
     }
@@ -101,7 +102,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
                     PlateEnabledState plateEnabledSourceProvider =
                         (PlateEnabledState) service
-                        .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
+                            .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
                     Assert.isNotNull(plateEnabledSourceProvider);
                     plateEnabledSourceProvider.setPlateEnabled();
                 }
@@ -164,7 +165,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         ScanLibResult res =
             ScanLib.getInstance()
-            .scanImage(debugLevel, dpi, brightness, contrast, region, filename);
+                .scanImage(debugLevel, dpi, brightness, contrast, region, filename);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(i18n.tr("Could not scan image:\n") + res.getMessage());
@@ -199,8 +200,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
-        BoundingBox region =
-            new BoundingBox(new Point(prefs.getDouble(prefsArr[0]), prefs.getDouble(prefsArr[1])),
+        ScanRegion region =
+            new ScanRegion(new Point(prefs.getDouble(prefsArr[0]), prefs.getDouble(prefsArr[1])),
                 new Point(prefs.getDouble(prefsArr[2]), prefs.getDouble(prefsArr[3])));
 
         region = regionModifyIfScannerWia(region);
@@ -215,13 +216,15 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         return new BoundingBox(originPt, scanBbox.getCorner(1).translate(scanBoxPt1Neg));
     }
 
-    public static BoundingBox getWiaBoundingBox(final BoundingBox scanBbox) {
+    /*
+     * 
+     */
+    public static ScanRegion getWiaBoundingBox(final BoundingBox scanBbox) {
         final Point scanBoxPt1Neg = scanBbox.getCorner(0).scale(-1);
-        return new BoundingBox(scanBbox.getCorner(0), scanBbox.getCorner(1)
-            .translate(scanBoxPt1Neg));
+        return new ScanRegion(scanBbox.getCorner(0), scanBbox.getCorner(1).translate(scanBoxPt1Neg));
     }
 
-    private static BoundingBox regionModifyIfScannerWia(BoundingBox region) {
+    private static ScanRegion regionModifyIfScannerWia(ScanRegion region) {
         if (!ScannerConfigPlugin.getDefault().getPreferenceStore()
             .getString(PreferenceConstants.SCANNER_DRV_TYPE)
             .equals(PreferenceConstants.SCANNER_DRV_TYPE_WIA)) {
@@ -246,21 +249,26 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
 
-        final BoundingBox scanRegion =
-            new BoundingBox(new Point(prefs.getDouble(prefsArr[0]), prefs.getDouble(prefsArr[1])),
+        final ScanRegion scanRegion =
+            new ScanRegion(new Point(prefs.getDouble(prefsArr[0]), prefs.getDouble(prefsArr[1])),
                 new Point(prefs.getDouble(prefsArr[2]), prefs.getDouble(prefsArr[3])));
 
-        final BoundingBox scanBbox = regionModifyIfScannerWia(scanRegion);
+        final ScanRegion scanBbox = regionModifyIfScannerWia(scanRegion);
         final BoundingBox wellsBbox = getWellsBoundingBox(scanRegion);
 
-        int rows = PreferenceConstants.gridRows(prefs.getString(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateNumber - 1]),
-            prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1]));
-        int cols = PreferenceConstants.gridCols(prefs.getString(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateNumber - 1]),
-            prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1]));
+        int rows =
+            PreferenceConstants.gridRows(prefs
+                .getString(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateNumber - 1]),
+                prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1]));
+        int cols =
+            PreferenceConstants.gridCols(prefs
+                .getString(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateNumber - 1]),
+                prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1]));
 
         Set<WellRectangle> wells =
             WellRectangle.getWellRectanglesForBoundingBox(wellsBbox, rows, cols,
-                prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1]).equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE), dpi);
+                prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1])
+                    .equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE), dpi);
 
         DecodeResult res =
             ScanLib.getInstance().scanAndDecode(debugLevel, dpi, brightness, contrast, scanBbox,
@@ -274,7 +282,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public static Set<DecodedWell> decodeImage(String filename, int rows, int cols) throws Exception {
+    public static Set<DecodedWell> decodeImage(String filename, int rows, int cols)
+        throws Exception {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);

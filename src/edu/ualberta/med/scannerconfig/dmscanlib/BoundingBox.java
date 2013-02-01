@@ -3,7 +3,7 @@ package edu.ualberta.med.scannerconfig.dmscanlib;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class BoundingBox {
+public class BoundingBox {
     final List<Point> points = new ArrayList<Point>(2);
 
     public BoundingBox(Point point1, Point point2) {
@@ -42,11 +42,12 @@ public final class BoundingBox {
     }
 
     @SuppressWarnings("nls")
-    private boolean checkValid() {
+    protected boolean checkValid() {
         boolean valid = (points.get(0).getX() < points.get(1).getX())
             && (points.get(0).getY() < points.get(1).getY());
         if (!valid) {
-            throw new IllegalArgumentException("invalid size:" + points.get(0) + " " + points.get(1));
+            throw new IllegalArgumentException("invalid size:" + points.get(0) + " "
+                + points.get(1));
         }
         return valid;
     }
@@ -54,7 +55,7 @@ public final class BoundingBox {
     public Point getWidthAndHeightAsPoint() {
         // get the bounding box width and height - note that the bounding box
         // may not originate at (0,0)
-        return getCorner(1).translate(getCorner(0).scale(-1)); 
+        return getCorner(1).translate(getCorner(0).scale(-1));
     }
 
     @SuppressWarnings("nls")
