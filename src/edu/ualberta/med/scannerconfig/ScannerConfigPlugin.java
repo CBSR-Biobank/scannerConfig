@@ -102,7 +102,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
                     PlateEnabledState plateEnabledSourceProvider =
                         (PlateEnabledState) service
-                            .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
+                        .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
                     Assert.isNotNull(plateEnabledSourceProvider);
                     plateEnabledSourceProvider.setPlateEnabled();
                 }
@@ -165,7 +165,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         ScanLibResult res =
             ScanLib.getInstance()
-                .scanImage(debugLevel, dpi, brightness, contrast, region, filename);
+            .scanImage(debugLevel, dpi, brightness, contrast, region, filename);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(i18n.tr("Could not scan image:\n") + res.getMessage());
@@ -268,7 +268,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         Set<WellRectangle> wells =
             WellRectangle.getWellRectanglesForBoundingBox(wellsBbox, rows, cols,
                 prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1])
-                    .equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE), dpi);
+                .equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE), dpi);
 
         DecodeResult res =
             ScanLib.getInstance().scanAndDecode(debugLevel, dpi, brightness, contrast, scanBbox,
@@ -418,19 +418,26 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
     @SuppressWarnings("nls")
     public String getPlateOrientation(int plateId) {
-        Assert.isTrue((plateId > 0)
-            && (plateId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
-            i18n.tr("plate id is invalid: ") + plateId);
+        if ((plateId < 0) || (plateId > PreferenceConstants.SCANNER_PALLET_ENABLED.length)) {
+            throw new IllegalArgumentException("plate id is invalid: " + plateId);
+        }
         return getPreferenceStore().getString(
             PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1]);
     }
 
     @SuppressWarnings("nls")
     public String getPlateGridDimensions(int plateId) {
-        Assert.isTrue((plateId > 0)
-            && (plateId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
-            i18n.tr("plate id is invalid: ") + plateId);
+        if ((plateId < 0) || (plateId > PreferenceConstants.SCANNER_PALLET_ENABLED.length)) {
+            throw new IllegalArgumentException("plate id is invalid: " + plateId);
+        }
         return getPreferenceStore().getString(
             PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateId - 1]);
+    }
+
+    /**
+     * Out of all the plates that can be configured, return the maximum number of rows possible.
+     */
+    public int getPlateMaxRows() {
+        return 10;
     }
 }
