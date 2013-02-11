@@ -82,9 +82,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
-     * )
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext )
      */
     @Override
     @SuppressWarnings("nls")
@@ -102,7 +100,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
                     PlateEnabledState plateEnabledSourceProvider =
                         (PlateEnabledState) service
-                        .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
+                            .getSourceProvider(PlateEnabledState.PLATES_ENABLED);
                     Assert.isNotNull(plateEnabledSourceProvider);
                     plateEnabledSourceProvider.setPlateEnabled();
                 }
@@ -132,9 +130,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
-     * )
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext )
      */
     @Override
     public void stop(BundleContext context) throws Exception {
@@ -165,7 +161,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         ScanLibResult res =
             ScanLib.getInstance()
-            .scanImage(debugLevel, dpi, brightness, contrast, region, filename);
+                .scanImage(debugLevel, dpi, brightness, contrast, region, filename);
 
         if (res.getResultCode() != ScanLib.SC_SUCCESS) {
             throw new Exception(i18n.tr("Could not scan image:\n") + res.getMessage());
@@ -268,7 +264,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         Set<WellRectangle> wells =
             WellRectangle.getWellRectanglesForBoundingBox(wellsBbox, rows, cols,
                 prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1])
-                .equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE), dpi);
+                    .equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE), dpi);
 
         DecodeResult res =
             ScanLib.getInstance().scanAndDecode(debugLevel, dpi, brightness, contrast, scanBbox,
@@ -377,6 +373,21 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
                     .getShell(), title, message);
             }
         });
+    }
+
+    @SuppressWarnings("nls")
+    public int getPlateNumber(String barcode) {
+        for (int i = 0; i < PreferenceConstants.SCANNER_PLATE_BARCODES.length; i++) {
+            if (!ScannerConfigPlugin.getDefault().getPlateEnabled(i + 1)) continue;
+
+            String pref =
+                getPreferenceStore().getString(PreferenceConstants.SCANNER_PLATE_BARCODES[i]);
+            Assert.isTrue(!pref.isEmpty(), i18n.tr("preference not assigned"));
+            if (pref.equals(barcode)) {
+                return i + 1;
+            }
+        }
+        return -1;
     }
 
     @SuppressWarnings("nls")
