@@ -391,21 +391,6 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public int getPlateNumber(String barcode, boolean realscan) {
-        for (int i = 0; i < PreferenceConstants.SCANNER_PLATE_BARCODES.length; i++) {
-            if (realscan && !ScannerConfigPlugin.getDefault().getPlateEnabled(i + 1)) continue;
-
-            String pref =
-                getPreferenceStore().getString(PreferenceConstants.SCANNER_PLATE_BARCODES[i]);
-            Assert.isTrue(!pref.isEmpty(), i18n.tr("preference not assigned"));
-            if (pref.equals(barcode)) {
-                return i + 1;
-            }
-        }
-        return -1;
-    }
-
-    @SuppressWarnings("nls")
     public List<String> getPossibleBarcodes() {
         List<String> barcodes = new ArrayList<String>();
         for (int i = 0; i < PreferenceConstants.SCANNER_PLATE_BARCODES.length; i++) {
