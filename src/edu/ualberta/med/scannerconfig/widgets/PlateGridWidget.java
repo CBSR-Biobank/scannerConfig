@@ -1,5 +1,9 @@
 package edu.ualberta.med.scannerconfig.widgets;
 
+import java.awt.geom.Rectangle2D;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.util.SafeRunnable;
@@ -19,20 +23,24 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.IPlateImageListener;
+import edu.ualberta.med.scannerconfig.FlatbedImageScan;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.IPlateSettingsListener;
-import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid;
-import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateGrid.Orientation;
-import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateImageMgr;
 import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateSettings;
+import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateSettings.PlateOrientation;
 
-public class PlateGridWidget implements IPlateImageListener,
-IPlateSettingsListener, MouseMoveListener, Listener, ControlListener,
-MouseListener, KeyListener, PaintListener {
+public class PlateGridWidget implements IPlateSettingsListener, MouseMoveListener,
+    Listener, ControlListener, MouseListener, KeyListener, PaintListener {
+
+    private static Logger log = LoggerFactory.getLogger(PlateGridWidget.class.getName());
 
     private enum DragMode {
         NONE,
@@ -59,23 +67,20 @@ MouseListener, KeyListener, PaintListener {
 
     private final Point startDragMousePt = new Point(0, 0);
 
-    private Rectangle startGridRect = new Rectangle(0, 0, 0, 0);
+    private Rectangle2D.Double startGridRect = new Rectangle2D.Double(0, 0, 0, 0);
 
     private DragMode dragMode = DragMode.NONE;
 
-    // set to true for debug
-    private boolean haveImage = false;
+    private Image image;
 
-    private PlateGrid<Integer> plateGrid = null;
-
-    private final PlateImageMgr plateImageMgr;
-
-    public PlateGridWidget(PlateSettings plateSettings, Canvas c) {
+    public PlateGridWidget(Composite parent, PlateSettings plateSettings) {
         Assert.isNotNull(plateSettings);
-
         this.plateSettings = plateSettings;
+        this.plateSettings.addPlateBaseChangeListener(this);
 
-        canvas = c;
+        canvas = new Canvas(parent, SWT.BORDER | SWT.NO_BACKGROUND);
+        canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        canvas.setBackground(new Color(Display.getCurrent(), 255, 255, 255));
         canvas.getParent().layout();
         canvas.pack();
         canvas.setFocus();
@@ -87,30 +92,11 @@ MouseListener, KeyListener, PaintListener {
         canvas.addKeyListener(this);
         canvas.addPaintListener(this);
         setEnabled();
-
-        plateSettings.addPlateBaseChangeListener(this);
-        plateImageMgr = PlateImageMgr.instance();
-        plateImageMgr.addScannedImageChangeListener(this);
-
-        if (plateImageMgr.hasImage()) {
-            plateImageNew();
-        }
     }
 
-    @Override
-    public void plateImageNew() {
-        haveImage = true;
-        plateGrid = new PlateGrid<Integer>();
-        plateGrid.setOrientation(plateSettings.getOrientation());
-        plateGrid.setGridDimensions(plateSettings.getRows(), plateSettings.getColumns());
-        resizePlateGrid();
+    public void imageUpdated(Image image) {
+        this.image = image;
         canvas.redraw();
-        setEnabled();
-    }
-
-    @Override
-    public void plateImageDeleted() {
-        haveImage = false;
         setEnabled();
     }
 
@@ -118,27 +104,13 @@ MouseListener, KeyListener, PaintListener {
     public void plateGridChange(Event e) {
         switch (e.type) {
         case IPlateSettingsListener.ORIENTATION:
-            setPlateOrientation((String) e.data);
-            break;
-
         case IPlateSettingsListener.GRID_DIMENSIONS:
-            setPlateGridDimensions((String) e.data);
-            break;
-
         case IPlateSettingsListener.TEXT_CHANGE:
-            resizePlateGrid();
             canvas.redraw();
             break;
 
         case IPlateSettingsListener.ENABLED:
             setEnabled();
-            resizePlateGrid();
-            canvas.redraw();
-            break;
-
-        case IPlateSettingsListener.REFRESH:
-            resizePlateGrid();
-            canvas.redraw();
             break;
 
         default:
@@ -146,140 +118,167 @@ MouseListener, KeyListener, PaintListener {
         }
     }
 
+    private Rectangle2D.Double resizeHorizontalLeft(Rectangle2D.Double gridRect, int mousePosX) {
+        double delta = mousePosX - startDragMousePt.x;
+        double right = startGridRect.x + startGridRect.width;
+        Rectangle2D.Double result = new Rectangle2D.Double();
+        result.x = Math.max(0, Math.min(right, startGridRect.x + delta));
+        result.y = gridRect.y;
+        result.width = Math.max(0, Math.min(right, startGridRect.width - delta));
+        result.height = gridRect.height;
+        return result;
+    }
+
+    private Rectangle2D.Double resizeHorizontalRight(Rectangle2D.Double gridRect, int mousePosX,
+        int maxSizeX) {
+        double delta = mousePosX - startDragMousePt.x;
+        Rectangle2D.Double result = new Rectangle2D.Double();
+        result.x = gridRect.x;
+        result.y = gridRect.y;
+        result.width = Math.max(0, Math.min(maxSizeX, startGridRect.width + delta));
+        result.height = gridRect.height;
+        return result;
+    }
+
+    private Rectangle2D.Double resizeVerticalTop(Rectangle2D.Double gridRect, int mousePosY) {
+        double delta = mousePosY - startDragMousePt.y;
+        double bottom = startGridRect.y + startGridRect.height;
+        Rectangle2D.Double result = new Rectangle2D.Double();
+        result.x = gridRect.x;
+        result.y = Math.max(0, Math.min(bottom, startGridRect.y + delta));
+        result.width = gridRect.width;
+        result.height = Math.max(0, Math.min(bottom, startGridRect.height - delta));
+        return result;
+    }
+
+    private Rectangle2D.Double resizeVerticalBottom(Rectangle2D.Double gridRect, int mousePosY,
+        int maxSizeY) {
+        double delta = mousePosY - startDragMousePt.y;
+        Rectangle2D.Double result = new Rectangle2D.Double();
+        result.x = gridRect.x;
+        result.y = gridRect.y;
+        result.width = gridRect.width;
+        result.height = Math.max(0, Math.min(maxSizeY, startGridRect.height + delta));
+        return result;
+    }
+
     @Override
     public void mouseMove(MouseEvent e) {
-        if (!haveImage)
-            return;
+        if (image == null) return;
 
-        Assert.isNotNull(plateGrid);
-
-        Rectangle plateRect = new Rectangle(plateGrid.getLeft(),
-            plateGrid.getTop(), plateGrid.getWidth(), plateGrid.getHeight());
-
-        if (plateRect.contains(e.x, e.y))
-            canvas.setFocus();
+        canvas.setFocus();
 
         if (drag) {
-            int pos;
             Point canvasSize = canvas.getSize();
+            Rectangle2D.Double newGridRect = new Rectangle2D.Double(startGridRect.x, startGridRect.y,
+                startGridRect.width, startGridRect.height);
+            int delta;
 
             switch (dragMode) {
             case MOVE:
-                pos = e.x - startDragMousePt.x + startGridRect.x;
-                if ((pos >= 0)
-                    && (pos + startGridRect.width + 4 <= canvasSize.x)) {
-                    plateGrid.setLeft(pos);
+                delta = e.x - startDragMousePt.x;
+                if (delta < 0) {
+                    newGridRect.x = Math.max(0, startGridRect.x + delta);
+                } else {
+                    newGridRect.x = Math.min(canvasSize.x - startGridRect.width - 4,
+                        startGridRect.x + delta);
                 }
 
-                pos = e.y - startDragMousePt.y + startGridRect.y;
-                if ((pos >= 0)
-                    && (pos + startGridRect.height + 4 <= canvasSize.y)) {
-                    plateGrid.setTop(pos);
-                }
-                break;
-            case RESIZE_HORIZONTAL_RIGHT:
-                if ((e.x <= canvasSize.x) && (e.x > startGridRect.x)) {
-                    plateGrid.setWidth(e.x - startDragMousePt.x
-                        + startGridRect.width);
+                delta = e.y - startDragMousePt.y;
+                if (delta < 0) {
+                    newGridRect.y = Math.max(0, startGridRect.y + delta);
+                } else {
+                    newGridRect.y = Math.min(canvasSize.y - startGridRect.height - 4,
+                        startGridRect.y + delta);
                 }
                 break;
             case RESIZE_HORIZONTAL_LEFT:
-                if (e.x <= startGridRect.x + startGridRect.width) {
-                    plateGrid.setLeft(e.x - startDragMousePt.x
-                        + startGridRect.x);
-                    plateGrid.setWidth(startDragMousePt.x - e.x
-                        + startGridRect.width);
-                }
+                newGridRect = resizeHorizontalLeft(newGridRect, e.x);
+                break;
+            case RESIZE_HORIZONTAL_RIGHT:
+                newGridRect = resizeHorizontalRight(newGridRect, e.x, canvasSize.x);
                 break;
             case RESIZE_VERTICAL_TOP:
-                if (e.y <= startGridRect.y + startGridRect.height) {
-                    plateGrid
-                    .setTop(e.y - startDragMousePt.y + startGridRect.y);
-                    plateGrid.setHeight((startDragMousePt.y - e.y)
-                        + startGridRect.height);
-                }
+                newGridRect = resizeVerticalTop(newGridRect, e.y);
                 break;
             case RESIZE_VERTICAL_BOTTOM:
-                if ((e.y <= canvasSize.y) && (e.y > plateGrid.getTop())) {
-                    plateGrid.setHeight((e.y - startDragMousePt.y)
-                        + startGridRect.height);
-                }
+                newGridRect = resizeVerticalBottom(newGridRect, e.y, canvasSize.y);
                 break;
-
             case RESIZE_BOTTOM_RIGHT:
-                if ((e.x <= canvasSize.x) && (e.x > startGridRect.x)
-                    && (e.y <= canvasSize.y) && (e.y > plateGrid.getTop())) {
-                    plateGrid.setWidth((e.x - startDragMousePt.x)
-                        + startGridRect.width);
-                    plateGrid.setHeight((e.y - startDragMousePt.y)
-                        + startGridRect.height);
-                }
+                newGridRect = resizeHorizontalRight(newGridRect, e.x, canvasSize.x);
+                newGridRect = resizeVerticalBottom(newGridRect, e.y, canvasSize.y);
                 break;
 
             case RESIZE_TOP_LEFT:
-                if ((e.x >= 0)
-                    && (e.x <= startGridRect.x + startGridRect.width)
-                    && (e.y >= 0)
-                    && (e.y <= startGridRect.y + startGridRect.height)) {
-                    plateGrid.setLeft((e.x - startDragMousePt.x)
-                        + startGridRect.x);
-                    plateGrid.setTop((e.y - startDragMousePt.y)
-                        + startGridRect.y);
-                    plateGrid.setHeight((startDragMousePt.y - e.y)
-                        + startGridRect.height);
-                    plateGrid.setWidth((startDragMousePt.x - e.x)
-                        + startGridRect.width);
-                }
+                newGridRect = resizeHorizontalLeft(newGridRect, e.x);
+                newGridRect = resizeVerticalTop(newGridRect, e.y);
             default:
                 // do nothing
             }
 
+            log.debug("mousemove: plateGrid: {}", newGridRect);
             canvas.redraw();
-            notifyChangeListener();
+            notifyChangeListener(newGridRect);
             return;
         }
 
         canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_ARROW));
 
         /*
-         * Creates rectangles on the perimeter of the gridRegion, the code then
-         * checks for mouse-rectangle intersection to check for moving and
-         * resizing of the widget.
+         * Creates rectangles on the perimeter of the gridRegion, the code then checks for
+         * mouse-rectangle intersection to check for moving and resizing of the widget.
          */
-
-        if (plateRect.contains(e.x, e.y)) {
-            canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_HAND));
-            dragMode = DragMode.MOVE;
-        } else if (new Rectangle(plateRect.x + plateRect.width, plateRect.y
-            + plateRect.height, 15, 15).contains(e.x, e.y)) {
-            canvas.setCursor(new Cursor(canvas.getDisplay(),
-                SWT.CURSOR_SIZENWSE));
-            dragMode = DragMode.RESIZE_BOTTOM_RIGHT;
-        } else if (new Rectangle(plateRect.x - 10, plateRect.y - 10, 15, 15)
-        .contains(e.x, e.y)) {
-            canvas.setCursor(new Cursor(canvas.getDisplay(),
-                SWT.CURSOR_SIZENWSE));
-            dragMode = DragMode.RESIZE_TOP_LEFT;
-        } else if (new Rectangle(plateRect.x + plateRect.width, plateRect.y,
-            10, plateRect.height).contains(e.x, e.y)) {
-            canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZEE));
-            dragMode = DragMode.RESIZE_HORIZONTAL_RIGHT;
-        } else if (new Rectangle(plateRect.x - 10, plateRect.y, 10,
-            plateRect.height).contains(e.x, e.y)) {
-            canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZEW));
-            dragMode = DragMode.RESIZE_HORIZONTAL_LEFT;
-        } else if (new Rectangle(plateRect.x, plateRect.y - 10,
-            plateRect.width, 10).contains(e.x, e.y)) {
-            canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZEN));
-            dragMode = DragMode.RESIZE_VERTICAL_TOP;
-        } else if (new Rectangle(plateRect.x, plateRect.y + plateRect.height,
-            plateRect.width, 10).contains(e.x, e.y)) {
-            canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZES));
-            dragMode = DragMode.RESIZE_VERTICAL_BOTTOM;
-        } else {
-            dragMode = DragMode.NONE;
+        Rectangle2D.Double plateRect = getPlate();
+        if (plateRect != null) {
+            if (plateRect.contains(e.x, e.y)) {
+                canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_HAND));
+                dragMode = DragMode.MOVE;
+            } else if (new Rectangle(
+                (int) (plateRect.x + plateRect.width),
+                (int) (plateRect.y + plateRect.height),
+                15,
+                15).contains(e.x, e.y)) {
+                canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZENWSE));
+                dragMode = DragMode.RESIZE_BOTTOM_RIGHT;
+            } else if (new Rectangle(
+                (int) (plateRect.x - 10),
+                (int) (plateRect.y - 10),
+                15, 15).contains(e.x, e.y)) {
+                canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZENWSE));
+                dragMode = DragMode.RESIZE_TOP_LEFT;
+            } else if (new Rectangle(
+                (int) (plateRect.x + plateRect.width),
+                (int) (plateRect.y),
+                10,
+                (int) plateRect.height)
+                .contains(e.x, e.y)) {
+                canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZEE));
+                dragMode = DragMode.RESIZE_HORIZONTAL_RIGHT;
+            } else if (new Rectangle(
+                (int) (plateRect.x - 10),
+                (int) (plateRect.y),
+                10,
+                (int) plateRect.height).contains(e.x, e.y)) {
+                canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZEW));
+                dragMode = DragMode.RESIZE_HORIZONTAL_LEFT;
+            } else if (new Rectangle(
+                (int) plateRect.x,
+                (int) (plateRect.y - 10),
+                (int) plateRect.width,
+                10).contains(e.x, e.y)) {
+                canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZEN));
+                dragMode = DragMode.RESIZE_VERTICAL_TOP;
+            } else if (new Rectangle(
+                (int) plateRect.x,
+                (int) (plateRect.y + plateRect.height),
+                (int) plateRect.width,
+                10).contains(e.x, e.y)) {
+                canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZES));
+                dragMode = DragMode.RESIZE_VERTICAL_BOTTOM;
+            } else {
+                dragMode = DragMode.NONE;
+            }
         }
-
     }
 
     @Override
@@ -289,32 +288,25 @@ MouseListener, KeyListener, PaintListener {
 
     @Override
     public void controlMoved(ControlEvent e) {
-        if (!haveImage)
-            return;
+        if (image == null) return;
         canvas.redraw();
     }
 
     @Override
     public void controlResized(ControlEvent e) {
-        if (!haveImage)
-            return;
-        resizePlateGrid();
+        if (image == null) return;
         canvas.redraw();
     }
 
     @Override
     public void mouseDown(MouseEvent e) {
-        if (!haveImage)
-            return;
+        if (image == null) return;
 
         if (dragMode != DragMode.NONE) {
             drag = true;
             startDragMousePt.y = e.y;
             startDragMousePt.x = e.x;
-            startGridRect =
-                new Rectangle(plateGrid.getLeft(),
-                    plateGrid.getTop(), plateGrid.getWidth(),
-                    plateGrid.getHeight());
+            startGridRect = getPlate();
 
         }
         canvas.redraw();
@@ -326,8 +318,7 @@ MouseListener, KeyListener, PaintListener {
 
     @Override
     public void mouseUp(MouseEvent e) {
-        if (!haveImage)
-            return;
+        if (image == null) return;
 
         drag = false;
         dragMode = DragMode.NONE;
@@ -335,47 +326,41 @@ MouseListener, KeyListener, PaintListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (!haveImage)
-            return;
+        if (image == null) return;
 
-        int left, top, width, height;
         Point canvasSize;
 
         if (!drag) {
-            // FIXME - range checking required here
+            Rectangle2D.Double plateRect = getPlate();
+            log.debug("keyPressed: event: {}, plate: {}", e, plateRect);
+
             switch (e.keyCode) {
             case SWT.ARROW_LEFT:
-                left = plateGrid.getLeft();
-                if (left > 0) {
-                    plateGrid.setLeft(left - 1);
+                if (plateRect.x - 1 > 0) {
+                    plateRect.x += -1;
                 }
                 break;
             case SWT.ARROW_RIGHT:
                 canvasSize = canvas.getSize();
-                left = plateGrid.getLeft();
-                width = plateGrid.getWidth();
-                if (left + width < canvasSize.x) {
-                    plateGrid.setLeft(left + 1);
+                if (plateRect.x + plateRect.width + 1 < canvasSize.x) {
+                    plateRect.x += 1;
                 }
                 break;
             case SWT.ARROW_UP:
-                top = plateGrid.getTop();
-                if (top > 0) {
-                    plateGrid.setTop(top - 1);
+                if (plateRect.y - 1 > 0) {
+                    plateRect.y += -1;
                 }
                 break;
             case SWT.ARROW_DOWN:
                 canvasSize = canvas.getSize();
-                top = plateGrid.getTop();
-                height = plateGrid.getHeight();
-                if (top + height < canvasSize.y) {
-                    plateGrid.setTop(top + 1);
+                if (plateRect.y + plateRect.height + 1 < canvasSize.y) {
+                    plateRect.y += 1;
                 }
                 break;
             }
             canvas.redraw();
-            notifyChangeListener();
-
+            log.debug("keyPressed: after change: plate: {}", plateRect);
+            notifyChangeListener(plateRect);
         }
     }
 
@@ -385,37 +370,38 @@ MouseListener, KeyListener, PaintListener {
 
     @Override
     public void paintControl(PaintEvent e) {
-        if (!haveImage || (plateGrid == null)) {
+        Rectangle2D.Double plateGrid = getPlate();
+        if ((image == null) || (plateGrid == null)) {
             e.gc.setForeground(new Color(canvas.getDisplay(), 255, 255, 255));
             e.gc.fillRectangle(0, 0, canvas.getSize().x, canvas.getSize().y);
             return;
         }
 
-        Image image = plateImageMgr.getScannedImage();
-        Assert.isNotNull(image);
+        log.debug("paintControl: plateGrid: {}", plateGrid);
 
-        Image plateImage = plateImageMgr.getScannedImage();
-        Rectangle imageRect = plateImage.getBounds();
+        Rectangle imageRect = image.getBounds();
         imageBuffer = new Image(canvas.getDisplay(), canvas.getBounds());
         imageGC = new GC(imageBuffer);
-        imageGC.drawImage(plateImage, 0, 0, imageRect.width, imageRect.height,
+        imageGC.drawImage(image, 0, 0, imageRect.width, imageRect.height,
             0, 0, canvas.getBounds().width, canvas.getBounds().height);
 
-        drawGrid(imageGC);
+        drawGrid(imageGC, plateGrid, plateSettings.getPlateDimensions());
 
         // draw plate rect minus 1 pixel on each side so that it acts as a
         // border for the grid
-        Rectangle plateRect = new Rectangle(plateGrid.getLeft() - 1,
-            plateGrid.getTop() - 1, plateGrid.getWidth() + 2,
-            plateGrid.getHeight() + 2);
+        Rectangle plateRectBoundary = new Rectangle(
+            (int) (plateGrid.x - 1),
+            (int) (plateGrid.y - 1),
+            (int) (plateGrid.width + 2),
+            (int) (plateGrid.height + 2));
         imageGC.setForeground(new Color(canvas.getDisplay(), 255, 0, 0));
-        imageGC.drawRectangle(plateRect);
+        imageGC.drawRectangle(plateRectBoundary);
 
         // create drag circles
-        int left = plateRect.x;
-        int top = plateRect.y;
-        int right = plateRect.x + plateRect.width - 3;
-        int bottom = plateRect.y + plateRect.height - 3;
+        int left = plateRectBoundary.x;
+        int top = plateRectBoundary.y;
+        int right = plateRectBoundary.x + plateRectBoundary.width - 3;
+        int bottom = plateRectBoundary.y + plateRectBoundary.height - 3;
 
         imageGC.setForeground(new Color(canvas.getDisplay(), 0, 0, 255));
         imageGC.drawOval(left, top, 6, 6);
@@ -426,21 +412,21 @@ MouseListener, KeyListener, PaintListener {
         imageBuffer.dispose();
     }
 
-    private void drawGrid(GC gc) {
-        Assert.isNotNull(plateGrid);
-        Rectangle gridRect = new Rectangle(plateGrid.getLeft(),
-            plateGrid.getTop(), plateGrid.getWidth(), plateGrid.getHeight());
-
-        int rows = plateGrid.getRows();
-        int cols = plateGrid.getColumns();
-        Orientation orientation = plateGrid.getOrientation();
-        double cellWidth = gridRect.width / (double) cols;
-        double cellHeight = gridRect.height / (double) rows;
+    private void drawGrid(GC gc, Rectangle2D.Double gridRect, Pair<Integer, Integer> dimensions) {
+        int rows = dimensions.getLeft();
+        int cols = dimensions.getRight();
+        double cellWidth = gridRect.width / cols;
+        double cellHeight = gridRect.height / rows;
 
         Rectangle cellRect;
         Color foregroundColor = new Color(canvas.getDisplay(), 0, 255, 0);
-        Color a1BackgroundColor = new Color(canvas.getDisplay(), 0, 255, 255);
+        Color a1BackgroundColor = new Color(canvas.getDisplay(), 255, 255, 0);
         gc.setForeground(foregroundColor);
+        int a1Row = 0;
+        int a1Col = 0;
+        if (plateSettings.getOrientation().equals(PlateOrientation.LANDSCAPE)) {
+            a1Col = cols - 1;
+        }
 
         double cx, cy = gridRect.y;
         for (int row = 0; row < rows; row++, cy += cellHeight) {
@@ -452,79 +438,13 @@ MouseListener, KeyListener, PaintListener {
 
                 gc.drawRectangle(cellRect);
 
-                if (orientation == Orientation.LANDSCAPE) {
-                    if ((col == cols - 1) && (row == 0)) {
-                        gc.setBackground(a1BackgroundColor);
-                        gc.fillRectangle(cellRect);
-                    }
-                } else {
-                    if ((col == 0) && (row == 0)) {
-                        gc.setBackground(a1BackgroundColor);
-                        gc.fillRectangle(cellRect);
-                    }
+                if ((row == a1Row) && (col == a1Col)) {
+                    gc.setAlpha(125);
+                    gc.setBackground(a1BackgroundColor);
+                    gc.fillRectangle(cellRect);
                 }
-
             }
         }
-    }
-
-    private void resizePlateGrid() {
-        if (!haveImage)
-            return;
-
-        Assert.isNotNull(canvas, "canvas is null"); //$NON-NLS-1$
-        Rectangle imgBounds = plateImageMgr.getScannedImage().getBounds();
-        Point canvasSize = canvas.getSize();
-
-        double widthFactor = (double) PlateImageMgr.PLATE_IMAGE_DPI
-            * canvasSize.x / imgBounds.width;
-        double heightFactor = (double) PlateImageMgr.PLATE_IMAGE_DPI
-            * canvasSize.y / imgBounds.height;
-
-        // ----------------------------------
-
-        int left = (int) (plateSettings.getLeft() * widthFactor);
-        int top = (int) (plateSettings.getTop() * heightFactor);
-        int right = (int) (plateSettings.getRight() * widthFactor);
-        int bottom = (int) (plateSettings.getBottom() * heightFactor);
-
-        if ((left < 0) || (right < 0) || (top < 0) || (bottom < 0)
-            || (left > canvasSize.x) || (right > canvasSize.x)
-            || (left > right) || (top > canvasSize.y)
-            || (bottom > canvasSize.y) || (top > bottom)) {
-            // outside image boundaries, no need to update grid image
-            return;
-        }
-
-        plateGrid.setLeft(left);
-        plateGrid.setTop(top);
-        plateGrid.setWidth(right - left);
-        plateGrid.setHeight(bottom - top);
-    }
-
-    /**
-     * Converts the plate grid parameters to inches.
-     * 
-     * @return
-     */
-    public PlateGrid<Double> getConvertedPlateRegion() {
-        PlateGrid<Double> result = new PlateGrid<Double>();
-        Rectangle imgBounds = plateImageMgr.getScannedImage().getBounds();
-        Point canvasSize = canvas.getSize();
-
-        double widthFactor = imgBounds.width
-            / (double) PlateImageMgr.PLATE_IMAGE_DPI / canvasSize.x;
-        double heightFactor = imgBounds.height
-            / (double) PlateImageMgr.PLATE_IMAGE_DPI / canvasSize.y;
-
-        result.setLeft(plateGrid.getLeft() * widthFactor);
-        result.setTop(plateGrid.getTop() * heightFactor);
-        result.setWidth(plateGrid.getWidth() * widthFactor);
-        result.setHeight(plateGrid.getHeight() * heightFactor);
-        result.setOrientation(plateGrid.getOrientation());
-        result.setRows(plateGrid.getRows());
-        result.setColumns(plateGrid.getColumns());
-        return result;
     }
 
     private void setEnabled() {
@@ -535,41 +455,75 @@ MouseListener, KeyListener, PaintListener {
         canvas.update();
     }
 
-    private void setPlateOrientation(String orientation) {
-        if (!haveImage)
-            return;
-
-        plateGrid.setOrientation(orientation);
-        canvas.redraw();
-    }
-
-    private void setPlateGridDimensions(String gridDimensions) {
-        if (!haveImage)
-            return;
-
-        plateGrid.setGridDimensions(gridDimensions);
-        canvas.redraw();
-    }
-
     public void dispose() {
-        plateImageMgr.removeScannedImageChangeListener(this);
         plateSettings.removePlateSettingsChangeListener(this);
     }
 
-    /* updates text fields in plateBase */
+    /**
+     * Used to receive updates when user changes dimensions of grid.
+     */
     public void addPlateWidgetChangeListener(IPlateGridWidgetListener listener) {
         changeListeners.add(listener);
     }
 
-    private void notifyChangeListener() {
+    /**
+     * These factors depend on the size and DPI of the image being displayed, and the size of the
+     * canvas it is being displayed in.
+     * 
+     * @return a Pair, the left contains the widht factor and the right the height factor.
+     */
+    private Pair<Double, Double> getConversionFactors() {
+        if (image == null) return null;
+
+        Rectangle imgBounds = image.getBounds();
+        Point canvasSize = canvas.getSize();
+
+        double widthFactor = (double)
+            FlatbedImageScan.PLATE_IMAGE_DPI * canvasSize.x / imgBounds.width;
+        double heightFactor = (double)
+            FlatbedImageScan.PLATE_IMAGE_DPI * canvasSize.y / imgBounds.height;
+        return new ImmutablePair<Double, Double>(widthFactor, heightFactor);
+    }
+
+    private Rectangle2D.Double getPlate() {
+        Rectangle2D.Double plateInInches = plateSettings.getPlate();
+        if (plateInInches == null) return null;
+
+        Pair<Double, Double> factors = getConversionFactors();
+        if (factors == null) return null;
+        double widthFactor = factors.getLeft();
+        double heightFactor = factors.getRight();
+
+        Rectangle2D.Double result = new Rectangle2D.Double(
+            plateInInches.x * widthFactor,
+            plateInInches.y * heightFactor,
+            plateInInches.width * widthFactor,
+            plateInInches.height * heightFactor);
+        return result;
+    }
+
+    private void notifyChangeListener(final Rectangle2D.Double newPlate) {
         Object[] listeners = changeListeners.getListeners();
+
+        Pair<Double, Double> factors = getConversionFactors();
+        if (factors == null) {
+            throw new IllegalStateException("cannot get conversion factors");
+        }
+        double widthFactor = factors.getLeft();
+        double heightFactor = factors.getRight();
+
+        final Rectangle2D.Double plateInInches = new Rectangle2D.Double(
+            newPlate.x / widthFactor,
+            newPlate.y / heightFactor,
+            newPlate.width / widthFactor,
+            newPlate.height / heightFactor);
+
         for (int i = 0; i < listeners.length; ++i) {
-            final IPlateGridWidgetListener l =
-                (IPlateGridWidgetListener) listeners[i];
+            final IPlateGridWidgetListener l = (IPlateGridWidgetListener) listeners[i];
             SafeRunnable.run(new SafeRunnable() {
                 @Override
                 public void run() {
-                    l.sizeChanged();
+                    l.plateUpdated(plateInInches);
                 }
             });
         }

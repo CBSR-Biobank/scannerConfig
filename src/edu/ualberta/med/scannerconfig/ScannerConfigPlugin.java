@@ -169,23 +169,6 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public static void scanFlatbed(String filename) throws Exception {
-        IPreferenceStore prefs = getDefault().getPreferenceStore();
-
-        int dpi = prefs.getInt(PreferenceConstants.SCANNER_DPI);
-        int brightness = prefs.getInt(PreferenceConstants.SCANNER_BRIGHTNESS);
-        int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
-        int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
-
-        ScanLibResult res =
-            ScanLib.getInstance().scanFlatbed(debugLevel, dpi, brightness, contrast, filename);
-
-        if (res.getResultCode() != ScanLib.SC_SUCCESS) {
-            throw new Exception(i18n.tr("Could not scan flatbed:\n") + res.getMessage());
-        }
-    }
-
-    @SuppressWarnings("nls")
     public static void scanPlate(int plateNumber, String filename) throws Exception {
 
         if ((plateNumber < 0) || (plateNumber > PreferenceConstants.SCANNER_PALLET_CONFIG.length)) {
