@@ -4,59 +4,35 @@ import java.awt.geom.Rectangle2D;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateSettings.PlateOrientation;
-import edu.ualberta.med.scannerconfig.preferences.scanner.plateposition.PlateSettings.PlateDimensions;
 
 /**
  * Tracks the grid's attributes for the currently scanned plate image.
  * 
  */
-public class PlateGrid {
-
-    private static Logger log = LoggerFactory.getLogger(PlateGrid.class.getName());
-
-    private Rectangle2D.Double plate;
-
-    private final Rectangle2D.Double flatbed;
+public class PlateGrid extends ScanRegion {
 
     private PlateOrientation orientation;
 
     private PlateDimensions dimensions;
 
+    /**
+     * The flatbed dimensions must be specified.
+     * 
+     * @param flatbed a rectangle cotanining the dimensions of the flatbed in inches.
+     * @param scanRegion a rectangle containing the dimensions of the scanning region that is
+     *            contained within the flatbed.
+     * @param orientation The orientation of the plate. Either landscape or portrait.
+     * @param dimensions The dimensions for the wells contained by the grid. If it it is a NUNC 8x12
+     *            plate, then dimensions would be 8 rows and 12 columsn.
+     */
     public PlateGrid(
         Rectangle2D.Double flatbed,
+        Rectangle2D.Double scanRegion,
         PlateOrientation orientation,
         PlateDimensions dimensions) {
-        plate = new Rectangle2D.Double();
-        this.flatbed = flatbed;
+        super(flatbed, scanRegion);
         this.orientation = orientation;
         this.dimensions = dimensions;
-    }
-
-    public Rectangle2D.Double getPlate() {
-        Rectangle2D.Double result = new Rectangle2D.Double();
-        result.setRect(plate);
-        return result;
-    }
-
-    /**
-     * Only assign the new plate position if it is inside the flatbed rectangle.
-     * 
-     * @param x the X coordinate of the upper left corner of the new position.
-     * @param y the Y coordinate of the upper left corner of the new position.
-     * @param w the width of the new plate
-     * @param h the hright of the new plate
-     */
-    public void setPlate(double x, double y, double w, double h) {
-        Rectangle2D.Double newPlatePos = new Rectangle2D.Double(x, y, w, h);
-        if ((flatbed.outcode(newPlatePos.getX(), newPlatePos.getY()) == 0)
-            && (flatbed.outcode(newPlatePos.getMaxX(), newPlatePos.getMaxY()) == 0)) {
-            plate = newPlatePos;
-            log.debug("setPlate: plate: {}", plate);
-        }
     }
 
     public PlateOrientation getOrientation() {
@@ -70,10 +46,11 @@ public class PlateGrid {
     @SuppressWarnings("nls")
     @Override
     public String toString() {
-        return "left/" + plate.getX()
-            + " top/" + plate.getY()
-            + " width/" + plate.getWidth()
-            + " height/" + plate.getHeight();
+        StringBuffer b = new StringBuffer();
+        b.append(super.toString()).append(" ");
+        b.append(orientation).append(" ");
+        b.append(dimensions);
+        return b.toString();
     }
 
     /**
@@ -95,9 +72,5 @@ public class PlateGrid {
 
     public void setGridDimensions(PlateDimensions dimensions) {
         this.dimensions = dimensions;
-    }
-
-    public Rectangle2D.Double getRectangle() {
-        return plate;
     }
 }

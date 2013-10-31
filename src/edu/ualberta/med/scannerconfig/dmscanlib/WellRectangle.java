@@ -5,14 +5,15 @@ import java.util.List;
 import java.util.Set;
 
 import edu.ualberta.med.biobank.util.SbsLabeling;
+import edu.ualberta.med.scannerconfig.PlateOrientation;
 
 /**
- * Defines rectangular coordinates, in inches, for a region of image that contains a single
- * 2D barcode. The region also contains a label used to refer to it. This region of the
- * image will then be examined and if it contains a valid 2D barcode it will be decoded.
+ * Defines rectangular coordinates, in inches, for a region of image that contains a single 2D
+ * barcode. The region also contains a label used to refer to it. This region of the image will then
+ * be examined and if it contains a valid 2D barcode it will be decoded.
  * 
  * @author Nelson Loyola
- *
+ * 
  */
 public final class WellRectangle {
 
@@ -57,7 +58,7 @@ public final class WellRectangle {
 
     public static Set<WellRectangle> getWellRectanglesForBoundingBox(
         final BoundingBox bbox,
-        final int rows, final int cols, final boolean orientationLandscape, final int dpi) {
+        final int rows, final int cols, final PlateOrientation orientation, final int dpi) {
 
         // need to make this box slightly smaller so the image dimensions are
         // not exceeded
@@ -82,7 +83,7 @@ public final class WellRectangle {
 
             for (int col = 0; col < cols; ++col) {
                 String label;
-                if (orientationLandscape) {
+                if (orientation.equals(PlateOrientation.LANDSCAPE)) {
                     label = SbsLabeling.fromRowCol(row, cols - 1 - col);
                 } else {
                     label = SbsLabeling.fromRowCol(col, row);

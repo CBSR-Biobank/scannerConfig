@@ -5,6 +5,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+import edu.ualberta.med.scannerconfig.PlateDimensions;
+import edu.ualberta.med.scannerconfig.PlateOrientation;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
@@ -42,11 +44,11 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         }
         for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_ORIENTATION.length; i++) {
             store.setDefault(PreferenceConstants.SCANNER_PALLET_ORIENTATION[i],
-                PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE);
+                PlateOrientation.LANDSCAPE.toString());
         }
         for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS.length; i++) {
             store.setDefault(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[i],
-                PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12);
+                PlateDimensions.DIM_ROWS_8_COLS_12.toString());
         }
     }
 }

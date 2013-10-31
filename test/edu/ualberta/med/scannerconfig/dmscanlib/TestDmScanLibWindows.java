@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.ualberta.med.scannerconfig.PlateOrientation;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 
 @SuppressWarnings("nls")
@@ -116,8 +117,8 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
 
         final int dpi = 300;
 
-        Set<WellRectangle> wells =
-            WellRectangle.getWellRectanglesForBoundingBox(wellsBbox, 8, 12, true, dpi);
+        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(
+            wellsBbox, 8, 12, PlateOrientation.LANDSCAPE, dpi);
 
         DecodeResult dr =
             scanLib.scanAndDecode(3, dpi, 0, 0, scanBbox, DecodeOptions.getDefaultDecodeOptions(),

@@ -4,14 +4,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This class differs from java.awt.geom.Rectangle2D.Double since it keeps track of 2 points.
+ * Rectangles that are not aligned to the x and y axes.
+ * 
+ * @author loyola
+ * 
+ */
 public final class Rectangle {
     final List<Point> points = new ArrayList<Point>(4);
 
     Rectangle(BoundingBox boundingBox) {
         points.addAll(Arrays.asList(
-            new Point(boundingBox.points.get(0)), 
+            new Point(boundingBox.points.get(0)),
             new Point(boundingBox.points.get(0).x, boundingBox.points.get(1).y),
-            new Point(boundingBox.points.get(1)), 
+            new Point(boundingBox.points.get(1)),
             new Point(boundingBox.points.get(1).x, boundingBox.points.get(0).y)));
     }
 

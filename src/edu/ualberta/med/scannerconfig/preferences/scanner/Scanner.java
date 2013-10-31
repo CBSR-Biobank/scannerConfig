@@ -24,7 +24,7 @@ import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
 public class Scanner extends FieldEditorPreferencePage implements
     IWorkbenchPreferencePage, SelectionListener {
 
-    private Map<String, IntegerFieldEditor> intFieldMap =
+    private final Map<String, IntegerFieldEditor> intFieldMap =
         new HashMap<String, IntegerFieldEditor>();
 
     private static final I18n i18n = I18nFactory.getI18n(Scanner.class);
@@ -124,7 +124,7 @@ public class Scanner extends FieldEditorPreferencePage implements
 
         int scannerCap = scannerCapResult.getValue();
 
-        if (scanlibResult.getResultCode() != ScanLib.SC_SUCCESS) {
+        if (scanlibResult.getResultCode() != ScanLibResult.Result.SUCCESS) {
             // just stay with the last selected source
             if ((scannerCap & ScanLib.CAP_IS_SCANNER) != 0) {
                 return;

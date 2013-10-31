@@ -103,7 +103,7 @@ public class FlatbedImageScan {
                         debugLevel, FlatbedImageScan.PLATE_IMAGE_DPI, brightness, contrast,
                         FlatbedImageScan.PALLET_IMAGE_FILE);
 
-                    if (result.getResultCode() != ScanLib.SC_SUCCESS) {
+                    if (result.getResultCode() != ScanLibResult.Result.SUCCESS) {
                         ScannerConfigPlugin.openAsyncError(i18n.tr("Scanner error"),
                             result.getMessage());
                         return;

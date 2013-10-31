@@ -4,10 +4,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ 
+@Suite.SuiteClasses({
     TestBoundingBox.class,
     TestDmScanLibLinux.class,
-    TestDmScanLibWindows.class
-    })
+    TestDmScanLibWindows.class,
+    TestPoint.class,
+})
 public class ScanLibSuite {
 }

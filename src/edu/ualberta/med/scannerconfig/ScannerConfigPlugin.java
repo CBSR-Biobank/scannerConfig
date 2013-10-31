@@ -90,6 +90,28 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         super.start(context);
         plugin = this;
 
+        // initialize these settings if never assigned
+        IPreferenceStore prefs = ScannerConfigPlugin.getDefault().getPreferenceStore();
+        for (int i = 0, n = PreferenceConstants.SCANNER_PALLET_ORIENTATION.length; i < n; ++i) {
+            try {
+                PlateOrientation.getFromString(prefs.getString(
+                    PreferenceConstants.SCANNER_PALLET_ORIENTATION[i]));
+            } catch (IllegalStateException e) {
+                prefs.setDefault(PreferenceConstants.SCANNER_PALLET_ORIENTATION[i],
+                    PlateOrientation.LANDSCAPE.toString());
+            }
+        }
+
+        for (int i = 0, n = PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS.length; i < n; ++i) {
+            try {
+                PlateOrientation.getFromString(prefs.getString(
+                    PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[i]));
+            } catch (IllegalStateException e) {
+                prefs.setDefault(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[i],
+                    PlateDimensions.DIM_ROWS_8_COLS_12.toString());
+            }
+        }
+
         getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent event) {
@@ -151,7 +173,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public static void scanImage(BoundingBox region, String filename) throws Exception {
+    public static ScanLibResult.Result scanImage(BoundingBox region, String filename)
+        throws Exception {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
         int dpi = prefs.getInt(PreferenceConstants.SCANNER_DPI);
@@ -159,17 +182,14 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
-        ScanLibResult res =
-            ScanLib.getInstance()
-                .scanImage(debugLevel, dpi, brightness, contrast, region, filename);
+        ScanLibResult res = ScanLib.getInstance().scanImage(
+            debugLevel, dpi, brightness, contrast, region, filename);
 
-        if (res.getResultCode() != ScanLib.SC_SUCCESS) {
-            throw new Exception(i18n.tr("Could not scan image:\n") + res.getMessage());
-        }
+        return res.getResultCode();
     }
 
     @SuppressWarnings("nls")
-    public static void scanPlate(int plateNumber, String filename) throws Exception {
+    public static ScanLibResult.Result scanPlate(int plateNumber, String filename) throws Exception {
 
         if ((plateNumber < 0) || (plateNumber > PreferenceConstants.SCANNER_PALLET_CONFIG.length)) {
             throw new IllegalArgumentException("plate number is invalid: " + plateNumber);
@@ -185,7 +205,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         region = regionModifyIfScannerWia(region);
 
-        scanImage(region, filename);
+        return scanImage(region, filename);
     }
 
     // bbox here has to start at (0,0)
@@ -234,28 +254,21 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         final ScanRegion scanBbox = regionModifyIfScannerWia(scanRegion);
         final BoundingBox wellsBbox = getWellsBoundingBox(scanRegion);
+        PlateOrientation orientation = getPlateOrientation(plateNumber);
 
-        int rows =
-            PreferenceConstants.gridRows(prefs
-                .getString(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateNumber - 1]),
-                prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1]));
-        int cols =
-            PreferenceConstants.gridCols(prefs
-                .getString(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateNumber - 1]),
-                prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1]));
+        int rows = PreferenceConstants.gridRows(getPlateGridDimensions(plateNumber), orientation);
+        int cols = PreferenceConstants.gridCols(getPlateGridDimensions(plateNumber), orientation);
 
-        Set<WellRectangle> wells =
-            WellRectangle.getWellRectanglesForBoundingBox(wellsBbox, rows, cols,
-                prefs.getString(PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateNumber - 1])
-                    .equals(PreferenceConstants.SCANNER_PALLET_ORIENTATION_LANDSCAPE), dpi);
+        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(
+            wellsBbox, rows, cols, orientation, dpi);
 
         DecodeResult res =
             ScanLib.getInstance().scanAndDecode(debugLevel, dpi, brightness, contrast, scanBbox,
                 new DecodeOptions(scanGap, squareDev, edgeThresh, corrections, 1),
                 wells.toArray(new WellRectangle[] {}));
 
-        if (res.getResultCode() != ScanLib.SC_SUCCESS) {
-            throw new Exception(i18n.tr("Could not decode plate:\n") + res.getMessage());
+        if (res.getResultCode() != ScanLibResult.Result.SUCCESS) {
+            throw new ScanningException(i18n.tr("Could not decode plate:\n") + res.getMessage());
         }
         return res.getDecodedWells();
     }
@@ -279,16 +292,15 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
             new BoundingBox(new Point(0, 0),
                 new Point(image.getWidth(), image.getHeight()).scale(dotWidth));
 
-        Set<WellRectangle> wells =
-            WellRectangle.getWellRectanglesForBoundingBox(imageBbox, rows, cols, true, dpi);
+        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(
+            imageBbox, rows, cols, PlateOrientation.LANDSCAPE, dpi);
 
-        DecodeResult res =
-            ScanLib.getInstance().decodeImage(debugLevel, filename,
-                new DecodeOptions(scanGap, squareDev, edgeThresh, corrections, 1),
-                wells.toArray(new WellRectangle[] {}));
+        DecodeResult res = ScanLib.getInstance().decodeImage(
+            debugLevel, filename, new DecodeOptions(scanGap, squareDev, edgeThresh, corrections, 1),
+            wells.toArray(new WellRectangle[] {}));
 
-        if (res.getResultCode() != ScanLib.SC_SUCCESS) {
-            throw new Exception(i18n.tr("Could not decode image: ") + res.getMessage());
+        if (res.getResultCode() != ScanLibResult.Result.SUCCESS) {
+            throw new ScanningException(i18n.tr("Could not decode image: ") + res.getMessage());
         }
         return res.getDecodedWells();
     }
@@ -396,21 +408,23 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public String getPlateOrientation(int plateId) {
+    public static PlateOrientation getPlateOrientation(int plateId) {
         if ((plateId < 0) || (plateId > PreferenceConstants.SCANNER_PALLET_ENABLED.length)) {
             throw new IllegalArgumentException("plate id is invalid: " + plateId);
         }
-        return getPreferenceStore().getString(
+        String value = getDefault().getPreferenceStore().getString(
             PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1]);
+        return PlateOrientation.getFromString(value);
     }
 
     @SuppressWarnings("nls")
-    public String getPlateGridDimensions(int plateId) {
+    public static PlateDimensions getPlateGridDimensions(int plateId) {
         if ((plateId < 0) || (plateId > PreferenceConstants.SCANNER_PALLET_ENABLED.length)) {
             throw new IllegalArgumentException("plate id is invalid: " + plateId);
         }
-        return getPreferenceStore().getString(
+        String value = getDefault().getPreferenceStore().getString(
             PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateId - 1]);
+        return PlateDimensions.getFromString(value);
     }
 
     /**

@@ -1,5 +1,8 @@
 package edu.ualberta.med.scannerconfig.preferences;
 
+import edu.ualberta.med.scannerconfig.PlateDimensions;
+import edu.ualberta.med.scannerconfig.PlateOrientation;
+
 @SuppressWarnings("nls")
 public class PreferenceConstants {
 
@@ -71,19 +74,6 @@ public class PreferenceConstants {
         "scanner.plate.griddimensions.3", "scanner.plate.griddimensions.4",
         "scanner.plate.griddimensions.5" };
 
-    public static final String SCANNER_PALLET_ORIENTATION_LANDSCAPE = "Landscape";
-
-    public static final String SCANNER_PALLET_ORIENTATION_PORTRAIT = "Portrait";
-
-    public static final String SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12 = "8x12";
-
-    public static final String SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10 = "10x10";
-
-    public static final String[] SCANNER_PALLET_GRID_DIMENSIONS_ROWSCOLS = {
-        SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12,
-        SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10
-    };
-
     public static final String[] SCANNER_PLATE_BARCODES = {
         "scanner.plate.barcode.1", "scanner.plate.barcode.2",
         "scanner.plate.barcode.3", "scanner.plate.barcode.4",
@@ -91,27 +81,25 @@ public class PreferenceConstants {
 
     public static final String SCANNER_PLATE_SHOW_BARCODE_PREF = "scanner.plate.show.barcode.pref";
 
-    public static int gridRows(String gridDimensions) {
-        if (gridDimensions.equals(SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12)) return 8;
-        else if (gridDimensions.equals(SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10)) return 10;
-        else return -1;
+    public static int gridRows(PlateDimensions gridDimensions, PlateOrientation orientation) {
+        switch (orientation) {
+        case LANDSCAPE:
+            return gridDimensions.getRows();
+        case PORTRAIT:
+            return gridDimensions.getCols();
+        default:
+            throw new IllegalStateException("invalid value for orientation: " + orientation);
+        }
     }
 
-    public static int gridRows(String gridDimensions, String orientation) {
-        if (orientation.equals(SCANNER_PALLET_ORIENTATION_LANDSCAPE)) return gridRows(gridDimensions);
-        else if (orientation.equals(SCANNER_PALLET_ORIENTATION_PORTRAIT)) return gridCols(gridDimensions);
-        else return -1;
-    }
-
-    public static int gridCols(String gridDimensions) {
-        if (gridDimensions.equals(SCANNER_PALLET_GRID_DIMENSIONS_ROWS8COLS12)) return 12;
-        else if (gridDimensions.equals(SCANNER_PALLET_GRID_DIMENSIONS_ROWS10COLS10)) return 10;
-        else return -1;
-    }
-
-    public static int gridCols(String gridDimensions, String orientation) {
-        if (orientation.equals(SCANNER_PALLET_ORIENTATION_LANDSCAPE)) return gridCols(gridDimensions);
-        else if (orientation.equals(SCANNER_PALLET_ORIENTATION_PORTRAIT)) return gridRows(gridDimensions);
-        else return -1;
+    public static int gridCols(PlateDimensions gridDimensions, PlateOrientation orientation) {
+        switch (orientation) {
+        case LANDSCAPE:
+            return gridDimensions.getCols();
+        case PORTRAIT:
+            return gridDimensions.getRows();
+        default:
+            throw new IllegalStateException("invalid value for orientation: " + orientation);
+        }
     }
 }

@@ -20,7 +20,7 @@ public class SelectSource extends AbstractHandler implements IHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
         ScanLibResult result = ScanLib.getInstance().selectSourceAsDefault();
 
-        if (result.getResultCode() != ScanLib.SC_SUCCESS) {
+        if (result.getResultCode() != ScanLibResult.Result.SUCCESS) {
             ScannerConfigPlugin.openError(i18n.tr("Source Selection Error"),
                 result.getMessage());
         }
