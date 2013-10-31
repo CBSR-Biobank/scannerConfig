@@ -377,7 +377,7 @@ public class PlateGridWidget implements IPlateSettingsListener, MouseMoveListene
             return;
         }
 
-        log.debug("paintControl: plateGrid: {}", plateGrid);
+        log.trace("paintControl: plateGrid: {}", plateGrid);
 
         Rectangle imageRect = image.getBounds();
         imageBuffer = new Image(canvas.getDisplay(), canvas.getBounds());
@@ -389,12 +389,14 @@ public class PlateGridWidget implements IPlateSettingsListener, MouseMoveListene
 
         // draw plate rect minus 1 pixel on each side so that it acts as a
         // border for the grid
+        Color red = new Color(canvas.getDisplay(), 255, 0, 0);
+        Color blue = new Color(canvas.getDisplay(), 0, 0, 255);
         Rectangle plateRectBoundary = new Rectangle(
             (int) (plateGrid.x - 1),
             (int) (plateGrid.y - 1),
             (int) (plateGrid.width + 2),
             (int) (plateGrid.height + 2));
-        imageGC.setForeground(new Color(canvas.getDisplay(), 255, 0, 0));
+        imageGC.setForeground(red);
         imageGC.drawRectangle(plateRectBoundary);
 
         // create drag circles
@@ -403,13 +405,15 @@ public class PlateGridWidget implements IPlateSettingsListener, MouseMoveListene
         int right = plateRectBoundary.x + plateRectBoundary.width - 3;
         int bottom = plateRectBoundary.y + plateRectBoundary.height - 3;
 
-        imageGC.setForeground(new Color(canvas.getDisplay(), 0, 0, 255));
+        imageGC.setForeground(blue);
         imageGC.drawOval(left, top, 6, 6);
         imageGC.drawOval(right, bottom, 6, 6);
 
         e.gc.drawImage(imageBuffer, 0, 0);
         imageGC.dispose();
         imageBuffer.dispose();
+        red.dispose();
+        blue.dispose();
     }
 
     private void drawGrid(GC gc, Rectangle2D.Double gridRect, Pair<Integer, Integer> dimensions) {
@@ -417,24 +421,23 @@ public class PlateGridWidget implements IPlateSettingsListener, MouseMoveListene
         int cols = dimensions.getRight();
         double cellWidth = gridRect.width / cols;
         double cellHeight = gridRect.height / rows;
-
-        Rectangle cellRect;
-        Color foregroundColor = new Color(canvas.getDisplay(), 0, 255, 0);
-        Color a1BackgroundColor = new Color(canvas.getDisplay(), 255, 255, 0);
-        gc.setForeground(foregroundColor);
         int a1Row = 0;
         int a1Col = 0;
         if (plateSettings.getOrientation().equals(PlateOrientation.LANDSCAPE)) {
             a1Col = cols - 1;
         }
 
+        Rectangle cellRect;
+        Color foregroundColor = new Color(canvas.getDisplay(), 0, 255, 0);
+        Color a1BackgroundColor = new Color(canvas.getDisplay(), 0, 255, 255);
+        gc.setForeground(foregroundColor);
+
         double cx, cy = gridRect.y;
         for (int row = 0; row < rows; row++, cy += cellHeight) {
             cx = gridRect.x;
 
             for (int col = 0; col < cols; col++, cx += cellWidth) {
-                cellRect = new Rectangle((int) cx, (int) cy,
-                    (int) cellWidth, (int) cellHeight);
+                cellRect = new Rectangle((int) cx, (int) cy, (int) cellWidth, (int) cellHeight);
 
                 gc.drawRectangle(cellRect);
 
@@ -442,9 +445,12 @@ public class PlateGridWidget implements IPlateSettingsListener, MouseMoveListene
                     gc.setAlpha(125);
                     gc.setBackground(a1BackgroundColor);
                     gc.fillRectangle(cellRect);
+                    gc.setAlpha(255);
                 }
             }
         }
+        foregroundColor.dispose();
+        a1BackgroundColor.dispose();
     }
 
     private void setEnabled() {
