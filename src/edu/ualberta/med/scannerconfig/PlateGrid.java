@@ -2,7 +2,6 @@ package edu.ualberta.med.scannerconfig;
 
 import java.awt.geom.Rectangle2D;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -60,14 +59,7 @@ public class PlateGrid extends ScanRegion {
      * @return the rows and columns in terms of the current orientation.
      */
     public Pair<Integer, Integer> getDimensions() {
-        switch (orientation) {
-        case LANDSCAPE:
-            return dimensions.getDimensions();
-        case PORTRAIT:
-            return new ImmutablePair<Integer, Integer>(dimensions.getCols(), dimensions.getRows());
-        default:
-            throw new IllegalStateException("invalid value for orientation: " + orientation);
-        }
+        return dimensions.getDimensions();
     }
 
     public void setGridDimensions(PlateDimensions dimensions) {

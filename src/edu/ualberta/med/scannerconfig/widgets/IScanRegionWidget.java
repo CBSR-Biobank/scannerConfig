@@ -18,11 +18,4 @@ public interface IScanRegionWidget {
      */
     public void scanRegionChanged(Rectangle2D.Double scanRegionInInches);
 
-    /**
-     * Called on the parent widget to get the current dimensions of the scan region.
-     * 
-     * @return the dimensions of the scan region in inches.
-     */
-    public Rectangle2D.Double scanRegionInInches();
-
 }

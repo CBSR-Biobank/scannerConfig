@@ -2,17 +2,12 @@ package edu.ualberta.med.scannerconfig.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.xnap.commons.i18n.I18n;
-import org.xnap.commons.i18n.I18nFactory;
 
-import edu.ualberta.med.scannerconfig.PlateDimensions;
-import edu.ualberta.med.scannerconfig.PlateOrientation;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
-    private static final I18n i18n = I18nFactory
-        .getI18n(PreferenceInitializer.class);
+    // private static final I18n i18n = I18nFactory.getI18n(PreferenceInitializer.class);
 
     @SuppressWarnings("nls")
     @Override
@@ -33,22 +28,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_ENABLED.length; i++) {
             store.setDefault(PreferenceConstants.SCANNER_PALLET_ENABLED[i],
                 false);
-        }
-        for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_CONFIG.length; i++) {
-            store.setDefault(PreferenceConstants.SCANNER_PALLET_ORIENTATION[i],
-                false);
-        }
-        for (int i = 0; i < PreferenceConstants.SCANNER_PLATE_BARCODES.length; i++) {
-            store.setDefault(PreferenceConstants.SCANNER_PLATE_BARCODES[i],
-                i18n.tr("PLATE") + (i + 1));
-        }
-        for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_ORIENTATION.length; i++) {
-            store.setDefault(PreferenceConstants.SCANNER_PALLET_ORIENTATION[i],
-                PlateOrientation.LANDSCAPE.toString());
-        }
-        for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS.length; i++) {
-            store.setDefault(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[i],
-                PlateDimensions.DIM_ROWS_8_COLS_12.toString());
         }
     }
 }

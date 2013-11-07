@@ -19,12 +19,7 @@ public class PlateEnabledState extends AbstractSourceProvider {
     @Override
     public Map<String, Object> getCurrentState() {
         Map<String, Object> currentStateMap = new HashMap<String, Object>(1);
-        currentStateMap.put(PLATES_ENABLED, new Boolean(ScannerConfigPlugin
-            .getDefault().getPlateEnabled(1)
-            || ScannerConfigPlugin.getDefault().getPlateEnabled(2)
-            || ScannerConfigPlugin.getDefault().getPlateEnabled(3)
-            || ScannerConfigPlugin.getDefault().getPlateEnabled(4)
-            || ScannerConfigPlugin.getDefault().getPlateEnabled(5)));
+        currentStateMap.put(PLATES_ENABLED, ScannerConfigPlugin.getPlatesEnabledCount() > 0);
         return currentStateMap;
     }
 
@@ -35,11 +30,7 @@ public class PlateEnabledState extends AbstractSourceProvider {
 
     public void setPlateEnabled() {
         fireSourceChanged(ISources.WORKBENCH, PLATES_ENABLED,
-            ScannerConfigPlugin.getDefault().getPlateEnabled(1)
-                || ScannerConfigPlugin.getDefault().getPlateEnabled(2)
-                || ScannerConfigPlugin.getDefault().getPlateEnabled(3)
-                || ScannerConfigPlugin.getDefault().getPlateEnabled(4)
-                || ScannerConfigPlugin.getDefault().getPlateEnabled(5));
+            ScannerConfigPlugin.getPlatesEnabledCount() > 0);
     }
 
 }

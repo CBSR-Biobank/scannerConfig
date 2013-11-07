@@ -7,7 +7,7 @@ import org.eclipse.core.commands.IHandler;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
-import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
+import edu.ualberta.med.biobank.gui.common.BgcPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
 
@@ -21,7 +21,7 @@ public class SelectSource extends AbstractHandler implements IHandler {
         ScanLibResult result = ScanLib.getInstance().selectSourceAsDefault();
 
         if (result.getResultCode() != ScanLibResult.Result.SUCCESS) {
-            ScannerConfigPlugin.openError(i18n.tr("Source Selection Error"),
+            BgcPlugin.openError(i18n.tr("Source Selection Error"),
                 result.getMessage());
         }
         return null;

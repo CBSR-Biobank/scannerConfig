@@ -1,50 +1,64 @@
 package edu.ualberta.med.scannerconfig;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.xnap.commons.i18n.I18n;
+import org.xnap.commons.i18n.I18nFactory;
+
 public enum PlateOrientation {
-    LANDSCAPE("Landscape"),
-    PORTRAIT("Portrait");
+    LANDSCAPE("Landscape", Constants.i18n.tr("Landscape")),
+    PORTRAIT("Portrait", Constants.i18n.tr("Portrait"));
 
-    private final String preferenceStoreString;
+    private static class Constants {
+        private static final I18n i18n = I18nFactory.getI18n(PlateOrientation.class);
+    }
 
-    private static final Map<String, PlateOrientation> LABELS_MAP;
+    public static final int size = PlateOrientation.values().length;
+
+    private final String id;
+    private final String displayLabel;
+
+    private static final Map<String, PlateOrientation> ID_MAP;
 
     static {
-        Map<String, PlateOrientation> map = new HashMap<String, PlateOrientation>();
+        Map<String, PlateOrientation> map = new LinkedHashMap<String, PlateOrientation>();
 
         for (PlateOrientation orientationEnum : values()) {
-            PlateOrientation check = map.get(orientationEnum.toString());
+            PlateOrientation check = map.get(orientationEnum.getId());
             if (check != null) {
-                throw new IllegalStateException("permission enum value "
-                    + orientationEnum.toString() + " used multiple times");
+                throw new IllegalStateException("plate orientation value "
+                    + orientationEnum.getId() + " used multiple times");
             }
 
-            map.put(orientationEnum.toString(), orientationEnum);
+            map.put(orientationEnum.getId(), orientationEnum);
         }
 
-        LABELS_MAP = Collections.unmodifiableMap(map);
+        ID_MAP = Collections.unmodifiableMap(map);
     }
 
-    private PlateOrientation(String label) {
-        this.preferenceStoreString = label;
+    private PlateOrientation(String id, String displayLabel) {
+        this.id = id;
+        this.displayLabel = displayLabel;
     }
 
-    @Override
-    public String toString() {
-        return preferenceStoreString;
+    public String getId() {
+        return id;
+    }
+
+    public String getDisplayLabel() {
+        return displayLabel;
     }
 
     public static Map<String, PlateOrientation> valuesMap() {
-        return LABELS_MAP;
+        return ID_MAP;
     }
 
-    public static PlateOrientation getFromString(String label) {
-        PlateOrientation result = valuesMap().get(label);
+    public static PlateOrientation getFromIdString(String id) {
+        PlateOrientation result = valuesMap().get(id);
         if (result == null) {
-            throw new IllegalStateException("invalid plate orientation: " + label);
+            throw new IllegalStateException("invalid plate orientation: " + id);
         }
         return result;
     }

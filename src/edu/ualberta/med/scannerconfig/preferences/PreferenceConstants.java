@@ -1,7 +1,5 @@
 package edu.ualberta.med.scannerconfig.preferences;
 
-import edu.ualberta.med.scannerconfig.PlateDimensions;
-import edu.ualberta.med.scannerconfig.PlateOrientation;
 
 @SuppressWarnings("nls")
 public class PreferenceConstants {
@@ -64,42 +62,6 @@ public class PreferenceConstants {
             "scanner.plate.coords.right.5", "scanner.plate.coords.bottom.5",
             "scanner.plate.coords.gapx.5", "scanner.plate.coords.gapy.5" } };
 
-    public static final String[] SCANNER_PALLET_ORIENTATION = {
-        "scanner.plate.orientation.1", "scanner.plate.orientation.2",
-        "scanner.plate.orientation.3", "scanner.plate.orientation.4",
-        "scanner.plate.orientation.5" };
-
-    public static final String[] SCANNER_PALLET_GRID_DIMENSIONS = {
-        "scanner.plate.griddimensions.1", "scanner.plate.griddimensions.2",
-        "scanner.plate.griddimensions.3", "scanner.plate.griddimensions.4",
-        "scanner.plate.griddimensions.5" };
-
-    public static final String[] SCANNER_PLATE_BARCODES = {
-        "scanner.plate.barcode.1", "scanner.plate.barcode.2",
-        "scanner.plate.barcode.3", "scanner.plate.barcode.4",
-        "scanner.plate.barcode.5" };
-
     public static final String SCANNER_PLATE_SHOW_BARCODE_PREF = "scanner.plate.show.barcode.pref";
 
-    public static int gridRows(PlateDimensions gridDimensions, PlateOrientation orientation) {
-        switch (orientation) {
-        case LANDSCAPE:
-            return gridDimensions.getRows();
-        case PORTRAIT:
-            return gridDimensions.getCols();
-        default:
-            throw new IllegalStateException("invalid value for orientation: " + orientation);
-        }
-    }
-
-    public static int gridCols(PlateDimensions gridDimensions, PlateOrientation orientation) {
-        switch (orientation) {
-        case LANDSCAPE:
-            return gridDimensions.getCols();
-        case PORTRAIT:
-            return gridDimensions.getRows();
-        default:
-            throw new IllegalStateException("invalid value for orientation: " + orientation);
-        }
-    }
 }

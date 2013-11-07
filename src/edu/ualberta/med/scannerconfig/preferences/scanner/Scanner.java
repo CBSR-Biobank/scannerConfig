@@ -15,6 +15,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+import edu.ualberta.med.biobank.gui.common.BgcPlugin;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
@@ -130,7 +131,7 @@ public class Scanner extends FieldEditorPreferencePage implements
                 return;
             }
             setEnableAllWidgets(false);
-            ScannerConfigPlugin.openError(i18n.tr("Scanning Source Error"),
+            BgcPlugin.openError(i18n.tr("Scanning Source Error"),
                 scanlibResult.getMessage());
             return;
         }

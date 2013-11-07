@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.ualberta.med.biobank.util.SbsLabeling;
 import edu.ualberta.med.scannerconfig.PlateOrientation;
 
 /**
@@ -76,25 +75,26 @@ public final class WellRectangle {
 
         Set<WellRectangle> wells = new HashSet<WellRectangle>();
 
-        for (int row = 0; row < rows; ++row) {
+        // FIXME: scanning and decoding
+        throw new RuntimeException("not implemented yet");
 
-            BoundingBox wellBbox =
-                startBbox.translate(verTranslation.scale(row));
-
-            for (int col = 0; col < cols; ++col) {
-                String label;
-                if (orientation.equals(PlateOrientation.LANDSCAPE)) {
-                    label = SbsLabeling.fromRowCol(row, cols - 1 - col);
-                } else {
-                    label = SbsLabeling.fromRowCol(col, row);
-                }
-                WellRectangle well = new WellRectangle(label, wellBbox);
-                wells.add(well);
-                wellBbox = wellBbox.translate(horTranslation);
-            }
-        }
-
-        return wells;
+        // for (int row = 0; row < rows; ++row) {
+        // BoundingBox wellBbox = startBbox.translate(verTranslation.scale(row));
+        //
+        // for (int col = 0; col < cols; ++col) {
+        // String label;
+        // if (orientation.equals(PlateOrientation.LANDSCAPE)) {
+        // label = SbsLabeling.fromRowCol(row, cols - 1 - col);
+        // } else {
+        // label = SbsLabeling.fromRowCol(col, row);
+        // }
+        // WellRectangle well = new WellRectangle(label, wellBbox);
+        // wells.add(well);
+        // wellBbox = wellBbox.translate(horTranslation);
+        // }
+        // }
+        //
+        // return wells;
     }
 
 }

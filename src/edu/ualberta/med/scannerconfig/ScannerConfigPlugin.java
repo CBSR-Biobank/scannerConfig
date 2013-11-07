@@ -3,8 +3,7 @@ package edu.ualberta.med.scannerconfig;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -13,13 +12,11 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -90,28 +87,6 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         super.start(context);
         plugin = this;
 
-        // initialize these settings if never assigned
-        IPreferenceStore prefs = ScannerConfigPlugin.getDefault().getPreferenceStore();
-        for (int i = 0, n = PreferenceConstants.SCANNER_PALLET_ORIENTATION.length; i < n; ++i) {
-            try {
-                PlateOrientation.getFromString(prefs.getString(
-                    PreferenceConstants.SCANNER_PALLET_ORIENTATION[i]));
-            } catch (IllegalStateException e) {
-                prefs.setDefault(PreferenceConstants.SCANNER_PALLET_ORIENTATION[i],
-                    PlateOrientation.LANDSCAPE.toString());
-            }
-        }
-
-        for (int i = 0, n = PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS.length; i < n; ++i) {
-            try {
-                PlateOrientation.getFromString(prefs.getString(
-                    PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[i]));
-            } catch (IllegalStateException e) {
-                prefs.setDefault(PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[i],
-                    PlateDimensions.DIM_ROWS_8_COLS_12.toString());
-            }
-        }
-
         getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent event) {
@@ -173,8 +148,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public static ScanLibResult.Result scanImage(BoundingBox region, String filename)
-        throws Exception {
+    public static ScanLibResult.Result scanImage(BoundingBox region, String filename) {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
         int dpi = prefs.getInt(PreferenceConstants.SCANNER_DPI);
@@ -189,7 +163,7 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public static ScanLibResult.Result scanPlate(int plateNumber, String filename) throws Exception {
+    public static ScanLibResult.Result scanPlate(int plateNumber, String filename) {
 
         if ((plateNumber < 0) || (plateNumber > PreferenceConstants.SCANNER_PALLET_CONFIG.length)) {
             throw new IllegalArgumentException("plate number is invalid: " + plateNumber);
@@ -234,7 +208,8 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public static Set<DecodedWell> decodePlate(int plateNumber) throws Exception {
+    public static Set<DecodedWell> decodePlate(int plateNumber, int rows, int cols)
+        throws Exception {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
         int dpi = prefs.getInt(PreferenceConstants.SCANNER_DPI);
@@ -254,13 +229,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
         final ScanRegion scanBbox = regionModifyIfScannerWia(scanRegion);
         final BoundingBox wellsBbox = getWellsBoundingBox(scanRegion);
-        PlateOrientation orientation = getPlateOrientation(plateNumber);
-
-        int rows = PreferenceConstants.gridRows(getPlateGridDimensions(plateNumber), orientation);
-        int cols = PreferenceConstants.gridCols(getPlateGridDimensions(plateNumber), orientation);
 
         Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(
-            wellsBbox, rows, cols, orientation, dpi);
+            wellsBbox, rows, cols, PlateOrientation.LANDSCAPE, dpi);
 
         DecodeResult res =
             ScanLib.getInstance().scanAndDecode(debugLevel, dpi, brightness, contrast, scanBbox,
@@ -305,26 +276,53 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         return res.getDecodedWells();
     }
 
-    @SuppressWarnings("nls")
-    public boolean getPlateEnabled(int plateId) {
-        Assert.isTrue((plateId > 0)
-            && (plateId <= PreferenceConstants.SCANNER_PALLET_ENABLED.length),
-            i18n.tr("plate id is invalid: ") + plateId);
-        return getPreferenceStore().getBoolean(
-            PreferenceConstants.SCANNER_PALLET_ENABLED[plateId - 1]);
+    /**
+     * Used to get a list of enabled plates.
+     * 
+     * @return A list of the currently enabled plates in the preferences.
+     */
+    public Set<ScanPlate> getPlatesEnabled() {
+        Set<ScanPlate> platesEnabled = new LinkedHashSet<ScanPlate>();
+        for (ScanPlate plate : ScanPlate.values()) {
+            if (getPreferenceStore().getBoolean(PreferenceConstants.SCANNER_PALLET_ENABLED[plate.getId() - 1])) {
+                platesEnabled.add(plate);
+            }
+        }
+        return platesEnabled;
     }
 
-    public int getPlateCount() {
-        int result = 0;
-        for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_ENABLED.length; ++i) {
-            if (getPreferenceStore().getBoolean(PreferenceConstants.SCANNER_PALLET_ENABLED[i]))
-                ++result;
+    /**
+     * Used to query if a plate scanning region has been defined in the preferences by the user.
+     * 
+     * @param plateId A value between 1 and 5. Corresponds to the preferences.
+     * 
+     * @return True if the user has enabled the plate in the preferences. False otherwise.
+     */
+    @SuppressWarnings("nls")
+    public boolean getPlateEnabled(ScanPlate plateId) {
+        if (ScanPlate.size != PreferenceConstants.SCANNER_PALLET_ENABLED.length) {
+            throw new IllegalStateException("the size enum ScanPlate does not match the number of preferences");
         }
-        return result;
+        return getPreferenceStore().getBoolean(
+            PreferenceConstants.SCANNER_PALLET_ENABLED[plateId.getId() - 1]);
+    }
+
+    public static int getPlateCount() {
+        return ScanPlate.size;
+    }
+
+    public static int getPlatesEnabledCount() {
+        int count = 0;
+        for (ScanPlate plateId : ScanPlate.values()) {
+            if (ScannerConfigPlugin.getDefault().getPlateEnabled(plateId)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public static int getPlatesMax() {
-        return PreferenceConstants.SCANNER_PALLET_ENABLED.length;
+        return getPlateCount();
     }
 
     public int getDpi() {
@@ -337,100 +335,5 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
     public int getContrast() {
         return getPreferenceStore().getInt(PreferenceConstants.SCANNER_CONTRAST);
-    }
-
-    /**
-     * Display an error message
-     */
-    public static void openError(String title, String message) {
-        MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-            title, message);
-    }
-
-    public static void openInformation(String title, String message) {
-        MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-            .getShell(), title, message);
-    }
-
-    public static boolean openConfim(String title, String message) {
-        return MessageDialog.openConfirm(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-            .getShell(), title, message);
-    }
-
-    /**
-     * Display an error message asynchronously
-     */
-    public static void openAsyncError(final String title, final String message) {
-        Display.getDefault().asyncExec(new Runnable() {
-            @Override
-            public void run() {
-                MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell(), title, message);
-            }
-        });
-    }
-
-    @SuppressWarnings("nls")
-    public int getPlateNumber(String barcode) {
-        for (int i = 0; i < PreferenceConstants.SCANNER_PLATE_BARCODES.length; i++) {
-            if (!ScannerConfigPlugin.getDefault().getPlateEnabled(i + 1)) continue;
-
-            String pref =
-                getPreferenceStore().getString(PreferenceConstants.SCANNER_PLATE_BARCODES[i]);
-            Assert.isTrue(!pref.isEmpty(), i18n.tr("preference not assigned"));
-            if (pref.equals(barcode)) {
-                return i + 1;
-            }
-        }
-        return -1;
-    }
-
-    @SuppressWarnings("nls")
-    public List<String> getPossibleBarcodes() {
-        List<String> barcodes = new ArrayList<String>();
-        for (int i = 0; i < PreferenceConstants.SCANNER_PLATE_BARCODES.length; i++) {
-            if (!ScannerConfigPlugin.getDefault().getPlateEnabled(i + 1)) continue;
-
-            String pref = getPreferenceStore().getString(
-                PreferenceConstants.SCANNER_PLATE_BARCODES[i]);
-            Assert.isTrue(!pref.isEmpty(), i18n.tr("preference not assigned"));
-            barcodes.add(pref);
-        }
-        return barcodes;
-    }
-
-    public static int getPlatesEnabledCount(boolean realscan) {
-        int count = 0;
-        for (int i = 0; i < PreferenceConstants.SCANNER_PLATE_BARCODES.length; i++) {
-            if (!realscan || ScannerConfigPlugin.getDefault().getPlateEnabled(i + 1)) count++;
-        }
-        return count;
-    }
-
-    @SuppressWarnings("nls")
-    public static PlateOrientation getPlateOrientation(int plateId) {
-        if ((plateId < 0) || (plateId > PreferenceConstants.SCANNER_PALLET_ENABLED.length)) {
-            throw new IllegalArgumentException("plate id is invalid: " + plateId);
-        }
-        String value = getDefault().getPreferenceStore().getString(
-            PreferenceConstants.SCANNER_PALLET_ORIENTATION[plateId - 1]);
-        return PlateOrientation.getFromString(value);
-    }
-
-    @SuppressWarnings("nls")
-    public static PlateDimensions getPlateGridDimensions(int plateId) {
-        if ((plateId < 0) || (plateId > PreferenceConstants.SCANNER_PALLET_ENABLED.length)) {
-            throw new IllegalArgumentException("plate id is invalid: " + plateId);
-        }
-        String value = getDefault().getPreferenceStore().getString(
-            PreferenceConstants.SCANNER_PALLET_GRID_DIMENSIONS[plateId - 1]);
-        return PlateDimensions.getFromString(value);
-    }
-
-    /**
-     * Out of all the plates that can be configured, return the maximum number of rows possible.
-     */
-    public int getPlateMaxRows() {
-        return 10;
     }
 }

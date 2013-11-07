@@ -6,12 +6,11 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.custom.BusyIndicator;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+import edu.ualberta.med.biobank.gui.common.BgcPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
@@ -25,7 +24,7 @@ public class FlatbedImageScan {
     protected ListenerList listenerList = new ListenerList();
 
     private static final I18n i18n = I18nFactory.getI18n(FlatbedImageScan.class);
-    private Image scannedImage;
+    private ImageWithDpi scannedImage;
 
     // used for debugging in Linux
     private final boolean haveFakeFlatbedImage;
@@ -86,7 +85,7 @@ public class FlatbedImageScan {
             && ScannerConfigPlugin.getDefault().getPreferenceStore()
                 .getString(PreferenceConstants.SCANNER_DRV_TYPE)
                 .equals(PreferenceConstants.SCANNER_DRV_TYPE_NONE)) {
-            ScannerConfigPlugin.openAsyncError(
+            BgcPlugin.openAsyncError(
                 i18n.tr("Scanner Driver Not Selected"),
                 i18n.tr("Please select and configure the scanner in preferences"));
             return;
@@ -100,22 +99,20 @@ public class FlatbedImageScan {
             public void run() {
                 if (!haveFakeFlatbedImage) {
                     final ScanLibResult result = ScanLib.getInstance().scanFlatbed(
-                        debugLevel, FlatbedImageScan.PLATE_IMAGE_DPI, brightness, contrast,
+                        debugLevel, PLATE_IMAGE_DPI, brightness, contrast,
                         FlatbedImageScan.PALLET_IMAGE_FILE);
 
                     if (result.getResultCode() != ScanLibResult.Result.SUCCESS) {
-                        ScannerConfigPlugin.openAsyncError(i18n.tr("Scanner error"),
+                        BgcPlugin.openAsyncError(i18n.tr("Scanner error"),
                             result.getMessage());
                         return;
                     }
                 }
 
-                File file = new File(FlatbedImageScan.PALLET_IMAGE_FILE);
+                File file = new File(PALLET_IMAGE_FILE);
                 Assert.isTrue(file.exists());
 
-                scannedImage = new Image(PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow().getShell().getDisplay(),
-                    FlatbedImageScan.PALLET_IMAGE_FILE);
+                scannedImage = new ImageWithDpi(PALLET_IMAGE_FILE, PLATE_IMAGE_DPI);
                 notifyListeners(true);
             }
         });
