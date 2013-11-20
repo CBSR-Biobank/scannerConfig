@@ -1,12 +1,8 @@
 package edu.ualberta.med.scannerconfig;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.net.URL;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import javax.imageio.ImageIO;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.FileLocator;
@@ -26,16 +22,11 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import edu.ualberta.med.scannerconfig.dmscanlib.BoundingBox;
-import edu.ualberta.med.scannerconfig.dmscanlib.DecodeOptions;
-import edu.ualberta.med.scannerconfig.dmscanlib.DecodeResult;
-import edu.ualberta.med.scannerconfig.dmscanlib.DecodedWell;
-import edu.ualberta.med.scannerconfig.dmscanlib.ImageInfo;
 import edu.ualberta.med.scannerconfig.dmscanlib.Point;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
-import edu.ualberta.med.scannerconfig.dmscanlib.ScanRegion;
-import edu.ualberta.med.scannerconfig.dmscanlib.WellRectangle;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
+import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
 import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
 
 /**
@@ -43,6 +34,7 @@ import edu.ualberta.med.scannerconfig.sourceproviders.PlateEnabledState;
  */
 public class ScannerConfigPlugin extends AbstractUIPlugin {
 
+    @SuppressWarnings("unused")
     private static final I18n i18n = I18nFactory.getI18n(ScannerConfigPlugin.class);
 
     public static final String IMG_SCANNER = "scanner"; //$NON-NLS-1$
@@ -148,38 +140,34 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     @SuppressWarnings("nls")
-    public static ScanLibResult.Result scanImage(BoundingBox region, String filename) {
+    public static ScanLibResult.Result scanImage(BoundingBox region, String filename, ScannerDpi dpi) {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
-        int dpi = prefs.getInt(PreferenceConstants.SCANNER_DPI);
         int brightness = prefs.getInt(PreferenceConstants.SCANNER_BRIGHTNESS);
         int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
         ScanLibResult res = ScanLib.getInstance().scanImage(
-            debugLevel, dpi, brightness, contrast, region, filename);
+            debugLevel, dpi.getValue(), brightness, contrast, region, filename);
 
         return res.getResultCode();
     }
 
     @SuppressWarnings("nls")
-    public static ScanLibResult.Result scanPlate(int plateNumber, String filename) {
+    public static ScanLibResult.Result scanPlate(ScanPlate scanPlate, String filename,
+        ScannerDpi dpi) {
 
-        if ((plateNumber < 0) || (plateNumber > PreferenceConstants.SCANNER_PALLET_CONFIG.length)) {
-            throw new IllegalArgumentException("plate number is invalid: " + plateNumber);
-        }
-
-        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
+        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[scanPlate.getId() - 1];
 
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
-        ScanRegion region =
-            new ScanRegion(new Point(prefs.getDouble(prefsArr[0]), prefs.getDouble(prefsArr[1])),
-                new Point(prefs.getDouble(prefsArr[2]), prefs.getDouble(prefsArr[3])));
+        BoundingBox region = new BoundingBox(
+            new Point(prefs.getDouble(prefsArr[0]), prefs.getDouble(prefsArr[1])),
+            new Point(prefs.getDouble(prefsArr[2]), prefs.getDouble(prefsArr[3])));
 
         region = regionModifyIfScannerWia(region);
 
-        return scanImage(region, filename);
+        return scanImage(region, filename, dpi);
     }
 
     // bbox here has to start at (0,0)
@@ -192,12 +180,14 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     /*
      * 
      */
-    public static ScanRegion getWiaBoundingBox(final BoundingBox scanBbox) {
+    public static BoundingBox getWiaBoundingBox(final BoundingBox scanBbox) {
         final Point scanBoxPt1Neg = scanBbox.getCorner(0).scale(-1);
-        return new ScanRegion(scanBbox.getCorner(0), scanBbox.getCorner(1).translate(scanBoxPt1Neg));
+        return new BoundingBox(
+            scanBbox.getCorner(0),
+            scanBbox.getCorner(1).translate(scanBoxPt1Neg));
     }
 
-    private static ScanRegion regionModifyIfScannerWia(ScanRegion region) {
+    private static BoundingBox regionModifyIfScannerWia(BoundingBox region) {
         if (!ScannerConfigPlugin.getDefault().getPreferenceStore()
             .getString(PreferenceConstants.SCANNER_DRV_TYPE)
             .equals(PreferenceConstants.SCANNER_DRV_TYPE_WIA)) {
@@ -205,75 +195,6 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         }
 
         return getWiaBoundingBox(region);
-    }
-
-    @SuppressWarnings("nls")
-    public static Set<DecodedWell> decodePlate(int plateNumber, int rows, int cols)
-        throws Exception {
-        IPreferenceStore prefs = getDefault().getPreferenceStore();
-
-        int dpi = prefs.getInt(PreferenceConstants.SCANNER_DPI);
-        int brightness = prefs.getInt(PreferenceConstants.SCANNER_BRIGHTNESS);
-        int contrast = prefs.getInt(PreferenceConstants.SCANNER_CONTRAST);
-        int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
-        int edgeThresh = prefs.getInt(PreferenceConstants.LIBDMTX_EDGE_THRESH);
-        double scanGap = prefs.getDouble(PreferenceConstants.LIBDMTX_SCAN_GAP);
-        int squareDev = prefs.getInt(PreferenceConstants.LIBDMTX_SQUARE_DEV);
-        int corrections = prefs.getInt(PreferenceConstants.LIBDMTX_CORRECTIONS);
-
-        String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[plateNumber - 1];
-
-        final ScanRegion scanRegion =
-            new ScanRegion(new Point(prefs.getDouble(prefsArr[0]), prefs.getDouble(prefsArr[1])),
-                new Point(prefs.getDouble(prefsArr[2]), prefs.getDouble(prefsArr[3])));
-
-        final ScanRegion scanBbox = regionModifyIfScannerWia(scanRegion);
-        final BoundingBox wellsBbox = getWellsBoundingBox(scanRegion);
-
-        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(
-            wellsBbox, rows, cols, PlateOrientation.LANDSCAPE, dpi);
-
-        DecodeResult res =
-            ScanLib.getInstance().scanAndDecode(debugLevel, dpi, brightness, contrast, scanBbox,
-                new DecodeOptions(scanGap, squareDev, edgeThresh, corrections, 1),
-                wells.toArray(new WellRectangle[] {}));
-
-        if (res.getResultCode() != ScanLibResult.Result.SUCCESS) {
-            throw new ScanningException(i18n.tr("Could not decode plate:\n") + res.getMessage());
-        }
-        return res.getDecodedWells();
-    }
-
-    @SuppressWarnings("nls")
-    public static Set<DecodedWell> decodeImage(String filename, int rows, int cols)
-        throws Exception {
-        IPreferenceStore prefs = getDefault().getPreferenceStore();
-
-        int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
-        int edgeThresh = prefs.getInt(PreferenceConstants.LIBDMTX_EDGE_THRESH);
-        double scanGap = prefs.getDouble(PreferenceConstants.LIBDMTX_SCAN_GAP);
-        int squareDev = prefs.getInt(PreferenceConstants.LIBDMTX_SQUARE_DEV);
-        int corrections = prefs.getInt(PreferenceConstants.LIBDMTX_CORRECTIONS);
-
-        File imageFile = new File(filename);
-        BufferedImage image = ImageIO.read(imageFile);
-        final int dpi = ImageInfo.getImageDpi(imageFile);
-        final double dotWidth = 1 / new Double(dpi).doubleValue();
-        BoundingBox imageBbox =
-            new BoundingBox(new Point(0, 0),
-                new Point(image.getWidth(), image.getHeight()).scale(dotWidth));
-
-        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(
-            imageBbox, rows, cols, PlateOrientation.LANDSCAPE, dpi);
-
-        DecodeResult res = ScanLib.getInstance().decodeImage(
-            debugLevel, filename, new DecodeOptions(scanGap, squareDev, edgeThresh, corrections, 1),
-            wells.toArray(new WellRectangle[] {}));
-
-        if (res.getResultCode() != ScanLibResult.Result.SUCCESS) {
-            throw new ScanningException(i18n.tr("Could not decode image: ") + res.getMessage());
-        }
-        return res.getDecodedWells();
     }
 
     /**
@@ -323,10 +244,6 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
     public static int getPlatesMax() {
         return getPlateCount();
-    }
-
-    public int getDpi() {
-        return getPreferenceStore().getInt(PreferenceConstants.SCANNER_DPI);
     }
 
     public int getBrightness() {

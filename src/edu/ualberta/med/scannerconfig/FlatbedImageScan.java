@@ -24,7 +24,7 @@ public class FlatbedImageScan {
     protected ListenerList listenerList = new ListenerList();
 
     private static final I18n i18n = I18nFactory.getI18n(FlatbedImageScan.class);
-    private ImageWithDpi scannedImage;
+    private BarcodeImage scannedImage;
 
     // used for debugging in Linux
     private final boolean haveFakeFlatbedImage;
@@ -112,7 +112,7 @@ public class FlatbedImageScan {
                 File file = new File(PALLET_IMAGE_FILE);
                 Assert.isTrue(file.exists());
 
-                scannedImage = new ImageWithDpi(PALLET_IMAGE_FILE, PLATE_IMAGE_DPI);
+                scannedImage = new BarcodeImage(PALLET_IMAGE_FILE);
                 notifyListeners(true);
             }
         });

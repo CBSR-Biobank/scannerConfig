@@ -1,6 +1,7 @@
-package edu.ualberta.med.scannerconfig.widgets;
+package edu.ualberta.med.scannerconfig.widgets.imageregion;
 
 import java.awt.geom.Rectangle2D;
+
 
 /**
  * Used by {@link ScanRegionWidget} to retrieve or assign scan region dimensions.

@@ -16,26 +16,26 @@ import org.xnap.commons.i18n.I18nFactory;
  * @author loyola
  * 
  */
-public enum CameraPosition {
-    ABOVE("CAMERA_POSITION_ABOVE", Constants.i18n.tr("Above")),
-    BELOW("CAMERA_POSITION_BELOW", Constants.i18n.tr("Below"));
+public enum BarcodePosition {
+    TOP("BARCODE_POSITION_ABOVE", Constants.i18n.tr("Top")),
+    BOTTOM("BARCODE_POSITION_BELOW", Constants.i18n.tr("Bottom"));
 
     private static class Constants {
-        private static final I18n i18n = I18nFactory.getI18n(CameraPosition.class);
+        private static final I18n i18n = I18nFactory.getI18n(BarcodePosition.class);
     }
 
-    public static final int size = CameraPosition.values().length;
+    public static final int size = values().length;
 
     private final String id;
     private final String displayLabel;
 
-    private static final Map<String, CameraPosition> ID_MAP;
+    private static final Map<String, BarcodePosition> ID_MAP;
 
     static {
-        Map<String, CameraPosition> map = new LinkedHashMap<String, CameraPosition>();
+        Map<String, BarcodePosition> map = new LinkedHashMap<String, BarcodePosition>();
 
-        for (CameraPosition enumValue : values()) {
-            CameraPosition check = map.get(enumValue.getId());
+        for (BarcodePosition enumValue : values()) {
+            BarcodePosition check = map.get(enumValue.getId());
             if (check != null) {
                 throw new IllegalStateException("scan plate value "
                     + enumValue.getId() + " used multiple times");
@@ -47,7 +47,7 @@ public enum CameraPosition {
         ID_MAP = Collections.unmodifiableMap(map);
     }
 
-    private CameraPosition(String id, String displayString) {
+    private BarcodePosition(String id, String displayString) {
         this.id = id;
         this.displayLabel = displayString;
     }
@@ -60,14 +60,14 @@ public enum CameraPosition {
         return displayLabel;
     }
 
-    public static Map<String, CameraPosition> valuesMap() {
+    public static Map<String, BarcodePosition> valuesMap() {
         return ID_MAP;
     }
 
-    public static CameraPosition getFromIdString(String id) {
-        CameraPosition result = valuesMap().get(id);
+    public static BarcodePosition getFromIdString(String id) {
+        BarcodePosition result = valuesMap().get(id);
         if (result == null) {
-            throw new IllegalStateException("invalid plate dimensions: " + id);
+            throw new IllegalStateException("invalid barcode position: " + id);
         }
         return result;
     }

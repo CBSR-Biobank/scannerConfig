@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.widgets;
+package edu.ualberta.med.scannerconfig.widgets.imageregion;
 
 import java.awt.geom.Rectangle2D;
 
@@ -9,8 +9,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.ualberta.med.scannerconfig.BarcodeImage;
 import edu.ualberta.med.scannerconfig.FlatbedImageScan;
-import edu.ualberta.med.scannerconfig.ImageWithDpi;
 
 /**
  * A widget that allows the user to manipulate a rectangle, representing a scanning region,
@@ -26,7 +26,7 @@ public class ScanRegionWidget extends ImageWithRegionWidget {
 
     private final IScanRegionWidget parentWidget;
 
-    protected boolean enabled = false;
+    protected boolean regionEnabled = false;
 
     public ScanRegionWidget(Composite parent, IScanRegionWidget parentWidget) {
         super(parent);
@@ -34,7 +34,7 @@ public class ScanRegionWidget extends ImageWithRegionWidget {
             throw new NullPointerException("parent widget is null");
         }
         this.parentWidget = parentWidget;
-        setEnabled(enabled);
+        setEnabled(regionEnabled);
     }
 
     @Override
@@ -82,19 +82,27 @@ public class ScanRegionWidget extends ImageWithRegionWidget {
     }
 
     /**
-     * Called by parent widget when to enable or disable this scan region.
+     * Called by parent widget when to enable the scan region.
      * 
      * @param setting When {@link true} then the scan region is enabled. It is disabled otherwise.
      */
-    public void setEnabled(boolean setting) {
+    public void enableRegion() {
         if ((canvas == null) || canvas.isDisposed()) return;
-        log.trace("setEnabled: {}", setting);
-        enabled = setting;
+        log.trace("enableRegion");
+        regionEnabled = true;
+        super.updateImage(null);
 
-        if (!enabled) {
-            super.imageUpdated(null);
-        }
+        canvas.redraw();
+        canvas.update();
+    }
 
+    /**
+     * Called by parent widget when to disable the scan region.
+     * 
+     */
+    public void disableRegion() {
+        log.trace("disableRegion");
+        regionEnabled = false;
         canvas.redraw();
         canvas.update();
     }
@@ -102,9 +110,13 @@ public class ScanRegionWidget extends ImageWithRegionWidget {
     /**
      * Called by parent widget when a new flatbed image is available.
      */
-    @Override
-    public void imageUpdated(ImageWithDpi image) {
-        super.imageUpdated(image);
-        setEnabled(enabled);
+    public void updateImage(BarcodeImage image, Rectangle2D.Double scanRegionInInches) {
+        super.updateImage(image);
+        setUserRegionInInches(scanRegionInInches);
+        setEnabled(regionEnabled);
+    }
+
+    public void removeImage() {
+        super.updateImage(null);
     }
 }

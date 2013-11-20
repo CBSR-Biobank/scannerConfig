@@ -1,16 +1,7 @@
 package edu.ualberta.med.scannerconfig.preferences;
 
-
 @SuppressWarnings("nls")
 public class PreferenceConstants {
-
-    public static final String SCANNER_DPI = "scanner.dpi";
-
-    public static final String SCANNER_300_DPI = "300";
-
-    public static final String SCANNER_400_DPI = "400";
-
-    public static final String SCANNER_600_DPI = "600";
 
     public static final String SCANNER_BRIGHTNESS = "scanner.brightness";
 

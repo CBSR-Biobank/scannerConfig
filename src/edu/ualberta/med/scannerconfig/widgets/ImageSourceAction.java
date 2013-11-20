@@ -7,7 +7,12 @@ import java.util.Map;
 public enum ImageSourceAction {
     SCAN(1),
     RESCAN(2),
-    FILE(3);
+    FILENAME(3),
+    PLATE_ORIENTATION(4),
+    PLATE_DIMENSIONS(5),
+    BARCODE_POSITION(6),
+    IMAGE_SOURCE_CHANGED(7),
+    DPI_CHANGED(8);
 
     private final int id;
 

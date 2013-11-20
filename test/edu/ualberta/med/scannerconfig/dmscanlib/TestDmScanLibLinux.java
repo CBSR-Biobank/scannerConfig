@@ -36,7 +36,7 @@ public class TestDmScanLibLinux extends RequiresJniLibraryTest {
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
         r = scanLib.scanAndDecode(0, 0, 0, 0, null, null,
-            new WellRectangle[] {});
+            new CellRectangle[] {});
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
     }

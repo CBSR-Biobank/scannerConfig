@@ -13,8 +13,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.ualberta.med.scannerconfig.BarcodePosition;
+import edu.ualberta.med.scannerconfig.ImageInfo;
+import edu.ualberta.med.scannerconfig.PlateDimensions;
 import edu.ualberta.med.scannerconfig.PlateOrientation;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
+import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
 
 @SuppressWarnings("nls")
 public class TestDmScanLibWindows extends RequiresJniLibraryTest {
@@ -113,19 +117,20 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
         BoundingBox scanRegion = new BoundingBox(new Point(0.400, 0.265), new Point(4.566, 3.020));
 
         BoundingBox wellsBbox = ScannerConfigPlugin.getWellsBoundingBox(scanRegion);
-        ScanRegion scanBbox = ScannerConfigPlugin.getWiaBoundingBox(scanRegion);
+        BoundingBox scanBbox = ScannerConfigPlugin.getWiaBoundingBox(scanRegion);
 
         final int dpi = 300;
 
-        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(
-            wellsBbox, 8, 12, PlateOrientation.LANDSCAPE, dpi);
+        Set<CellRectangle> wells = CellRectangle.getCellsForBoundingBox(
+            wellsBbox, PlateOrientation.LANDSCAPE, PlateDimensions.DIM_ROWS_8_COLS_12,
+            BarcodePosition.BOTTOM, ScannerDpi.DPI_600);
 
         DecodeResult dr =
             scanLib.scanAndDecode(3, dpi, 0, 0, scanBbox, DecodeOptions.getDefaultDecodeOptions(),
-                wells.toArray(new WellRectangle[] {}));
+                wells.toArray(new CellRectangle[] {}));
 
         Assert.assertNotNull(dr);
-        Assert.assertTrue(dr.getDecodedWells().size() > 0);
+        Assert.assertFalse(dr.getDecodedWells().isEmpty());
 
         for (DecodedWell decodedWell : dr.getDecodedWells()) {
             log.debug("decoded well: {}", decodedWell);

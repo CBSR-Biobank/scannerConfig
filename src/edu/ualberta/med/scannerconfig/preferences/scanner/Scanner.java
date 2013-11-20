@@ -31,7 +31,7 @@ public class Scanner extends FieldEditorPreferencePage implements
     private static final I18n i18n = I18nFactory.getI18n(Scanner.class);
 
     Button selectScannerBtn;
-    AdvancedRadioGroupFieldEditor dpiRadio, driverTypeRadio;
+    AdvancedRadioGroupFieldEditor driverTypeRadio;
 
     IntegerFieldEditor brightnessInputField, contrastInputField;
 
@@ -64,18 +64,6 @@ public class Scanner extends FieldEditorPreferencePage implements
             getFieldEditorParent(), true);
         addField(driverTypeRadio);
 
-        dpiRadio = new AdvancedRadioGroupFieldEditor(
-            PreferenceConstants.SCANNER_DPI, "DPI", 5, new String[][] {
-                { PreferenceConstants.SCANNER_300_DPI,
-                    PreferenceConstants.SCANNER_300_DPI },
-                { PreferenceConstants.SCANNER_400_DPI,
-                    PreferenceConstants.SCANNER_400_DPI },
-                { PreferenceConstants.SCANNER_600_DPI,
-                    PreferenceConstants.SCANNER_600_DPI } },
-            getFieldEditorParent(), true);
-
-        addField(dpiRadio);
-
         brightnessInputField = new IntegerFieldEditor(
             PreferenceConstants.SCANNER_BRIGHTNESS, i18n.tr("Brightness:"),
             getFieldEditorParent());
@@ -94,18 +82,6 @@ public class Scanner extends FieldEditorPreferencePage implements
     }
 
     private void setEnableAllWidgets(boolean enableSettings) {
-        if (enableSettings) {
-            ScanLibResult result = ScanLib.getInstance().getScannerCapability();
-            int scannerCap = result.getValue();
-            dpiRadio.setEnabledArray(new boolean[] {
-                (scannerCap & ScanLib.CAP_DPI_300) != 0,
-                (scannerCap & ScanLib.CAP_DPI_400) != 0,
-                (scannerCap & ScanLib.CAP_DPI_600) != 0 }, 0,
-                getFieldEditorParent());
-        } else {
-            dpiRadio.setEnabled(false, getFieldEditorParent());
-        }
-
         selectScannerBtn.setEnabled(true);
         driverTypeRadio.setEnabled(enableSettings, getFieldEditorParent());
         brightnessInputField.setEnabled(enableSettings, getFieldEditorParent());
@@ -153,26 +129,6 @@ public class Scanner extends FieldEditorPreferencePage implements
         prefs.setValue(PreferenceConstants.SCANNER_DRV_TYPE, drvSetting);
         driverTypeRadio.setSelectionArray(drvRadioSettings);
         driverTypeRadio.doLoad();
-
-        boolean[] dpiRadioSettings = new boolean[] { false, false, false };
-
-        if ((scannerCap & ScanLib.CAP_DPI_300) != 0) {
-            dpiRadioSettings[0] = true;
-
-        }
-
-        if ((scannerCap & ScanLib.CAP_DPI_400) != 0) {
-            dpiRadioSettings[1] = true;
-
-        }
-
-        if ((scannerCap & ScanLib.CAP_DPI_600) != 0) {
-            dpiRadioSettings[2] = true;
-        }
-
-        dpiRadio.setEnabledArray(dpiRadioSettings, -1, getFieldEditorParent());
-        dpiRadio.doLoad();
-
         setEnableAllWidgets(true);
     }
 

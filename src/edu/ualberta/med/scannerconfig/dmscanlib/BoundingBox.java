@@ -1,55 +1,46 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.geom.Rectangle2D;
 
 public class BoundingBox {
-    final List<Point> points = new ArrayList<Point>(2);
+
+    private final Rectangle2D.Double rectangle;
+
+    public BoundingBox(double x, double y, double width, double height) {
+        this.rectangle = new Rectangle2D.Double(x, y, width, height);
+        checkValid();
+    }
+
+    public BoundingBox(Rectangle2D.Double rectangle) {
+        this(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+    }
 
     public BoundingBox(Point point1, Point point2) {
-        this.points.add(point1);
-        this.points.add(point2);
-        checkValid();
+        this(point1.x, point1.y, point2.x - point1.x, point2.y - point1.y);
+    }
+
+    public BoundingBox(BoundingBox that) {
+        this(that.rectangle);
     }
 
     @SuppressWarnings("nls")
-    public BoundingBox(List<Point> corners) {
-        if (corners.size() > 2) {
-            throw new IllegalArgumentException(
-                "number of corner id is invalid: " + corners.size());
+    protected void checkValid() {
+        if (rectangle.x < 0) {
+            throw new IllegalArgumentException("invalid value for x: " + rectangle.x);
         }
-        points.addAll(corners);
-        checkValid();
+        if (rectangle.y < 0) {
+            throw new IllegalArgumentException("invalid value for y: " + rectangle.y);
+        }
+        if (rectangle.width < 0) {
+            throw new IllegalArgumentException("invalid value for width: " + rectangle.width);
+        }
+        if (rectangle.y < 0) {
+            throw new IllegalArgumentException("invalid value for height: " + rectangle.height);
+        }
     }
 
-    public BoundingBox(Rectangle rect) {
-        double maxX = Integer.MAX_VALUE;
-        double maxY = Integer.MAX_VALUE;
-        double minX = 0;
-        double minY = 0;
-
-        for (int i = 0; i < 4; ++i) {
-            maxX = Math.min(maxX, rect.points.get(i).x);
-            maxY = Math.min(maxY, rect.points.get(i).y);
-
-            minX = Math.max(minX, rect.points.get(i).x);
-            minY = Math.max(minY, rect.points.get(i).y);
-        }
-
-        points.add(new Point(minX, minY));
-        points.add(new Point(maxX, maxY));
-        checkValid();
-    }
-
-    @SuppressWarnings("nls")
-    protected boolean checkValid() {
-        boolean valid = (points.get(0).getX() < points.get(1).getX())
-            && (points.get(0).getY() < points.get(1).getY());
-        if (!valid) {
-            throw new IllegalArgumentException("invalid size:" + points.get(0) + " "
-                + points.get(1));
-        }
-        return valid;
+    public Rectangle2D.Double getRectangle() {
+        return rectangle;
     }
 
     public Point getWidthAndHeightAsPoint() {
@@ -60,11 +51,13 @@ public class BoundingBox {
 
     @SuppressWarnings("nls")
     public Point getCorner(int cornerId) {
-        if ((cornerId < 0) || (cornerId >= points.size())) {
-            throw new IllegalArgumentException("corner id is invalid: "
-                + cornerId);
+        if (cornerId == 0) {
+            return new Point(rectangle.x, rectangle.y);
+        } else if (cornerId == 1) {
+            return new Point(rectangle.x + rectangle.width, rectangle.y + rectangle.height);
+        } else {
+            throw new IllegalArgumentException("invalid value for corner: " + cornerId);
         }
-        return points.get(cornerId);
     }
 
     public double getCornerX(int cornerId) {
@@ -78,25 +71,23 @@ public class BoundingBox {
     }
 
     public double getWidth() {
-        return points.get(1).x - points.get(0).x;
+        return rectangle.width;
     }
 
     public double getHeight() {
-        return points.get(1).y - points.get(0).y;
+        return rectangle.height;
     }
 
     public BoundingBox translate(Point point) {
-        return new BoundingBox(points.get(0).translate(point), points.get(1)
-            .translate(point));
+        return new BoundingBox(
+            rectangle.x + point.x,
+            rectangle.y + point.y,
+            rectangle.width,
+            rectangle.height);
     }
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
-        for (Point point : points) {
-            sb.append(point);
-        }
-        return sb.toString();
+        return rectangle.toString();
     }
-
 }

@@ -6,7 +6,7 @@ public interface IScanImageListener {
     /**
      * Called when a new image is present.
      */
-    void imageAvailable(ImageWithDpi image);
+    void imageAvailable(BarcodeImage image);
 
     /**
      * Called when the image is no longer available.

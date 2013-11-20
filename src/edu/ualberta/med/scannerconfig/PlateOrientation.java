@@ -15,7 +15,7 @@ public enum PlateOrientation {
         private static final I18n i18n = I18nFactory.getI18n(PlateOrientation.class);
     }
 
-    public static final int size = PlateOrientation.values().length;
+    public static final int size = values().length;
 
     private final String id;
     private final String displayLabel;

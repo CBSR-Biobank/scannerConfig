@@ -4,7 +4,7 @@ import edu.ualberta.med.biobank.util.SbsLabeling;
 
 
 /**
- * The label matches the {@link WellRectangle} that was successfully decoded. Use
+ * The label matches the {@link CellRectangle} that was successfully decoded. Use
  * {@link #getMessage()} to get the contents decoded from the 2D barcode.
  * 
  * @author Nelson Loyola

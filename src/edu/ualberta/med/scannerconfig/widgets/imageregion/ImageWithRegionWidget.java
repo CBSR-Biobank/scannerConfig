@@ -1,8 +1,7 @@
-package edu.ualberta.med.scannerconfig.widgets;
+package edu.ualberta.med.scannerconfig.widgets.imageregion;
 
 import java.awt.geom.Rectangle2D;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -20,6 +19,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.ualberta.med.scannerconfig.ImageWithDpi;
+import edu.ualberta.med.scannerconfig.BarcodeImage;
 
 /**
  * A widget that allows the user to manipulate a rectangle, representing a scanning region,
@@ -36,7 +36,7 @@ import edu.ualberta.med.scannerconfig.ImageWithDpi;
  * 
  * @author loyola
  */
-public class ImageWithRegionWidget implements MouseMoveListener,
+public class ImageWithRegionWidget extends Composite implements MouseMoveListener,
     Listener, ControlListener, MouseListener, KeyListener, PaintListener {
 
     private static Logger log = LoggerFactory.getLogger(ImageWithRegionWidget.class.getName());
@@ -52,7 +52,7 @@ public class ImageWithRegionWidget implements MouseMoveListener,
         RESIZE_TOP_LEFT
     };
 
-    protected ImageWithDpi image;
+    protected BarcodeImage image;
 
     protected final Canvas canvas;
 
@@ -64,24 +64,31 @@ public class ImageWithRegionWidget implements MouseMoveListener,
 
     private Rectangle2D.Double startGridRect = new Rectangle2D.Double(0, 0, 0, 0);
 
-    protected Rectangle2D.Double userRegion;
+    // user region stored in inches to allow for correct resizing of the widget
+    protected Rectangle2D.Double userRegionInInches;
 
     private DragMode dragMode = DragMode.NONE;
 
     public ImageWithRegionWidget(Composite parent) {
-        canvas = new Canvas(parent, SWT.BORDER | SWT.NO_BACKGROUND);
+        super(parent, SWT.NONE);
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginHeight = 0;
+        layout.marginWidth = 0;
+        layout.verticalSpacing = 0;
+        layout.horizontalSpacing = 0;
+        setLayout(layout);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        setLayoutData(gd);
+
+        canvas = new Canvas(this, SWT.DOUBLE_BUFFERED | SWT.BORDER | SWT.NO_BACKGROUND);
         canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         canvas.setBackground(new Color(Display.getCurrent(), 255, 255, 255));
-        canvas.getParent().layout();
-        canvas.pack();
-        canvas.setFocus();
-        canvas.redraw();
-        canvas.update();
         canvas.addMouseMoveListener(this);
         canvas.addControlListener(this);
         canvas.addMouseListener(this);
         canvas.addKeyListener(this);
         canvas.addPaintListener(this);
+        canvas.setFocus();
     }
 
     /**
@@ -95,8 +102,7 @@ public class ImageWithRegionWidget implements MouseMoveListener,
             drag = true;
             startDragMousePt.y = e.y;
             startDragMousePt.x = e.x;
-            startGridRect = userRegion;
-
+            startGridRect = regionToPixels(userRegionInInches);
         }
         canvas.redraw();
     }
@@ -130,55 +136,56 @@ public class ImageWithRegionWidget implements MouseMoveListener,
             return;
         }
 
+        Rectangle2D.Double userRegionInPixels = regionToPixels(userRegionInInches);
         canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_ARROW));
 
         /*
          * Creates rectangles on the perimeter of the gridRegion, the code then checks for
          * mouse-rectangle intersection to check for moving and resizing of the widget.
          */
-        if (userRegion != null) {
-            if (userRegion.contains(e.x, e.y)) {
+        if (userRegionInPixels != null) {
+            if (userRegionInPixels.contains(e.x, e.y)) {
                 canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_HAND));
                 dragMode = DragMode.MOVE;
             } else if (new Rectangle(
-                (int) (userRegion.x + userRegion.width),
-                (int) (userRegion.y + userRegion.height),
+                (int) (userRegionInPixels.x + userRegionInPixels.width),
+                (int) (userRegionInPixels.y + userRegionInPixels.height),
                 15,
                 15).contains(e.x, e.y)) {
                 canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZENWSE));
                 dragMode = DragMode.RESIZE_BOTTOM_RIGHT;
             } else if (new Rectangle(
-                (int) (userRegion.x - 10),
-                (int) (userRegion.y - 10),
+                (int) (userRegionInPixels.x - 10),
+                (int) (userRegionInPixels.y - 10),
                 15, 15).contains(e.x, e.y)) {
                 canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZENWSE));
                 dragMode = DragMode.RESIZE_TOP_LEFT;
             } else if (new Rectangle(
-                (int) (userRegion.x + userRegion.width),
-                (int) (userRegion.y),
+                (int) (userRegionInPixels.x + userRegionInPixels.width),
+                (int) (userRegionInPixels.y),
                 10,
-                (int) userRegion.height)
+                (int) userRegionInPixels.height)
                 .contains(e.x, e.y)) {
                 canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZEE));
                 dragMode = DragMode.RESIZE_HORIZONTAL_RIGHT;
             } else if (new Rectangle(
-                (int) (userRegion.x - 10),
-                (int) (userRegion.y),
+                (int) (userRegionInPixels.x - 10),
+                (int) (userRegionInPixels.y),
                 10,
-                (int) userRegion.height).contains(e.x, e.y)) {
+                (int) userRegionInPixels.height).contains(e.x, e.y)) {
                 canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZEW));
                 dragMode = DragMode.RESIZE_HORIZONTAL_LEFT;
             } else if (new Rectangle(
-                (int) userRegion.x,
-                (int) (userRegion.y - 10),
-                (int) userRegion.width,
+                (int) userRegionInPixels.x,
+                (int) (userRegionInPixels.y - 10),
+                (int) userRegionInPixels.width,
                 10).contains(e.x, e.y)) {
                 canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZEN));
                 dragMode = DragMode.RESIZE_VERTICAL_TOP;
             } else if (new Rectangle(
-                (int) userRegion.x,
-                (int) (userRegion.y + userRegion.height),
-                (int) userRegion.width,
+                (int) userRegionInPixels.x,
+                (int) (userRegionInPixels.y + userRegionInPixels.height),
+                (int) userRegionInPixels.width,
                 10).contains(e.x, e.y)) {
                 canvas.setCursor(new Cursor(canvas.getDisplay(), SWT.CURSOR_SIZES));
                 dragMode = DragMode.RESIZE_VERTICAL_BOTTOM;
@@ -186,6 +193,7 @@ public class ImageWithRegionWidget implements MouseMoveListener,
                 dragMode = DragMode.NONE;
             }
         }
+        userRegionInInches = regionToInches(userRegionInPixels);
     }
 
     /*
@@ -194,51 +202,53 @@ public class ImageWithRegionWidget implements MouseMoveListener,
     protected void mouseDrag(MouseEvent e) {
         Point canvasSize = canvas.getSize();
         int delta;
-        userRegion = (Rectangle2D.Double) startGridRect.clone();
+
+        Rectangle2D.Double userRegionInPixels = (Rectangle2D.Double) startGridRect.clone();
 
         switch (dragMode) {
         case MOVE:
             delta = e.x - startDragMousePt.x;
             if (delta < 0) {
-                userRegion.x = Math.max(0, startGridRect.x + delta);
+                userRegionInPixels.x = Math.max(0, startGridRect.x + delta);
             } else {
-                userRegion.x = Math.min(canvasSize.x - startGridRect.width - 4,
+                userRegionInPixels.x = Math.min(canvasSize.x - startGridRect.width - 4,
                     startGridRect.x + delta);
             }
 
             delta = e.y - startDragMousePt.y;
             if (delta < 0) {
-                userRegion.y = Math.max(0, startGridRect.y + delta);
+                userRegionInPixels.y = Math.max(0, startGridRect.y + delta);
             } else {
-                userRegion.y = Math.min(canvasSize.y - startGridRect.height - 4,
+                userRegionInPixels.y = Math.min(canvasSize.y - startGridRect.height - 4,
                     startGridRect.y + delta);
             }
             break;
         case RESIZE_HORIZONTAL_LEFT:
-            userRegion = resizeLeftEdge(userRegion, e.x);
+            userRegionInPixels = resizeLeftEdge(userRegionInPixels, e.x);
             break;
         case RESIZE_HORIZONTAL_RIGHT:
-            userRegion = resizeRightEdge(userRegion, e.x, canvasSize.x);
+            userRegionInPixels = resizeRightEdge(userRegionInPixels, e.x, canvasSize.x);
             break;
         case RESIZE_VERTICAL_TOP:
-            userRegion = resizeTopEdge(userRegion, e.y);
+            userRegionInPixels = resizeTopEdge(userRegionInPixels, e.y);
             break;
         case RESIZE_VERTICAL_BOTTOM:
-            userRegion = resizeBottomEdge(userRegion, e.y, canvasSize.y);
+            userRegionInPixels = resizeBottomEdge(userRegionInPixels, e.y, canvasSize.y);
             break;
         case RESIZE_BOTTOM_RIGHT:
-            userRegion = resizeRightEdge(userRegion, e.x, canvasSize.x);
-            userRegion = resizeBottomEdge(userRegion, e.y, canvasSize.y);
+            userRegionInPixels = resizeRightEdge(userRegionInPixels, e.x, canvasSize.x);
+            userRegionInPixels = resizeBottomEdge(userRegionInPixels, e.y, canvasSize.y);
             break;
 
         case RESIZE_TOP_LEFT:
-            userRegion = resizeLeftEdge(userRegion, e.x);
-            userRegion = resizeTopEdge(userRegion, e.y);
+            userRegionInPixels = resizeLeftEdge(userRegionInPixels, e.x);
+            userRegionInPixels = resizeTopEdge(userRegionInPixels, e.y);
         default:
             // do nothing
         }
 
-        log.trace("mousemove: scanRegionForCanvas: {}", userRegion);
+        // log.trace("mousemove: userRegionInPixels: {}", userRegionInPixels);
+        userRegionInInches = regionToInches(userRegionInPixels);
         canvas.redraw();
     }
 
@@ -254,8 +264,7 @@ public class ImageWithRegionWidget implements MouseMoveListener,
         result.y = gridRect.y;
         result.width = right - posX;
         result.height = gridRect.height;
-
-        log.debug("resizeHorizontalLeft: right: {}, width: {}", right, result.width);
+        // log.trace("resizeHorizontalLeft: right: {}, width: {}", right, result.width);
         return result;
     }
 
@@ -338,34 +347,36 @@ public class ImageWithRegionWidget implements MouseMoveListener,
         if (image == null) return;
 
         Point canvasSize;
-        // log.debug("keyPressed: event: {}, plate: {}", e, newRegionAfterModify);
+
+        Rectangle2D.Double userRegionInPixels = regionToPixels(userRegionInInches);
 
         switch (e.keyCode) {
         case SWT.ARROW_LEFT:
-            if (userRegion.x - 1 > 0) {
-                userRegion.x += -1;
+            if (userRegionInPixels.x - 1 > 0) {
+                userRegionInPixels.x += -1;
             }
             break;
         case SWT.ARROW_RIGHT:
             canvasSize = canvas.getSize();
-            if (userRegion.x + userRegion.width + 1 < canvasSize.x) {
-                userRegion.x += 1;
+            if (userRegionInPixels.x + userRegionInPixels.width + 1 < canvasSize.x) {
+                userRegionInPixels.x += 1;
             }
             break;
         case SWT.ARROW_UP:
-            if (userRegion.y - 1 > 0) {
-                userRegion.y += -1;
+            if (userRegionInPixels.y - 1 > 0) {
+                userRegionInPixels.y += -1;
             }
             break;
         case SWT.ARROW_DOWN:
             canvasSize = canvas.getSize();
-            if (userRegion.y + userRegion.height + 1 < canvasSize.y) {
-                userRegion.y += 1;
+            if (userRegionInPixels.y + userRegionInPixels.height + 1 < canvasSize.y) {
+                userRegionInPixels.y += 1;
             }
             break;
         }
+        // log.trace("keyPressed: after change: region: {}", userRegionInPixels);
+        userRegionInInches = regionToInches(userRegionInPixels);
         canvas.redraw();
-        // log.debug("keyPressed: after change: plate: {}", scanRegionForCanvas);
     }
 
     /**
@@ -394,9 +405,8 @@ public class ImageWithRegionWidget implements MouseMoveListener,
      * rectangle projected on top.
      */
     protected void paintCanvas(PaintEvent e) {
-        log.trace("paintControl: scanRegionForCanvas: {}", userRegion);
-
-        if (userRegion == null) return;
+        if (image == null) return;
+        log.trace("paintControl: userRegionInPixels: {}", userRegionInInches);
 
         Rectangle imageRect = image.getBounds();
         Image imageBuffer = new Image(canvas.getDisplay(), canvas.getBounds());
@@ -410,19 +420,20 @@ public class ImageWithRegionWidget implements MouseMoveListener,
 
         Color red = new Color(display, 255, 0, 0);
         Color blue = new Color(display, 0, 0, 255);
-        Rectangle plateRect = new Rectangle(
-            (int) (userRegion.x),
-            (int) (userRegion.y),
-            (int) (userRegion.width),
-            (int) (userRegion.height));
+        Rectangle2D.Double userRegionInPixels = regionToPixels(userRegionInInches);
+        Rectangle regionRect = new Rectangle(
+            (int) (userRegionInPixels.x),
+            (int) (userRegionInPixels.y),
+            (int) (userRegionInPixels.width),
+            (int) (userRegionInPixels.height));
         imageGC.setForeground(red);
-        imageGC.drawRectangle(plateRect);
+        imageGC.drawRectangle(regionRect);
 
         // create drag circles
-        int left = plateRect.x;
-        int top = plateRect.y;
-        int right = plateRect.x + plateRect.width - 3;
-        int bottom = plateRect.y + plateRect.height - 3;
+        int left = regionRect.x;
+        int top = regionRect.y;
+        int right = regionRect.x + regionRect.width - 3;
+        int bottom = regionRect.y + regionRect.height - 3;
 
         imageGC.setForeground(blue);
         imageGC.drawOval(left, top, 6, 6);
@@ -440,7 +451,7 @@ public class ImageWithRegionWidget implements MouseMoveListener,
     /**
      * Called by parent widget when a new flatbed image is available.
      */
-    protected void imageUpdated(ImageWithDpi image) {
+    protected void updateImage(BarcodeImage image) {
         this.image = image;
     }
 
@@ -451,22 +462,34 @@ public class ImageWithRegionWidget implements MouseMoveListener,
         canvas.redraw();
     }
 
-    /**
-     * Returns the user region rectangle in dimensions that apply to the size of the canvas.
-     * 
-     * @return
-     */
-    protected Rectangle2D.Double getUserRegion() {
-        return this.userRegion;
+    // Returns the user region rectangle in dimensions that apply to the size of the canvas.
+    protected Rectangle2D.Double regionToPixels(Rectangle2D.Double regionInches) {
+        if (image == null) {
+            throw new IllegalStateException("image is null");
+        }
+        Rectangle2D.Double imageRectangleInches = image.getRectangle();
+        Point canvasSize = canvas.getSize();
+
+        Rectangle2D.Double regionInPixels = new Rectangle2D.Double(
+            regionInches.x * canvasSize.x / imageRectangleInches.width,
+            regionInches.y * canvasSize.y / imageRectangleInches.height,
+            regionInches.width * canvasSize.x / imageRectangleInches.width,
+            regionInches.height * canvasSize.y / imageRectangleInches.height);
+
+        log.trace("regionToPixels: region: {}", regionInPixels);
+        return regionInPixels;
     }
 
-    /**
-     * Assigns the region in dimensions that apply to the size of the canvas.
-     * 
-     * @param region a rectangle containing the top, left, widht and height of the region.
-     */
-    protected void setUserRegion(Rectangle2D.Double region) {
-        this.userRegion = region;
+    private Rectangle2D.Double regionToInches(Rectangle2D.Double regionPixels) {
+        Rectangle2D.Double imageRectangleInches = image.getRectangle();
+        Point canvasSize = canvas.getSize();
+
+        Rectangle2D.Double regionInInches = new Rectangle2D.Double(
+            regionPixels.x * imageRectangleInches.width / canvasSize.x,
+            regionPixels.y * imageRectangleInches.height / canvasSize.y,
+            regionPixels.width * imageRectangleInches.width / canvasSize.x,
+            regionPixels.height * imageRectangleInches.height / canvasSize.y);
+        return regionInInches;
     }
 
     /**
@@ -475,18 +498,11 @@ public class ImageWithRegionWidget implements MouseMoveListener,
      * 
      * @return
      */
-    protected Rectangle2D.Double getUserRegionInInches() {
-        Pair<Double, Double> dimensionsInInches = image.getDimensionInInches();
-        double imageWidthInInches = dimensionsInInches.getLeft();
-        double imageHeightInInches = dimensionsInInches.getRight();
-        Point canvasSize = canvas.getSize();
-
-        Rectangle2D.Double plateInInches = new Rectangle2D.Double(
-            imageWidthInInches * userRegion.x / canvasSize.x,
-            imageHeightInInches * userRegion.y / canvasSize.y,
-            imageWidthInInches * userRegion.width / canvasSize.x,
-            imageHeightInInches * userRegion.height / canvasSize.y);
-        return plateInInches;
+    public Rectangle2D.Double getUserRegionInInches() {
+        if (image == null) {
+            throw new IllegalStateException("image is null");
+        }
+        return userRegionInInches;
     }
 
     /**
@@ -495,19 +511,14 @@ public class ImageWithRegionWidget implements MouseMoveListener,
      * 
      * @param region a rectangle containing the top, left, widht and height of the region.
      */
-    protected void setUserRegionInInches(Rectangle2D.Double region) {
-        Pair<Double, Double> dimensionsInInches = image.getDimensionInInches();
-        double imageWidthInInches = dimensionsInInches.getLeft();
-        double imageHeightInInches = dimensionsInInches.getRight();
-        Point canvasSize = canvas.getSize();
+    public void setUserRegionInInches(Rectangle2D.Double region) {
+        Rectangle2D.Double imageRect = image.getRectangle();
 
-        userRegion = new Rectangle2D.Double(
-            region.x * canvasSize.x / imageWidthInInches,
-            region.y * canvasSize.y / imageHeightInInches,
-            region.width * canvasSize.x / imageWidthInInches,
-            region.height * canvasSize.y / imageHeightInInches);
+        if (!imageRect.contains(region)) {
+            throw new IllegalArgumentException("region lies outside the bounds of the image rectangle");
+        }
 
-        log.debug("setUserRegionInInches: region: {}", userRegion);
+        userRegionInInches = region;
+        log.trace("setUserRegionInInches: region in pixels: {}", userRegionInInches);
     }
-
 }

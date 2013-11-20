@@ -1,4 +1,4 @@
-package edu.ualberta.med.scannerconfig.dmscanlib;
+package edu.ualberta.med.scannerconfig;
 
 import java.io.DataInput;
 import java.io.File;
@@ -13,13 +13,14 @@ import java.util.List;
 /*
  * Code borrowed from
  * 
- *  http://www.java2s.com/Code/Java/2D-Graphics-GUI/GetfileformatimageresolutionnumberofbitsperpixelJPEGGIFBMPPCXPNGIFFRASPBMPGMPPMPSDandSWFfiles.htm
+ * http://www.java2s.com/Code/Java/2D-Graphics-GUI/
+ * GetfileformatimageresolutionnumberofbitsperpixelJPEGGIFBMPPCXPNGIFFRASPBMPGMPPMPSDandSWFfiles.htm
  */
 
 /**
- * Get file format, image resolution, number of bits per pixel and optionally
- * number of images, comments and physical resolution from JPEG, GIF, BMP, PCX,
- * PNG, IFF, RAS, PBM, PGM, PPM, PSD and SWF files (or input streams).
+ * Get file format, image resolution, number of bits per pixel and optionally number of images,
+ * comments and physical resolution from JPEG, GIF, BMP, PCX, PNG, IFF, RAS, PBM, PGM, PPM, PSD and
+ * SWF files (or input streams).
  * <p/>
  * Use the class like this:
  * 
@@ -38,8 +39,8 @@ import java.util.List;
  * // there are other properties, check out the API documentation
  * </pre>
  * 
- * You can also use this class as a command line program. Call it with a number
- * of image file names and URLs as parameters:
+ * You can also use this class as a command line program. Call it with a number of image file names
+ * and URLs as parameters:
  * 
  * <pre>
  *   java ImageInfo *.jpg *.png *.gif http://somesite.tld/image.jpg
@@ -53,14 +54,12 @@ import java.util.List;
  * <p/>
  * Known limitations:
  * <ul>
- * <li>When the determination of the number of images is turned off, GIF bits
- * per pixel are only read from the global header. For some GIFs, local palettes
- * change this to a typically larger value. To be certain to get the correct
- * color depth, call setDetermineImageNumber(true) before calling check(). The
- * complete scan over the GIF file will take additional time.</li>
- * <li>Transparency information is not included in the bits per pixel count.
- * Actually, it was my decision not to include those bits, so it's a feature!
- * ;-)</li>
+ * <li>When the determination of the number of images is turned off, GIF bits per pixel are only
+ * read from the global header. For some GIFs, local palettes change this to a typically larger
+ * value. To be certain to get the correct color depth, call setDetermineImageNumber(true) before
+ * calling check(). The complete scan over the GIF file will take additional time.</li>
+ * <li>Transparency information is not included in the bits per pixel count. Actually, it was my
+ * decision not to include those bits, so it's a feature! ;-)</li>
  * </ul>
  * <p/>
  * Requirements:
@@ -72,9 +71,7 @@ import java.util.List;
  * href="http://www.geocities.com/marcoschmidt.geo/image-info.html"
  * >http://www.geocities.com/marcoschmidt.geo/image-info.html</a>.
  * <p/>
- * Written by <a
- * href="http://www.geocities.com/marcoschmidt.geo/contact.html">Marco
- * Schmidt</a>.
+ * Written by <a href="http://www.geocities.com/marcoschmidt.geo/contact.html">Marco Schmidt</a>.
  * <p/>
  * This class is contributed to the Public Domain. Use it at your own risk.
  * <p/>
@@ -83,88 +80,73 @@ import java.util.List;
  * History:
  * <ul>
  * <li><strong>2001-08-24</strong> Initial version.</li>
- * <li><strong>2001-10-13</strong> Added support for the file formats BMP and
- * PCX.</li>
- * <li><strong>2001-10-16</strong> Fixed bug in read(int[], int, int) that
- * returned
- * <li><strong>2002-01-22</strong> Added support for file formats Amiga IFF and
- * Sun Raster (RAS).</li>
- * <li><strong>2002-01-24</strong> Added support for file formats Portable
- * Bitmap / Graymap / Pixmap (PBM, PGM, PPM) and Adobe Photoshop (PSD). Added
- * new method getMimeType() to return the MIME type associated with a particular
- * file format.</li>
- * <li><strong>2002-03-15</strong> Added support to recognize number of images
- * in file. Only works with GIF. Use {@link #setDetermineImageNumber} with
- * <code>true</code> as argument to identify animated GIFs (
- * {@link #getNumberOfImages()} will return a value larger than <code>1</code>).
- * </li>
- * <li><strong>2002-04-10</strong> Fixed a bug in the feature 'determine number
- * of images in animated GIF' introduced with version 1.1. Thanks to Marcelo P.
- * Lima for sending in the bug report. Released as 1.1.1.</li>
- * <li><strong>2002-04-18</strong> Added {@link #setCollectComments(boolean)}.
- * That new method lets the user specify whether textual comments are to be
- * stored in an internal list when encountered in an input image file / stream.
- * Added two methods to return the physical width and height of the image in
- * dpi: {@link #getPhysicalWidthDpi()} and {@link #getPhysicalHeightDpi()}. If
- * the physical resolution could not be retrieved, these methods return
- * <code>-1</code>.</li>
- * <li><strong>2002-04-23</strong> Added support for the new properties physical
- * resolution and comments for some formats. Released as 1.2.</li>
- * <li><strong>2002-06-17</strong> Added support for SWF, sent in by Michael
- * Aird. Changed checkJpeg() so that other APP markers than APP0 will not lead
- * to a failure anymore. Released as 1.3.</li>
- * <li><strong>2003-07-28</strong> Bug fix - skip method now takes return values
- * into consideration. Less bytes than necessary may have been skipped, leading
- * to flaws in the retrieved information in some cases. Thanks to Bernard
- * Bernstein for pointing that out. Released as 1.4.</li>
- * <li><strong>2004-02-29</strong> Added support for recognizing progressive
- * JPEG and interlaced PNG and GIF. A new method {@link #isProgressive()}
- * returns whether ImageInfo has found that the storage type is progressive (or
- * interlaced). Thanks to Joe Germuska for suggesting the feature. Bug fix: BMP
- * physical resolution is now correctly determined. Released as 1.5.</li>
+ * <li><strong>2001-10-13</strong> Added support for the file formats BMP and PCX.</li>
+ * <li><strong>2001-10-16</strong> Fixed bug in read(int[], int, int) that returned
+ * <li><strong>2002-01-22</strong> Added support for file formats Amiga IFF and Sun Raster (RAS).</li>
+ * <li><strong>2002-01-24</strong> Added support for file formats Portable Bitmap / Graymap / Pixmap
+ * (PBM, PGM, PPM) and Adobe Photoshop (PSD). Added new method getMimeType() to return the MIME type
+ * associated with a particular file format.</li>
+ * <li><strong>2002-03-15</strong> Added support to recognize number of images in file. Only works
+ * with GIF. Use {@link #setDetermineImageNumber} with <code>true</code> as argument to identify
+ * animated GIFs ( {@link #getNumberOfImages()} will return a value larger than <code>1</code>).</li>
+ * <li><strong>2002-04-10</strong> Fixed a bug in the feature 'determine number of images in
+ * animated GIF' introduced with version 1.1. Thanks to Marcelo P. Lima for sending in the bug
+ * report. Released as 1.1.1.</li>
+ * <li><strong>2002-04-18</strong> Added {@link #setCollectComments(boolean)}. That new method lets
+ * the user specify whether textual comments are to be stored in an internal list when encountered
+ * in an input image file / stream. Added two methods to return the physical width and height of the
+ * image in dpi: {@link #getPhysicalWidthDpi()} and {@link #getPhysicalHeightDpi()}. If the physical
+ * resolution could not be retrieved, these methods return <code>-1</code>.</li>
+ * <li><strong>2002-04-23</strong> Added support for the new properties physical resolution and
+ * comments for some formats. Released as 1.2.</li>
+ * <li><strong>2002-06-17</strong> Added support for SWF, sent in by Michael Aird. Changed
+ * checkJpeg() so that other APP markers than APP0 will not lead to a failure anymore. Released as
+ * 1.3.</li>
+ * <li><strong>2003-07-28</strong> Bug fix - skip method now takes return values into consideration.
+ * Less bytes than necessary may have been skipped, leading to flaws in the retrieved information in
+ * some cases. Thanks to Bernard Bernstein for pointing that out. Released as 1.4.</li>
+ * <li><strong>2004-02-29</strong> Added support for recognizing progressive JPEG and interlaced PNG
+ * and GIF. A new method {@link #isProgressive()} returns whether ImageInfo has found that the
+ * storage type is progressive (or interlaced). Thanks to Joe Germuska for suggesting the feature.
+ * Bug fix: BMP physical resolution is now correctly determined. Released as 1.5.</li>
  * </ul>
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class ImageInfo {
     /**
-     * Return value of {@link #getFormat()} for JPEG streams. ImageInfo can
-     * extract physical resolution and comments from JPEGs (only from APP0
-     * headers). Only one image can be stored in a file. It is determined
-     * whether the JPEG stream is progressive (see {@link #isProgressive()}).
+     * Return value of {@link #getFormat()} for JPEG streams. ImageInfo can extract physical
+     * resolution and comments from JPEGs (only from APP0 headers). Only one image can be stored in
+     * a file. It is determined whether the JPEG stream is progressive (see {@link #isProgressive()}
+     * ).
      */
     public static final int FORMAT_JPEG = 0;
 
     /**
-     * Return value of {@link #getFormat()} for GIF streams. ImageInfo can
-     * extract comments from GIFs and count the number of images (GIFs with more
-     * than one image are animations). If you know of a place where GIFs store
-     * the physical resolution of an image, please <a
-     * href="http://www.geocities.com/marcoschmidt.geo/contact.html">send me a
-     * mail</a>! It is determined whether the GIF stream is interlaced (see
-     * {@link #isProgressive()}).
+     * Return value of {@link #getFormat()} for GIF streams. ImageInfo can extract comments from
+     * GIFs and count the number of images (GIFs with more than one image are animations). If you
+     * know of a place where GIFs store the physical resolution of an image, please <a
+     * href="http://www.geocities.com/marcoschmidt.geo/contact.html">send me a mail</a>! It is
+     * determined whether the GIF stream is interlaced (see {@link #isProgressive()}).
      */
     public static final int FORMAT_GIF = 1;
 
     /**
-     * Return value of {@link #getFormat()} for PNG streams. PNG only supports
-     * one image per file. Both physical resolution and comments can be stored
-     * with PNG, but ImageInfo is currently not able to extract those. It is
-     * determined whether the PNG stream is interlaced (see
+     * Return value of {@link #getFormat()} for PNG streams. PNG only supports one image per file.
+     * Both physical resolution and comments can be stored with PNG, but ImageInfo is currently not
+     * able to extract those. It is determined whether the PNG stream is interlaced (see
      * {@link #isProgressive()}).
      */
     public static final int FORMAT_PNG = 2;
 
     /**
-     * Return value of {@link #getFormat()} for BMP streams. BMP only supports
-     * one image per file. BMP does not allow for comments. The physical
-     * resolution can be stored.
+     * Return value of {@link #getFormat()} for BMP streams. BMP only supports one image per file.
+     * BMP does not allow for comments. The physical resolution can be stored.
      */
     public static final int FORMAT_BMP = 3;
 
     /**
-     * Return value of {@link #getFormat()} for PCX streams. PCX does not allow
-     * for comments or more than one image per file. However, the physical
-     * resolution can be stored.
+     * Return value of {@link #getFormat()} for PCX streams. PCX does not allow for comments or more
+     * than one image per file. However, the physical resolution can be stored.
      */
     public static final int FORMAT_PCX = 4;
 
@@ -174,9 +156,8 @@ public class ImageInfo {
     public static final int FORMAT_IFF = 5;
 
     /**
-     * Return value of {@link #getFormat()} for RAS streams. Sun Raster allows
-     * for one image per file only and is not able to store physical resolution
-     * or comments.
+     * Return value of {@link #getFormat()} for RAS streams. Sun Raster allows for one image per
+     * file only and is not able to store physical resolution or comments.
      */
     public static final int FORMAT_RAS = 6;
 
@@ -212,16 +193,16 @@ public class ImageInfo {
     public static final int COLOR_TYPE_BLACK_AND_WHITE = 3;
 
     /**
-     * The names of all supported file formats. The FORMAT_xyz int constants can
-     * be used as index values for this array.
+     * The names of all supported file formats. The FORMAT_xyz int constants can be used as index
+     * values for this array.
      */
     @SuppressWarnings("nls")
     public static final String[] FORMAT_NAMES = { "jpeg", "gif", "png", "bmp", "pcx", "iff", "ras",
         "pbm", "pgm", "ppm", "psd", "swf" };
 
     /**
-     * The names of the MIME types for all supported file formats. The
-     * FORMAT_xyz int constants can be used as index values for this array.
+     * The names of the MIME types for all supported file formats. The FORMAT_xyz int constants can
+     * be used as index values for this array.
      */
     @SuppressWarnings("nls")
     public static final String[] MIME_TYPE_STRINGS = { "image/jpeg", "image/gif", "image/png",
@@ -255,9 +236,8 @@ public class ImageInfo {
 
     /**
      * Call this method after you have provided an input stream or file using
-     * {@link #setInput(java.io.InputStream)} or
-     * {@link #setInput(java.io.DataInput)}. If true is returned, the file
-     * format was known and information on the file's content can be retrieved
+     * {@link #setInput(java.io.InputStream)} or {@link #setInput(java.io.DataInput)}. If true is
+     * returned, the file format was known and information on the file's content can be retrieved
      * using the various getXyz methods.
      * 
      * @return if information could be retrieved from input
@@ -317,11 +297,11 @@ public class ImageInfo {
             && bitsPerPixel != 24 && bitsPerPixel != 32) {
             return false;
         }
-        int x = (int) (getIntLittleEndian(a, 36) * 0.0254);
+        int x = (int) (Math.ceil(getIntLittleEndian(a, 36) * 0.0254));
         if (x > 0) {
             setPhysicalWidthDpi(x);
         }
-        int y = (int) (getIntLittleEndian(a, 40) * 0.0254);
+        int y = (int) (Math.ceil(getIntLittleEndian(a, 40) * 0.0254));
         if (y > 0) {
             setPhysicalHeightDpi(y);
         }
@@ -715,8 +695,7 @@ public class ImageInfo {
     }
 
     /**
-     * Run over String list, return false iff at least one of the arguments
-     * equals <code>-c</code>.
+     * Run over String list, return false iff at least one of the arguments equals <code>-c</code>.
      */
     @SuppressWarnings("nls")
     private static boolean determineVerbosity(String[] args) {
@@ -740,9 +719,8 @@ public class ImageInfo {
     }
 
     /**
-     * If {@link #check()} was successful, returns the image's number of bits
-     * per pixel. Does not include transparency information like the alpha
-     * channel.
+     * If {@link #check()} was successful, returns the image's number of bits per pixel. Does not
+     * include transparency information like the alpha channel.
      * 
      * @return number of bits per image pixel
      */
@@ -753,8 +731,8 @@ public class ImageInfo {
     /**
      * Returns the index'th comment retrieved from the image.
      * 
-     * @throws java.lang.IllegalArgumentException if index is smaller than 0 or
-     *             larger than or equal to the number of comments retrieved
+     * @throws java.lang.IllegalArgumentException if index is smaller than 0 or larger than or equal
+     *             to the number of comments retrieved
      * @see #getNumberOfComments
      */
     @SuppressWarnings("nls")
@@ -766,9 +744,9 @@ public class ImageInfo {
     }
 
     /**
-     * If {@link #check()} was successful, returns the image format as one of
-     * the FORMAT_xyz constants from this class. Use {@link #getFormatName()} to
-     * get a textual description of the file format.
+     * If {@link #check()} was successful, returns the image format as one of the FORMAT_xyz
+     * constants from this class. Use {@link #getFormatName()} to get a textual description of the
+     * file format.
      * 
      * @return file format as a FORMAT_xyz constant
      */
@@ -777,8 +755,8 @@ public class ImageInfo {
     }
 
     /**
-     * If {@link #check()} was successful, returns the image format's name. Use
-     * {@link #getFormat()} to get a unique number.
+     * If {@link #check()} was successful, returns the image format's name. Use {@link #getFormat()}
+     * to get a unique number.
      * 
      * @return file format name
      */
@@ -791,8 +769,7 @@ public class ImageInfo {
     }
 
     /**
-     * If {@link #check()} was successful, returns one the image's vertical
-     * resolution in pixels.
+     * If {@link #check()} was successful, returns one the image's vertical resolution in pixels.
      * 
      * @return image height in pixels
      */
@@ -811,8 +788,7 @@ public class ImageInfo {
     }
 
     /**
-     * If {@link #check()} was successful, returns a String with the MIME type
-     * of the format.
+     * If {@link #check()} was successful, returns a String with the MIME type of the format.
      * 
      * @return MIME type, e.g. <code>image/jpeg</code>
      */
@@ -828,12 +804,10 @@ public class ImageInfo {
     }
 
     /**
-     * If {@link #check()} was successful and
-     * {@link #setCollectComments(boolean)} was called with <code>true</code> as
-     * argument, returns the number of comments retrieved from the input image
-     * stream / file. Any number &gt;= 0 and smaller than this number of
-     * comments is then a valid argument for the {@link #getComment(int)}
-     * method.
+     * If {@link #check()} was successful and {@link #setCollectComments(boolean)} was called with
+     * <code>true</code> as argument, returns the number of comments retrieved from the input image
+     * stream / file. Any number &gt;= 0 and smaller than this number of comments is then a valid
+     * argument for the {@link #getComment(int)} method.
      * 
      * @return number of comments retrieved from input image
      */
@@ -846,9 +820,9 @@ public class ImageInfo {
 
     /**
      * Returns the number of images in the examined file. Assumes that
-     * <code>setDetermineImageNumber(true);</code> was called before a
-     * successful call to {@link #check()}. This value can currently be only
-     * different from <code>1</code> for GIF images.
+     * <code>setDetermineImageNumber(true);</code> was called before a successful call to
+     * {@link #check()}. This value can currently be only different from <code>1</code> for GIF
+     * images.
      * 
      * @return number of images in file
      */
@@ -857,8 +831,8 @@ public class ImageInfo {
     }
 
     /**
-     * Returns the physical height of this image in dots per inch (dpi). Assumes
-     * that {@link #check()} was successful. Returns <code>-1</code> on failure.
+     * Returns the physical height of this image in dots per inch (dpi). Assumes that
+     * {@link #check()} was successful. Returns <code>-1</code> on failure.
      * 
      * @return physical height (in dpi)
      * @see #getPhysicalWidthDpi()
@@ -869,8 +843,8 @@ public class ImageInfo {
     }
 
     /**
-     * If {@link #check()} was successful, returns the physical width of this
-     * image in dpi (dots per inch) or -1 if no value could be found.
+     * If {@link #check()} was successful, returns the physical width of this image in dpi (dots per
+     * inch) or -1 if no value could be found.
      * 
      * @return physical height (in dpi)
      * @see #getPhysicalHeightDpi()
@@ -887,8 +861,8 @@ public class ImageInfo {
     }
 
     /**
-     * If {@link #check()} was successful, returns the physical width of this
-     * image in dpi (dots per inch) or -1 if no value could be found.
+     * If {@link #check()} was successful, returns the physical width of this image in dpi (dots per
+     * inch) or -1 if no value could be found.
      * 
      * @return physical width (in dpi)
      * @see #getPhysicalHeightDpi()
@@ -900,9 +874,8 @@ public class ImageInfo {
     }
 
     /**
-     * Returns the physical width of an image in inches, or <code>-1.0f</code>
-     * if width information is not available. Assumes that {@link #check} has
-     * been called successfully.
+     * Returns the physical width of an image in inches, or <code>-1.0f</code> if width information
+     * is not available. Assumes that {@link #check} has been called successfully.
      * 
      * @return physical width in inches or <code>-1.0f</code> on failure
      * @see #getPhysicalWidthDpi
@@ -926,8 +899,7 @@ public class ImageInfo {
     }
 
     /**
-     * If {@link #check()} was successful, returns one the image's horizontal
-     * resolution in pixels.
+     * If {@link #check()} was successful, returns one the image's horizontal resolution in pixels.
      * 
      * @return image width in pixels
      */
@@ -936,8 +908,7 @@ public class ImageInfo {
     }
 
     /**
-     * Returns whether the image is stored in a progressive (also called:
-     * interlaced) way.
+     * Returns whether the image is stored in a progressive (also called: interlaced) way.
      * 
      * @return true for progressive/interlaced, false otherwise
      */
@@ -946,10 +917,9 @@ public class ImageInfo {
     }
 
     /**
-     * To use this class as a command line application, give it either some file
-     * names as parameters (information on them will be printed to standard
-     * output, one line per file) or call it with no parameters. It will then
-     * check data given to it via standard input.
+     * To use this class as a command line application, give it either some file names as parameters
+     * (information on them will be printed to standard output, one line per file) or call it with
+     * no parameters. It will then check data given to it via standard input.
      * 
      * @param args the program arguments which must be file names
      */
@@ -1171,9 +1141,8 @@ public class ImageInfo {
     }
 
     /**
-     * Specify whether textual comments are supposed to be extracted from input.
-     * Default is <code>false</code>. If enabled, comments will be added to an
-     * internal list.
+     * Specify whether textual comments are supposed to be extracted from input. Default is
+     * <code>false</code>. If enabled, comments will be added to an internal list.
      * 
      * @param newValue if <code>true</code>, this class will read comments
      * @see #getNumberOfComments
@@ -1184,13 +1153,12 @@ public class ImageInfo {
     }
 
     /**
-     * Specify whether the number of images in a file is to be determined -
-     * default is <code>false</code>. This is a special option because some file
-     * formats require running over the entire file to find out the number of
-     * images, a rather time-consuming task. Not all file formats support more
-     * than one image. If this method is called with <code>true</code> as
-     * argument, the actual number of images can be queried via
-     * {@link #getNumberOfImages()} after a successful call to {@link #check()}.
+     * Specify whether the number of images in a file is to be determined - default is
+     * <code>false</code>. This is a special option because some file formats require running over
+     * the entire file to find out the number of images, a rather time-consuming task. Not all file
+     * formats support more than one image. If this method is called with <code>true</code> as
+     * argument, the actual number of images can be queried via {@link #getNumberOfImages()} after a
+     * successful call to {@link #check()}.
      * 
      * @param newValue will the number of images be determined?
      * @see #getNumberOfImages

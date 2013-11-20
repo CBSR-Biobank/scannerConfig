@@ -8,8 +8,30 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 public enum ImageSource {
-    FLATBED_SCANNER("IMAGE_SOURCE_FLATBED_SCANNER", Constants.i18n.tr("Flatbed scanner")),
-    FILE("IMAGE_SOURCE_FILE", Constants.i18n.tr("File"));
+    FLATBED_SCANNER_PLATE_1(
+        "FLATBED_SCANNER_PLATE_1",
+        ScanPlate.PLATE_1,
+        Constants.i18n.tr("Scanner plate 1")),
+    FLATBED_SCANNER_PLATE_2(
+        "FLATBED_SCANNER_PLATE_2",
+        ScanPlate.PLATE_2,
+        Constants.i18n.tr("Scanner plate 2")),
+    FLATBED_SCANNER_PLATE_3(
+        "FLATBED_SCANNER_PLATE_3",
+        ScanPlate.PLATE_3,
+        Constants.i18n.tr("Scanner plate 3")),
+    FLATBED_SCANNER_PLATE_4(
+        "FLATBED_SCANNER_PLATE_4",
+        ScanPlate.PLATE_4,
+        Constants.i18n.tr("Scanner plate 4")),
+    FLATBED_SCANNER_PLATE_5(
+        "FLATBED_SCANNER_PLATE_5",
+        ScanPlate.PLATE_5,
+        Constants.i18n.tr("Scanner plate 5")),
+    FILE(
+        "FILE",
+        null,
+        Constants.i18n.tr("File"));
 
     private static class Constants {
         private static final I18n i18n = I18nFactory.getI18n(ImageSource.class);
@@ -17,6 +39,9 @@ public enum ImageSource {
 
     private final String id;
     private final String displayLabel;
+    private final ScanPlate scanPlate;
+
+    public static final int size = values().length;
 
     private static final Map<String, ImageSource> ID_MAP;
 
@@ -26,7 +51,7 @@ public enum ImageSource {
         for (ImageSource enumValue : values()) {
             ImageSource check = map.get(enumValue.getId());
             if (check != null) {
-                throw new IllegalStateException("plate dimensions value "
+                throw new IllegalStateException("image source value "
                     + enumValue.getId() + " used multiple times");
             }
 
@@ -36,13 +61,21 @@ public enum ImageSource {
         ID_MAP = Collections.unmodifiableMap(map);
     }
 
-    private ImageSource(String id, String displayString) {
+    private ImageSource(String id, ScanPlate scanPlate, String displayString) {
         this.id = id;
+        this.scanPlate = scanPlate;
         this.displayLabel = displayString;
     }
 
     public String getId() {
         return id;
+    }
+
+    public ScanPlate getScanPlate() {
+        if (this == FILE) {
+            throw new IllegalStateException("this value does not have a scan plate");
+        }
+        return scanPlate;
     }
 
     public String getDisplayLabel() {

@@ -24,7 +24,7 @@ public enum ScanPlate {
         private static final I18n i18n = I18nFactory.getI18n(ScanPlate.class);
     }
 
-    public static final int size = ScanPlate.values().length;
+    public static final int size = values().length;
 
     private final int id;
     private final String displayLabel;

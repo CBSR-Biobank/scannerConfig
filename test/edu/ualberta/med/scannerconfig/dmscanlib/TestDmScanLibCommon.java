@@ -12,7 +12,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.ualberta.med.scannerconfig.BarcodePosition;
+import edu.ualberta.med.scannerconfig.ImageInfo;
+import edu.ualberta.med.scannerconfig.PlateDimensions;
 import edu.ualberta.med.scannerconfig.PlateOrientation;
+import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
 
 @SuppressWarnings("nls")
 public class TestDmScanLibCommon extends RequiresJniLibraryTest {
@@ -39,12 +43,13 @@ public class TestDmScanLibCommon extends RequiresJniLibraryTest {
 
         log.debug("image dimensions: {}", imageBbox);
 
-        Set<WellRectangle> wells = WellRectangle.getWellRectanglesForBoundingBox(
-            imageBbox, 8, 12, PlateOrientation.LANDSCAPE, dpi);
+        Set<CellRectangle> wells = CellRectangle.getCellsForBoundingBox(
+            imageBbox, PlateOrientation.LANDSCAPE, PlateDimensions.DIM_ROWS_8_COLS_12,
+            BarcodePosition.BOTTOM, ScannerDpi.DPI_600);
 
         DecodeResult r = scanLib.decodeImage(3, fname,
             DecodeOptions.getDefaultDecodeOptions(),
-            wells.toArray(new WellRectangle[] {}));
+            wells.toArray(new CellRectangle[] {}));
 
         Assert.assertNotNull(r);
         log.debug("result is: {}", r.getResultCode());
@@ -73,7 +78,7 @@ public class TestDmScanLibCommon extends RequiresJniLibraryTest {
         Assert.assertEquals(0, r.getDecodedWells().size());
 
         // do not fill in the well information
-        WellRectangle[] wells = new WellRectangle[8 * 12];
+        CellRectangle[] wells = new CellRectangle[8 * 12];
 
         r = scanLib.decodeImage(3, fname, decodeOptions, wells);
 
@@ -84,8 +89,8 @@ public class TestDmScanLibCommon extends RequiresJniLibraryTest {
 
         // try and invalid filename
         wells =
-            new WellRectangle[] {
-                new WellRectangle("A12", new BoundingBox(new Point(10, 20),
+            new CellRectangle[] {
+                new CellRectangle("A12", new BoundingBox(new Point(10, 20),
                     new Point(130, 130))),
             };
 

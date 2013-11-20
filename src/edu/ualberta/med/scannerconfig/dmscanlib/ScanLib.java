@@ -145,11 +145,11 @@ public class ScanLib {
      *            and bottom-right points in units of inches.
      * @param decodeOptions See the constructor for {@link DecodeOptions} for a
      *            description of these settings.
-     * @param wells An array of {@link WellRectangle} objects defining the well
+     * @param wells An array of {@link CellRectangle} objects defining the well
      *            regions containing 2D barcode tubes.
      */
     public native DecodeResult scanAndDecode(long verbose, long dpi, int brightness, int contrast,
-        ScanRegion region, DecodeOptions decodeOptions, WellRectangle[] wells);
+        BoundingBox region, DecodeOptions decodeOptions, CellRectangle[] wells);
 
     /**
      * Used to decode individual rectangles within the image containing 2D
@@ -159,11 +159,11 @@ public class ScanLib {
      * @param filename the filename containing an image with 2D barcodes.
      * @param decodeOptions See the constructor for {@link DecodeOptions} for a
      *            description of these settings.
-     * @param wells An array of {@link WellRectangle} objects defining the well
+     * @param wells An array of {@link CellRectangle} objects defining the well
      *            regions containing 2D barcode tubes.
      * 
      */
     public native DecodeResult decodeImage(long verbose, String filename,
-        DecodeOptions decodeOptions, WellRectangle[] wells);
+        DecodeOptions decodeOptions, CellRectangle[] wells);
 
 }
