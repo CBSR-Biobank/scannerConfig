@@ -39,7 +39,8 @@ public class BarcodeImage {
      * Creates an object that contains an image that may contain one or more DataMatrix 2D barcodes.
      * 
      * @param filename The file name on the file system of the file that contains the image.
-     * @param dpi The dots per inch (DPI) used for the image.
+     * @param imageSource Where the image was aquired from. If the image is of the entire flatbed
+     *            scanning region then this value can be null.
      * @throws FileNotFoundException
      */
     public BarcodeImage(String filename, ImageSource imageSource) {
