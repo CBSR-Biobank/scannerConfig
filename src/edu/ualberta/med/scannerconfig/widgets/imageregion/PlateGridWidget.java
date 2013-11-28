@@ -1,24 +1,15 @@
 package edu.ualberta.med.scannerconfig.widgets.imageregion;
 
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D.Double;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseTrackListener;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +17,11 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import edu.ualberta.med.biobank.common.formatters.DateFormatter;
-import edu.ualberta.med.biobank.gui.common.BgcPlugin;
 import edu.ualberta.med.scannerconfig.BarcodeImage;
 import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.ImageSource;
 import edu.ualberta.med.scannerconfig.PlateDimensions;
 import edu.ualberta.med.scannerconfig.PlateOrientation;
-import edu.ualberta.med.scannerconfig.dmscanlib.BoundingBox;
 import edu.ualberta.med.scannerconfig.dmscanlib.CellRectangle;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodedWell;
 
@@ -43,44 +32,35 @@ import edu.ualberta.med.scannerconfig.dmscanlib.DecodedWell;
  * 
  * @author loyola
  */
-public class PlateGridWidget extends ImageWithRegionWidget implements MouseTrackListener {
+public class PlateGridWidget extends Composite {
 
     private static final I18n i18n = I18nFactory.getI18n(PlateGridWidget.class);
 
     @SuppressWarnings("unused")
     private static Logger log = LoggerFactory.getLogger(PlateGridWidget.class.getName());
 
-    private PlateDimensions dimensions;
-
-    private PlateOrientation orientation;
-
-    private BarcodePosition barcodePosition;
+    private BarcodeImage barcodeImage;
 
     // text to display below the image
     private final Label infoTextLabel;
 
-    // these rectangles have pixels as units
-    private final Map<String, CellRectangle> cellRectangles;
+    private final PlateGridCanvas canvas;
 
     private final Map<String, DecodedWell> decodedWells;
 
-    private final Image decodedImage;
-
-    private final Rectangle decodedImageBounds;
-
     public PlateGridWidget(Composite parent) {
-        super(parent);
-        GridLayout layout = (GridLayout) getLayout();
+        super(parent, SWT.NONE);
+        GridLayout layout = new GridLayout(1, false);
         layout.marginWidth = 5;
         layout.marginHeight = 5;
         infoTextLabel = createInfoLabel();
-
+        canvas = new PlateGridCanvas(this);
         decodedWells = new HashMap<String, DecodedWell>();
-        decodedImage = BgcPlugin.getDefault().getImage(BgcPlugin.Image.ACCEPT);
-        decodedImageBounds = decodedImage.getBounds();
+    }
 
-        cellRectangles = new HashMap<String, CellRectangle>();
-        canvas.addMouseTrackListener(this);
+    @Override
+    public void dispose() {
+        barcodeImage.dispose();
     }
 
     private Label createInfoLabel() {
@@ -96,132 +76,6 @@ public class PlateGridWidget extends ImageWithRegionWidget implements MouseTrack
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         infoLabel.setLayoutData(gd);
         return infoLabel;
-    }
-
-    /**
-     * If the image is available, the image is drawn on the canvas and the grid is projected on top.
-     */
-    @Override
-    protected void paintCanvas(PaintEvent e) {
-        if (image == null) return;
-
-        // log.debug("paintControl: userRegionInPixels: {}", userRegionInPixels);
-
-        Rectangle imageRect = image.getBounds();
-        Image imageBuffer = new Image(canvas.getDisplay(), canvas.getBounds());
-        imageGC = new GC(imageBuffer);
-        imageGC.drawImage(image.getImage(), 0, 0, imageRect.width, imageRect.height,
-            0, 0, canvas.getBounds().width, canvas.getBounds().height);
-
-        Display display = canvas.getDisplay();
-
-        Color foregroundColor = new Color(display, 0, 255, 0);
-        Color a1BackgroundColor = new Color(display, 0, 255, 255);
-        imageGC.setForeground(foregroundColor);
-
-        for (CellRectangle cell : cellRectangles.values()) {
-            Rectangle rect = cell.getBoundsRectangleSWT();
-            imageGC.drawRectangle(rect);
-
-            DecodedWell decodedWell = decodedWells.get(cell.getLabel());
-            if (decodedWell != null) {
-                imageGC.drawImage(decodedImage,
-                    0, 0, decodedImageBounds.width, decodedImageBounds.height,
-                    rect.x, rect.y, decodedImageBounds.width, decodedImageBounds.height);
-            }
-        }
-
-        Rectangle rect = cellRectangles.get("A1").getBoundsRectangleSWT();
-        imageGC.setAlpha(125);
-        imageGC.setBackground(a1BackgroundColor);
-        imageGC.fillRectangle(rect);
-        imageGC.setAlpha(255);
-
-        e.gc.drawImage(imageBuffer, 0, 0);
-
-        foregroundColor.dispose();
-        a1BackgroundColor.dispose();
-    }
-
-    @Override
-    protected void mouseDrag(MouseEvent e) {
-        super.mouseDrag(e);
-        udpateCellRectangles();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    @Override
-    public void keyPressed(KeyEvent e) {
-        super.keyPressed(e);
-        udpateCellRectangles();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    @Override
-    public void controlResized(ControlEvent e) {
-        super.controlResized(e);
-        udpateCellRectangles();
-    }
-
-    public void removeDecodeInfo() {
-        decodedWells.clear();
-    }
-
-    @Override
-    public void mouseEnter(MouseEvent e) {
-        // do nothing
-    }
-
-    @Override
-    public void mouseExit(MouseEvent e) {
-        // do nothing
-    }
-
-    @Override
-    public void mouseHover(MouseEvent e) {
-        CellRectangle cell = getObjectAtCoordinates(e.x, e.y);
-        if (cell != null) {
-            StringBuffer buf = new StringBuffer();
-            buf.append(cell.getLabel());
-
-            DecodedWell decodedWell = decodedWells.get(cell.getLabel());
-            if (decodedWell != null) {
-                buf.append(": ").append(decodedWell.getMessage());
-            }
-
-            canvas.setToolTipText(buf.toString());
-        } else {
-            canvas.setToolTipText(null);
-        }
-    }
-
-    private CellRectangle getObjectAtCoordinates(int x, int y) {
-        for (CellRectangle cell : cellRectangles.values()) {
-            if (cell.containsPoint(x, y)) {
-                return cell;
-            }
-        }
-        return null;
-    }
-
-    private void udpateCellRectangles() {
-        if (image == null) return;
-
-        cellRectangles.clear();
-
-        // construct the rectangles in units of pixels (not inches)
-        BoundingBox boundingBoxInPixels = new BoundingBox(regionToPixels(getUserRegionInInches()));
-        Set<CellRectangle> cellsInPixels = CellRectangle.getCellsForBoundingBox(
-            boundingBoxInPixels, orientation, dimensions, barcodePosition, image.getDpi());
-
-        for (CellRectangle cell : cellsInPixels) {
-            String label = cell.getLabel();
-            cellRectangles.put(label, cell);
-        }
     }
 
     private String getImageInfoText(BarcodeImage image) {
@@ -266,25 +120,25 @@ public class PlateGridWidget extends ImageWithRegionWidget implements MouseTrack
         PlateOrientation orientation,
         PlateDimensions dimensions,
         BarcodePosition barcodePosition) {
-        this.orientation = orientation;
-        this.dimensions = dimensions;
-        this.barcodePosition = barcodePosition;
-        updateImage(image);
-        setUserRegionInInches(gridRectangle);
+        this.barcodeImage = image;
+        canvas.updateImage(image, gridRectangle, orientation, dimensions, barcodePosition);
         infoTextLabel.setText(getImageInfoText(image));
         refresh();
     }
 
-    @Override
     public void refresh() {
-        udpateCellRectangles();
-        super.refresh();
+        canvas.redraw();
     }
 
     public void removeImage() {
-        updateImage(null);
-        removeDecodeInfo();
+        canvas.removeImage();
+        canvas.removeDecodeInfo();
         refresh();
+    }
+
+    public void removeDecodeInfo() {
+        decodedWells.clear();
+        canvas.removeDecodeInfo();
     }
 
     /**
@@ -294,7 +148,7 @@ public class PlateGridWidget extends ImageWithRegionWidget implements MouseTrack
      * @param orientation Either landscape or portrait.
      */
     public void setPlateOrientation(PlateOrientation orientation) {
-        this.orientation = orientation;
+        canvas.setOrientation(orientation);
         removeDecodeInfo();
         refresh();
     }
@@ -306,7 +160,7 @@ public class PlateGridWidget extends ImageWithRegionWidget implements MouseTrack
      * @param dimensions The number or rows and columns of tubes.
      */
     public void setPlateDimensions(PlateDimensions dimensions) {
-        this.dimensions = dimensions;
+        canvas.setDimensions(dimensions);
         removeDecodeInfo();
         refresh();
     }
@@ -318,7 +172,7 @@ public class PlateGridWidget extends ImageWithRegionWidget implements MouseTrack
      * @param barcodePosition if the barcodes are on the tops or bottoms of the tubes.
      */
     public void setBarcodePosition(BarcodePosition barcodePosition) {
-        this.barcodePosition = barcodePosition;
+        canvas.setBarcodePosition(barcodePosition);
         removeDecodeInfo();
         refresh();
     }
@@ -332,19 +186,16 @@ public class PlateGridWidget extends ImageWithRegionWidget implements MouseTrack
         for (DecodedWell decodedWell : wells) {
             decodedWells.put(decodedWell.getLabel(), decodedWell);
         }
-        infoTextLabel.setText(getImageInfoText(image));
+        canvas.setDecodeInfo(decodedWells);
+        infoTextLabel.setText(getImageInfoText(barcodeImage));
         refresh();
     }
 
-    /**
-     * Returs the grid region in units of inches.
-     * 
-     * @return
-     */
     public Set<CellRectangle> getCellsInInches() {
-        BoundingBox boundingBoxInInches = new BoundingBox(getUserRegionInInches());
-        Set<CellRectangle> cellsInInches = CellRectangle.getCellsForBoundingBox(
-            boundingBoxInInches, orientation, dimensions, barcodePosition, image.getDpi());
-        return cellsInInches;
+        return canvas.getCellsInInches();
+    }
+
+    public Double getUserRegionInInches() {
+        return canvas.getUserRegionInInches();
     }
 }

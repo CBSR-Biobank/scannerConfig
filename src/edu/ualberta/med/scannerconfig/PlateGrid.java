@@ -4,11 +4,13 @@ import java.awt.geom.Rectangle2D;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import edu.ualberta.med.scannerconfig.imageregion.ImageRegion;
+
 /**
  * Tracks the grid's attributes for the currently scanned plate image.
  * 
  */
-public class PlateGrid extends ScanRegion {
+public class PlateGrid extends ImageRegion {
 
     private PlateOrientation orientation;
 

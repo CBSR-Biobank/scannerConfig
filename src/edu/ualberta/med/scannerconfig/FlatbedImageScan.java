@@ -112,7 +112,7 @@ public class FlatbedImageScan {
                 File file = new File(PALLET_IMAGE_FILE);
                 Assert.isTrue(file.exists());
 
-                scannedImage = new BarcodeImage(PALLET_IMAGE_FILE);
+                scannedImage = new BarcodeImage(PALLET_IMAGE_FILE, null);
                 notifyListeners(true);
             }
         });

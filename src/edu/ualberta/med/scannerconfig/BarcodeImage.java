@@ -39,7 +39,8 @@ public class BarcodeImage {
      * Creates an object that contains an image that may contain one or more DataMatrix 2D barcodes.
      * 
      * @param filename The file name on the file system of the file that contains the image.
-     * @param dpi The dots per inch (DPI) used for the image.
+     * @param imageSource Where the image was aquired from. If the image is of the entire flatbed
+     *            scanning region then this value can be null.
      * @throws FileNotFoundException
      */
     public BarcodeImage(String filename, ImageSource imageSource) {
@@ -102,11 +103,20 @@ public class BarcodeImage {
      * 
      * @return a rectangle specifying the image's bounds in inches.
      */
-    private Rectangle2D.Double getRectangleInInches() {
+    public Rectangle2D.Double getRectangleInInches() {
         Pair<Double, Double> dimensionInInches = getDimensionsInInches();
         Rectangle2D.Double rect = new Rectangle2D.Double(0, 0,
             dimensionInInches.getLeft(), dimensionInInches.getRight());
         return rect;
+    }
+
+    /**
+     * The scale factor to transform units of inches to image dimensions
+     * 
+     * @return
+     */
+    public double getScaleFactor() {
+        return dpi;
     }
 
     public void dispose() {

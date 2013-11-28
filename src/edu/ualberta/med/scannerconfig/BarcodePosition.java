@@ -8,17 +8,17 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 /**
- * Images of pallets saved to disk can be decoded. Also, the 2D barcodes can be present on the top
- * or bottoms of the tubes. This enumeration is used to define if the image was taken of the top or
- * bottom of the pallet. The position of the camera is important since it effects the ordering used
- * to identify the tubes in the image.
+ * Images of pallets saved to disk can be decoded, rather than being scanned with a flatbed scanner.
+ * Also, the 2D barcodes can be present on the top or bottoms of the tubes. This enumeration is used
+ * to define if the image was taken of the top or bottom of the pallet. The position of the camera
+ * is important since it effects the ordering used to identify the tubes in the image.
  * 
  * @author loyola
  * 
  */
 public enum BarcodePosition {
-    TOP("BARCODE_POSITION_ABOVE", Constants.i18n.tr("Top")),
-    BOTTOM("BARCODE_POSITION_BELOW", Constants.i18n.tr("Bottom"));
+    TOP("BARCODE_POSITION_ABOVE", Constants.i18n.tr("Tube tops")),
+    BOTTOM("BARCODE_POSITION_BELOW", Constants.i18n.tr("Tube bottoms"));
 
     private static class Constants {
         private static final I18n i18n = I18nFactory.getI18n(BarcodePosition.class);

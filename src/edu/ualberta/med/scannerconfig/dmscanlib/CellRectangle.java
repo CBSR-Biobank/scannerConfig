@@ -243,47 +243,6 @@ public final class CellRectangle implements Comparable<CellRectangle> {
         }
     }
 
-    public static RowColPos getPositionForLabel(
-        String label,
-        PlateDimensions dimensions,
-        PlateOrientation orientation,
-        BarcodePosition barcodePosition) {
-        int maxRows = dimensions.getRows();
-        int maxCols = dimensions.getCols();
-        RowColPos pos = SbsLabeling.toRowCol(label);
-
-        switch (barcodePosition) {
-        case TOP:
-            switch (orientation) {
-            case LANDSCAPE:
-                maxRows = dimensions.getRows();
-                maxCols = dimensions.getCols();
-                return pos;
-            case PORTRAIT:
-                maxRows = dimensions.getCols();
-                maxCols = dimensions.getRows();
-                return new RowColPos(pos.getCol(), maxRows - pos.getRow() - 1);
-
-            default:
-                throw new IllegalStateException("invalid value for orientation: " + orientation);
-            }
-        case BOTTOM:
-            switch (orientation) {
-            case LANDSCAPE:
-                return new RowColPos(pos.getRow(), maxCols - pos.getCol() - 1);
-            case PORTRAIT:
-                return new RowColPos(pos.getCol(), pos.getRow());
-
-            default:
-                throw new IllegalStateException("invalid value for orientation: " + orientation);
-            }
-
-        default:
-            throw new IllegalStateException("invalid value for barcode position: "
-                + barcodePosition);
-        }
-    }
-
     @Override
     public int compareTo(CellRectangle that) {
         RowColPos thisPos = SbsLabeling.toRowCol(this.label);
