@@ -409,10 +409,14 @@ public class ImageWithRegionWidget extends Composite implements MouseMoveListene
         log.trace("paintControl: userRegionInPixels: {}", userRegionInInches);
 
         Rectangle imageRect = image.getBounds();
-        Image imageBuffer = new Image(canvas.getDisplay(), canvas.getBounds());
+        Rectangle canvasBounds = canvas.getBounds();
+
+        Image imageBuffer = new Image(canvas.getDisplay(), canvasBounds);
         imageGC = new GC(imageBuffer);
-        imageGC.drawImage(image.getImage(), 0, 0, imageRect.width, imageRect.height,
-            0, 0, canvas.getBounds().width, canvas.getBounds().height);
+        imageGC.drawImage(
+            image.getImage(),
+            0, 0, imageRect.width, imageRect.height,
+            0, 0, canvasBounds.width, canvasBounds.height);
 
         Display display = canvas.getDisplay();
         Color a1BackgroundColor = new Color(display, 0, 255, 255);
@@ -421,19 +425,18 @@ public class ImageWithRegionWidget extends Composite implements MouseMoveListene
         Color red = new Color(display, 255, 0, 0);
         Color blue = new Color(display, 0, 0, 255);
         Rectangle2D.Double userRegionInPixels = regionToPixels(userRegionInInches);
-        Rectangle regionRect = new Rectangle(
+        imageGC.setForeground(red);
+        imageGC.drawRectangle(
             (int) (userRegionInPixels.x),
             (int) (userRegionInPixels.y),
             (int) (userRegionInPixels.width),
             (int) (userRegionInPixels.height));
-        imageGC.setForeground(red);
-        imageGC.drawRectangle(regionRect);
 
         // create drag circles
-        int left = regionRect.x;
-        int top = regionRect.y;
-        int right = regionRect.x + regionRect.width - 3;
-        int bottom = regionRect.y + regionRect.height - 3;
+        int left = (int) userRegionInPixels.x;
+        int top = (int) userRegionInPixels.y;
+        int right = (int) (userRegionInPixels.x + userRegionInPixels.width - 3);
+        int bottom = (int) (userRegionInPixels.y + userRegionInPixels.height - 3);
 
         imageGC.setForeground(blue);
         imageGC.drawOval(left, top, 6, 6);
