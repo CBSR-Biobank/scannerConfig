@@ -4,7 +4,6 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -30,16 +29,16 @@ import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+import edu.ualberta.med.biobank.gui.common.BgcPlugin;
 import edu.ualberta.med.scannerconfig.BarcodeImage;
 import edu.ualberta.med.scannerconfig.FlatbedImageScan;
 import edu.ualberta.med.scannerconfig.IScanImageListener;
 import edu.ualberta.med.scannerconfig.ScanPlate;
-import edu.ualberta.med.scannerconfig.ScanRegion;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.preferences.DoubleFieldEditor;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.widgets.imageregion.IScanRegionWidget;
-import edu.ualberta.med.scannerconfig.widgets.imageregion.ScanRegionWidget;
+import edu.ualberta.med.scannerconfig.widgets.imageregion.ScanRegionCanvas;
 
 /**
  * A preference page that manages the size of the scanning region for an individual plate.
@@ -93,17 +92,14 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     private Map<Settings, StringFieldEditor> plateFieldEditors;
     private Map<Settings, Text> plateTextControls;
-    private ScanRegionWidget scanRegionWidget = null;
+    private ScanRegionCanvas canvas;
 
     private BooleanFieldEditor enabledFieldEditor;
     private Button scanBtn;
-    private Button refreshBtn;
 
     private Label statusLabel;
 
     private final FlatbedImageScan flatbedImageScan;
-
-    private ScanRegion scanRegion = null;
 
     private boolean internalUpdate = false;
 
@@ -164,7 +160,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         gd.widthHint = 200;
         right.setLayoutData(gd);
 
-        scanRegionWidget = new ScanRegionWidget(right, this);
+        canvas = new ScanRegionCanvas(right, this);
 
         statusLabel = new Label(right, SWT.BORDER);
         statusLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -184,20 +180,6 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 flatbedImageScan.scan();
-                scanRegionWidget.scanRegionDimensionsUpdated(getPlateRegion());
-            }
-        });
-        refreshBtn = new Button(buttonComposite, SWT.NONE);
-        refreshBtn.setText(i18n.tr("Refresh"));
-        refreshBtn.addSelectionListener(new SelectionListener() {
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                scanWidgetRefresh();
             }
         });
 
@@ -234,8 +216,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             text.addModifyListener(new ModifyListener() {
                 @Override
                 public void modifyText(ModifyEvent e) {
-                    if (scanRegion != null) {
-                        scanRegion = new ScanRegion(flatbedImage.getRectangle(), getPlateRegion());
+                    if (flatbedImage != null) {
                         if (!internalUpdate) {
                             scanRegionDimensionsUpdated();
                         }
@@ -247,11 +228,19 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         }
     }
 
+    private Double parseDouble(String numberStr) {
+        try {
+            return Double.parseDouble(numberStr);
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
+    }
+
     private Rectangle2D.Double getPlateRegion() {
-        double left = Double.parseDouble(plateFieldEditors.get(Settings.LEFT).getStringValue());
-        double top = Double.parseDouble(plateFieldEditors.get(Settings.TOP).getStringValue());
-        double right = Double.parseDouble(plateFieldEditors.get(Settings.RIGHT).getStringValue());
-        double bottom = Double.parseDouble(plateFieldEditors.get(Settings.BOTTOM).getStringValue());
+        double left = parseDouble(plateFieldEditors.get(Settings.LEFT).getStringValue());
+        double top = parseDouble(plateFieldEditors.get(Settings.TOP).getStringValue());
+        double right = parseDouble(plateFieldEditors.get(Settings.RIGHT).getStringValue());
+        double bottom = parseDouble(plateFieldEditors.get(Settings.BOTTOM).getStringValue());
         return new Rectangle2D.Double(left, top, right - left, bottom - top);
     }
 
@@ -298,7 +287,6 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             statusLabel.setText(SCAN_REQ_STATUS_MSG);
         }
         scanBtn.setEnabled(enabled);
-        refreshBtn.setEnabled(enabled);
         scanWidgetSetEnabled(enabled);
     }
 
@@ -309,37 +297,43 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     @Override
     public boolean performOk() {
-        log.debug("performOK");
         saveSettings();
         return super.performOk();
     }
 
     @Override
     public void imageAvailable(BarcodeImage image) {
-        Assert.isNotNull(image);
-
-        this.flatbedImage = image;
-        if (statusLabel == null) {
-            return;
+        if (image == null) {
+            throw new IllegalArgumentException("image is null");
         }
 
         statusLabel.setText(ALIGN_STATUS_MSG);
-        Rectangle2D.Double imageRectangle = image.getRectangle();
+        Rectangle2D.Double imageRectangle = image.getRectangleInInches();
 
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.LEFT)).setValidRange(0, imageRectangle.width);
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.TOP)).setValidRange(0, imageRectangle.height);
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.RIGHT)).setValidRange(0, imageRectangle.width);
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.BOTTOM)).setValidRange(0, imageRectangle.height);
 
-        scanRegion = new ScanRegion(flatbedImage.getRectangle(), getPlateRegion());
-        scanRegionWidget.updateImage(image, getPlateRegion());
+        Rectangle2D.Double plateRegion = getPlateRegion();
+        this.flatbedImage = image;
+        canvas.updateImage(image, getPlateRegion());
+
+        if (!imageRectangle.contains(plateRegion)) {
+            this.flatbedImage = null;
+            BgcPlugin.openAsyncError(
+                // TR: dialog title
+                i18n.tr("Position error"),
+                // TR: dialog message
+                i18n.tr("Position settings are oustide the scanned image."
+                    + "Please adjust the settings."));
+            return;
+        }
     }
 
     @Override
     public void imageDeleted() {
-        scanRegionWidget.removeImage();
-        if (statusLabel == null)
-            return;
+        canvas.removeImage();
         statusLabel.setText(SCAN_REQ_STATUS_MSG);
     }
 
@@ -350,28 +344,18 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     }
 
     private void scanRegionDimensionsUpdated() {
-        if (scanRegion != null) {
-            throw new IllegalStateException("scanRegion object is null");
-        }
-
-        if (scanRegionWidget != null) {
-            scanRegionWidget.scanRegionDimensionsUpdated(scanRegion.getRectangle());
+        if (flatbedImage != null) {
+            canvas.scanRegionDimensionsUpdated(getPlateRegion());
         }
     }
 
     private void scanWidgetSetEnabled(boolean setting) {
-        if (scanRegionWidget != null) {
+        if (flatbedImage != null) {
             if (setting) {
-                scanRegionWidget.enableRegion();
+                canvas.enableRegion();
             } else {
-                scanRegionWidget.disableRegion();
+                canvas.disableRegion();
             }
-        }
-    }
-
-    private void scanWidgetRefresh() {
-        if (scanRegionWidget != null) {
-            scanRegionWidget.refresh();
         }
     }
 }

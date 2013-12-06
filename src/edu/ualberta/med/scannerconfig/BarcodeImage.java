@@ -103,11 +103,20 @@ public class BarcodeImage {
      * 
      * @return a rectangle specifying the image's bounds in inches.
      */
-    private Rectangle2D.Double getRectangleInInches() {
+    public Rectangle2D.Double getRectangleInInches() {
         Pair<Double, Double> dimensionInInches = getDimensionsInInches();
         Rectangle2D.Double rect = new Rectangle2D.Double(0, 0,
             dimensionInInches.getLeft(), dimensionInInches.getRight());
         return rect;
+    }
+
+    /**
+     * The scale factor to transform units of inches to image dimensions
+     * 
+     * @return
+     */
+    public double getScaleFactor() {
+        return dpi;
     }
 
     public void dispose() {
