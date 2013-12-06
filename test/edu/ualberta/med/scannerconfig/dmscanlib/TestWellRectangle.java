@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.PlateDimensions;
 import edu.ualberta.med.scannerconfig.PlateOrientation;
-import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
 
 public class TestWellRectangle {
 
@@ -38,8 +37,7 @@ public class TestWellRectangle {
             new BoundingBox(bounds),
             PlateOrientation.LANDSCAPE,
             PlateDimensions.DIM_ROWS_8_COLS_12,
-            BarcodePosition.TOP,
-            ScannerDpi.DPI_600);
+            BarcodePosition.TOP);
 
         Assert.assertNotNull(rectangleSet);
         Assert.assertFalse(rectangleSet.isEmpty());
@@ -61,8 +59,7 @@ public class TestWellRectangle {
             new BoundingBox(bounds),
             PlateOrientation.LANDSCAPE,
             PlateDimensions.DIM_ROWS_8_COLS_12,
-            BarcodePosition.TOP,
-            ScannerDpi.DPI_600);
+            BarcodePosition.TOP);
 
         Assert.assertNotNull(rectangleSet);
         Assert.assertFalse(rectangleSet.isEmpty());
@@ -113,8 +110,7 @@ public class TestWellRectangle {
             new BoundingBox(bounds),
             PlateOrientation.PORTRAIT,
             PlateDimensions.DIM_ROWS_8_COLS_12,
-            BarcodePosition.TOP,
-            ScannerDpi.DPI_600);
+            BarcodePosition.TOP);
 
         Assert.assertNotNull(rectangleSet);
         Assert.assertFalse(rectangleSet.isEmpty());
@@ -165,8 +161,7 @@ public class TestWellRectangle {
             new BoundingBox(bounds),
             PlateOrientation.LANDSCAPE,
             PlateDimensions.DIM_ROWS_8_COLS_12,
-            BarcodePosition.BOTTOM,
-            ScannerDpi.DPI_600);
+            BarcodePosition.BOTTOM);
 
         Assert.assertNotNull(rectangleSet);
         Assert.assertFalse(rectangleSet.isEmpty());
@@ -217,8 +212,7 @@ public class TestWellRectangle {
             new BoundingBox(bounds),
             PlateOrientation.PORTRAIT,
             PlateDimensions.DIM_ROWS_8_COLS_12,
-            BarcodePosition.BOTTOM,
-            ScannerDpi.DPI_600);
+            BarcodePosition.BOTTOM);
 
         Assert.assertNotNull(rectangleSet);
         Assert.assertFalse(rectangleSet.isEmpty());

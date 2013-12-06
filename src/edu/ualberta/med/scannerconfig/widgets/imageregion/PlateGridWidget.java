@@ -22,6 +22,7 @@ import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.ImageSource;
 import edu.ualberta.med.scannerconfig.PlateDimensions;
 import edu.ualberta.med.scannerconfig.PlateOrientation;
+import edu.ualberta.med.scannerconfig.dialogs.DecodeImageDialog.ScanMode;
 import edu.ualberta.med.scannerconfig.dmscanlib.CellRectangle;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodedWell;
 
@@ -50,11 +51,18 @@ public class PlateGridWidget extends Composite {
 
     public PlateGridWidget(Composite parent) {
         super(parent, SWT.NONE);
+
         GridLayout layout = new GridLayout(1, false);
         layout.marginWidth = 5;
         layout.marginHeight = 5;
-        infoTextLabel = createInfoLabel();
+        setLayout(layout);
+
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        setLayoutData(gd);
+
         canvas = new PlateGridCanvas(this);
+        infoTextLabel = createInfoLabel();
+
         decodedWells = new HashMap<String, DecodedWell>();
     }
 
@@ -180,15 +188,41 @@ public class PlateGridWidget extends Composite {
     /**
      * Used to display decoding information with the image.
      * 
+     * @param scanMode
+     * 
      * @param decodedWells
      */
-    public void setDecodedWells(Set<DecodedWell> wells) {
-        for (DecodedWell decodedWell : wells) {
-            decodedWells.put(decodedWell.getLabel(), decodedWell);
+    public boolean setDecodedWells(Set<DecodedWell> wells, ScanMode scanMode) {
+        switch (scanMode) {
+        case SCAN:
+            for (DecodedWell decodedWell : wells) {
+                decodedWells.put(decodedWell.getLabel(), decodedWell);
+            }
+            break;
+
+        case RESCAN:
+            // make sure decoded tubes in the last decode match the ones in the new ones
+            Map<String, DecodedWell> newDecodedWells = new HashMap<String, DecodedWell>();
+
+            for (DecodedWell decodedWell : wells) {
+                DecodedWell prevDecode = decodedWells.get(decodedWell.getLabel());
+                if ((prevDecode != null)
+                    && !prevDecode.getMessage().equals(decodedWell.getMessage())) {
+                    return false;
+                }
+                newDecodedWells.put(decodedWell.getLabel(), decodedWell);
+            }
+            decodedWells.putAll(newDecodedWells);
+            break;
+
+        default:
+            throw new IllegalArgumentException("invalid value for scanMode " + scanMode);
         }
+
         canvas.setDecodeInfo(decodedWells);
         infoTextLabel.setText(getImageInfoText(barcodeImage));
         refresh();
+        return true;
     }
 
     public Set<CellRectangle> getCellsInInches() {

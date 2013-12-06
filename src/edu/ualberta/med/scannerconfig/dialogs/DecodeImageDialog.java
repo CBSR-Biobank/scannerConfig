@@ -1,16 +1,19 @@
 package edu.ualberta.med.scannerconfig.dialogs;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -18,6 +21,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
@@ -36,9 +40,12 @@ import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.CellRectangle;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodeOptions;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodeResult;
+import edu.ualberta.med.scannerconfig.dmscanlib.DecodedWell;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
+import edu.ualberta.med.scannerconfig.imageregion.Swt2DUtil;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
+import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
 import edu.ualberta.med.scannerconfig.widgets.ImageSourceAction;
 import edu.ualberta.med.scannerconfig.widgets.ImageSourceWidget;
 import edu.ualberta.med.scannerconfig.widgets.imageregion.PlateGridWidget;
@@ -58,25 +65,35 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
 
     private static Logger log = LoggerFactory.getLogger(DecodeImageDialog.class);
 
+    public enum ScanMode {
+        SCAN,
+        RESCAN;
+    }
+
     private static final String SCANNING_DIALOG_SETTINGS =
         DecodeImageDialog.class.getSimpleName() + "_SETTINGS";
 
     private static final int CONTROLS_MIN_WIDTH = 160;
 
+    @SuppressWarnings("nls")
+    private static final String TITLE = i18n.tr("Decode pallet");
+
     private static final String TITLE_AREA_MESSAGE_SELECT_PLATE =
         i18n.tr("Select the options to match the image you are decoding");
 
     @SuppressWarnings("nls")
-    private static final String TITLE = i18n.tr("Decode pallet");
+    private static final String TITLE_AREA_MESSAGE_ADJUST_GRID =
+        i18n.tr("Adjust the grid to the barcodes contained in the image.");
 
     @SuppressWarnings("nls")
-    // FIXME: need to let user know about this
-    private static final String TITLE_AREA_MESSAGE_SCANNING = i18n.tr(
-        "Retrieving image from the flatbed scanner...");
+    private static final String TITLE_AREA_MESSAGE_DECODING_COMPLETED =
+        i18n.tr("Decoding completed.");
 
-    @SuppressWarnings("nls")
-    private static final String TITLE_AREA_MESSAGE_DECODING = i18n.tr(
-        "Adjust the grid to the barcodes contained in the image.");
+    private static final String PROGRESS_MESSAGE_SCANNING =
+        i18n.tr("Retrieving image from the flatbed scanner...");
+
+    private static final String PROGRESS_MESSAGE_DECODING =
+        i18n.tr("Decoding barcodes in image...");
 
     private ImageSourceWidget imageSourceWidget;
 
@@ -85,6 +102,12 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
     private BarcodeImage imageToDecode;
 
     private final List<PlateDimensions> validPlateDimensions;
+
+    private ScanMode scanMode;
+
+    private Button decodeButton;
+
+    private DecodeResult result;
 
     /**
      * Use this constructor to limit the valid plate dimensions the user can choose from.
@@ -159,13 +182,14 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
             widgetCreator, getDialogSettings(), validPlateDimensions);
         imageSourceWidget.addSelectionListener(this);
 
-        createDecodeButton(imageSourceWidget);
+        decodeButton = createDecodeButton(imageSourceWidget);
+        decodeButton.setEnabled(false);
     }
 
     private Button createDecodeButton(Composite parent) {
-        Button decodeButton = new Button(parent, SWT.PUSH);
-        decodeButton.setText(i18n.tr("Decode"));
-        decodeButton.addSelectionListener(new org.eclipse.swt.events.SelectionListener() {
+        Button button = new Button(parent, SWT.PUSH);
+        button.setText(i18n.tr("Decode"));
+        button.addSelectionListener(new org.eclipse.swt.events.SelectionListener() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -177,7 +201,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
                 widgetSelected(e);
             }
         });
-        return decodeButton;
+        return button;
     }
 
     private void createImageControl(Composite parent) {
@@ -204,6 +228,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
 
         switch (imageSourceAction) {
         case IMAGE_SOURCE_CHANGED:
+            setMessage(TITLE_AREA_MESSAGE_SELECT_PLATE);
             removeImage();
             break;
 
@@ -223,68 +248,98 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
             break;
 
         case SCAN:
+            saveGridRectangle();
+            removeDecodeInfo();
+            scanMode = ScanMode.SCAN;
+            scanPlate(e);
+            break;
+
+        case RESCAN:
+            saveGridRectangle();
+            scanMode = ScanMode.RESCAN;
             scanPlate(e);
             break;
 
         case FILENAME:
+            removeImage();
             String filename = (String) e.data;
+            scanMode = ScanMode.SCAN;
             loadFile(filename, ImageSource.FILE);
             break;
 
         default:
-            log.debug("widgetSelected: event image source action: {}", imageSourceAction);
+            throw new IllegalArgumentException("invalid image source action: " + imageSourceAction);
         }
     }
 
     private void scanPlate(Event e) {
         final ImageSource imageSource = (ImageSource) e.data;
         final ScanPlate plateToScan = imageSource.getScanPlate();
+        final String filename = imageSourceWidget.getFileName();
+        final ScannerDpi dpi = imageSourceWidget.getDpi();
+        final Display display = Display.getDefault();
 
-        log.trace("scanPlate: imageSource: {}", imageSource);
-
-        BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
+        IRunnableWithProgress op = new IRunnableWithProgress() {
             @Override
-            public void run() {
-                ScanLibResult.Result result;
-                String filename = imageSourceWidget.getFileName();
-                result = ScannerConfigPlugin.scanPlate(plateToScan, filename, imageSourceWidget.getDpi());
+            public void run(IProgressMonitor monitor) {
+                monitor.beginTask(PROGRESS_MESSAGE_SCANNING, IProgressMonitor.UNKNOWN);
+                ScanLibResult.Result result = ScannerConfigPlugin.scanPlate(
+                    plateToScan, filename, dpi);
 
                 if ((result == ScanLibResult.Result.SUCCESS)
-                    || ((result == ScanLibResult.Result.FAIL) && imageSourceWidget.haveFakePlateImage())) {
-                    setMessage(TITLE_AREA_MESSAGE_DECODING, IMessageProvider.NONE);
-
-                    if ((result == ScanLibResult.Result.FAIL)
-                        && imageSourceWidget.haveFakePlateImage()) {
+                    || ((result == ScanLibResult.Result.FAIL)
+                    && imageSourceWidget.haveFakePlateImage())) {
+                    if ((result == ScanLibResult.Result.FAIL) &&
+                        imageSourceWidget.haveFakePlateImage()) {
                         // fake scanning an image
                         // try {
                         // Thread.sleep(4000);
                         // } catch (InterruptedException e) {
-                        // // TODO Auto-generated catch block
                         // e.printStackTrace();
                         // }
                     }
 
-                    loadFile(filename, imageSource);
+                    display.asyncExec(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadFile(filename, imageSource);
+                        }
+                    });
                 } else {
-                    setMessage(i18n.tr("Could not scan the plate region"), IMessageProvider.ERROR);
+                    display.asyncExec(new Runnable() {
+                        @Override
+                        public void run() {
+                            setMessage(i18n.tr("Could not scan the plate region"), IMessageProvider.ERROR);
+                        }
+                    });
                 }
+                monitor.done();
             }
-        });
+        };
+
+        try {
+            new ProgressMonitorDialog(PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow().getShell()).run(true, false, op);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     private void loadFile(String filename, ImageSource imageSource) {
+        setMessage(TITLE_AREA_MESSAGE_ADJUST_GRID, IMessageProvider.NONE);
         imageToDecode = new BarcodeImage(filename, imageSource);
         Rectangle2D.Double gridRectangle = (Rectangle2D.Double) imageSourceWidget.getGridRectangle().clone();
 
         // gridRectangle must fit inside the image rectangle
         if ((gridRectangle.x < 0) || !imageToDecode.contains(gridRectangle)) {
             // needs initialization
-            gridRectangle = shrinkRectangle(imageToDecode.getRectangle(), 0.98);
-            log.debug("loadFile: initialization for gridRect");
+            AffineTransform t = AffineTransform.getScaleInstance(0.98, 0.98);
+            Rectangle2D.Double rectangle = imageToDecode.getRectangle();
+            gridRectangle = Swt2DUtil.transformRect(t, rectangle);
+            log.trace("loadFile: initialization for gridRect");
         }
 
-        log.trace("loadFile: gridRect: {}", gridRectangle);
-
+        decodeButton.setEnabled(true);
         plateGridWidget.updateImage(
             imageToDecode,
             gridRectangle,
@@ -293,26 +348,10 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
             imageSourceWidget.getBarcodePosition());
     }
 
-    //
-    // shrinks a rectangle around it's center by a factor of scale.
-    //
-    private Rectangle2D.Double shrinkRectangle(Rectangle2D.Double rectangle, double scale) {
-        if ((scale <= 0) || (scale >= 1)) {
-            throw new IllegalArgumentException("invalid scale factor: " + scale);
-        }
-
-        double oneMinusScaleOverTwo = (1.0 - scale) / 2.0;
-        double x = rectangle.x + rectangle.width * oneMinusScaleOverTwo;
-        double y = rectangle.y + rectangle.height * oneMinusScaleOverTwo;
-        double width = rectangle.width * scale;
-        double height = rectangle.height * scale;
-
-        return new Rectangle2D.Double(x, y, width, height);
-    }
-
     private void removeImage() {
         imageToDecode = null;
         plateGridWidget.removeImage();
+        decodeButton.setEnabled(false);
         removeDecodeInfo();
     }
 
@@ -330,36 +369,68 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         final int corrections = prefs.getInt(PreferenceConstants.LIBDMTX_CORRECTIONS);
         final String filename = imageSourceWidget.getFileName();
 
+        saveGridRectangle();
         plateGridWidget.removeDecodeInfo();
 
-        BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
+        final Display display = Display.getDefault();
+
+        IRunnableWithProgress op = new IRunnableWithProgress() {
             @Override
-            public void run() {
+            public void run(IProgressMonitor monitor) {
+                monitor.beginTask(PROGRESS_MESSAGE_DECODING, IProgressMonitor.UNKNOWN);
                 Set<CellRectangle> wells = plateGridWidget.getCellsInInches();
 
-                DecodeResult result = ScanLib.getInstance().decodeImage(
-                    debugLevel, filename,
+                result = ScanLib.getInstance().decodeImage(
+                    debugLevel,
+                    filename,
                     new DecodeOptions(scanGap, squareDev, edgeThresh, corrections, 1),
                     wells.toArray(new CellRectangle[] {}));
 
                 // log.debug("createDecodeButton: tubes decoded: {}",
                 // result.getDecodedWells().size());
 
-                plateGridWidget.setDecodedWells(result.getDecodedWells());
+                display.asyncExec(new Runnable() {
+                    @Override
+                    public void run() {
+                        setMessage(TITLE_AREA_MESSAGE_DECODING_COMPLETED, IMessageProvider.NONE);
+                        plateGridWidget.setDecodedWells(result.getDecodedWells(), scanMode);
+                    }
+                });
+                monitor.done();
             }
-        });
+        };
+
+        try {
+            new ProgressMonitorDialog(PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow().getShell()).run(true, false, op);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private void saveGridRectangle() {
+        if (imageToDecode != null) {
+            Rectangle2D.Double gridRegion = plateGridWidget.getUserRegionInInches();
+            if (gridRegion == null) {
+                throw new IllegalStateException("grid region is null");
+            }
+            imageSourceWidget.setGridRectangle(gridRegion);
+        }
     }
 
     @Override
     protected void okPressed() {
         if (imageToDecode != null) {
-            Rectangle2D.Double gridRegion = plateGridWidget.getUserRegionInInches();
-            if (gridRegion != null) {
-                imageSourceWidget.setGridRectangle(gridRegion);
-                log.trace("okPressed: grid region: {}", gridRegion);
-            }
+            saveGridRectangle();
         }
         imageSourceWidget.saveSettings();
         super.okPressed();
+    }
+
+    public Set<DecodedWell> getDecodeResult() {
+        if (result == null) {
+            throw new IllegalStateException("decode result is null");
+        }
+        return result.getDecodedWells();
     }
 }

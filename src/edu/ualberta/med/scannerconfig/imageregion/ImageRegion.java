@@ -123,20 +123,6 @@ public class ImageRegion {
     }
 
     /**
-     * Resizes the region by moving the right edge of the region by a distance of {@link dx}.
-     * 
-     * @param dx distance in the X direction to resize.
-     */
-    public void resizeRightEdge(double dx) {
-        double tx = positionTransform.getTranslateX();
-        double maxValue = tx - RESIZE_EPSILON;
-        double minValue = -region.width + RESIZE_EPSILON;
-        dx = Math.max(minValue, Math.min(dx, maxValue));
-        region.setRect(0, 0, region.width + dx, region.height);
-        resizeHandles.updateRegion(region);
-    }
-
-    /**
      * Resizes the region by moving the top edge of the region by a distance of {@link dx}.
      * 
      * @param dy distance in the Y direction to resize.
@@ -150,16 +136,43 @@ public class ImageRegion {
         translate(0, dy);
     }
 
+    /*
+     * Used to adjust the right or bottom edges of the user region. Adjusts the distance to change
+     * by according to the current translation, size and maximum size of the region.
+     */
+    private double resizeEdge(double distance, double translation, double currentSize,
+        double maxSize) {
+        double possibleEdge = translation + currentSize + distance;
+
+        if (possibleEdge > maxSize) {
+            distance = maxSize - translation - currentSize;
+        }
+
+        if (distance < -currentSize + RESIZE_EPSILON) {
+            distance = -currentSize + RESIZE_EPSILON;
+        }
+
+        return distance;
+    }
+
+    /**
+     * Resizes the region by moving the right edge of the region by a distance of {@link dx}.
+     * 
+     * @param dx distance in the X direction to resize.
+     */
+    public void resizeRightEdge(double dx) {
+        dx = resizeEdge(dx, positionTransform.getTranslateX(), region.width, imageBounds.width);
+        region.setRect(0, 0, region.width + dx, region.height);
+        resizeHandles.updateRegion(region);
+    }
+
     /**
      * Resizes the region by moving the bottom edge of the region by a distance of {@link dx}.
      * 
      * @param dy distance in the Y direction to resize.
      */
     public void resizeBottomEdge(double dy) {
-        double ty = positionTransform.getTranslateY();
-        double maxValue = ty - RESIZE_EPSILON;
-        double minValue = -region.height + RESIZE_EPSILON;
-        dy = Math.max(minValue, Math.min(dy, maxValue));
+        dy = resizeEdge(dy, positionTransform.getTranslateY(), region.height, imageBounds.height);
         region.setRect(0, 0, region.width, region.height + dy);
         resizeHandles.updateRegion(region);
     }
@@ -167,7 +180,7 @@ public class ImageRegion {
     public PointToRegion pointToRegion(Point2D.Double pt) {
         Point2D.Double regionPoint = Swt2DUtil.inverseTransformPoint(positionTransform, pt);
 
-        PointToRegion pointRegion = resizeHandles.getHandleFromPoint(pt);
+        PointToRegion pointRegion = resizeHandles.getHandleFromPoint(regionPoint);
         if (pointRegion != PointToRegion.OUTSIDE_REGION) {
             return pointRegion;
         }

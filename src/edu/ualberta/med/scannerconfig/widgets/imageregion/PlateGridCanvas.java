@@ -1,5 +1,6 @@
 package edu.ualberta.med.scannerconfig.widgets.imageregion;
 
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.ualberta.med.biobank.gui.common.BgcPlugin;
 import edu.ualberta.med.scannerconfig.BarcodeImage;
@@ -23,8 +26,12 @@ import edu.ualberta.med.scannerconfig.PlateOrientation;
 import edu.ualberta.med.scannerconfig.dmscanlib.BoundingBox;
 import edu.ualberta.med.scannerconfig.dmscanlib.CellRectangle;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodedWell;
+import edu.ualberta.med.scannerconfig.imageregion.Swt2DUtil;
 
 public class PlateGridCanvas extends ImageWithRegionCanvas {
+
+    @SuppressWarnings("unused")
+    private static Logger log = LoggerFactory.getLogger(PlateGridCanvas.class.getName());
 
     private PlateDimensions dimensions;
 
@@ -41,12 +48,20 @@ public class PlateGridCanvas extends ImageWithRegionCanvas {
 
     private final Rectangle decodedIconImageBounds;
 
+    private final Color foregroundColor;
+
+    private final Color a1BackgroundColor;
+
     public PlateGridCanvas(Composite parent) {
         super(parent);
         cellRectangles = new HashMap<String, CellRectangle>();
         decodedWells = new HashMap<String, DecodedWell>();
         decodedIconImage = BgcPlugin.getDefault().getImage(BgcPlugin.Image.ACCEPT);
         decodedIconImageBounds = decodedIconImage.getBounds();
+
+        Display display = getDisplay();
+        foregroundColor = new Color(display, 0, 255, 0);
+        a1BackgroundColor = new Color(display, 0, 255, 255);
 
         addMouseTrackListener(new MouseTrackListener() {
 
@@ -67,47 +82,63 @@ public class PlateGridCanvas extends ImageWithRegionCanvas {
         });
     }
 
-    protected void updateImage() {
-        Display display = getDisplay();
-        Color foregroundColor = new Color(display, 0, 255, 0);
-        Color a1BackgroundColor = new Color(display, 0, 255, 255);
+    @Override
+    public void dispose() {
+        foregroundColor.dispose();
+        a1BackgroundColor.dispose();
+    }
 
-        Rectangle imageRect = barcodeImage.getBounds();
-        Image imageBuffer = new Image(getDisplay(), imageRect.width, imageRect.height);
-        GC gc = new GC(imageBuffer);
+    @Override
+    protected void paint(GC gc) {
+        if (barcodeImage == null) {
+            super.paint(gc);
+            return;
+        }
 
-        gc.drawImage(barcodeImage.getImage(), 0, 0, imageRect.width, imageRect.height,
-            0, 0, imageRect.width, imageRect.height);
+        Image clippedImage = clippedSourceImage();
+        Rectangle clientRect = getClientArea();
+        GC newGC = new GC(clippedImage);
 
-        gc.setForeground(foregroundColor);
+        newGC.setClipping(clientRect);
+        newGC.setForeground(foregroundColor);
 
         for (CellRectangle cell : cellRectangles.values()) {
-            Rectangle rect = cell.getBoundsRectangleSWT();
-            gc.drawRectangle(rect);
+            Rectangle2D.Double rect = cell.getBoundsRectangle();
+            Rectangle2D.Double rectOnImage = Swt2DUtil.transformRect(regionToImageTransform, rect);
+            Rectangle2D.Double rectOnCanvas = Swt2DUtil.transformRect(sourceImageToCanvasTransform, rectOnImage);
+
+            newGC.drawRectangle(
+                (int) rectOnCanvas.x,
+                (int) rectOnCanvas.y,
+                (int) rectOnCanvas.width,
+                (int) rectOnCanvas.height);
+
+            if (cell.getLabel().equals("A1")) {
+                newGC.setAlpha(125);
+                newGC.setBackground(a1BackgroundColor);
+                newGC.fillRectangle(
+                    (int) rectOnCanvas.x,
+                    (int) rectOnCanvas.y,
+                    (int) rectOnCanvas.width,
+                    (int) rectOnCanvas.height);
+                newGC.setAlpha(255);
+            }
 
             DecodedWell decodedWell = decodedWells.get(cell.getLabel());
             if (decodedWell != null) {
-                gc.drawImage(decodedIconImage,
+                newGC.drawImage(decodedIconImage,
                     0, 0, decodedIconImageBounds.width, decodedIconImageBounds.height,
-                    rect.x, rect.y, decodedIconImageBounds.width, decodedIconImageBounds.height);
+                    (int) rectOnCanvas.x, (int) rectOnCanvas.y,
+                    decodedIconImageBounds.width, decodedIconImageBounds.height);
             }
         }
 
-        Rectangle rect = cellRectangles.get("A1").getBoundsRectangleSWT();
-        gc.setAlpha(125);
-        gc.setBackground(a1BackgroundColor);
-        gc.fillRectangle(rect);
-        gc.setAlpha(255);
+        drawResizeHandles(newGC, a1BackgroundColor);
 
-        gc.drawImage(imageBuffer, 0, 0);
-        gc.dispose();
+        newGC.dispose();
 
-        // FIXME
-        // setSourceImage(imageBuffer.getImage());
-        imageBuffer.dispose();
-
-        foregroundColor.dispose();
-        a1BackgroundColor.dispose();
+        gc.drawImage(clippedImage, 0, 0);
+        clippedImage.dispose();
     }
 
     /**
@@ -132,6 +163,7 @@ public class PlateGridCanvas extends ImageWithRegionCanvas {
         setBarcodePosition(barcodePosition);
         setUserRegionInInches(image, gridRectangle);
         updateImage(image);
+        udpateCellRectangles();
         redraw();
     }
 
@@ -140,9 +172,9 @@ public class PlateGridCanvas extends ImageWithRegionCanvas {
 
         cellRectangles.clear();
 
-        BoundingBox boundingBoxInPixels = new BoundingBox(getUserRegionInInches());
+        BoundingBox boundingBoxInInches = new BoundingBox(getUserRegionInInches());
         Set<CellRectangle> cellsInPixels = CellRectangle.getCellsForBoundingBox(
-            boundingBoxInPixels, orientation, dimensions, barcodePosition, barcodeImage.getDpi());
+            boundingBoxInInches, orientation, dimensions, barcodePosition);
 
         for (CellRectangle cell : cellsInPixels) {
             String label = cell.getLabel();
@@ -153,7 +185,6 @@ public class PlateGridCanvas extends ImageWithRegionCanvas {
     @Override
     public void controlResized() {
         super.controlResized();
-        udpateCellRectangles();
     }
 
     @Override
@@ -169,7 +200,8 @@ public class PlateGridCanvas extends ImageWithRegionCanvas {
     }
 
     private void mouseHover(MouseEvent e) {
-        CellRectangle cell = getObjectAtCoordinates(e.x, e.y);
+        Point2D.Double mousePointInInches = canvasPointToRegion(e.x, e.y);
+        CellRectangle cell = getObjectAtCoordinates(mousePointInInches.x, mousePointInInches.y);
         if (cell != null) {
             StringBuffer buf = new StringBuffer();
             buf.append(cell.getLabel());
@@ -185,7 +217,7 @@ public class PlateGridCanvas extends ImageWithRegionCanvas {
         }
     }
 
-    private CellRectangle getObjectAtCoordinates(int x, int y) {
+    private CellRectangle getObjectAtCoordinates(double x, double y) {
         for (CellRectangle cell : cellRectangles.values()) {
             if (cell.containsPoint(x, y)) {
                 return cell;
@@ -196,19 +228,22 @@ public class PlateGridCanvas extends ImageWithRegionCanvas {
 
     public void setDimensions(PlateDimensions dimensions) {
         this.dimensions = dimensions;
+        udpateCellRectangles();
     }
 
     public void setOrientation(PlateOrientation orientation) {
         this.orientation = orientation;
+        udpateCellRectangles();
     }
 
     public void setBarcodePosition(BarcodePosition barcodePosition) {
         this.barcodePosition = barcodePosition;
+        udpateCellRectangles();
     }
 
     public void setDecodeInfo(Map<String, DecodedWell> decodedWells) {
         removeDecodeInfo();
-        decodedWells.putAll(decodedWells);
+        this.decodedWells.putAll(decodedWells);
     }
 
     public void removeDecodeInfo() {
@@ -223,7 +258,7 @@ public class PlateGridCanvas extends ImageWithRegionCanvas {
     public Set<CellRectangle> getCellsInInches() {
         BoundingBox boundingBoxInInches = new BoundingBox(getUserRegionInInches());
         Set<CellRectangle> cellsInInches = CellRectangle.getCellsForBoundingBox(
-            boundingBoxInInches, orientation, dimensions, barcodePosition, barcodeImage.getDpi());
+            boundingBoxInInches, orientation, dimensions, barcodePosition);
         return cellsInInches;
     }
 }

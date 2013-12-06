@@ -56,7 +56,7 @@ public class ImageSourceDialogSettings {
                 settings = ImageSourceSettings.getFromSettingsStringArray(source, values);
             } else {
                 settings = ImageSourceSettings.defaultSettings(source);
-                log.debug("restore: default value applied");
+                log.trace("restore: default value applied");
             }
             log.trace("restore: source: {}, settings: {}", source, settings.toSettingsStringArray());
             imageSourceSettings.put(source.getId(), settings);

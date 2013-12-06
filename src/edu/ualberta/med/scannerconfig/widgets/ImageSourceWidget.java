@@ -393,8 +393,7 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
                 newEvent.data = imageSourceSelectionWidget.getSelection();
             } else if (e.getSource().equals(rescanButton)) {
                 newEvent.detail = ImageSourceAction.RESCAN.getId();
-                newEvent.data = String.format("plate_scan_%d.bmp",
-                    imageSourceSelectionWidget.getSelection().getScanPlate().getId());
+                newEvent.data = imageSourceSelectionWidget.getSelection();
             } else {
                 throw new IllegalStateException("invalid source for event: " + e.getSource());
             }

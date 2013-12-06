@@ -46,7 +46,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
     // this region is not translated, its starts at (0, 0)
     protected ImageRegion userRegionInInches;
 
-    private AffineTransform regionToImageTransform = new AffineTransform();
+    protected AffineTransform regionToImageTransform = new AffineTransform();
 
     public Point2D.Double lastMousePosInRegion;
 
@@ -141,28 +141,31 @@ public class ImageWithRegionCanvas extends ImageCanvas {
                 (int) regionRectOnCanvas.width,
                 (int) regionRectOnCanvas.height);
 
-            // create resize handles
-            newGC.setForeground(colorBlue);
-            newGC.setBackground(handleBackgroundColor);
-            for (Rectangle2D.Double rect : userRegionInInches.getResizeHandleRects().values()) {
-
-                Rectangle2D.Double handleOnImage =
-                    Swt2DUtil.transformRect(regionToImageTransform, rect);
-                Rectangle2D.Double handleCanvas =
-                    Swt2DUtil.transformRect(sourceImageToCanvasTransform, handleOnImage);
-
-                newGC.fillRectangle(
-                    (int) handleCanvas.x,
-                    (int) handleCanvas.y,
-                    (int) handleCanvas.width,
-                    (int) handleCanvas.height);
-            }
+            drawResizeHandles(newGC, handleBackgroundColor);
 
             newGC.dispose();
         }
 
         gc.drawImage(clippedImage, 0, 0);
         clippedImage.dispose();
+    }
+
+    // create resize handles
+    protected void drawResizeHandles(GC newGC, Color handleBackgroundColor) {
+        newGC.setBackground(handleBackgroundColor);
+        for (Rectangle2D.Double rect : userRegionInInches.getResizeHandleRects().values()) {
+
+            Rectangle2D.Double handleOnImage =
+                Swt2DUtil.transformRect(regionToImageTransform, rect);
+            Rectangle2D.Double handleCanvas =
+                Swt2DUtil.transformRect(sourceImageToCanvasTransform, handleOnImage);
+
+            newGC.fillRectangle(
+                (int) handleCanvas.x,
+                (int) handleCanvas.y,
+                (int) handleCanvas.width,
+                (int) handleCanvas.height);
+        }
     }
 
     /**
@@ -228,7 +231,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
 
     }
 
-    private Point2D.Double canvasPointToRegion(double x, double y) {
+    protected Point2D.Double canvasPointToRegion(double x, double y) {
         Point2D.Double canvasPoint = new Point2D.Double(x, y);
         Point2D.Double pointOnImage = Swt2DUtil.inverseTransformPoint(sourceImageToCanvasTransform, canvasPoint);
         Point2D.Double pointInInches = Swt2DUtil.inverseTransformPoint(regionToImageTransform, pointOnImage);

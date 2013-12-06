@@ -18,7 +18,6 @@ import edu.ualberta.med.scannerconfig.ImageInfo;
 import edu.ualberta.med.scannerconfig.PlateDimensions;
 import edu.ualberta.med.scannerconfig.PlateOrientation;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
-import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
 
 @SuppressWarnings("nls")
 public class TestDmScanLibWindows extends RequiresJniLibraryTest {
@@ -123,7 +122,7 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
 
         Set<CellRectangle> wells = CellRectangle.getCellsForBoundingBox(
             wellsBbox, PlateOrientation.LANDSCAPE, PlateDimensions.DIM_ROWS_8_COLS_12,
-            BarcodePosition.BOTTOM, ScannerDpi.DPI_600);
+            BarcodePosition.BOTTOM);
 
         DecodeResult dr =
             scanLib.scanAndDecode(3, dpi, 0, 0, scanBbox, DecodeOptions.getDefaultDecodeOptions(),

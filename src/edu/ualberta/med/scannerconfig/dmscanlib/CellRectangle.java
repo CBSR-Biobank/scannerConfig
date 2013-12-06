@@ -1,5 +1,6 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -14,7 +15,7 @@ import edu.ualberta.med.biobank.util.SbsLabeling;
 import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.PlateDimensions;
 import edu.ualberta.med.scannerconfig.PlateOrientation;
-import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
+import edu.ualberta.med.scannerconfig.imageregion.Swt2DUtil;
 
 /**
  * Defines rectangular coordinates, in inches, for a region of image that contains a single 2D
@@ -94,15 +95,6 @@ public final class CellRectangle implements Comparable<CellRectangle> {
         return new Rectangle2D.Double(r.getX(), r.getY(), r.getWidth(), r.getHeight());
     }
 
-    public org.eclipse.swt.graphics.Rectangle getBoundsRectangleSWT() {
-        Rectangle2D r = polygon.getBounds2D();
-        return new org.eclipse.swt.graphics.Rectangle(
-            (int) r.getX(),
-            (int) r.getY(),
-            (int) r.getWidth(),
-            (int) r.getHeight());
-    }
-
     private Point2D.Double getPoint(int pointId) {
         Point2D.Double point = points.get(pointId);
         if (point == null) {
@@ -144,12 +136,21 @@ public final class CellRectangle implements Comparable<CellRectangle> {
         return sb.toString();
     }
 
+    /**
+     * Generates each cell of the grid based on the parameters passed in.
+     * 
+     * @param bbox The dimensions of the image the cells overlap onto.
+     * @param orientation The orientation of the pallet: either landscape or portrait.
+     * @param dimensions The dimensions of the pallet in terms of number of tubes it holds.
+     * @param barcodePosition Where the barcodes are placed on the tubes: either the top or bottom.
+     * @return The grid cells.
+     * @note The units are in inches.
+     */
     public static Set<CellRectangle> getCellsForBoundingBox(
         final BoundingBox bbox,
         final PlateOrientation orientation,
         final PlateDimensions dimensions,
-        final BarcodePosition barcodePosition,
-        final ScannerDpi dpi) {
+        final BarcodePosition barcodePosition) {
 
         int rows, cols;
 
@@ -166,42 +167,25 @@ public final class CellRectangle implements Comparable<CellRectangle> {
             throw new IllegalArgumentException("invalid orientation value: " + orientation);
         }
 
-        double rowsDouble = rows;
-        double colsDouble = cols;
+        // make cells slightly smaller so that they all fit within the image
+        double cellWidth = 0.9999 * bbox.getWidth() / cols;
+        double cellHeight = 0.9999 * bbox.getHeight() / rows;
 
-        // need to make this box slightly smaller so the image dimensions are
-        // not exceeded
-        double dotWidth = 1 / new Double(dpi.getValue());
-        final Point whPt = bbox.getWidthAndHeightAsPoint();
-        final Point wellWhPt = new Point(
-            whPt.getX() / colsDouble - dotWidth,
-            whPt.getY() / rowsDouble - dotWidth);
+        Rectangle2D.Double cellRect = new Rectangle2D.Double(
+            bbox.getCornerX(0), bbox.getCornerY(0), cellWidth, cellHeight);
 
-        final Point horTranslation = new Point(wellWhPt.x + dotWidth, 0);
-        final double verTranslation = wellWhPt.y + dotWidth;
-
-        Set<CellRectangle> wells = new HashSet<CellRectangle>();
-        double startX = bbox.getCornerX(0);
-        double startY = bbox.getCornerY(0);
-        double yOffset = 0;
-
+        Set<CellRectangle> cells = new HashSet<CellRectangle>();
         for (int row = 0; row < rows; ++row) {
-            // this is the first bounding box in the row
-            BoundingBox wellBbox = new BoundingBox(startX, startY + yOffset, wellWhPt.x, wellWhPt.y);
-
             for (int col = 0; col < cols; ++col) {
-                String label = getLabelForPosition(
-                    row, col, dimensions, orientation, barcodePosition);
-                CellRectangle well = new CellRectangle(label, wellBbox);
-                wells.add(well);
-                wellBbox = wellBbox.translate(horTranslation);
-
-                // log.debug("getWellRectanglesForBoundingBox: well: {}", well);
+                String label = getLabelForPosition(row, col, dimensions, orientation, barcodePosition);
+                AffineTransform t = AffineTransform.getTranslateInstance(
+                    col * cellWidth, row * cellHeight);
+                CellRectangle cell = new CellRectangle(label, Swt2DUtil.transformRect(t, cellRect));
+                cells.add(cell);
             }
-            yOffset += verTranslation;
         }
 
-        return wells;
+        return cells;
     }
 
     private static String getLabelForPosition(
