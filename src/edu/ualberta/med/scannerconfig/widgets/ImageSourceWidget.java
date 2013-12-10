@@ -4,8 +4,8 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -76,7 +76,7 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
 
     private Button rescanButton;
 
-    private final List<PlateDimensions> validPlateDimensions;
+    private final Set<PlateDimensions> validPlateDimensions;
 
     private PlateDimensions selectedPlateDimensions;
 
@@ -109,7 +109,7 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         int minWidth,
         BgcWidgetCreator widgetCreator,
         IDialogSettings parentDialogSettings,
-        List<PlateDimensions> validPlateDimensions) {
+        Set<PlateDimensions> validPlateDimensions) {
         super(parent, SWT.NONE);
         this.widgetCreator = widgetCreator;
         this.validPlateDimensions = validPlateDimensions;

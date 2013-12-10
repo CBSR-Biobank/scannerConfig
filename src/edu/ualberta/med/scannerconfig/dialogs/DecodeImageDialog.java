@@ -3,7 +3,7 @@ package edu.ualberta.med.scannerconfig.dialogs;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -101,7 +101,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
 
     private BarcodeImage imageToDecode;
 
-    private final List<PlateDimensions> validPlateDimensions;
+    private final Set<PlateDimensions> validPlateDimensions;
 
     private ScanMode scanMode;
 
@@ -115,7 +115,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
      * @param parentShell
      * @param validPlateDimensions
      */
-    public DecodeImageDialog(Shell parentShell, List<PlateDimensions> validPlateDimensions) {
+    public DecodeImageDialog(Shell parentShell, Set<PlateDimensions> validPlateDimensions) {
         super(parentShell);
         this.validPlateDimensions = validPlateDimensions;
     }
@@ -126,7 +126,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
      * @param parentShell
      */
     public DecodeImageDialog(Shell parentShell) {
-        this(parentShell, Arrays.asList(PlateDimensions.values()));
+        this(parentShell, new HashSet<PlateDimensions>(Arrays.asList(PlateDimensions.values())));
 
     }
 
@@ -428,9 +428,9 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
     }
 
     public Set<DecodedWell> getDecodeResult() {
-        if (result == null) {
-            throw new IllegalStateException("decode result is null");
+        if (result != null) {
+            return result.getDecodedWells();
         }
-        return result.getDecodedWells();
+        return new HashSet<DecodedWell>(0);
     }
 }
