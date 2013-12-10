@@ -17,12 +17,25 @@ import org.xnap.commons.i18n.I18nFactory;
  */
 public enum PlateDimensions {
 
-    DIM_ROWS_8_COLS_12("ROWS_8_COLS_12",
+    DIM_ROWS_8_COLS_12(
+        "ROWS_8_COLS_12",
         new ImmutablePair<Integer, Integer>(8, 12),
         Constants.i18n.tr("8x12")),
-    DIM_ROWS_10_COLS_10("ROWS_10_COLS_10",
+
+    DIM_ROWS_10_COLS_10(
+        "ROWS_10_COLS_10",
         new ImmutablePair<Integer, Integer>(10, 10),
-        Constants.i18n.tr("10x10"));
+        Constants.i18n.tr("10x10")),
+
+    DIM_ROWS_9_COLS_9(
+        "ROWS_9_COLS_9",
+        new ImmutablePair<Integer, Integer>(9, 9),
+        Constants.i18n.tr("9x9")),
+
+    DIM_ROWS_12_COLS_12(
+        "ROWS_12_COLS_12",
+        new ImmutablePair<Integer, Integer>(12, 12),
+        Constants.i18n.tr("12x12"));
 
     private static class Constants {
         private static final I18n i18n = I18nFactory.getI18n(PlateDimensions.class);
