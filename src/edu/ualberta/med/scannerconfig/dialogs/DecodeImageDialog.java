@@ -433,4 +433,8 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         }
         return new HashSet<DecodedWell>(0);
     }
+
+    public PlateDimensions getPlateDimensions() {
+        return imageSourceWidget.getPlateDimensions();
+    }
 }
