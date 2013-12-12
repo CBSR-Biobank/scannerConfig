@@ -8,7 +8,8 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 /**
- * An enumeration for each plate scanning region that can be defined in the preferences.
+ * An enumeration for each pallet scanning region that can be defined in the preferences. The term
+ * "plate" is used to define the are where a pallet will be placed on the scanning region.
  * 
  * @author loyola
  * 

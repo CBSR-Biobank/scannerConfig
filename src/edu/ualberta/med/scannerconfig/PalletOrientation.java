@@ -7,12 +7,19 @@ import java.util.Map;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
-public enum PlateOrientation {
+/**
+ * The possible two accepted ways of placing a pallet on a flatbed scanner. Note that for each
+ * orientation, the first cell, A1, must be at the top.
+ * 
+ * @author nelson
+ * 
+ */
+public enum PalletOrientation {
     LANDSCAPE("Landscape", Constants.i18n.tr("Landscape")),
     PORTRAIT("Portrait", Constants.i18n.tr("Portrait"));
 
     private static class Constants {
-        private static final I18n i18n = I18nFactory.getI18n(PlateOrientation.class);
+        private static final I18n i18n = I18nFactory.getI18n(PalletOrientation.class);
     }
 
     public static final int size = values().length;
@@ -20,15 +27,15 @@ public enum PlateOrientation {
     private final String id;
     private final String displayLabel;
 
-    private static final Map<String, PlateOrientation> ID_MAP;
+    private static final Map<String, PalletOrientation> ID_MAP;
 
     static {
-        Map<String, PlateOrientation> map = new LinkedHashMap<String, PlateOrientation>();
+        Map<String, PalletOrientation> map = new LinkedHashMap<String, PalletOrientation>();
 
-        for (PlateOrientation orientationEnum : values()) {
-            PlateOrientation check = map.get(orientationEnum.getId());
+        for (PalletOrientation orientationEnum : values()) {
+            PalletOrientation check = map.get(orientationEnum.getId());
             if (check != null) {
-                throw new IllegalStateException("plate orientation value "
+                throw new IllegalStateException("pallet orientation value "
                     + orientationEnum.getId() + " used multiple times");
             }
 
@@ -38,7 +45,7 @@ public enum PlateOrientation {
         ID_MAP = Collections.unmodifiableMap(map);
     }
 
-    private PlateOrientation(String id, String displayLabel) {
+    private PalletOrientation(String id, String displayLabel) {
         this.id = id;
         this.displayLabel = displayLabel;
     }
@@ -51,14 +58,14 @@ public enum PlateOrientation {
         return displayLabel;
     }
 
-    public static Map<String, PlateOrientation> valuesMap() {
+    public static Map<String, PalletOrientation> valuesMap() {
         return ID_MAP;
     }
 
-    public static PlateOrientation getFromIdString(String id) {
-        PlateOrientation result = valuesMap().get(id);
+    public static PalletOrientation getFromIdString(String id) {
+        PalletOrientation result = valuesMap().get(id);
         if (result == null) {
-            throw new IllegalStateException("invalid plate orientation: " + id);
+            throw new IllegalStateException("invalid palelt orientation: " + id);
         }
         return result;
     }

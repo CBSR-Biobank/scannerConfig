@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.ImageInfo;
-import edu.ualberta.med.scannerconfig.PlateDimensions;
-import edu.ualberta.med.scannerconfig.PlateOrientation;
+import edu.ualberta.med.scannerconfig.PalletDimensions;
+import edu.ualberta.med.scannerconfig.PalletOrientation;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 
 @SuppressWarnings("nls")
@@ -121,7 +121,7 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
         final int dpi = 300;
 
         Set<CellRectangle> wells = CellRectangle.getCellsForBoundingBox(
-            wellsBbox, PlateOrientation.LANDSCAPE, PlateDimensions.DIM_ROWS_8_COLS_12,
+            wellsBbox, PalletOrientation.LANDSCAPE, PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.BOTTOM);
 
         DecodeResult dr =

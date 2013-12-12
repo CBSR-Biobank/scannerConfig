@@ -29,8 +29,8 @@ import edu.ualberta.med.biobank.gui.common.widgets.utils.BgcWidgetCreator;
 import edu.ualberta.med.biobank.gui.common.widgets.utils.ComboSelectionUpdate;
 import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.ImageSource;
-import edu.ualberta.med.scannerconfig.PlateDimensions;
-import edu.ualberta.med.scannerconfig.PlateOrientation;
+import edu.ualberta.med.scannerconfig.PalletDimensions;
+import edu.ualberta.med.scannerconfig.PalletOrientation;
 import edu.ualberta.med.scannerconfig.ScanPlate;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dialogs.ImageSourceDialogSettings;
@@ -64,7 +64,7 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
 
     private final ImageFileWidget imageFileWidget;
 
-    private final PlateOrientationWidget plateOrientationWidget;
+    private final PalletOrientationWidget plateOrientationWidget;
 
     private final BarcodePositionWidget barcodePositionWidget;
 
@@ -76,9 +76,9 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
 
     private Button rescanButton;
 
-    private final Set<PlateDimensions> validPlateDimensions;
+    private final Set<PalletDimensions> validPlateDimensions;
 
-    private PlateDimensions selectedPlateDimensions;
+    private PalletDimensions selectedPlateDimensions;
 
     private final ImageSourceDialogSettings dialogSettings;
 
@@ -109,7 +109,7 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         int minWidth,
         BgcWidgetCreator widgetCreator,
         IDialogSettings parentDialogSettings,
-        Set<PlateDimensions> validPlateDimensions) {
+        Set<PalletDimensions> validPlateDimensions) {
         super(parent, SWT.NONE);
         this.widgetCreator = widgetCreator;
         this.validPlateDimensions = validPlateDimensions;
@@ -190,10 +190,10 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         return result;
     }
 
-    private PlateOrientationWidget createPlateOrientationWidget(
+    private PalletOrientationWidget createPlateOrientationWidget(
         Composite parent,
-        PlateOrientation orientation) {
-        final PlateOrientationWidget widget = new PlateOrientationWidget(parent, orientation);
+        PalletOrientation orientation) {
+        final PalletOrientationWidget widget = new PalletOrientationWidget(parent, orientation);
         widget.addSelectionListener(new org.eclipse.swt.events.SelectionListener() {
 
             @Override
@@ -214,7 +214,7 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         return widget;
     }
 
-    private ComboViewer createPlateDimensionsWidget(Composite parent, PlateDimensions dimensions) {
+    private ComboViewer createPlateDimensionsWidget(Composite parent, PalletDimensions dimensions) {
         final Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayout(new GridLayout(2, false));
         GridData gd = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
@@ -231,8 +231,8 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
             new ComboSelectionUpdate() {
                 @Override
                 public void doSelection(Object selectedObject) {
-                    if (selectedObject instanceof PlateDimensions) {
-                        selectedPlateDimensions = (PlateDimensions) selectedObject;
+                    if (selectedObject instanceof PalletDimensions) {
+                        selectedPlateDimensions = (PalletDimensions) selectedObject;
 
                         if (ImageSourceWidget.this.selectionListener != null) {
                             Event newEvent = new Event();
@@ -250,8 +250,8 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
             new LabelProvider() {
                 @Override
                 public String getText(Object element) {
-                    if (element instanceof PlateDimensions) {
-                        return ((PlateDimensions) element).getDisplayLabel();
+                    if (element instanceof PalletDimensions) {
+                        return ((PalletDimensions) element).getDisplayLabel();
                     }
                     return super.getText(element);
                 }
@@ -352,11 +352,11 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         return pastImageSourceSettings.getGridRectangle();
     }
 
-    public PlateOrientation getPlateOrientation() {
+    public PalletOrientation getPlateOrientation() {
         return plateOrientationWidget.getSelection();
     }
 
-    public PlateDimensions getPlateDimensions() {
+    public PalletDimensions getPlateDimensions() {
         return selectedPlateDimensions;
     }
 
@@ -434,11 +434,11 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         return scannerDpiWidget.getSelection();
     }
 
-    public void setPlateOrientation(PlateOrientation orientation) {
+    public void setPlateOrientation(PalletOrientation orientation) {
         getImageSourceSettings().setOrientation(orientation);
     }
 
-    public void setPlateDimensions(PlateDimensions dimensions) {
+    public void setPlateDimensions(PalletDimensions dimensions) {
         getImageSourceSettings().setDimensions(dimensions);
     }
 

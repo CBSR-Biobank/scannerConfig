@@ -10,12 +10,12 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 /**
- * The current plate dimensions allowed for decoding from an image.
+ * The current pallet dimensions allowed for decoding from an image.
  * 
  * @author loyola
  * 
  */
-public enum PlateDimensions {
+public enum PalletDimensions {
 
     DIM_ROWS_8_COLS_12(
         "ROWS_8_COLS_12",
@@ -38,22 +38,22 @@ public enum PlateDimensions {
         Constants.i18n.tr("12x12"));
 
     private static class Constants {
-        private static final I18n i18n = I18nFactory.getI18n(PlateDimensions.class);
+        private static final I18n i18n = I18nFactory.getI18n(PalletDimensions.class);
     }
 
     private final ImmutablePair<Integer, Integer> dimensions;
     private final String id;
     private final String displayLabel;
 
-    private static final Map<String, PlateDimensions> ID_MAP;
+    private static final Map<String, PalletDimensions> ID_MAP;
 
     static {
-        Map<String, PlateDimensions> map = new LinkedHashMap<String, PlateDimensions>();
+        Map<String, PalletDimensions> map = new LinkedHashMap<String, PalletDimensions>();
 
-        for (PlateDimensions enumValue : values()) {
-            PlateDimensions check = map.get(enumValue.getId());
+        for (PalletDimensions enumValue : values()) {
+            PalletDimensions check = map.get(enumValue.getId());
             if (check != null) {
-                throw new IllegalStateException("plate dimensions value "
+                throw new IllegalStateException("pallet dimensions value "
                     + enumValue.getId() + " used multiple times");
             }
 
@@ -63,7 +63,7 @@ public enum PlateDimensions {
         ID_MAP = Collections.unmodifiableMap(map);
     }
 
-    private PlateDimensions(String id, ImmutablePair<Integer, Integer> dimensions,
+    private PalletDimensions(String id, ImmutablePair<Integer, Integer> dimensions,
         String displayString) {
         this.id = id;
         this.dimensions = dimensions;
@@ -90,14 +90,24 @@ public enum PlateDimensions {
         return dimensions.right;
     }
 
-    public static Map<String, PlateDimensions> valuesMap() {
+    public static Map<String, PalletDimensions> valuesMap() {
         return ID_MAP;
     }
 
-    public static PlateDimensions getFromIdString(String id) {
-        PlateDimensions result = valuesMap().get(id);
+    public static PalletDimensions getFromIdString(String id) {
+        PalletDimensions result = valuesMap().get(id);
         if (result == null) {
-            throw new IllegalStateException("invalid plate dimensions: " + id);
+            throw new IllegalStateException("invalid pallet dimensions: " + id);
+        }
+        return result;
+    }
+
+    public static PalletDimensions getDimensionsWithMaxRows() {
+        PalletDimensions result = PalletDimensions.values()[0];
+        for (PalletDimensions dimensions : PalletDimensions.values()) {
+            if (result.getRows() < dimensions.getRows()) {
+                result = dimensions;
+            }
         }
         return result;
     }

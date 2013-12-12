@@ -33,8 +33,8 @@ import edu.ualberta.med.biobank.gui.common.widgets.Event;
 import edu.ualberta.med.scannerconfig.BarcodeImage;
 import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.ImageSource;
-import edu.ualberta.med.scannerconfig.PlateDimensions;
-import edu.ualberta.med.scannerconfig.PlateOrientation;
+import edu.ualberta.med.scannerconfig.PalletDimensions;
+import edu.ualberta.med.scannerconfig.PalletOrientation;
 import edu.ualberta.med.scannerconfig.ScanPlate;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dmscanlib.CellRectangle;
@@ -48,7 +48,7 @@ import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
 import edu.ualberta.med.scannerconfig.widgets.ImageSourceAction;
 import edu.ualberta.med.scannerconfig.widgets.ImageSourceWidget;
-import edu.ualberta.med.scannerconfig.widgets.imageregion.PlateGridWidget;
+import edu.ualberta.med.scannerconfig.widgets.imageregion.PalletGridWidget;
 
 /**
  * A dialog box that is used to project a grid on top of a scanned plate image. The grid is then
@@ -97,11 +97,11 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
 
     private ImageSourceWidget imageSourceWidget;
 
-    private PlateGridWidget plateGridWidget;
+    private PalletGridWidget plateGridWidget;
 
     private BarcodeImage imageToDecode;
 
-    private final Set<PlateDimensions> validPlateDimensions;
+    private final Set<PalletDimensions> validPlateDimensions;
 
     private ScanMode scanMode;
 
@@ -115,18 +115,18 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
      * @param parentShell
      * @param validPlateDimensions
      */
-    public DecodeImageDialog(Shell parentShell, Set<PlateDimensions> validPlateDimensions) {
+    public DecodeImageDialog(Shell parentShell, Set<PalletDimensions> validPlateDimensions) {
         super(parentShell);
         this.validPlateDimensions = validPlateDimensions;
     }
 
     /**
-     * Use this constructor to allow any plate dimension defined in {@link PlateDimensions}.
+     * Use this constructor to allow any plate dimension defined in {@link PalletDimensions}.
      * 
      * @param parentShell
      */
     public DecodeImageDialog(Shell parentShell) {
-        this(parentShell, new HashSet<PlateDimensions>(Arrays.asList(PlateDimensions.values())));
+        this(parentShell, new HashSet<PalletDimensions>(Arrays.asList(PalletDimensions.values())));
 
     }
 
@@ -205,7 +205,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
     }
 
     private void createImageControl(Composite parent) {
-        plateGridWidget = new PlateGridWidget(parent);
+        plateGridWidget = new PalletGridWidget(parent);
     }
 
     @Override
@@ -233,12 +233,12 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
             break;
 
         case PLATE_ORIENTATION:
-            PlateOrientation orientation = (PlateOrientation) e.data;
+            PalletOrientation orientation = (PalletOrientation) e.data;
             plateGridWidget.setPlateOrientation(orientation);
             break;
 
         case PLATE_DIMENSIONS:
-            PlateDimensions dimensions = (PlateDimensions) e.data;
+            PalletDimensions dimensions = (PalletDimensions) e.data;
             plateGridWidget.setPlateDimensions(dimensions);
             break;
 
@@ -439,7 +439,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         return new HashSet<DecodedWell>(0);
     }
 
-    public PlateDimensions getPlateDimensions() {
+    public PalletDimensions getPlateDimensions() {
         return imageSourceWidget.getPlateDimensions();
     }
 }

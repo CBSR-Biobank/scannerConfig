@@ -4,8 +4,8 @@ import java.awt.geom.Rectangle2D;
 
 import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.ImageSource;
-import edu.ualberta.med.scannerconfig.PlateDimensions;
-import edu.ualberta.med.scannerconfig.PlateOrientation;
+import edu.ualberta.med.scannerconfig.PalletDimensions;
+import edu.ualberta.med.scannerconfig.PalletOrientation;
 import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
 
 /**
@@ -19,8 +19,8 @@ public class ImageSourceSettings {
     private static final int STRING_ARRAY_NUM_ITEMS = 8;
 
     private ImageSource imageSource;
-    private PlateOrientation orientation;
-    private PlateDimensions dimensions;
+    private PalletOrientation orientation;
+    private PalletDimensions dimensions;
     private BarcodePosition barcodePosition;
     private ScannerDpi scannerDpi;
     private Rectangle2D.Double gridRectangle;
@@ -36,8 +36,8 @@ public class ImageSourceSettings {
      */
     private ImageSourceSettings(
         ImageSource imageSource,
-        PlateOrientation orientation,
-        PlateDimensions dimensions,
+        PalletOrientation orientation,
+        PalletDimensions dimensions,
         BarcodePosition barcodePosition,
         ScannerDpi scannerDpi,
         Rectangle2D.Double gridRectangle) {
@@ -57,19 +57,19 @@ public class ImageSourceSettings {
         this.imageSource = imageSource;
     }
 
-    public PlateOrientation getOrientation() {
+    public PalletOrientation getOrientation() {
         return orientation;
     }
 
-    public void setOrientation(PlateOrientation orientation) {
+    public void setOrientation(PalletOrientation orientation) {
         this.orientation = orientation;
     }
 
-    public PlateDimensions getDimensions() {
+    public PalletDimensions getDimensions() {
         return dimensions;
     }
 
-    public void setDimensions(PlateDimensions dimensions) {
+    public void setDimensions(PalletDimensions dimensions) {
         this.dimensions = dimensions;
     }
 
@@ -118,8 +118,8 @@ public class ImageSourceSettings {
         if ((values == null) || (values.length != STRING_ARRAY_NUM_ITEMS)) {
             throw new IllegalStateException("invalid length for grid rectangle settings");
         }
-        PlateOrientation orientation = PlateOrientation.getFromIdString(values[0]);
-        PlateDimensions dimensions = PlateDimensions.getFromIdString(values[1]);
+        PalletOrientation orientation = PalletOrientation.getFromIdString(values[0]);
+        PalletDimensions dimensions = PalletDimensions.getFromIdString(values[1]);
         BarcodePosition barcodePosition = BarcodePosition.getFromIdString(values[2]);
         ScannerDpi scannerDpi = ScannerDpi.getFromId(Integer.parseInt(values[3]));
         double left = Double.parseDouble(values[4]);
@@ -134,8 +134,8 @@ public class ImageSourceSettings {
     public static ImageSourceSettings defaultSettings(ImageSource source) {
         return new ImageSourceSettings(
             source,
-            PlateOrientation.LANDSCAPE,
-            PlateDimensions.DIM_ROWS_8_COLS_12,
+            PalletOrientation.LANDSCAPE,
+            PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.BOTTOM,
             ScannerDpi.DPI_600,
             new Rectangle2D.Double(-1, -1, -1, -1));

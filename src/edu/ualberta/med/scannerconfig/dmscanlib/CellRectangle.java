@@ -13,8 +13,8 @@ import java.util.Set;
 import edu.ualberta.med.biobank.model.util.RowColPos;
 import edu.ualberta.med.biobank.util.SbsLabeling;
 import edu.ualberta.med.scannerconfig.BarcodePosition;
-import edu.ualberta.med.scannerconfig.PlateDimensions;
-import edu.ualberta.med.scannerconfig.PlateOrientation;
+import edu.ualberta.med.scannerconfig.PalletDimensions;
+import edu.ualberta.med.scannerconfig.PalletOrientation;
 import edu.ualberta.med.scannerconfig.imageregion.Swt2DUtil;
 
 /**
@@ -148,8 +148,8 @@ public final class CellRectangle implements Comparable<CellRectangle> {
      */
     public static Set<CellRectangle> getCellsForBoundingBox(
         final BoundingBox bbox,
-        final PlateOrientation orientation,
-        final PlateDimensions dimensions,
+        final PalletOrientation orientation,
+        final PalletDimensions dimensions,
         final BarcodePosition barcodePosition) {
 
         int rows, cols;
@@ -191,8 +191,8 @@ public final class CellRectangle implements Comparable<CellRectangle> {
     private static String getLabelForPosition(
         int row,
         int col,
-        PlateDimensions dimensions,
-        PlateOrientation orientation,
+        PalletDimensions dimensions,
+        PalletOrientation orientation,
         BarcodePosition barcodePosition) {
         int maxCols;
 

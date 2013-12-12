@@ -21,21 +21,28 @@ import org.slf4j.LoggerFactory;
 import edu.ualberta.med.biobank.gui.common.BgcPlugin;
 import edu.ualberta.med.scannerconfig.BarcodeImage;
 import edu.ualberta.med.scannerconfig.BarcodePosition;
-import edu.ualberta.med.scannerconfig.PlateDimensions;
-import edu.ualberta.med.scannerconfig.PlateOrientation;
+import edu.ualberta.med.scannerconfig.PalletDimensions;
+import edu.ualberta.med.scannerconfig.PalletOrientation;
 import edu.ualberta.med.scannerconfig.dmscanlib.BoundingBox;
 import edu.ualberta.med.scannerconfig.dmscanlib.CellRectangle;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodedWell;
 import edu.ualberta.med.scannerconfig.imageregion.Swt2DUtil;
 
-public class PlateGridCanvas extends ImageWithRegionCanvas {
+/**
+ * A canvas where a rectangular region is superimpsed on top of an image. The rectangular region is
+ * composed of cells which correspond to regions containing 2D barcodes.
+ * 
+ * @author nelson
+ * 
+ */
+public class PalletGridCanvas extends ImageWithRegionCanvas {
 
     @SuppressWarnings("unused")
-    private static Logger log = LoggerFactory.getLogger(PlateGridCanvas.class.getName());
+    private static Logger log = LoggerFactory.getLogger(PalletGridCanvas.class.getName());
 
-    private PlateDimensions dimensions;
+    private PalletDimensions dimensions;
 
-    private PlateOrientation orientation;
+    private PalletOrientation orientation;
 
     private BarcodePosition barcodePosition;
 
@@ -52,7 +59,7 @@ public class PlateGridCanvas extends ImageWithRegionCanvas {
 
     private final Color a1BackgroundColor;
 
-    public PlateGridCanvas(Composite parent) {
+    public PalletGridCanvas(Composite parent) {
         super(parent);
         cellRectangles = new HashMap<String, CellRectangle>();
         decodedWells = new HashMap<String, DecodedWell>();
@@ -67,7 +74,7 @@ public class PlateGridCanvas extends ImageWithRegionCanvas {
 
             @Override
             public void mouseHover(MouseEvent e) {
-                PlateGridCanvas.this.mouseHover(e);
+                PalletGridCanvas.this.mouseHover(e);
             }
 
             @Override
@@ -154,8 +161,8 @@ public class PlateGridCanvas extends ImageWithRegionCanvas {
     public void updateImage(
         BarcodeImage image,
         Rectangle2D.Double gridRectangle,
-        PlateOrientation orientation,
-        PlateDimensions dimensions,
+        PalletOrientation orientation,
+        PalletDimensions dimensions,
         BarcodePosition barcodePosition) {
 
         setOrientation(orientation);
@@ -226,12 +233,12 @@ public class PlateGridCanvas extends ImageWithRegionCanvas {
         return null;
     }
 
-    public void setDimensions(PlateDimensions dimensions) {
+    public void setDimensions(PalletDimensions dimensions) {
         this.dimensions = dimensions;
         udpateCellRectangles();
     }
 
-    public void setOrientation(PlateOrientation orientation) {
+    public void setOrientation(PalletOrientation orientation) {
         this.orientation = orientation;
         udpateCellRectangles();
     }

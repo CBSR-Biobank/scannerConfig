@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.ImageInfo;
-import edu.ualberta.med.scannerconfig.PlateDimensions;
-import edu.ualberta.med.scannerconfig.PlateOrientation;
+import edu.ualberta.med.scannerconfig.PalletDimensions;
+import edu.ualberta.med.scannerconfig.PalletOrientation;
 
 @SuppressWarnings("nls")
 public class TestDmScanLibCommon extends RequiresJniLibraryTest {
@@ -43,7 +43,7 @@ public class TestDmScanLibCommon extends RequiresJniLibraryTest {
         log.debug("image dimensions: {}", imageBbox);
 
         Set<CellRectangle> wells = CellRectangle.getCellsForBoundingBox(
-            imageBbox, PlateOrientation.LANDSCAPE, PlateDimensions.DIM_ROWS_8_COLS_12,
+            imageBbox, PalletOrientation.LANDSCAPE, PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.BOTTOM);
 
         DecodeResult r = scanLib.decodeImage(3, fname,

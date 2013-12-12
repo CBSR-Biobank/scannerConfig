@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.ualberta.med.scannerconfig.BarcodePosition;
-import edu.ualberta.med.scannerconfig.PlateDimensions;
-import edu.ualberta.med.scannerconfig.PlateOrientation;
+import edu.ualberta.med.scannerconfig.PalletDimensions;
+import edu.ualberta.med.scannerconfig.PalletOrientation;
 
 public class TestWellRectangle {
 
@@ -35,8 +35,8 @@ public class TestWellRectangle {
 
         Set<CellRectangle> rectangleSet = CellRectangle.getCellsForBoundingBox(
             new BoundingBox(bounds),
-            PlateOrientation.LANDSCAPE,
-            PlateDimensions.DIM_ROWS_8_COLS_12,
+            PalletOrientation.LANDSCAPE,
+            PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.TOP);
 
         Assert.assertNotNull(rectangleSet);
@@ -57,8 +57,8 @@ public class TestWellRectangle {
 
         Set<CellRectangle> rectangleSet = CellRectangle.getCellsForBoundingBox(
             new BoundingBox(bounds),
-            PlateOrientation.LANDSCAPE,
-            PlateDimensions.DIM_ROWS_8_COLS_12,
+            PalletOrientation.LANDSCAPE,
+            PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.TOP);
 
         Assert.assertNotNull(rectangleSet);
@@ -108,8 +108,8 @@ public class TestWellRectangle {
 
         Set<CellRectangle> rectangleSet = CellRectangle.getCellsForBoundingBox(
             new BoundingBox(bounds),
-            PlateOrientation.PORTRAIT,
-            PlateDimensions.DIM_ROWS_8_COLS_12,
+            PalletOrientation.PORTRAIT,
+            PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.TOP);
 
         Assert.assertNotNull(rectangleSet);
@@ -159,8 +159,8 @@ public class TestWellRectangle {
 
         Set<CellRectangle> rectangleSet = CellRectangle.getCellsForBoundingBox(
             new BoundingBox(bounds),
-            PlateOrientation.LANDSCAPE,
-            PlateDimensions.DIM_ROWS_8_COLS_12,
+            PalletOrientation.LANDSCAPE,
+            PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.BOTTOM);
 
         Assert.assertNotNull(rectangleSet);
@@ -210,8 +210,8 @@ public class TestWellRectangle {
 
         Set<CellRectangle> rectangleSet = CellRectangle.getCellsForBoundingBox(
             new BoundingBox(bounds),
-            PlateOrientation.PORTRAIT,
-            PlateDimensions.DIM_ROWS_8_COLS_12,
+            PalletOrientation.PORTRAIT,
+            PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.BOTTOM);
 
         Assert.assertNotNull(rectangleSet);

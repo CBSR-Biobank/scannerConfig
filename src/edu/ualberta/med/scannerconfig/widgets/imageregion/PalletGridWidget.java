@@ -20,36 +20,36 @@ import edu.ualberta.med.biobank.common.formatters.DateFormatter;
 import edu.ualberta.med.scannerconfig.BarcodeImage;
 import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.ImageSource;
-import edu.ualberta.med.scannerconfig.PlateDimensions;
-import edu.ualberta.med.scannerconfig.PlateOrientation;
+import edu.ualberta.med.scannerconfig.PalletDimensions;
+import edu.ualberta.med.scannerconfig.PalletOrientation;
 import edu.ualberta.med.scannerconfig.dialogs.DecodeImageDialog.ScanMode;
 import edu.ualberta.med.scannerconfig.dmscanlib.CellRectangle;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodedWell;
 
 /**
  * A widget that allows the user to manipulate a grid that is projected on an image of a scanned
- * plate. Each cell in the grid represents an area of the image that will later be examined and, if
+ * pallet. Each cell in the grid represents an area of the image that will later be examined and, if
  * it contains a 2D DataMatrix barcode, the barcode will be decoded.
  * 
  * @author loyola
  */
-public class PlateGridWidget extends Composite {
+public class PalletGridWidget extends Composite {
 
-    private static final I18n i18n = I18nFactory.getI18n(PlateGridWidget.class);
+    private static final I18n i18n = I18nFactory.getI18n(PalletGridWidget.class);
 
     @SuppressWarnings("unused")
-    private static Logger log = LoggerFactory.getLogger(PlateGridWidget.class.getName());
+    private static Logger log = LoggerFactory.getLogger(PalletGridWidget.class.getName());
 
     private BarcodeImage barcodeImage;
 
     // text to display below the image
     private final Label infoTextLabel;
 
-    private final PlateGridCanvas canvas;
+    private final PalletGridCanvas canvas;
 
     private final Map<String, DecodedWell> decodedWells;
 
-    public PlateGridWidget(Composite parent) {
+    public PalletGridWidget(Composite parent) {
         super(parent, SWT.NONE);
 
         GridLayout layout = new GridLayout(1, false);
@@ -60,7 +60,7 @@ public class PlateGridWidget extends Composite {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         setLayoutData(gd);
 
-        canvas = new PlateGridCanvas(this);
+        canvas = new PalletGridCanvas(this);
         infoTextLabel = createInfoLabel();
 
         decodedWells = new HashMap<String, DecodedWell>();
@@ -125,8 +125,8 @@ public class PlateGridWidget extends Composite {
     public void updateImage(
         BarcodeImage image,
         Rectangle2D.Double gridRectangle,
-        PlateOrientation orientation,
-        PlateDimensions dimensions,
+        PalletOrientation orientation,
+        PalletDimensions dimensions,
         BarcodePosition barcodePosition) {
         this.barcodeImage = image;
         canvas.updateImage(image, gridRectangle, orientation, dimensions, barcodePosition);
@@ -155,7 +155,7 @@ public class PlateGridWidget extends Composite {
      * 
      * @param orientation Either landscape or portrait.
      */
-    public void setPlateOrientation(PlateOrientation orientation) {
+    public void setPlateOrientation(PalletOrientation orientation) {
         canvas.setOrientation(orientation);
         removeDecodeInfo();
         refresh();
@@ -167,7 +167,7 @@ public class PlateGridWidget extends Composite {
      * 
      * @param dimensions The number or rows and columns of tubes.
      */
-    public void setPlateDimensions(PlateDimensions dimensions) {
+    public void setPlateDimensions(PalletDimensions dimensions) {
         canvas.setDimensions(dimensions);
         removeDecodeInfo();
         refresh();
