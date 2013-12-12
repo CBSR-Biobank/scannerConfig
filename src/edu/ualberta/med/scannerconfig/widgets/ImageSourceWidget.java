@@ -165,7 +165,13 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         });
 
         ImageSourceSettings imageSourceSettings = dialogSettings.getImageSourceSettings(imageSource);
-        plateDimensionsWidget = createPlateDimensionsWidget(this, imageSourceSettings.getDimensions());
+
+        PalletDimensions palletDimensions = imageSourceSettings.getDimensions();
+        if (!validPlateDimensions.contains(palletDimensions)) {
+            // last used pallet dimensions not in valid set, use the default value
+            palletDimensions = validPlateDimensions.iterator().next();
+        }
+        plateDimensionsWidget = createPlateDimensionsWidget(this, palletDimensions);
 
         plateOrientationWidget = createPlateOrientationWidget(this, imageSourceSettings.getOrientation());
         barcodePositionWidget = createBarcodePositionWidget(this, imageSourceSettings.getBarcodePosition());
@@ -214,13 +220,19 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         return widget;
     }
 
-    private ComboViewer createPlateDimensionsWidget(Composite parent, PalletDimensions dimensions) {
+    private ComboViewer createPlateDimensionsWidget(
+        Composite parent,
+        PalletDimensions defaultSelection) {
         final Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayout(new GridLayout(2, false));
         GridData gd = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
         composite.setLayoutData(gd);
 
-        selectedPlateDimensions = dimensions;
+        if (!validPlateDimensions.contains(defaultSelection)) {
+            throw new IllegalArgumentException("default selection not contained in valid set");
+        }
+
+        selectedPlateDimensions = defaultSelection;
 
         return widgetCreator.createComboViewer(
             composite,
