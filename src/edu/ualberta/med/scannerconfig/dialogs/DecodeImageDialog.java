@@ -383,7 +383,12 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
                 result = ScanLib.getInstance().decodeImage(
                     debugLevel,
                     filename,
-                    new DecodeOptions(scanGap, squareDev, edgeThresh, corrections, 1),
+                    new DecodeOptions(
+                        scanGap,
+                        squareDev,
+                        edgeThresh,
+                        corrections,
+                        DecodeOptions.DEFAULT_SHRINK),
                     wells.toArray(new CellRectangle[] {}));
 
                 // log.debug("createDecodeButton: tubes decoded: {}",
