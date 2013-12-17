@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+import edu.ualberta.med.biobank.gui.common.BgcPlugin;
 import edu.ualberta.med.biobank.gui.common.dialogs.PersistedDialog;
 import edu.ualberta.med.biobank.gui.common.events.SelectionListener;
 import edu.ualberta.med.biobank.gui.common.widgets.Event;
@@ -107,7 +108,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
 
     private Button decodeButton;
 
-    private DecodeResult result;
+    private DecodeResult decodeResult;
 
     /**
      * Use this constructor to limit the valid plate dimensions the user can choose from.
@@ -210,6 +211,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
 
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
+        createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
         createButton(parent, IDialogConstants.OK_ID, i18n.tr("Done"), false);
     }
 
@@ -380,7 +382,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
                 monitor.beginTask(PROGRESS_MESSAGE_DECODING, IProgressMonitor.UNKNOWN);
                 Set<CellRectangle> wells = plateGridWidget.getCellsInInches();
 
-                result = ScanLib.getInstance().decodeImage(
+                decodeResult = ScanLib.getInstance().decodeImage(
                     debugLevel,
                     filename,
                     new DecodeOptions(
@@ -398,7 +400,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
                     @Override
                     public void run() {
                         setMessage(TITLE_AREA_MESSAGE_DECODING_COMPLETED, IMessageProvider.NONE);
-                        plateGridWidget.setDecodedWells(result.getDecodedWells(), scanMode);
+                        plateGridWidget.setDecodedWells(decodeResult.getDecodedWells(), scanMode);
                     }
                 });
                 monitor.done();
@@ -429,12 +431,23 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
             saveGridRectangle();
         }
         imageSourceWidget.saveSettings();
-        super.okPressed();
+
+        boolean okToProceed = true;
+
+        if (decodeResult == null) {
+            okToProceed = BgcPlugin.openConfirm(
+                // dialog title.
+                i18n.tr("Decode warning"),
+                // dialog message.
+                i18n.tr("No tubes were decoded. Continue?"));
+        }
+
+        if (okToProceed) super.okPressed();
     }
 
     public Set<DecodedWell> getDecodeResult() {
-        if (result != null) {
-            return result.getDecodedWells();
+        if (decodeResult != null) {
+            return decodeResult.getDecodedWells();
         }
         return new HashSet<DecodedWell>(0);
     }
