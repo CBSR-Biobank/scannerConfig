@@ -54,7 +54,7 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
 
     private static final String SCANNED_FILE_FILE_NAME_FORMAT = "plate_scan__%d.bmp";
 
-    private static final String FAKE_PLATE_IMAGE_FILE_NAME = "fakePlateImage.bmp";
+    private static final String FAKE_SCANNED_IMAGE_FILE_NAME = "fakeScannedImage.bmp";
 
     private final Map<ImageSource, String> imageSourceSelections;
 
@@ -85,9 +85,6 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
     private final ComboViewer plateDimensionsWidget;
 
     private edu.ualberta.med.biobank.gui.common.events.SelectionListener selectionListener;
-
-    // used for debugging in Linux
-    private final boolean haveFakePlateImage;
 
     /**
      * A widget that allows the user to select where source for retrieving an image containinig 2D
@@ -181,19 +178,6 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         scanningButtonsWidget = createScanningButtons();
 
         updateVisibleWidgets(imageSource);
-        haveFakePlateImage = fakePlateImageInit();
-    }
-
-    private boolean fakePlateImageInit() {
-        boolean result = false;
-
-        // For Linux debug use a fake image if the file exits
-        if (!System.getProperty("os.name").startsWith("Windows")) {
-            File platesFile = new File(FAKE_PLATE_IMAGE_FILE_NAME);
-            result = platesFile.exists();
-        }
-
-        return result;
     }
 
     private PalletOrientationWidget createPlateOrientationWidget(
@@ -434,8 +418,8 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
             return imageFileWidget.getFilename();
         }
 
-        if (haveFakePlateImage()) {
-            return FAKE_PLATE_IMAGE_FILE_NAME;
+        if (haveFakeScannedImage()) {
+            return FAKE_SCANNED_IMAGE_FILE_NAME;
         }
 
         ScanPlate scanPlate = source.getScanPlate();
@@ -477,7 +461,16 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         dialogSettings.save();
     }
 
-    public boolean haveFakePlateImage() {
-        return haveFakePlateImage;
+    // used for debugging in Linux
+    public boolean haveFakeScannedImage() {
+        boolean result = false;
+
+        // For Linux debug use a fake image if the file exits
+        if (!System.getProperty("os.name").startsWith("Windows")) {
+            File fakeScannedFile = new File(FAKE_SCANNED_IMAGE_FILE_NAME);
+            result = fakeScannedFile.exists();
+        }
+
+        return result;
     }
 }

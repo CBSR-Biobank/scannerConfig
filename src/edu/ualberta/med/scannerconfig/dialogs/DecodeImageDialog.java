@@ -290,9 +290,9 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
 
                 if ((result == ScanLibResult.Result.SUCCESS)
                     || ((result == ScanLibResult.Result.FAIL)
-                    && imageSourceWidget.haveFakePlateImage())) {
+                    && imageSourceWidget.haveFakeScannedImage())) {
                     if ((result == ScanLibResult.Result.FAIL) &&
-                        imageSourceWidget.haveFakePlateImage()) {
+                        imageSourceWidget.haveFakeScannedImage()) {
                         // fake scanning an image
                         // try {
                         // Thread.sleep(4000);
