@@ -22,10 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.ualberta.med.biobank.gui.common.Swt2DUtil;
+import edu.ualberta.med.biobank.gui.common.widgets.ImageCanvas;
 import edu.ualberta.med.scannerconfig.BarcodeImage;
 import edu.ualberta.med.scannerconfig.imageregion.ImageRegion;
 import edu.ualberta.med.scannerconfig.imageregion.PointToRegion;
-import edu.ualberta.med.scannerconfig.widgets.ImageCanvas;
 
 /**
  * A widget that allows the user to manipulate a region, represented by an axis aligned rectangle,
