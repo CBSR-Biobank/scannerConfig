@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.ualberta.med.biobank.gui.common.BgcPlugin;
+import edu.ualberta.med.biobank.gui.common.Swt2DUtil;
 import edu.ualberta.med.scannerconfig.BarcodeImage;
 import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.PalletDimensions;
@@ -26,7 +27,6 @@ import edu.ualberta.med.scannerconfig.PalletOrientation;
 import edu.ualberta.med.scannerconfig.dmscanlib.BoundingBox;
 import edu.ualberta.med.scannerconfig.dmscanlib.CellRectangle;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodedWell;
-import edu.ualberta.med.scannerconfig.imageregion.Swt2DUtil;
 
 /**
  * A canvas where a rectangular region is superimpsed on top of an image. The rectangular region is

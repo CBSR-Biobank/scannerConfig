@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.ualberta.med.scannerconfig.imageregion.Swt2DUtil;
+import edu.ualberta.med.biobank.gui.common.Swt2DUtil;
 
 /**
  * A scrollable image canvas that extends org.eclipse.swt.graphics.Canvas.
@@ -89,7 +89,8 @@ public class ImageCanvas extends Canvas {
      * @param style the style of this control.
      */
     public ImageCanvas(final Composite parent, int style) {
-        super(parent, style | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND);
+        super(parent, style | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+        // super(parent, style | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND);
         addListeners();
         initScrollBars();
     }

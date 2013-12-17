@@ -28,6 +28,7 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import edu.ualberta.med.biobank.gui.common.BgcPlugin;
+import edu.ualberta.med.biobank.gui.common.Swt2DUtil;
 import edu.ualberta.med.biobank.gui.common.dialogs.PersistedDialog;
 import edu.ualberta.med.biobank.gui.common.events.SelectionListener;
 import edu.ualberta.med.biobank.gui.common.widgets.Event;
@@ -44,7 +45,6 @@ import edu.ualberta.med.scannerconfig.dmscanlib.DecodeResult;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodedWell;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
-import edu.ualberta.med.scannerconfig.imageregion.Swt2DUtil;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
 import edu.ualberta.med.scannerconfig.widgets.ImageSourceAction;

@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import edu.ualberta.med.biobank.gui.common.Swt2DUtil;
+
 /*
  * Creates resize handles, implemented as cubes, along the perimeter of the retion.
  */

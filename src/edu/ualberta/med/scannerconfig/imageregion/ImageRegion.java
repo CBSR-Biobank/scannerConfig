@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.ualberta.med.biobank.gui.common.Swt2DUtil;
+
 /**
  * An axis aligned, resizeable, rectangle used to specify an area within an image. The dimensions of
  * the rectangle are in Inches.

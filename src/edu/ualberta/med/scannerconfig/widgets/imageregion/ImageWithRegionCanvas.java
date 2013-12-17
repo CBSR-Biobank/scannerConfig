@@ -21,10 +21,10 @@ import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.ualberta.med.biobank.gui.common.Swt2DUtil;
 import edu.ualberta.med.scannerconfig.BarcodeImage;
 import edu.ualberta.med.scannerconfig.imageregion.ImageRegion;
 import edu.ualberta.med.scannerconfig.imageregion.PointToRegion;
-import edu.ualberta.med.scannerconfig.imageregion.Swt2DUtil;
 import edu.ualberta.med.scannerconfig.widgets.ImageCanvas;
 
 /**

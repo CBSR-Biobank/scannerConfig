@@ -10,12 +10,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import edu.ualberta.med.biobank.gui.common.Swt2DUtil;
 import edu.ualberta.med.biobank.model.util.RowColPos;
 import edu.ualberta.med.biobank.util.SbsLabeling;
 import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.PalletDimensions;
 import edu.ualberta.med.scannerconfig.PalletOrientation;
-import edu.ualberta.med.scannerconfig.imageregion.Swt2DUtil;
 
 /**
  * Defines rectangular coordinates, in inches, for a region of image that contains a single 2D
