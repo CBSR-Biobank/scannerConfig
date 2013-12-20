@@ -1,14 +1,14 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
+import edu.ualberta.med.biobank.common.util.StringUtil;
 import edu.ualberta.med.biobank.util.SbsLabeling;
-
 
 /**
  * The label matches the {@link CellRectangle} that was successfully decoded. Use
  * {@link #getMessage()} to get the contents decoded from the 2D barcode.
  * 
  * @author Nelson Loyola
- *
+ * 
  */
 public final class DecodedWell implements Comparable<DecodedWell> {
 
@@ -35,6 +35,9 @@ public final class DecodedWell implements Comparable<DecodedWell> {
      * @return the contents decoded from the 2D barcode.
      */
     public String getMessage() {
+        if (message == null) {
+            return StringUtil.EMPTY_STRING;
+        }
         return message;
     }
 
