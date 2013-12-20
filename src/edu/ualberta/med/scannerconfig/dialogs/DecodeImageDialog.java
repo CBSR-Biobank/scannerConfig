@@ -45,6 +45,7 @@ import edu.ualberta.med.scannerconfig.dmscanlib.DecodeResult;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodedWell;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
+import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult.Result;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
 import edu.ualberta.med.scannerconfig.widgets.ImageSourceAction;
@@ -330,7 +331,9 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
     private void loadFile(String filename, ImageSource imageSource) {
         setMessage(TITLE_AREA_MESSAGE_ADJUST_GRID, IMessageProvider.NONE);
         imageToDecode = new BarcodeImage(filename, imageSource);
-        Rectangle2D.Double gridRectangle = (Rectangle2D.Double) imageSourceWidget.getGridRectangle().clone();
+
+        Rectangle2D.Double gridRectangle = (Rectangle2D.Double)
+            imageSourceWidget.getGridRectangle().clone();
 
         // gridRectangle must fit inside the image rectangle
         if ((gridRectangle.x < 0) || !imageToDecode.contains(gridRectangle)) {
@@ -361,7 +364,6 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         plateGridWidget.removeDecodeInfo();
     }
 
-    // FIXME: decode button should be disabled if there is no image loaded
     private void decode() {
         IPreferenceStore prefs = ScannerConfigPlugin.getDefault().getPreferenceStore();
         final int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
@@ -393,16 +395,26 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
                         DecodeOptions.DEFAULT_SHRINK),
                     wells.toArray(new CellRectangle[] {}));
 
-                // log.debug("createDecodeButton: tubes decoded: {}",
-                // result.getDecodedWells().size());
+                Result resultCode = decodeResult.getResultCode();
 
-                display.asyncExec(new Runnable() {
-                    @Override
-                    public void run() {
-                        setMessage(TITLE_AREA_MESSAGE_DECODING_COMPLETED, IMessageProvider.NONE);
-                        plateGridWidget.setDecodedWells(decodeResult.getDecodedWells(), scanMode);
-                    }
-                });
+                log.debug("createDecodeButton: result: {}, tubes decoded: {}",
+                    resultCode, decodeResult.getDecodedWells().size());
+
+                if (resultCode == Result.SUCCESS) {
+                    display.asyncExec(new Runnable() {
+                        @Override
+                        public void run() {
+                            setMessage(TITLE_AREA_MESSAGE_DECODING_COMPLETED, IMessageProvider.NONE);
+                            plateGridWidget.setDecodedWells(decodeResult.getDecodedWells(), scanMode);
+                        }
+                    });
+                } else {
+                    BgcPlugin.openAsyncError(
+                        // TR: error dialog title
+                        i18n.tr("Decoding Error"),
+                        // TR: error dialog message
+                        decodeResult.getMessage());
+                }
                 monitor.done();
             }
         };

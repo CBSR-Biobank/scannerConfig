@@ -8,6 +8,7 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 public enum ScannerDpi {
+    DPI_UNKNOWN(0, Constants.i18n.tr("Unknown")),
     DPI_300(300, Constants.i18n.tr("300")),
     DPI_400(400, Constants.i18n.tr("400")),
     DPI_600(600, Constants.i18n.tr("600"));
@@ -59,7 +60,7 @@ public enum ScannerDpi {
     public static ScannerDpi getFromId(int id) {
         ScannerDpi result = valuesMap().get(id);
         if (result == null) {
-            throw new IllegalStateException("invalid plate dimensions: " + id);
+            return DPI_UNKNOWN;
         }
         return result;
     }
