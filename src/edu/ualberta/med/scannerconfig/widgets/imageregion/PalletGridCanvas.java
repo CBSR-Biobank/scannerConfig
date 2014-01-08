@@ -38,7 +38,8 @@ import edu.ualberta.med.scannerconfig.dmscanlib.DecodedWell;
 public class PalletGridCanvas extends ImageWithRegionCanvas {
 
     @SuppressWarnings("unused")
-    private static Logger log = LoggerFactory.getLogger(PalletGridCanvas.class.getName());
+    private static Logger log = LoggerFactory.getLogger(PalletGridCanvas.class
+        .getName());
 
     private PalletDimensions dimensions;
 
@@ -63,7 +64,8 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
         super(parent);
         cellRectangles = new HashMap<String, CellRectangle>();
         decodedWells = new HashMap<String, DecodedWell>();
-        decodedIconImage = BgcPlugin.getDefault().getImage(BgcPlugin.Image.ACCEPT);
+        decodedIconImage = BgcPlugin.getDefault().getImage(
+            BgcPlugin.Image.ACCEPT);
         decodedIconImageBounds = decodedIconImage.getBounds();
 
         Display display = getDisplay();
@@ -111,32 +113,27 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
 
         for (CellRectangle cell : cellRectangles.values()) {
             Rectangle2D.Double rect = cell.getBoundsRectangle();
-            Rectangle2D.Double rectOnImage = Swt2DUtil.transformRect(regionToImageTransform, rect);
-            Rectangle2D.Double rectOnCanvas = Swt2DUtil.transformRect(sourceImageToCanvasTransform, rectOnImage);
+            Rectangle2D.Double rectOnCanvas = Swt2DUtil.transformRect(
+                sourceImageToCanvasTransform, rect);
 
-            newGC.drawRectangle(
-                (int) rectOnCanvas.x,
-                (int) rectOnCanvas.y,
-                (int) rectOnCanvas.width,
-                (int) rectOnCanvas.height);
+            newGC.drawRectangle((int) rectOnCanvas.x, (int) rectOnCanvas.y,
+                (int) rectOnCanvas.width, (int) rectOnCanvas.height);
 
             if (cell.getLabel().equals("A1")) {
                 newGC.setAlpha(125);
                 newGC.setBackground(a1BackgroundColor);
-                newGC.fillRectangle(
-                    (int) rectOnCanvas.x,
-                    (int) rectOnCanvas.y,
-                    (int) rectOnCanvas.width,
-                    (int) rectOnCanvas.height);
+                newGC.fillRectangle((int) rectOnCanvas.x, (int) rectOnCanvas.y,
+                    (int) rectOnCanvas.width, (int) rectOnCanvas.height);
                 newGC.setAlpha(255);
             }
 
             DecodedWell decodedWell = decodedWells.get(cell.getLabel());
             if (decodedWell != null) {
-                newGC.drawImage(decodedIconImage,
-                    0, 0, decodedIconImageBounds.width, decodedIconImageBounds.height,
-                    (int) rectOnCanvas.x, (int) rectOnCanvas.y,
-                    decodedIconImageBounds.width, decodedIconImageBounds.height);
+                newGC.drawImage(decodedIconImage, 0, 0,
+                    decodedIconImageBounds.width,
+                    decodedIconImageBounds.height, (int) rectOnCanvas.x,
+                    (int) rectOnCanvas.y, decodedIconImageBounds.width,
+                    decodedIconImageBounds.height);
             }
         }
 
@@ -158,12 +155,9 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
      * @param barcodePosition the location of the barcode on a tube
      * @param imageSource
      */
-    public void updateImage(
-        BarcodeImage image,
-        Rectangle2D.Double gridRectangle,
-        PalletOrientation orientation,
-        PalletDimensions dimensions,
-        BarcodePosition barcodePosition) {
+    public void updateImage(BarcodeImage image,
+        Rectangle2D.Double gridRectangle, PalletOrientation orientation,
+        PalletDimensions dimensions, BarcodePosition barcodePosition) {
 
         setOrientation(orientation);
         setDimensions(dimensions);
@@ -175,13 +169,16 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
     }
 
     private void udpateCellRectangles() {
-        if (getSourceImage() == null) return;
+        if (getSourceImage() == null)
+            return;
 
         cellRectangles.clear();
 
-        BoundingBox boundingBoxInInches = new BoundingBox(getUserRegionInInches());
-        Set<CellRectangle> cellsInPixels = CellRectangle.getCellsForBoundingBox(
-            boundingBoxInInches, orientation, dimensions, barcodePosition);
+        BoundingBox boundingBoxInInches = new BoundingBox(
+            getUserRegionInPixels());
+        Set<CellRectangle> cellsInPixels = CellRectangle
+            .getCellsForBoundingBox(boundingBoxInInches, orientation,
+                dimensions, barcodePosition);
 
         for (CellRectangle cell : cellsInPixels) {
             String label = cell.getLabel();
@@ -208,7 +205,8 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
 
     private void mouseHover(MouseEvent e) {
         Point2D.Double mousePointInInches = canvasPointToRegion(e.x, e.y);
-        CellRectangle cell = getObjectAtCoordinates(mousePointInInches.x, mousePointInInches.y);
+        CellRectangle cell = getObjectAtCoordinates(mousePointInInches.x,
+            mousePointInInches.y);
         if (cell != null) {
             StringBuffer buf = new StringBuffer();
             buf.append(cell.getLabel());
@@ -262,10 +260,12 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
      * 
      * @return
      */
-    public Set<CellRectangle> getCellsInInches() {
-        BoundingBox boundingBoxInInches = new BoundingBox(getUserRegionInInches());
-        Set<CellRectangle> cellsInInches = CellRectangle.getCellsForBoundingBox(
-            boundingBoxInInches, orientation, dimensions, barcodePosition);
+    public Set<CellRectangle> getCellsInPixels() {
+        BoundingBox boundingBoxInInches = new BoundingBox(
+            getUserRegionInPixels());
+        Set<CellRectangle> cellsInInches = CellRectangle
+            .getCellsForBoundingBox(boundingBoxInInches, orientation,
+                dimensions, barcodePosition);
         return cellsInInches;
     }
 }

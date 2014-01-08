@@ -22,119 +22,127 @@ import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 @SuppressWarnings("nls")
 public class TestDmScanLibWindows extends RequiresJniLibraryTest {
 
-    private static Logger log = LoggerFactory.getLogger(TestDmScanLibWindows.class);
+	private static Logger log = LoggerFactory
+			.getLogger(TestDmScanLibWindows.class);
 
-    @Before
-    public void beforeMethod() {
-        // these tests are valid only when not running on windows
-        Assume.assumeTrue(LibraryLoader.getInstance().runningMsWindows());
-    }
+	@Before
+	public void beforeMethod() {
+		// these tests are valid only when not running on windows
+		Assume.assumeTrue(LibraryLoader.getInstance().runningMsWindows());
+	}
 
-    @Test
-    public void scanImage() throws Exception {
-        ScanLib scanLib = ScanLib.getInstance();
-        ScanLibResult r = scanLib.isTwainAvailable();
-        Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
+	@Test
+	public void scanImage() throws Exception {
+		ScanLib scanLib = ScanLib.getInstance();
+		ScanLibResult r = scanLib.isTwainAvailable();
+		Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
-        BoundingBox region = new BoundingBox(new Point(0, 0), new Point(4, 4));
+		BoundingBox region = new BoundingBox(new Point(0, 0), new Point(4, 4));
 
-        final int dpi = 300;
-        String filename = "tempscan.bmp";
-        File file = new File(filename);
-        file.delete(); // dont care if file doesn't exist
+		final int dpi = 300;
+		String filename = "tempscan.bmp";
+		File file = new File(filename);
+		file.delete(); // dont care if file doesn't exist
 
-        r = scanLib.scanImage(3, dpi, 0, 0, region, filename);
+		r = scanLib.scanImage(3, dpi, 0, 0, region, filename);
 
-        Assert.assertNotNull(r);
-        Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
+		Assert.assertNotNull(r);
+		Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
-        File imageFile = new File(filename);
-        Assert.assertTrue(Math.abs(dpi - ImageInfo.getImageDpi(imageFile)) <= 1);
+		File imageFile = new File(filename);
+		Assert.assertTrue(Math.abs(dpi - ImageInfo.getImageDpi(imageFile)) <= 1);
 
-        BufferedImage image = ImageIO.read(imageFile);
-        Assert.assertEquals(new Double(region.getWidth() * dpi).intValue(), image.getWidth());
-        Assert.assertEquals(new Double(region.getHeight() * dpi).intValue(), image.getHeight());
-    }
+		BufferedImage image = ImageIO.read(imageFile);
+		Assert.assertEquals(new Double(region.getWidth() * dpi).intValue(),
+				image.getWidth());
+		Assert.assertEquals(new Double(region.getHeight() * dpi).intValue(),
+				image.getHeight());
+	}
 
-    @Test
-    public void scanImageBadParams() throws Exception {
-        ScanLib scanLib = ScanLib.getInstance();
-        ScanLibResult r = scanLib.isTwainAvailable();
-        Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
+	@Test
+	public void scanImageBadParams() throws Exception {
+		ScanLib scanLib = ScanLib.getInstance();
+		ScanLibResult r = scanLib.isTwainAvailable();
+		Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
-        BoundingBox scanBox = new BoundingBox(new Point(0, 0), new Point(4, 4));
+		BoundingBox scanBox = new BoundingBox(new Point(0, 0), new Point(4, 4));
 
-        r = scanLib.scanImage(0, 300, 0, 0, scanBox, null);
-        Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
+		r = scanLib.scanImage(0, 300, 0, 0, scanBox, null);
+		Assert.assertEquals(ScanLibResult.Result.FAIL, r.getResultCode());
 
-        r = scanLib.scanImage(0, 300, 0, 0, null, "tempscan.bmp");
-        Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
+		r = scanLib.scanImage(0, 300, 0, 0, null, "tempscan.bmp");
+		Assert.assertEquals(ScanLibResult.Result.FAIL, r.getResultCode());
 
-        r = scanLib.scanImage(0, 0, 0, 0, scanBox, "tempscan.bmp");
-        Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
-    }
+		r = scanLib.scanImage(0, 0, 0, 0, scanBox, "tempscan.bmp");
+		Assert.assertEquals(ScanLibResult.Result.FAIL, r.getResultCode());
+	}
 
-    @Test
-    public void scanFlatbed() throws Exception {
-        ScanLib scanLib = ScanLib.getInstance();
-        ScanLibResult r = scanLib.isTwainAvailable();
-        Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
+	@Test
+	public void scanFlatbed() throws Exception {
+		ScanLib scanLib = ScanLib.getInstance();
+		ScanLibResult r = scanLib.isTwainAvailable();
+		Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
-        final int dpi = 300;
-        String filename = "flatbed.bmp";
-        File file = new File(filename);
-        file.delete(); // dont care if file doesn't exist
+		final int dpi = 300;
+		String filename = "flatbed.bmp";
+		File file = new File(filename);
+		file.delete(); // dont care if file doesn't exist
 
-        r = scanLib.scanFlatbed(0, dpi, 0, 0, filename);
+		r = scanLib.scanFlatbed(0, dpi, 0, 0, filename);
 
-        Assert.assertNotNull(r);
-        Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
+		Assert.assertNotNull(r);
+		Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
-        File imageFile = new File(filename);
-        Assert.assertTrue(Math.abs(dpi - ImageInfo.getImageDpi(imageFile)) <= 1);
-    }
+		File imageFile = new File(filename);
+		Assert.assertTrue(Math.abs(dpi - ImageInfo.getImageDpi(imageFile)) <= 1);
+	}
 
-    @Test
-    public void scanFlatbedBadParams() throws Exception {
-        ScanLib scanLib = ScanLib.getInstance();
-        ScanLibResult r = scanLib.isTwainAvailable();
-        Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
+	@Test
+	public void scanFlatbedBadParams() throws Exception {
+		ScanLib scanLib = ScanLib.getInstance();
+		ScanLibResult r = scanLib.isTwainAvailable();
+		Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
-        r = scanLib.scanFlatbed(0, 300, 0, 0, null);
-        Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
+		r = scanLib.scanFlatbed(0, 300, 0, 0, null);
+		Assert.assertEquals(ScanLibResult.Result.FAIL, r.getResultCode());
 
-        r = scanLib.scanFlatbed(0, 0, 0, 0, "tempscan.bmp");
-        Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
-    }
+		r = scanLib.scanFlatbed(0, 0, 0, 0, "tempscan.bmp");
+		Assert.assertEquals(ScanLibResult.Result.FAIL, r.getResultCode());
+	}
 
-    @Test
-    public void scanAndDecode() throws Exception {
-        ScanLib scanLib = ScanLib.getInstance();
-        ScanLibResult r = scanLib.isTwainAvailable();
-        Assert.assertEquals(ScanLib.SC_SUCCESS, r.getResultCode());
+	@Test
+	public void scanAndDecode() throws Exception {
+		ScanLib scanLib = ScanLib.getInstance();
+		ScanLibResult r = scanLib.isTwainAvailable();
+		Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
-        BoundingBox scanRegion = new BoundingBox(new Point(0.400, 0.265), new Point(4.566, 3.020));
+		BoundingBox scanRegion = new BoundingBox(new Point(0.400, 0.265),
+				new Point(4.566, 3.020));
 
-        BoundingBox wellsBbox = ScannerConfigPlugin.getWellsBoundingBox(scanRegion);
-        BoundingBox scanBbox = ScannerConfigPlugin.getWiaBoundingBox(scanRegion);
+		BoundingBox scanBbox = ScannerConfigPlugin
+				.getWiaBoundingBox(scanRegion);
 
-        final int dpi = 300;
+		final int dpi = 300;
 
-        Set<CellRectangle> wells = CellRectangle.getCellsForBoundingBox(
-            wellsBbox, PalletOrientation.LANDSCAPE, PalletDimensions.DIM_ROWS_8_COLS_12,
-            BarcodePosition.BOTTOM);
+		BoundingBox wellsBbox = new BoundingBox(0, 0, Math.floor(dpi
+				* scanRegion.getWidth()), Math.floor(dpi
+				* scanRegion.getHeight()));
 
-        DecodeResult dr =
-            scanLib.scanAndDecode(3, dpi, 0, 0, scanBbox, DecodeOptions.getDefaultDecodeOptions(),
-                wells.toArray(new CellRectangle[] {}));
+		Set<CellRectangle> wells = CellRectangle.getCellsForBoundingBox(
+				wellsBbox, PalletOrientation.LANDSCAPE,
+				PalletDimensions.DIM_ROWS_8_COLS_12, BarcodePosition.BOTTOM);
 
-        Assert.assertNotNull(dr);
-        Assert.assertFalse(dr.getDecodedWells().isEmpty());
+		DecodeResult dr = scanLib.scanAndDecode(3, dpi, 0, 0, scanBbox,
+				DecodeOptions.getDefaultDecodeOptions(),
+				wells.toArray(new CellRectangle[] {}));
 
-        for (DecodedWell decodedWell : dr.getDecodedWells()) {
-            log.debug("decoded well: {}", decodedWell);
-        }
+		Assert.assertNotNull(dr);
+		Assert.assertFalse(dr.getDecodedWells().isEmpty());
 
-        log.debug("wells decoded: {}", dr.getDecodedWells().size());
-    }
+		for (DecodedWell decodedWell : dr.getDecodedWells()) {
+			log.debug("decoded well: {}", decodedWell);
+		}
+
+		log.debug("wells decoded: {}", dr.getDecodedWells().size());
+	}
 }

@@ -382,7 +382,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
             @Override
             public void run(IProgressMonitor monitor) {
                 monitor.beginTask(PROGRESS_MESSAGE_DECODING, IProgressMonitor.UNKNOWN);
-                Set<CellRectangle> wells = plateGridWidget.getCellsInInches();
+                Set<CellRectangle> wells = plateGridWidget.getCellsInPixels();
 
                 decodeResult = ScanLib.getInstance().decodeImage(
                     debugLevel,

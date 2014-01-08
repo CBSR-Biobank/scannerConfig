@@ -54,7 +54,7 @@ public class ScanRegionCanvas extends ImageWithRegionCanvas {
      * the dimensions of the scan region.
      */
     private void notifyListener() {
-        final Rectangle2D.Double plateInInches = getUserRegionInInches();
+        final Rectangle2D.Double plateInInches = getUserRegionInPixels();
 
         SafeRunnable.run(new SafeRunnable() {
             @Override

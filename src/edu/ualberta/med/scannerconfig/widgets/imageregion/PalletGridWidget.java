@@ -225,11 +225,11 @@ public class PalletGridWidget extends Composite {
         return true;
     }
 
-    public Set<CellRectangle> getCellsInInches() {
-        return canvas.getCellsInInches();
+    public Set<CellRectangle> getCellsInPixels() {
+        return canvas.getCellsInPixels();
     }
 
     public Double getUserRegionInInches() {
-        return canvas.getUserRegionInInches();
+        return canvas.getUserRegionInPixels();
     }
 }

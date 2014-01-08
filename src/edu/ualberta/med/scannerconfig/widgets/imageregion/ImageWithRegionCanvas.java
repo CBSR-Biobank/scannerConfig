@@ -1,6 +1,5 @@
 package edu.ualberta.med.scannerconfig.widgets.imageregion;
 
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -35,7 +34,8 @@ import edu.ualberta.med.scannerconfig.imageregion.PointToRegion;
  */
 public class ImageWithRegionCanvas extends ImageCanvas {
 
-    private static Logger log = LoggerFactory.getLogger(ImageWithRegionCanvas.class.getName());
+    private static Logger log = LoggerFactory
+        .getLogger(ImageWithRegionCanvas.class.getName());
 
     protected BarcodeImage barcodeImage;
 
@@ -44,9 +44,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
     // user region stored in inches to allow for correct resizing of the widget
     //
     // this region is not translated, its starts at (0, 0)
-    protected ImageRegion userRegionInInches;
-
-    protected AffineTransform regionToImageTransform = new AffineTransform();
+    protected ImageRegion userRegionInPixels;
 
     public Point2D.Double lastMousePosInRegion;
 
@@ -115,30 +113,26 @@ public class ImageWithRegionCanvas extends ImageCanvas {
             return;
         }
 
-        if (userRegionInInches == null) {
+        if (userRegionInPixels == null) {
             throw new IllegalStateException("user region is null");
         }
 
         // draw the region on the source image
         Image clippedImage = clippedSourceImage();
-        Rectangle2D.Double regionRect = userRegionInInches.getRectangle();
+        Rectangle2D.Double regionRect = userRegionInPixels.getRectangle();
 
         // ensure the region fits on the image
         if (barcodeImage.getRectangleInInches().contains(regionRect)) {
             // transform the region rectangle to the canvas
             Rectangle clientRect = getClientArea();
-            Rectangle2D.Double regionRectOnImage =
-                Swt2DUtil.transformRect(regionToImageTransform, regionRect);
-            Rectangle2D.Double regionRectOnCanvas =
-                Swt2DUtil.transformRect(sourceImageToCanvasTransform, regionRectOnImage);
+            Rectangle2D.Double regionRectOnCanvas = Swt2DUtil.transformRect(
+                sourceImageToCanvasTransform, regionRect);
 
             GC newGC = new GC(clippedImage);
             newGC.setClipping(clientRect);
             newGC.setForeground(colorRed);
-            newGC.drawRectangle(
-                (int) regionRectOnCanvas.x,
-                (int) regionRectOnCanvas.y,
-                (int) regionRectOnCanvas.width,
+            newGC.drawRectangle((int) regionRectOnCanvas.x,
+                (int) regionRectOnCanvas.y, (int) regionRectOnCanvas.width,
                 (int) regionRectOnCanvas.height);
 
             drawResizeHandles(newGC, handleBackgroundColor);
@@ -153,18 +147,13 @@ public class ImageWithRegionCanvas extends ImageCanvas {
     // create resize handles
     protected void drawResizeHandles(GC newGC, Color handleBackgroundColor) {
         newGC.setBackground(handleBackgroundColor);
-        for (Rectangle2D.Double rect : userRegionInInches.getResizeHandleRects().values()) {
+        for (Rectangle2D.Double rect : userRegionInPixels.getResizeHandleRects().values()) {
 
-            Rectangle2D.Double handleOnImage =
-                Swt2DUtil.transformRect(regionToImageTransform, rect);
-            Rectangle2D.Double handleCanvas =
-                Swt2DUtil.transformRect(sourceImageToCanvasTransform, handleOnImage);
+            Rectangle2D.Double handleCanvas = Swt2DUtil.transformRect(
+                sourceImageToCanvasTransform, rect);
 
-            newGC.fillRectangle(
-                (int) handleCanvas.x,
-                (int) handleCanvas.y,
-                (int) handleCanvas.width,
-                (int) handleCanvas.height);
+            newGC.fillRectangle((int) handleCanvas.x, (int) handleCanvas.y,
+                (int) handleCanvas.width, (int) handleCanvas.height);
         }
     }
 
@@ -179,12 +168,6 @@ public class ImageWithRegionCanvas extends ImageCanvas {
 
         setSourceImage(barcodeImage.getImage());
         this.barcodeImage = barcodeImage;
-        double scaleFactor = barcodeImage.getScaleFactor();
-
-        // update the tranform to convert from inches to the image dimensions in pixels
-        AffineTransform t = new AffineTransform();
-        t.scale(scaleFactor, scaleFactor);
-        regionToImageTransform = t;
         fitCanvas();
     }
 
@@ -216,7 +199,8 @@ public class ImageWithRegionCanvas extends ImageCanvas {
     protected void mouseDown(MouseEvent e) {
         super.mouseDown(e);
 
-        if (getSourceImage() == null) return;
+        if (getSourceImage() == null)
+            return;
 
         lastMousePosInRegion = canvasPointToRegion(e.x, e.y);
     }
@@ -225,7 +209,8 @@ public class ImageWithRegionCanvas extends ImageCanvas {
     protected void mouseUp(MouseEvent e) {
         super.mouseUp(e);
 
-        if (getSourceImage() == null) return;
+        if (getSourceImage() == null)
+            return;
 
         dragRegion = PointToRegion.OUTSIDE_REGION;
 
@@ -233,9 +218,9 @@ public class ImageWithRegionCanvas extends ImageCanvas {
 
     protected Point2D.Double canvasPointToRegion(double x, double y) {
         Point2D.Double canvasPoint = new Point2D.Double(x, y);
-        Point2D.Double pointOnImage = Swt2DUtil.inverseTransformPoint(sourceImageToCanvasTransform, canvasPoint);
-        Point2D.Double pointInInches = Swt2DUtil.inverseTransformPoint(regionToImageTransform, pointOnImage);
-        return pointInInches;
+        Point2D.Double pointOnImage = Swt2DUtil.inverseTransformPoint(
+            sourceImageToCanvasTransform, canvasPoint);
+        return pointOnImage;
     }
 
     /*
@@ -254,35 +239,35 @@ public class ImageWithRegionCanvas extends ImageCanvas {
             super.mouseDrag(e);
             break;
         case IN_REGION:
-            userRegionInInches.translate(dx, dy);
+            userRegionInPixels.translate(dx, dy);
             break;
         case IN_HANDLE_NORTH_WEST:
-            userRegionInInches.resizeLeftEdge(dx);
-            userRegionInInches.resizeTopEdge(dy);
+            userRegionInPixels.resizeLeftEdge(dx);
+            userRegionInPixels.resizeTopEdge(dy);
             break;
         case IN_HANDLE_NORTH:
-            userRegionInInches.resizeTopEdge(dy);
+            userRegionInPixels.resizeTopEdge(dy);
             break;
         case IN_HANDLE_NORTH_EAST:
-            userRegionInInches.resizeRightEdge(dx);
-            userRegionInInches.resizeTopEdge(dy);
+            userRegionInPixels.resizeRightEdge(dx);
+            userRegionInPixels.resizeTopEdge(dy);
             break;
         case IN_HANDLE_EAST:
-            userRegionInInches.resizeRightEdge(dx);
+            userRegionInPixels.resizeRightEdge(dx);
             break;
         case IN_HANDLE_SOUTH_EAST:
-            userRegionInInches.resizeRightEdge(dx);
-            userRegionInInches.resizeBottomEdge(dy);
+            userRegionInPixels.resizeRightEdge(dx);
+            userRegionInPixels.resizeBottomEdge(dy);
             break;
         case IN_HANDLE_SOUTH:
-            userRegionInInches.resizeBottomEdge(dy);
+            userRegionInPixels.resizeBottomEdge(dy);
             break;
         case IN_HANDLE_SOUTH_WEST:
-            userRegionInInches.resizeLeftEdge(dx);
-            userRegionInInches.resizeBottomEdge(dy);
+            userRegionInPixels.resizeLeftEdge(dx);
+            userRegionInPixels.resizeBottomEdge(dy);
             break;
         case IN_HANDLE_WEST:
-            userRegionInInches.resizeLeftEdge(dx);
+            userRegionInPixels.resizeLeftEdge(dx);
             break;
 
         default:
@@ -296,9 +281,10 @@ public class ImageWithRegionCanvas extends ImageCanvas {
      * Called when the user moves the mouse.
      */
     private void mouseMove(MouseEvent e) {
-        if (getSourceImage() == null) return;
+        if (getSourceImage() == null)
+            return;
 
-        if (userRegionInInches == null) {
+        if (userRegionInPixels == null) {
             throw new IllegalStateException("user region is null");
         }
 
@@ -312,7 +298,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
         setCursor(new Cursor(getDisplay(), SWT.CURSOR_ARROW));
         Point2D.Double mousePointInInches = canvasPointToRegion(e.x, e.y);
 
-        dragRegion = userRegionInInches.pointToRegion(mousePointInInches);
+        dragRegion = userRegionInPixels.pointToRegion(mousePointInInches);
         switch (dragRegion) {
         case OUTSIDE_REGION:
             break;
@@ -352,7 +338,8 @@ public class ImageWithRegionCanvas extends ImageCanvas {
     }
 
     protected void keyPressed(KeyEvent e) {
-        if (getSourceImage() == null) return;
+        if (getSourceImage() == null)
+            return;
 
         double dx = 0;
         double dy = 0;
@@ -371,7 +358,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
             dy = 0.05;
             break;
         }
-        userRegionInInches.translate(dx, dy);
+        userRegionInPixels.translate(dx, dy);
         log.trace("keyPressed: after change: {}", e.keyCode);
         redraw();
     }
@@ -381,11 +368,11 @@ public class ImageWithRegionCanvas extends ImageCanvas {
      * 
      * @return
      */
-    public Rectangle2D.Double getUserRegionInInches() {
+    public Rectangle2D.Double getUserRegionInPixels() {
         if (barcodeImage == null) {
             throw new IllegalStateException("image is null");
         }
-        Rectangle2D.Double rect = userRegionInInches.getRectangle();
+        Rectangle2D.Double rect = userRegionInPixels.getRectangle();
         return rect;
     }
 
@@ -398,11 +385,12 @@ public class ImageWithRegionCanvas extends ImageCanvas {
      *            of inches.
      * @return Returns true if the region lies within the image.
      */
-    public boolean setUserRegionInInches(BarcodeImage barcodeImage, Rectangle2D.Double region) {
+    public boolean setUserRegionInInches(BarcodeImage barcodeImage,
+        Rectangle2D.Double region) {
         Rectangle2D.Double imageRect = barcodeImage.getRectangleInInches();
 
         if (imageRect.contains(region)) {
-            userRegionInInches = new ImageRegion(imageRect, region);
+            userRegionInPixels = new ImageRegion(imageRect, region);
             return true;
         }
         return false;
