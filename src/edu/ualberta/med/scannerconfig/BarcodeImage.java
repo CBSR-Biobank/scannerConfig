@@ -59,7 +59,8 @@ public class BarcodeImage {
             throw new IllegalStateException("this should never happen");
         }
 
-        rectangle = getRectangleInInches();
+        Rectangle bounds = image.getBounds();
+        rectangle = new Rectangle2D.Double(bounds.x, bounds.y, bounds.width, bounds.height);
     }
 
     public String getFilename() {

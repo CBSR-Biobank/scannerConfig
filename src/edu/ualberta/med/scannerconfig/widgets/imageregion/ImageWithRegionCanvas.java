@@ -122,7 +122,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
         Rectangle2D.Double regionRect = userRegionInPixels.getRectangle();
 
         // ensure the region fits on the image
-        if (barcodeImage.getRectangleInInches().contains(regionRect)) {
+        if (barcodeImage.getRectangle().contains(regionRect)) {
             // transform the region rectangle to the canvas
             Rectangle clientRect = getClientArea();
             Rectangle2D.Double regionRectOnCanvas = Swt2DUtil.transformRect(
@@ -385,9 +385,8 @@ public class ImageWithRegionCanvas extends ImageCanvas {
      *            of inches.
      * @return Returns true if the region lies within the image.
      */
-    public boolean setUserRegionInInches(BarcodeImage barcodeImage,
-        Rectangle2D.Double region) {
-        Rectangle2D.Double imageRect = barcodeImage.getRectangleInInches();
+    public boolean setUserRegionInPixels(BarcodeImage barcodeImage, Rectangle2D.Double region) {
+        Rectangle2D.Double imageRect = barcodeImage.getRectangle();
 
         if (imageRect.contains(region)) {
             userRegionInPixels = new ImageRegion(imageRect, region);
@@ -407,6 +406,6 @@ public class ImageWithRegionCanvas extends ImageCanvas {
         if (barcodeImage == null) {
             throw new IllegalStateException("barcodeImage is null");
         }
-        return setUserRegionInInches(barcodeImage, region);
+        return setUserRegionInPixels(barcodeImage, region);
     }
 }

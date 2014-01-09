@@ -21,7 +21,9 @@ public class ScannerDpiWidget extends GroupedRadioSelectionWidget<ScannerDpi> {
         Map<ScannerDpi, String> map = new LinkedHashMap<ScannerDpi, String>();
 
         for (ScannerDpi orientation : ScannerDpi.values()) {
-            map.put(orientation, orientation.getDisplayLabel());
+            if (orientation != ScannerDpi.DPI_UNKNOWN) {
+                map.put(orientation, orientation.getDisplayLabel());
+            }
         }
 
         SELECTIONS_MAP = Collections.unmodifiableMap(map);

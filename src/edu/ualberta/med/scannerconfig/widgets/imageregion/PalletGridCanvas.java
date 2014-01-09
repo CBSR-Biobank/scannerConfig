@@ -162,7 +162,7 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
         setOrientation(orientation);
         setDimensions(dimensions);
         setBarcodePosition(barcodePosition);
-        setUserRegionInInches(image, gridRectangle);
+        setUserRegionInPixels(image, gridRectangle);
         updateImage(image);
         udpateCellRectangles();
         redraw();

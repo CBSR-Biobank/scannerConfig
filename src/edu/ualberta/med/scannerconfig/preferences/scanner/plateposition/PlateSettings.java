@@ -1,5 +1,6 @@
 package edu.ualberta.med.scannerconfig.preferences.scanner.plateposition;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +31,7 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import edu.ualberta.med.biobank.gui.common.BgcPlugin;
+import edu.ualberta.med.biobank.gui.common.Swt2DUtil;
 import edu.ualberta.med.scannerconfig.BarcodeImage;
 import edu.ualberta.med.scannerconfig.FlatbedImageScan;
 import edu.ualberta.med.scannerconfig.IScanImageListener;
@@ -236,7 +238,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         }
     }
 
-    private Rectangle2D.Double getPlateRegion() {
+    private Rectangle2D.Double getPlateRegionInches() {
         double left = parseDouble(plateFieldEditors.get(Settings.LEFT).getStringValue());
         double top = parseDouble(plateFieldEditors.get(Settings.TOP).getStringValue());
         double right = parseDouble(plateFieldEditors.get(Settings.RIGHT).getStringValue());
@@ -258,14 +260,14 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         }
     }
 
-    private void internalUpdate(Rectangle2D.Double plate) {
-        log.trace("internalUpdate: plate: {}", plate);
+    private void internalUpdate(Rectangle2D.Double region) {
+        log.trace("internalUpdate: plate: {}", region);
 
         internalUpdate = true;
-        plateTextControls.get(Settings.LEFT).setText(String.valueOf(plate.x));
-        plateTextControls.get(Settings.TOP).setText(String.valueOf(plate.y));
-        plateTextControls.get(Settings.RIGHT).setText(String.valueOf(plate.x + plate.width));
-        plateTextControls.get(Settings.BOTTOM).setText(String.valueOf(plate.y + plate.height));
+        plateTextControls.get(Settings.LEFT).setText(String.valueOf(region.x));
+        plateTextControls.get(Settings.TOP).setText(String.valueOf(region.y));
+        plateTextControls.get(Settings.RIGHT).setText(String.valueOf(region.x + region.width));
+        plateTextControls.get(Settings.BOTTOM).setText(String.valueOf(region.y + region.height));
         internalUpdate = false;
     }
 
@@ -307,19 +309,23 @@ public class PlateSettings extends FieldEditorPreferencePage implements
             throw new IllegalArgumentException("image is null");
         }
 
-        statusLabel.setText(ALIGN_STATUS_MSG);
-        Rectangle2D.Double imageRectangle = image.getRectangleInInches();
-
-        ((DoubleFieldEditor) plateFieldEditors.get(Settings.LEFT)).setValidRange(0, imageRectangle.width);
-        ((DoubleFieldEditor) plateFieldEditors.get(Settings.TOP)).setValidRange(0, imageRectangle.height);
-        ((DoubleFieldEditor) plateFieldEditors.get(Settings.RIGHT)).setValidRange(0, imageRectangle.width);
-        ((DoubleFieldEditor) plateFieldEditors.get(Settings.BOTTOM)).setValidRange(0, imageRectangle.height);
-
-        Rectangle2D.Double plateRegion = getPlateRegion();
         this.flatbedImage = image;
-        canvas.updateImage(image, getPlateRegion());
+        final int dpi = image.getDpi().getValue();
+        Rectangle2D.Double imageRectangle = image.getRectangle();
+        Rectangle2D.Double imageRectangleInches = rectangleToInches(dpi, imageRectangle);
 
-        if (!imageRectangle.contains(plateRegion)) {
+        statusLabel.setText(ALIGN_STATUS_MSG);
+
+        ((DoubleFieldEditor) plateFieldEditors.get(Settings.LEFT)).setValidRange(0, imageRectangleInches.width);
+        ((DoubleFieldEditor) plateFieldEditors.get(Settings.TOP)).setValidRange(0, imageRectangleInches.height);
+        ((DoubleFieldEditor) plateFieldEditors.get(Settings.RIGHT)).setValidRange(0, imageRectangleInches.width);
+        ((DoubleFieldEditor) plateFieldEditors.get(Settings.BOTTOM)).setValidRange(0, imageRectangleInches.height);
+
+        Rectangle2D.Double plateRegionPixels = rectangleToPixels(dpi, getPlateRegionInches());
+
+        canvas.updateImage(image, plateRegionPixels);
+
+        if (!imageRectangle.contains(plateRegionPixels)) {
             this.flatbedImage = null;
             BgcPlugin.openAsyncError(
                 // TR: dialog title
@@ -338,14 +344,14 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     }
 
     @Override
-    public void scanRegionChanged(Rectangle2D.Double plate) {
+    public void scanRegionChanged(Rectangle2D.Double region) {
         statusLabel.setText(ALIGN_STATUS_MSG);
-        internalUpdate(plate);
+        internalUpdate(rectangleToInches(flatbedImage.getDpi().getValue(), region));
     }
 
     private void scanRegionDimensionsUpdated() {
         if (flatbedImage != null) {
-            canvas.scanRegionDimensionsUpdated(getPlateRegion());
+            canvas.scanRegionDimensionsUpdated(getPlateRegionInches());
         }
     }
 
@@ -357,5 +363,18 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 canvas.disableRegion();
             }
         }
+    }
+
+    private Rectangle2D.Double rectangleToInches(final int dpi, final Rectangle2D.Double rectangle) {
+        AffineTransform scaleTransform = AffineTransform.getScaleInstance(dpi, dpi);
+        Rectangle2D.Double rectangleInInches = Swt2DUtil.inverseTransformRect(
+            scaleTransform, rectangle);
+        return rectangleInInches;
+    }
+
+    private Rectangle2D.Double rectangleToPixels(final int dpi, final Rectangle2D.Double rectangle) {
+        AffineTransform scaleTransform = AffineTransform.getScaleInstance(dpi, dpi);
+        Rectangle2D.Double rectangleInPixels = Swt2DUtil.transformRect(scaleTransform, rectangle);
+        return rectangleInPixels;
     }
 }

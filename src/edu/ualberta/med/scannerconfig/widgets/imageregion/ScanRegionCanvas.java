@@ -105,8 +105,8 @@ public class ScanRegionCanvas extends ImageWithRegionCanvas {
     /**
      * Called by parent widget when a new flatbed image is available.
      */
-    public void updateImage(BarcodeImage image, Rectangle2D.Double scanRegionInInches) {
-        regionEnabled = setUserRegionInInches(image, scanRegionInInches);
+    public void updateImage(BarcodeImage image, Rectangle2D.Double scanRegion) {
+        regionEnabled = setUserRegionInPixels(image, scanRegion);
         setEnabled(regionEnabled);
         super.updateImage(image);
     }

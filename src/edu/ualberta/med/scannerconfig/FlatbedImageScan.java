@@ -19,7 +19,7 @@ public class FlatbedImageScan {
     public static final int PLATE_IMAGE_DPI = 300;
 
     @SuppressWarnings("nls")
-    public static final String PALLET_IMAGE_FILE = "plates.bmp";
+    public static final String PALLET_IMAGE_FILE = "fakePlatesImage.bmp";
 
     protected ListenerList listenerList = new ListenerList();
 

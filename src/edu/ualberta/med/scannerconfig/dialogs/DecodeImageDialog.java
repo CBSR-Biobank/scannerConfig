@@ -270,6 +270,10 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
             loadFile(filename, ImageSource.FILE);
             break;
 
+        case DPI_CHANGED:
+            // do nothing
+            break;
+
         default:
             throw new IllegalArgumentException("invalid image source action: " + imageSourceAction);
         }
