@@ -346,16 +346,16 @@ public class ImageWithRegionCanvas extends ImageCanvas {
 
         switch (e.keyCode) {
         case SWT.ARROW_LEFT:
-            dx = -0.05;
+            dx = -1;
             break;
         case SWT.ARROW_RIGHT:
-            dx = 0.05;
+            dx = 1;
             break;
         case SWT.ARROW_UP:
-            dy = -0.05;
+            dy = -1;
             break;
         case SWT.ARROW_DOWN:
-            dy = 0.05;
+            dy = 1;
             break;
         }
         userRegionInPixels.translate(dx, dy);

@@ -22,9 +22,9 @@ public class ImageRegion {
 
     private static Logger log = LoggerFactory.getLogger(ImageRegion.class.getName());
 
-    static final double HANDLE_SIZE = 0.10; // in inches
+    static final double HANDLE_SIZE_PIXELS = 20;
 
-    private static final double RESIZE_EPSILON = 0.00001; // in inches
+    private static final double RESIZE_MIN_WIDTH_PIXELS = 1;
 
     private final Rectangle2D.Double imageBounds;
 
@@ -117,7 +117,7 @@ public class ImageRegion {
      */
     public void resizeLeftEdge(double dx) {
         double tx = positionTransform.getTranslateX();
-        double maxValue = region.width - RESIZE_EPSILON;
+        double maxValue = region.width - RESIZE_MIN_WIDTH_PIXELS;
         dx = Math.max(-tx, Math.min(dx, maxValue));
         region.setRect(0, 0, region.width - dx, region.height);
         resizeHandles.updateRegion(region);
@@ -131,7 +131,7 @@ public class ImageRegion {
      */
     public void resizeTopEdge(double dy) {
         double ty = positionTransform.getTranslateY();
-        double maxValue = region.height - RESIZE_EPSILON;
+        double maxValue = region.height - RESIZE_MIN_WIDTH_PIXELS;
         dy = Math.max(-ty, Math.min(dy, maxValue));
         region.setRect(0, 0, region.width, region.height - dy);
         resizeHandles.updateRegion(region);
@@ -150,8 +150,8 @@ public class ImageRegion {
             distance = maxSize - translation - currentSize;
         }
 
-        if (distance < -currentSize + RESIZE_EPSILON) {
-            distance = -currentSize + RESIZE_EPSILON;
+        if (distance < -currentSize + RESIZE_MIN_WIDTH_PIXELS) {
+            distance = -currentSize + RESIZE_MIN_WIDTH_PIXELS;
         }
 
         return distance;

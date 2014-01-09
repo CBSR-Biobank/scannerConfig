@@ -14,14 +14,14 @@ import edu.ualberta.med.biobank.gui.common.Swt2DUtil;
  */
 class ResizeHandles {
 
-    private final double HANDLE_HALF_SIZE = ImageRegion.HANDLE_SIZE / 2;
+    private final double HANDLE_HALF_SIZE = ImageRegion.HANDLE_SIZE_PIXELS / 2;
 
     final Rectangle2D.Double handleRect;
 
     final Map<ResizeHandle, AffineTransform> handleTransforms;
 
     ResizeHandles(Rectangle2D.Double region) {
-        handleRect = new Rectangle2D.Double(0, 0, ImageRegion.HANDLE_SIZE, ImageRegion.HANDLE_SIZE);
+        handleRect = new Rectangle2D.Double(0, 0, ImageRegion.HANDLE_SIZE_PIXELS, ImageRegion.HANDLE_SIZE_PIXELS);
         handleTransforms = new HashMap<ResizeHandle, AffineTransform>(ResizeHandle.size);
         updateRegion(region);
     }
@@ -89,8 +89,8 @@ class ResizeHandles {
         return new Rectangle2D.Double(
             transform.getTranslateX(),
             transform.getTranslateY(),
-            ImageRegion.HANDLE_SIZE,
-            ImageRegion.HANDLE_SIZE);
+            ImageRegion.HANDLE_SIZE_PIXELS,
+            ImageRegion.HANDLE_SIZE_PIXELS);
 
     }
 
