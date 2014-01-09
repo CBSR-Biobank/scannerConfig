@@ -168,8 +168,8 @@ public final class CellRectangle implements Comparable<CellRectangle> {
         }
 
         // make cells slightly smaller so that they all fit within the image
-        double cellWidth = 0.9999 * bbox.getWidth() / cols;
-        double cellHeight = 0.9999 * bbox.getHeight() / rows;
+        double cellWidth = 0.9999 * Math.floor(bbox.getWidth()) / cols;
+        double cellHeight = 0.9999 * Math.floor(bbox.getHeight()) / rows;
 
         Rectangle2D.Double cellRect = new Rectangle2D.Double(
             bbox.getCornerX(0), bbox.getCornerY(0), cellWidth, cellHeight);

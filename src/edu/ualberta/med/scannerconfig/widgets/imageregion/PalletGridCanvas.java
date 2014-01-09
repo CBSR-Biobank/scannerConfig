@@ -261,11 +261,12 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
      * @return
      */
     public Set<CellRectangle> getCellsInPixels() {
-        BoundingBox boundingBoxInInches = new BoundingBox(
-            getUserRegionInPixels());
-        Set<CellRectangle> cellsInInches = CellRectangle
-            .getCellsForBoundingBox(boundingBoxInInches, orientation,
-                dimensions, barcodePosition);
+        BoundingBox boundingBox = new BoundingBox(getUserRegionInPixels());
+        Set<CellRectangle> cellsInInches = CellRectangle.getCellsForBoundingBox(
+            boundingBox,
+            orientation,
+            dimensions,
+            barcodePosition);
         return cellsInInches;
     }
 }
