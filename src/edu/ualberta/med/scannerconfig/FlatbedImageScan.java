@@ -19,7 +19,7 @@ public class FlatbedImageScan {
     public static final int PLATE_IMAGE_DPI = 300;
 
     @SuppressWarnings("nls")
-    public static final String PALLET_IMAGE_FILE = "fakePlatesImage.bmp";
+    public static final String FAKE_PALLET_IMAGE_FILE = "fakePlatesImage.bmp";
 
     protected ListenerList listenerList = new ListenerList();
 
@@ -31,9 +31,9 @@ public class FlatbedImageScan {
 
     @SuppressWarnings("nls")
     public FlatbedImageScan() {
-        // For Linux set debugMode to true if a fake flatbed image exits
-        if (!System.getProperty("os.name").startsWith("Windows")) {
-            File platesFile = new File(FlatbedImageScan.PALLET_IMAGE_FILE);
+        // When debug is on, use a fake image if the file exits
+        if (ScannerConfigPlugin.getDefault().isDebugging()) {
+            File platesFile = new File(FlatbedImageScan.FAKE_PALLET_IMAGE_FILE);
             haveFakeFlatbedImage = platesFile.exists();
         } else {
             haveFakeFlatbedImage = false;
@@ -43,7 +43,7 @@ public class FlatbedImageScan {
 
     public void cleanAll() {
         if (!haveFakeFlatbedImage) {
-            File platesFile = new File(FlatbedImageScan.PALLET_IMAGE_FILE);
+            File platesFile = new File(FlatbedImageScan.FAKE_PALLET_IMAGE_FILE);
             if (platesFile.exists()) {
                 platesFile.delete();
             }
@@ -100,7 +100,7 @@ public class FlatbedImageScan {
                 if (!haveFakeFlatbedImage) {
                     final ScanLibResult result = ScanLib.getInstance().scanFlatbed(
                         debugLevel, PLATE_IMAGE_DPI, brightness, contrast,
-                        FlatbedImageScan.PALLET_IMAGE_FILE);
+                        FlatbedImageScan.FAKE_PALLET_IMAGE_FILE);
 
                     if (result.getResultCode() != ScanLibResult.Result.SUCCESS) {
                         BgcPlugin.openAsyncError(i18n.tr("Scanner error"),
@@ -109,10 +109,10 @@ public class FlatbedImageScan {
                     }
                 }
 
-                File file = new File(PALLET_IMAGE_FILE);
+                File file = new File(FAKE_PALLET_IMAGE_FILE);
                 Assert.isTrue(file.exists());
 
-                scannedImage = new BarcodeImage(PALLET_IMAGE_FILE, null);
+                scannedImage = new BarcodeImage(FAKE_PALLET_IMAGE_FILE, null);
                 notifyListeners(true);
             }
         });

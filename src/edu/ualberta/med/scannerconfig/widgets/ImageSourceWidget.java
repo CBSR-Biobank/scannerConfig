@@ -465,8 +465,8 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
     public boolean haveFakeScannedImage() {
         boolean result = false;
 
-        // For Linux debug use a fake image if the file exits
-        if (!System.getProperty("os.name").startsWith("Windows")) {
+        // When debug is on, use a fake image if the file exits
+        if (ScannerConfigPlugin.getDefault().isDebugging()) {
             File fakeScannedFile = new File(FAKE_SCANNED_IMAGE_FILE_NAME);
             result = fakeScannedFile.exists();
         }
