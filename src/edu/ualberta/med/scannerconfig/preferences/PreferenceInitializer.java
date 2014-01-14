@@ -12,21 +12,23 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
     @SuppressWarnings("nls")
     @Override
     public void initializeDefaultPreferences() {
-        IPreferenceStore store = ScannerConfigPlugin.getDefault()
-            .getPreferenceStore();
+        IPreferenceStore store = ScannerConfigPlugin.getDefault().getPreferenceStore();
         store.setDefault(PreferenceConstants.SCANNER_PALLET_PROFILES, "");
         store.setDefault(PreferenceConstants.SCANNER_BRIGHTNESS, 0);
         store.setDefault(PreferenceConstants.SCANNER_CONTRAST, 0);
         store.setDefault(PreferenceConstants.SCANNER_DRV_TYPE,
             PreferenceConstants.SCANNER_DRV_TYPE_NONE);
+
+        store.setDefault(PreferenceConstants.LIBDMTX_MIN_EDGE_FACTOR, 0.1);
+        store.setDefault(PreferenceConstants.LIBDMTX_MAX_EDGE_FACTOR, 0.3);
+        store.setDefault(PreferenceConstants.LIBDMTX_SCAN_GAP_FACTOR, 0.15);
+
         store.setDefault(PreferenceConstants.LIBDMTX_EDGE_THRESH, 5);
-        store.setDefault(PreferenceConstants.LIBDMTX_SCAN_GAP_FACTOR, 0.085);
         store.setDefault(PreferenceConstants.LIBDMTX_SQUARE_DEV, 15);
         store.setDefault(PreferenceConstants.LIBDMTX_CORRECTIONS, 10);
 
-        for (int i = 0; i < PreferenceConstants.SCANNER_PALLET_ENABLED.length; i++) {
-            store.setDefault(PreferenceConstants.SCANNER_PALLET_ENABLED[i],
-                false);
+        for (String preference : PreferenceConstants.SCANNER_PALLET_ENABLED) {
+            store.setDefault(preference, false);
         }
     }
 }

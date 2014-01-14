@@ -19,14 +19,27 @@ public class Decoding extends FieldEditorPreferencePage implements
 
     private final Map<String, DoubleFieldEditor> dblFieldMap =
         new HashMap<String, DoubleFieldEditor>();
+
     private final Map<String, IntegerFieldEditor> intFieldMap =
         new HashMap<String, IntegerFieldEditor>();
+
     private static final I18n i18n = I18nFactory.getI18n(Decoding.class);
 
-    IntegerFieldEditor debugLevelInputField, thresholdInputField,
-        squaredevInputField, correctionsInputField;
+    IntegerFieldEditor debugLevelInputField;
 
-    DoubleFieldEditor scanGapDblInput, celldistDblInput;
+    DoubleFieldEditor scanGapFactorDblInput;
+
+    DoubleFieldEditor edgeMinDblInput;
+
+    DoubleFieldEditor edgeMaxDblInput;
+
+    IntegerFieldEditor thresholdInputField;
+
+    IntegerFieldEditor squaredevInputField;
+
+    IntegerFieldEditor correctionsInputField;
+
+    DoubleFieldEditor celldistDblInput;
 
     public Decoding() {
         super(GRID);
@@ -43,52 +56,62 @@ public class Decoding extends FieldEditorPreferencePage implements
     @SuppressWarnings("nls")
     @Override
     protected void createFieldEditors() {
-        debugLevelInputField =
-            new IntegerFieldEditor(
-                PreferenceConstants.DLL_DEBUG_LEVEL,
-                i18n.tr("Decode Library Debug Level:"),
-                getFieldEditorParent());
+
+        debugLevelInputField = new IntegerFieldEditor(
+            PreferenceConstants.DLL_DEBUG_LEVEL,
+            i18n.tr("Library Debug Level:"),
+            getFieldEditorParent());
         debugLevelInputField.setValidRange(0, 9);
         addField(debugLevelInputField);
-        intFieldMap.put(debugLevelInputField.getPreferenceName(),
-            debugLevelInputField);
+        intFieldMap.put(debugLevelInputField.getPreferenceName(), debugLevelInputField);
 
-        thresholdInputField =
-            new IntegerFieldEditor(
-                PreferenceConstants.LIBDMTX_EDGE_THRESH,
-                i18n.tr("Decode Edge Threshold:"),
-                getFieldEditorParent());
+        edgeMinDblInput = new DoubleFieldEditor(
+            PreferenceConstants.LIBDMTX_MIN_EDGE_FACTOR,
+            i18n.tr("Edge Mininmum Factor:"),
+            getFieldEditorParent());
+        edgeMinDblInput.setValidRange(0.0, 1.0);
+        addField(edgeMinDblInput);
+        dblFieldMap.put(PreferenceConstants.LIBDMTX_MIN_EDGE_FACTOR, edgeMinDblInput);
+
+        edgeMaxDblInput = new DoubleFieldEditor(
+            PreferenceConstants.LIBDMTX_MAX_EDGE_FACTOR,
+            i18n.tr("Edge Mininmum Factor:"),
+            getFieldEditorParent());
+        edgeMaxDblInput.setValidRange(0.0, 1.0);
+        addField(edgeMaxDblInput);
+        dblFieldMap.put(PreferenceConstants.LIBDMTX_MAX_EDGE_FACTOR, edgeMaxDblInput);
+
+        scanGapFactorDblInput = new DoubleFieldEditor(
+            PreferenceConstants.LIBDMTX_SCAN_GAP_FACTOR,
+            i18n.tr("Scan Gap Factor:"),
+            getFieldEditorParent());
+        scanGapFactorDblInput.setValidRange(0.0, 1.0);
+        addField(scanGapFactorDblInput);
+        dblFieldMap.put(PreferenceConstants.LIBDMTX_SCAN_GAP_FACTOR, scanGapFactorDblInput);
+
+        thresholdInputField = new IntegerFieldEditor(
+            PreferenceConstants.LIBDMTX_EDGE_THRESH,
+            i18n.tr("Edge Threshold:"),
+            getFieldEditorParent());
         thresholdInputField.setValidRange(0, 100);
         addField(thresholdInputField);
-        intFieldMap.put(thresholdInputField.getPreferenceName(),
-            thresholdInputField);
+        intFieldMap.put(thresholdInputField.getPreferenceName(), thresholdInputField);
 
-        squaredevInputField =
-            new IntegerFieldEditor(
-                PreferenceConstants.LIBDMTX_SQUARE_DEV,
-                i18n.tr("Decode Square Deviation:"),
-                getFieldEditorParent());
+        squaredevInputField = new IntegerFieldEditor(
+            PreferenceConstants.LIBDMTX_SQUARE_DEV,
+            i18n.tr("Square Deviation:"),
+            getFieldEditorParent());
         squaredevInputField.setValidRange(0, 90);
         addField(squaredevInputField);
-        intFieldMap.put(squaredevInputField.getPreferenceName(),
-            squaredevInputField);
+        intFieldMap.put(squaredevInputField.getPreferenceName(), squaredevInputField);
 
-        correctionsInputField =
-            new IntegerFieldEditor(
-                PreferenceConstants.LIBDMTX_CORRECTIONS,
-                i18n.tr("Decode Corrections:"),
-                getFieldEditorParent());
+        correctionsInputField = new IntegerFieldEditor(
+            PreferenceConstants.LIBDMTX_CORRECTIONS,
+            i18n.tr("Corrections:"),
+            getFieldEditorParent());
         correctionsInputField.setValidRange(0, 100);
         addField(correctionsInputField);
-        intFieldMap.put(correctionsInputField.getPreferenceName(),
-            correctionsInputField);
-
-        scanGapDblInput = new DoubleFieldEditor(
-            PreferenceConstants.LIBDMTX_SCAN_GAP_FACTOR, i18n.tr("Decode Scan Gap:"),
-            getFieldEditorParent());
-        scanGapDblInput.setValidRange(0.0, 1.0);
-        addField(scanGapDblInput);
-        dblFieldMap.put(PreferenceConstants.LIBDMTX_SCAN_GAP_FACTOR, scanGapDblInput);
+        intFieldMap.put(correctionsInputField.getPreferenceName(), correctionsInputField);
     }
 
 }
