@@ -370,9 +370,11 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
 
     private void decode() {
         IPreferenceStore prefs = ScannerConfigPlugin.getDefault().getPreferenceStore();
+        final double minEdgeFactor = prefs.getDouble(PreferenceConstants.LIBDMTX_MIN_EDGE_FACTOR);
+        final double maxEdgeFactor = prefs.getDouble(PreferenceConstants.LIBDMTX_MAX_EDGE_FACTOR);
+        final double scanGapFactor = prefs.getDouble(PreferenceConstants.LIBDMTX_SCAN_GAP_FACTOR);
         final int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
         final int edgeThresh = prefs.getInt(PreferenceConstants.LIBDMTX_EDGE_THRESH);
-        final double scanGap = prefs.getDouble(PreferenceConstants.LIBDMTX_SCAN_GAP);
         final int squareDev = prefs.getInt(PreferenceConstants.LIBDMTX_SQUARE_DEV);
         final int corrections = prefs.getInt(PreferenceConstants.LIBDMTX_CORRECTIONS);
         final String filename = imageSourceWidget.getFileName();
@@ -392,7 +394,9 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
                     debugLevel,
                     filename,
                     new DecodeOptions(
-                        scanGap,
+                        minEdgeFactor,
+                        maxEdgeFactor,
+                        scanGapFactor,
                         squareDev,
                         edgeThresh,
                         corrections,

@@ -17,9 +17,13 @@ public class PreferenceConstants {
 
     public static final String SCANNER_DRV_TYPE_TWAIN = "scanner.drvtype.twain";
 
-    public static final String LIBDMTX_EDGE_THRESH = "libdmtx.edge_thresh";
+    public static final String LIBDMTX_MIN_EDGE_FACTOR = "libdmtx.min_edge_factor";
 
-    public static final String LIBDMTX_SCAN_GAP = "libdmtx.scan_gap";
+    public static final String LIBDMTX_MAX_EDGE_FACTOR = "libdmtx.max_edge_factor";
+
+    public static final String LIBDMTX_SCAN_GAP_FACTOR = "libdmtx.scan_gap_factor";
+
+    public static final String LIBDMTX_EDGE_THRESH = "libdmtx.edge_thresh";
 
     public static final String LIBDMTX_SQUARE_DEV = "libdmtx.square_dev";
 

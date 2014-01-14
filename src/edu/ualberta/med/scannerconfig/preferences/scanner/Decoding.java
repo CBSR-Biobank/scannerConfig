@@ -84,11 +84,11 @@ public class Decoding extends FieldEditorPreferencePage implements
             correctionsInputField);
 
         scanGapDblInput = new DoubleFieldEditor(
-            PreferenceConstants.LIBDMTX_SCAN_GAP, i18n.tr("Decode Scan Gap:"),
+            PreferenceConstants.LIBDMTX_SCAN_GAP_FACTOR, i18n.tr("Decode Scan Gap:"),
             getFieldEditorParent());
         scanGapDblInput.setValidRange(0.0, 1.0);
         addField(scanGapDblInput);
-        dblFieldMap.put(PreferenceConstants.LIBDMTX_SCAN_GAP, scanGapDblInput);
+        dblFieldMap.put(PreferenceConstants.LIBDMTX_SCAN_GAP_FACTOR, scanGapDblInput);
     }
 
 }
