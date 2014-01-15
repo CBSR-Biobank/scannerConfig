@@ -2,7 +2,6 @@ package edu.ualberta.med.scannerconfig;
 
 import java.io.File;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -20,6 +19,9 @@ public class FlatbedImageScan {
 
     @SuppressWarnings("nls")
     public static final String FAKE_PALLET_IMAGE_FILE = "fakePlatesImage.bmp";
+
+    @SuppressWarnings("nls")
+    public static final String PALLET_IMAGE_FILE = "platesImage.bmp";
 
     protected ListenerList listenerList = new ListenerList();
 
@@ -42,11 +44,9 @@ public class FlatbedImageScan {
     }
 
     public void cleanAll() {
-        if (!haveFakeFlatbedImage) {
-            File platesFile = new File(FlatbedImageScan.FAKE_PALLET_IMAGE_FILE);
-            if (platesFile.exists()) {
-                platesFile.delete();
-            }
+        File platesFile = new File(FlatbedImageScan.PALLET_IMAGE_FILE);
+        if (platesFile.exists()) {
+            platesFile.delete();
         }
 
         if (scannedImage != null) {
@@ -97,22 +97,27 @@ public class FlatbedImageScan {
         BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
             @Override
             public void run() {
-                if (!haveFakeFlatbedImage) {
+                String filename;
+
+                if (haveFakeFlatbedImage) {
+                    filename = FAKE_PALLET_IMAGE_FILE;
+                } else {
                     final ScanLibResult result = ScanLib.getInstance().scanFlatbed(
-                        debugLevel, PLATE_IMAGE_DPI, brightness, contrast,
-                        FlatbedImageScan.FAKE_PALLET_IMAGE_FILE);
+                        debugLevel,
+                        PLATE_IMAGE_DPI,
+                        brightness,
+                        contrast,
+                        FlatbedImageScan.PALLET_IMAGE_FILE);
 
                     if (result.getResultCode() != ScanLibResult.Result.SUCCESS) {
                         BgcPlugin.openAsyncError(i18n.tr("Scanner error"),
                             result.getMessage());
                         return;
                     }
+                    filename = PALLET_IMAGE_FILE;
                 }
 
-                File file = new File(FAKE_PALLET_IMAGE_FILE);
-                Assert.isTrue(file.exists());
-
-                scannedImage = new BarcodeImage(FAKE_PALLET_IMAGE_FILE, null);
+                scannedImage = new BarcodeImage(filename, null);
                 notifyListeners(true);
             }
         });
