@@ -396,7 +396,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
 
                 Result resultCode = decodeResult.getResultCode();
 
-                log.debug("createDecodeButton: result: {}, tubes decoded: {}",
+                log.debug("decode: result: {}, tubes decoded: {}",
                     resultCode, decodeResult.getDecodedWells().size());
 
                 if (resultCode == Result.SUCCESS) {
