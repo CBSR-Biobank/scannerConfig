@@ -34,8 +34,7 @@ import edu.ualberta.med.scannerconfig.imageregion.PointToRegion;
  */
 public class ImageWithRegionCanvas extends ImageCanvas {
 
-    private static Logger log = LoggerFactory
-        .getLogger(ImageWithRegionCanvas.class.getName());
+    private static Logger log = LoggerFactory.getLogger(ImageWithRegionCanvas.class.getName());
 
     protected BarcodeImage barcodeImage;
 
@@ -63,8 +62,6 @@ public class ImageWithRegionCanvas extends ImageCanvas {
         colorRed = new Color(display, 255, 0, 0);
         colorBlue = new Color(display, 0, 0, 255);
         handleBackgroundColor = new Color(display, 246, 20, 20);
-
-        addListeners();
     }
 
     @Override
@@ -74,7 +71,9 @@ public class ImageWithRegionCanvas extends ImageCanvas {
         handleBackgroundColor.dispose();
     }
 
-    private void addListeners() {
+    @Override
+    protected void addListeners() {
+        super.addListeners();
         addMouseMoveListener(new MouseMoveListener() {
             @Override
             public void mouseMove(MouseEvent e) {
@@ -103,7 +102,6 @@ public class ImageWithRegionCanvas extends ImageCanvas {
             }
 
         });
-        setFocus();
     }
 
     @Override
