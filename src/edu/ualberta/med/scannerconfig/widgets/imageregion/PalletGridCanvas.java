@@ -64,8 +64,7 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
         super(parent);
         cellRectangles = new HashMap<String, CellRectangle>();
         decodedWells = new HashMap<String, DecodedWell>();
-        decodedIconImage = BgcPlugin.getDefault().getImage(
-            BgcPlugin.Image.ACCEPT);
+        decodedIconImage = BgcPlugin.getDefault().getImage(BgcPlugin.Image.ACCEPT);
         decodedIconImageBounds = decodedIconImage.getBounds();
 
         Display display = getDisplay();
