@@ -63,6 +63,9 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         if (IS_MS_WINDOWS) {
             System.loadLibrary("OpenThreadsWin32");
             System.loadLibrary("dmscanlib");
+            System.loadLibrary("opencv_core248");
+            System.loadLibrary("opencv_highgui248");
+            System.loadLibrary("opencv_imgproc248");
         } else if (IS_LINUX && IS_ARCH_64_BIT) {
             System.loadLibrary("dmscanlib64");
         }
