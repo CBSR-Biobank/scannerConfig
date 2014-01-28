@@ -25,7 +25,7 @@ public class ImageFileWidget extends Composite
     @SuppressWarnings("nls")
     private static final String OPEN_FILE_DIALOG_BOX_TITLE = i18n.tr("Open");
 
-    private static final String[] filterExtensions = new String[] { "*.bmp" };
+    private static final String[] FILTER_EXTENSIONS = new String[] { "*.bmp;*.jpg;*.jpeg;*.png" };
 
     private final GridData gridData;
 
@@ -75,7 +75,7 @@ public class ImageFileWidget extends Composite
         FileDialog fileDialog = new FileDialog(PlatformUI.getWorkbench()
             .getActiveWorkbenchWindow().getShell(), SWT.OPEN);
         fileDialog.setText(OPEN_FILE_DIALOG_BOX_TITLE);
-        fileDialog.setFilterExtensions(filterExtensions);
+        fileDialog.setFilterExtensions(FILTER_EXTENSIONS);
         final String path = fileDialog.open();
         return path;
     }
