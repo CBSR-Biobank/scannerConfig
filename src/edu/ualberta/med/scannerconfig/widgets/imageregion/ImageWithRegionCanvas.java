@@ -184,10 +184,10 @@ public class ImageWithRegionCanvas extends ImageCanvas {
     protected void mouseScrolled(MouseEvent e) {
         if ((e.stateMask & SWT.MODIFIER_MASK & SWT.CTRL) == SWT.CTRL) {
             if (e.count >= 0) {
-                // centerZoomIn(e.x, e.y);
+                // centreZoomIn(e.x, e.y);
                 zoomIn();
             } else {
-                // centerZoomOut(e.x, e.y);
+                // centreZoomOut(e.x, e.y);
                 zoomOut();
             }
         }
