@@ -40,7 +40,8 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
         r = scanLib.selectSourceAsDefault();
         Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
-        Rectangle2D.Double region = new Rectangle2D.Double(0, 0, 4, 4);
+        Rectangle2D.Double scanRegion = new Rectangle2D.Double(1, 1, 2, 3);
+        Rectangle2D.Double scanBbox = ScannerConfigPlugin.getWiaBoundingBox(scanRegion);
 
         final int dpi = 300;
         String filename = "tempscan.png";
@@ -49,19 +50,20 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
 
         r = scanLib.scanImage(
             3, dpi,
-            0, 0,
-            region.x,
-            region.y,
-            region.width,
-            region.height,
+            0,
+            0,
+            scanBbox.x,
+            scanBbox.y,
+            scanBbox.width,
+            scanBbox.height,
             filename);
 
         Assert.assertNotNull(r);
         Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
         BufferedImage image = ImageIO.read(new File(filename));
-        Assert.assertEquals(new Double(region.getWidth() * dpi).intValue(), image.getWidth());
-        Assert.assertEquals(new Double(region.getHeight() * dpi).intValue(), image.getHeight());
+        Assert.assertEquals(new Double(scanRegion.getWidth() * dpi).intValue(), image.getWidth());
+        Assert.assertEquals(new Double(scanRegion.getHeight() * dpi).intValue(), image.getHeight());
     }
 
     @Test
@@ -115,19 +117,25 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
         ScanLibResult r = scanLib.isTwainAvailable();
         Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
-        Rectangle2D.Double scanRegion = new Rectangle2D.Double(0.400, 0.265, 4.566, 3.020);
-
+        double x = 0.400;
+        double y = 0.265;
+        double width = 4.566 - x;
+        double height = 3.020 - y;
+        Rectangle2D.Double scanRegion = new Rectangle2D.Double(x, y, width, height);
         Rectangle2D.Double scanBbox = ScannerConfigPlugin.getWiaBoundingBox(scanRegion);
-
         final int dpi = 300;
 
-        Rectangle2D.Double wellsBbox = new Rectangle2D.Double(0, 0, Math.floor(dpi
-            * scanRegion.getWidth()), Math.floor(dpi
-            * scanRegion.getHeight()));
+        Rectangle2D.Double wellsBbox = new Rectangle2D.Double(
+            0,
+            0,
+            Math.floor(dpi * scanRegion.getWidth()),
+            Math.floor(dpi * scanRegion.getHeight()));
 
         Set<CellRectangle> wells = CellRectangle.getCellsForBoundingBox(
-            wellsBbox, PalletOrientation.LANDSCAPE,
-            PalletDimensions.DIM_ROWS_8_COLS_12, BarcodePosition.BOTTOM);
+            wellsBbox,
+            PalletOrientation.LANDSCAPE,
+            PalletDimensions.DIM_ROWS_8_COLS_12,
+            BarcodePosition.BOTTOM);
 
         DecodeResult dr = scanLib.scanAndDecode(
             3, dpi,
