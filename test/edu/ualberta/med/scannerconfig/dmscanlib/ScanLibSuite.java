@@ -5,9 +5,9 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+    TestDmScanLibCommon.class,
     TestDmScanLibLinux.class,
-    TestDmScanLibWindows.class,
-    TestPoint.class,
+    TestDmScanLibWindows.class
 })
 public class ScanLibSuite {
 }

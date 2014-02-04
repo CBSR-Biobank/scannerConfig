@@ -30,7 +30,8 @@ public class TestDmScanLibCommon extends RequiresJniLibraryTest {
     public void decodeImage() throws Exception {
         ScanLib scanLib = ScanLib.getInstance();
 
-        final String fname = System.getProperty("user.dir") + "/testImages/8x12/ohs_pallet.bmp";
+        final String fname = System.getProperty("user.dir")
+            + "/testImages/8x12/scanned_20140203.png";
         File imageFile = new File(fname);
 
         BufferedImage image = ImageIO.read(imageFile);
