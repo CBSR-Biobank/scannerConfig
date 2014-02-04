@@ -8,13 +8,13 @@ import org.junit.Test;
 @SuppressWarnings("nls")
 public class TestDmScanLibLinux extends RequiresJniLibraryTest {
 
-     //private static Logger log = LoggerFactory.getLogger(TestDmScanLibLinux.class);
-     
-     @Before
-     public void beforeMethod() {
-         // this test is valid only when not running on windows
-         Assume.assumeTrue(!LibraryLoader.getInstance().runningMsWindows());        
-     }
+    // private static Logger log = LoggerFactory.getLogger(TestDmScanLibLinux.class);
+
+    @Before
+    public void beforeMethod() {
+        // this test is valid only when not running on windows
+        Assume.assumeTrue(!LibraryLoader.getInstance().runningMsWindows());
+    }
 
     @Test
     public void linuxEmptyImplementationJNI() throws Exception {
@@ -27,7 +27,7 @@ public class TestDmScanLibLinux extends RequiresJniLibraryTest {
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
-        r = scanLib.scanImage(0, 0, 0, 0, null, "tmp.txt");
+        r = scanLib.scanImage(0, 0, 0, 0, 0, 0, 0, 0, "tmp.txt");
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
@@ -35,8 +35,7 @@ public class TestDmScanLibLinux extends RequiresJniLibraryTest {
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 
-        r = scanLib.scanAndDecode(0, 0, 0, 0, null, null,
-            new CellRectangle[] {});
+        r = scanLib.scanAndDecode(0, 0, 0, 0, 0, 0, 0, 0, null, new CellRectangle[] {});
         Assert.assertEquals(ScanLib.SC_FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
     }

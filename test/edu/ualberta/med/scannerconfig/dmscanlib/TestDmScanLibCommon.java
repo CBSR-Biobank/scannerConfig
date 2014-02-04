@@ -1,5 +1,6 @@
 package edu.ualberta.med.scannerconfig.dmscanlib;
 
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Set;
@@ -33,8 +34,11 @@ public class TestDmScanLibCommon extends RequiresJniLibraryTest {
         File imageFile = new File(fname);
 
         BufferedImage image = ImageIO.read(imageFile);
-        BoundingBox imageBbox = new BoundingBox(new Point(0, 0),
-            new Point(image.getWidth(), image.getHeight()));
+        Rectangle2D.Double imageBbox = new Rectangle2D.Double(
+            0,
+            0,
+            image.getWidth(),
+            image.getHeight());
 
         log.debug("image dimensions: {}", imageBbox);
 
@@ -82,8 +86,7 @@ public class TestDmScanLibCommon extends RequiresJniLibraryTest {
 
         // try and invalid filename
         wells = new CellRectangle[] {
-            new CellRectangle("A12", new BoundingBox(new Point(10, 20),
-                new Point(130, 130))),
+            new CellRectangle("A12", new Rectangle2D.Double(10, 20, 120, 110)),
         };
 
         r = scanLib.decodeImage(5, new UUID(128, 256).toString(), decodeOptions, wells);

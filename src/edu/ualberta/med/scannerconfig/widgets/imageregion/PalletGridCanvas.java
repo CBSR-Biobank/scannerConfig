@@ -24,7 +24,6 @@ import edu.ualberta.med.scannerconfig.BarcodeImage;
 import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.PalletDimensions;
 import edu.ualberta.med.scannerconfig.PalletOrientation;
-import edu.ualberta.med.scannerconfig.dmscanlib.BoundingBox;
 import edu.ualberta.med.scannerconfig.dmscanlib.CellRectangle;
 import edu.ualberta.med.scannerconfig.dmscanlib.DecodedWell;
 
@@ -174,11 +173,12 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
 
         cellRectangles.clear();
 
-        BoundingBox boundingBoxInInches = new BoundingBox(
-            getUserRegionInPixels());
-        Set<CellRectangle> cellsInPixels = CellRectangle
-            .getCellsForBoundingBox(boundingBoxInInches, orientation,
-                dimensions, barcodePosition);
+        Rectangle2D.Double boundingBoxInInches = getUserRegionInPixels();
+        Set<CellRectangle> cellsInPixels = CellRectangle.getCellsForBoundingBox(
+            boundingBoxInInches,
+            orientation,
+            dimensions,
+            barcodePosition);
 
         for (CellRectangle cell : cellsInPixels) {
             String label = cell.getLabel();
@@ -262,7 +262,7 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
      * @return
      */
     public Set<CellRectangle> getCellsInPixels() {
-        BoundingBox boundingBox = new BoundingBox(getUserRegionInPixels());
+        Rectangle2D.Double boundingBox = getUserRegionInPixels();
         Set<CellRectangle> cellsInInches = CellRectangle.getCellsForBoundingBox(
             boundingBox,
             orientation,

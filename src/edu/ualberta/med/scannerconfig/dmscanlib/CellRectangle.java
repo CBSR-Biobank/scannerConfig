@@ -41,10 +41,6 @@ public final class CellRectangle implements Comparable<CellRectangle> {
         this.points = rectToPoints(rectangle);
     }
 
-    public CellRectangle(String label, BoundingBox boundingBox) {
-        this(label, boundingBox.getRectangle());
-    }
-
     /*
      * Corner one is where X and Y are minimum then the following corners go in a counter clockwise
      * direction.
@@ -149,7 +145,7 @@ public final class CellRectangle implements Comparable<CellRectangle> {
      */
     @SuppressWarnings("nls")
     public static Set<CellRectangle> getCellsForBoundingBox(
-        final BoundingBox bbox,
+        final Rectangle2D.Double bbox,
         final PalletOrientation orientation,
         final PalletDimensions dimensions,
         final BarcodePosition barcodePosition) {
@@ -174,7 +170,9 @@ public final class CellRectangle implements Comparable<CellRectangle> {
         double cellHeight = 0.9999 * Math.floor(bbox.getHeight()) / rows;
 
         Rectangle2D.Double cellRect = new Rectangle2D.Double(
-            bbox.getCornerX(0), bbox.getCornerY(0), cellWidth, cellHeight);
+            bbox.x,
+            bbox.y,
+            cellWidth, cellHeight);
 
         Set<CellRectangle> cells = new HashSet<CellRectangle>();
         for (int row = 0; row < rows; ++row) {

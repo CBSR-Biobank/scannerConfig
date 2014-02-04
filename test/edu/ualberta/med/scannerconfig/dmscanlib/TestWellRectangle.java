@@ -35,7 +35,7 @@ public class TestWellRectangle {
         Rectangle2D.Double bounds = new Rectangle2D.Double(5, 5, 10, 10);
 
         Set<CellRectangle> rectangleSet = CellRectangle.getCellsForBoundingBox(
-            new BoundingBox(bounds),
+            bounds,
             PalletOrientation.LANDSCAPE,
             PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.TOP);
@@ -57,7 +57,7 @@ public class TestWellRectangle {
         Rectangle2D.Double bounds = new Rectangle2D.Double(0, 0, 10, 10);
 
         Set<CellRectangle> rectangleSet = CellRectangle.getCellsForBoundingBox(
-            new BoundingBox(bounds),
+            bounds,
             PalletOrientation.LANDSCAPE,
             PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.TOP);
@@ -108,7 +108,7 @@ public class TestWellRectangle {
         Rectangle2D.Double bounds = new Rectangle2D.Double(0, 0, 10, 10);
 
         Set<CellRectangle> rectangleSet = CellRectangle.getCellsForBoundingBox(
-            new BoundingBox(bounds),
+            bounds,
             PalletOrientation.PORTRAIT,
             PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.TOP);
@@ -159,7 +159,7 @@ public class TestWellRectangle {
         Rectangle2D.Double bounds = new Rectangle2D.Double(0, 0, 10, 10);
 
         Set<CellRectangle> rectangleSet = CellRectangle.getCellsForBoundingBox(
-            new BoundingBox(bounds),
+            bounds,
             PalletOrientation.LANDSCAPE,
             PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.BOTTOM);
@@ -210,7 +210,7 @@ public class TestWellRectangle {
         Rectangle2D.Double bounds = new Rectangle2D.Double(0, 0, 10, 10);
 
         Set<CellRectangle> rectangleSet = CellRectangle.getCellsForBoundingBox(
-            new BoundingBox(bounds),
+            bounds,
             PalletOrientation.PORTRAIT,
             PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.BOTTOM);

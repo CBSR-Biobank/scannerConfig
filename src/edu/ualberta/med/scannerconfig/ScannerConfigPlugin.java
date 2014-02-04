@@ -1,5 +1,6 @@
 package edu.ualberta.med.scannerconfig;
 
+import java.awt.geom.Rectangle2D;
 import java.net.URL;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -21,8 +22,6 @@ import org.osgi.framework.BundleContext;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
-import edu.ualberta.med.scannerconfig.dmscanlib.BoundingBox;
-import edu.ualberta.med.scannerconfig.dmscanlib.Point;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
@@ -142,7 +141,10 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     public void initialize() {
     }
 
-    public static ScanLibResult.Result scanImage(BoundingBox region, String filename, ScannerDpi dpi) {
+    public static ScanLibResult.Result scanImage(
+        Rectangle2D.Double region,
+        String filename,
+        ScannerDpi dpi) {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
         int brightness = prefs.getInt(PreferenceConstants.SCANNER_BRIGHTNESS);
@@ -150,21 +152,33 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         int debugLevel = prefs.getInt(PreferenceConstants.DLL_DEBUG_LEVEL);
 
         ScanLibResult res = ScanLib.getInstance().scanImage(
-            debugLevel, dpi.getValue(), brightness, contrast, region, filename);
+            debugLevel,
+            dpi.getValue(),
+            brightness,
+            contrast,
+            region.x,
+            region.y,
+            region.width,
+            region.height,
+            filename);
 
         return res.getResultCode();
     }
 
-    public static ScanLibResult.Result scanPlate(ScanPlate scanPlate, String filename,
+    public static ScanLibResult.Result scanPlate(
+        ScanPlate scanPlate,
+        String filename,
         ScannerDpi dpi) {
 
         String[] prefsArr = PreferenceConstants.SCANNER_PALLET_CONFIG[scanPlate.getId() - 1];
 
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
-        BoundingBox region = new BoundingBox(
-            new Point(prefs.getDouble(prefsArr[0]), prefs.getDouble(prefsArr[1])),
-            new Point(prefs.getDouble(prefsArr[2]), prefs.getDouble(prefsArr[3])));
+        Rectangle2D.Double region = new Rectangle2D.Double(
+            prefs.getFloat(prefsArr[0]),
+            prefs.getFloat(prefsArr[1]),
+            prefs.getFloat(prefsArr[2]),
+            prefs.getFloat(prefsArr[3]));
 
         region = regionModifyIfScannerWia(region);
 
@@ -172,23 +186,26 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     }
 
     // bbox here has to start at (0,0)
-    public static BoundingBox getWellsBoundingBox(final BoundingBox scanBbox) {
-        final Point originPt = new Point(0, 0);
-        final Point scanBoxPt1Neg = scanBbox.getCorner(0).scale(-1);
-        return new BoundingBox(originPt, scanBbox.getCorner(1).translate(scanBoxPt1Neg));
+    public static Rectangle2D.Double getWellsBoundingBox(final Rectangle2D.Double scanBbox) {
+        return new Rectangle2D.Double(
+            0,
+            0,
+            scanBbox.width - scanBbox.x,
+            scanBbox.height - scanBbox.y);
     }
 
     /*
      * 
      */
-    public static BoundingBox getWiaBoundingBox(final BoundingBox scanBbox) {
-        final Point scanBoxPt1Neg = scanBbox.getCorner(0).scale(-1);
-        return new BoundingBox(
-            scanBbox.getCorner(0),
-            scanBbox.getCorner(1).translate(scanBoxPt1Neg));
+    public static Rectangle2D.Double getWiaBoundingBox(final Rectangle2D.Double scanBbox) {
+        return new Rectangle2D.Double(
+            scanBbox.x,
+            scanBbox.y,
+            scanBbox.width - scanBbox.x,
+            scanBbox.height - scanBbox.y);
     }
 
-    private static BoundingBox regionModifyIfScannerWia(BoundingBox region) {
+    private static Rectangle2D.Double regionModifyIfScannerWia(Rectangle2D.Double region) {
         if (!ScannerConfigPlugin.getDefault().getPreferenceStore()
             .getString(PreferenceConstants.SCANNER_DRV_TYPE)
             .equals(PreferenceConstants.SCANNER_DRV_TYPE_WIA)) {
