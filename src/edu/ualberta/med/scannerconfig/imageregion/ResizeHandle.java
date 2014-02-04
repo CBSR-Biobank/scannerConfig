@@ -10,6 +10,7 @@ import java.util.Map;
  * @author loyola
  * 
  */
+@SuppressWarnings("nls")
 enum ResizeHandle {
     NORTH_WEST(PointToRegion.IN_HANDLE_NORTH_WEST),
     NORTH(PointToRegion.IN_HANDLE_NORTH),

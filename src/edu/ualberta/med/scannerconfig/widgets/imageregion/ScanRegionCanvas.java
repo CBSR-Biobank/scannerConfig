@@ -28,6 +28,7 @@ public class ScanRegionCanvas extends ImageWithRegionCanvas {
 
     protected boolean regionEnabled = false;
 
+    @SuppressWarnings("nls")
     public ScanRegionCanvas(Composite parent, IScanRegionWidget parentWidget) {
         super(parent);
         if (parentWidget == null) {
@@ -83,6 +84,7 @@ public class ScanRegionCanvas extends ImageWithRegionCanvas {
      * 
      * @param setting When {@link true} then the scan region is enabled. It is disabled otherwise.
      */
+    @SuppressWarnings("nls")
     public void enableRegion() {
         log.trace("enableRegion");
         regionEnabled = true;
@@ -94,6 +96,7 @@ public class ScanRegionCanvas extends ImageWithRegionCanvas {
      * Called by parent widget when to disable the scan region.
      * 
      */
+    @SuppressWarnings("nls")
     public void disableRegion() {
         log.trace("disableRegion");
         regionEnabled = false;

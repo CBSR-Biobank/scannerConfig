@@ -14,6 +14,7 @@ import org.xnap.commons.i18n.I18nFactory;
  * @author nelson
  * 
  */
+@SuppressWarnings("nls")
 public enum PalletOrientation {
     LANDSCAPE("Landscape", Constants.i18n.tr("Landscape")),
     PORTRAIT("Portrait", Constants.i18n.tr("Portrait"));

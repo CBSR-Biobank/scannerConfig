@@ -7,6 +7,7 @@ import java.util.Map;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+@SuppressWarnings("nls")
 public enum ImageSource {
     FLATBED_SCANNER_PLATE_1(
         "FLATBED_SCANNER_PLATE_1",

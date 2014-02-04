@@ -104,6 +104,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
         });
     }
 
+    @SuppressWarnings("nls")
     @Override
     protected void paint(GC gc) {
         if (barcodeImage == null) {
@@ -158,6 +159,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
     /**
      * Called by parent widget when a new flatbed image is available.
      */
+    @SuppressWarnings("nls")
     protected void updateImage(BarcodeImage barcodeImage) {
         if (barcodeImage == null) {
             throw new IllegalArgumentException("barcode image is null");
@@ -224,6 +226,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
     /*
      * Called when the user is dragging the mouse over the canvas.
      */
+    @SuppressWarnings("nls")
     @Override
     protected void mouseDrag(MouseEvent e) {
         Point2D.Double mouseInRegion = canvasPointToRegion(e.x, e.y);
@@ -278,6 +281,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
     /*
      * Called when the user moves the mouse.
      */
+    @SuppressWarnings("nls")
     private void mouseMove(MouseEvent e) {
         if (getSourceImage() == null)
             return;
@@ -335,6 +339,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
         // log.debug("mouseMove: drag region: {}", dragRegion);
     }
 
+    @SuppressWarnings("nls")
     protected void keyPressed(KeyEvent e) {
         if (getSourceImage() == null)
             return;
@@ -366,6 +371,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
      * 
      * @return
      */
+    @SuppressWarnings("nls")
     public Rectangle2D.Double getUserRegionInPixels() {
         if (barcodeImage == null) {
             throw new IllegalStateException("image is null");
@@ -400,6 +406,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
      *            of inches.
      * @return Returns true if the region lies within the image.
      */
+    @SuppressWarnings("nls")
     public boolean setUserRegionInInches(Rectangle2D.Double region) {
         if (barcodeImage == null) {
             throw new IllegalStateException("barcodeImage is null");

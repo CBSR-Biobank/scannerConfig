@@ -86,6 +86,7 @@ public class PalletGridWidget extends Composite {
         return infoLabel;
     }
 
+    @SuppressWarnings("nls")
     private String getImageInfoText(BarcodeImage image) {
         StringBuffer buf = new StringBuffer();
         String basename = image.getBasename();
@@ -192,6 +193,7 @@ public class PalletGridWidget extends Composite {
      * 
      * @param decodedWells
      */
+    @SuppressWarnings("nls")
     public boolean setDecodedWells(Set<DecodedWell> wells, ScanMode scanMode) {
         switch (scanMode) {
         case SCAN:

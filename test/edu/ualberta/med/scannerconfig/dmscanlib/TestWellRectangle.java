@@ -16,6 +16,7 @@ import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.PalletDimensions;
 import edu.ualberta.med.scannerconfig.PalletOrientation;
 
+@SuppressWarnings("nls")
 public class TestWellRectangle {
 
     private static Logger log = LoggerFactory.getLogger(TestWellRectangle.class);

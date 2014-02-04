@@ -34,6 +34,7 @@ public class PalletOrientationWidget extends GroupedRadioSelectionWidget<PalletO
         SELECTIONS_MAP = Collections.unmodifiableMap(map);
     }
 
+    @SuppressWarnings("nls")
     public PalletOrientationWidget(Composite parent, PalletOrientation initialValue) {
         super(parent, i18n.tr("Pallet orientation"), SELECTIONS_MAP, initialValue);
     }

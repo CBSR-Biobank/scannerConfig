@@ -95,6 +95,7 @@ public final class CellRectangle implements Comparable<CellRectangle> {
         return new Rectangle2D.Double(r.getX(), r.getY(), r.getWidth(), r.getHeight());
     }
 
+    @SuppressWarnings("nls")
     private Point2D.Double getPoint(int pointId) {
         Point2D.Double point = points.get(pointId);
         if (point == null) {
@@ -146,6 +147,7 @@ public final class CellRectangle implements Comparable<CellRectangle> {
      * @return The grid cells.
      * @note The units are in inches.
      */
+    @SuppressWarnings("nls")
     public static Set<CellRectangle> getCellsForBoundingBox(
         final BoundingBox bbox,
         final PalletOrientation orientation,
@@ -188,6 +190,7 @@ public final class CellRectangle implements Comparable<CellRectangle> {
         return cells;
     }
 
+    @SuppressWarnings("nls")
     private static String getLabelForPosition(
         int row,
         int col,

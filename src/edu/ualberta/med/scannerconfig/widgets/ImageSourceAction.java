@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@SuppressWarnings("nls")
 public enum ImageSourceAction {
     SCAN(1),
     RESCAN(2),
@@ -24,8 +25,8 @@ public enum ImageSourceAction {
         for (ImageSourceAction enumValue : values()) {
             ImageSourceAction check = map.get(enumValue.getId());
             if (check != null) {
-                throw new IllegalStateException("scan plate value "
-                    + enumValue.getId() + " used multiple times");
+                throw new IllegalStateException(
+                    "scan plate value " + enumValue.getId() + " used multiple times");
             }
 
             map.put(enumValue.getId(), enumValue);

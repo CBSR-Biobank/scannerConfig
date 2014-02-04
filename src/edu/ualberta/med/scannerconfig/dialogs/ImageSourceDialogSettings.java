@@ -19,8 +19,10 @@ public class ImageSourceDialogSettings {
 
     private static Logger log = LoggerFactory.getLogger(ImageSourceDialogSettings.class);
 
+    @SuppressWarnings("nls")
     private static final String LAST_USED_IMAGE_SOURCE_KEY = "DecodePlateDialogSettings.last.image.source.";
 
+    @SuppressWarnings("nls")
     private static final String DECODE_PLATE_SETTINGS_KEY = "DecodePlateDialogSettings.plate.settings.";
 
     private final IDialogSettings dialogSettings;
@@ -45,6 +47,7 @@ public class ImageSourceDialogSettings {
      * Restores the settings from the dialog's settings store. If the settings store does not have a
      * value for a setting then the default values are assigned.
      */
+    @SuppressWarnings("nls")
     public void restore() {
         imageSource = restoreImageSource();
 
@@ -66,6 +69,7 @@ public class ImageSourceDialogSettings {
     /**
      * Saves the settings to the dialog's setting store.
      */
+    @SuppressWarnings("nls")
     public void save() {
         saveImageSource(getImageSource());
         for (ImageSourceSettings settings : imageSourceSettings.values()) {

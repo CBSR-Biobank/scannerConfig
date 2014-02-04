@@ -29,6 +29,7 @@ public class ScannerDpiWidget extends GroupedRadioSelectionWidget<ScannerDpi> {
         SELECTIONS_MAP = Collections.unmodifiableMap(map);
     }
 
+    @SuppressWarnings("nls")
     public ScannerDpiWidget(Composite parent, ScannerDpi initialValue) {
         super(parent, i18n.tr("DPI"), SELECTIONS_MAP, initialValue);
     }

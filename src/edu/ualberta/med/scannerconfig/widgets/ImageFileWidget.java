@@ -25,7 +25,8 @@ public class ImageFileWidget extends Composite
     @SuppressWarnings("nls")
     private static final String OPEN_FILE_DIALOG_BOX_TITLE = i18n.tr("Open");
 
-    private static final String[] FILTER_EXTENSIONS = new String[] { "*.bmp;*.jpg;*.jpeg;*.png" };
+    @SuppressWarnings("nls")
+    private static final String[] FILTER_EXTENSIONS = new String[] { "*.jpg;*.jpeg;*.png;*.bmp" };
 
     private final GridData gridData;
 
@@ -49,6 +50,7 @@ public class ImageFileWidget extends Composite
         createLoadFileButton();
     }
 
+    @SuppressWarnings("nls")
     private Button createLoadFileButton() {
         Button button = new Button(this, SWT.PUSH);
         button.setText(i18n.tr("Open File"));

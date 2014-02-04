@@ -114,6 +114,7 @@ public class ImageSourceSettings {
         return result;
     }
 
+    @SuppressWarnings("nls")
     public static ImageSourceSettings getFromSettingsStringArray(ImageSource source, String[] values) {
         if ((values == null) || (values.length != STRING_ARRAY_NUM_ITEMS)) {
             throw new IllegalStateException("invalid length for grid rectangle settings");

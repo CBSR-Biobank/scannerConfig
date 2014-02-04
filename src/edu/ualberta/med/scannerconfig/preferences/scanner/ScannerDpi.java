@@ -7,6 +7,7 @@ import java.util.Map;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+@SuppressWarnings("nls")
 public enum ScannerDpi {
     DPI_UNKNOWN(0, Constants.i18n.tr("Unknown")),
     DPI_300(300, Constants.i18n.tr("300")),

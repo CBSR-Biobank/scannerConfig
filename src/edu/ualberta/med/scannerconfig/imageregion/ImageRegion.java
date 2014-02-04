@@ -41,6 +41,7 @@ public class ImageRegion {
      * @param region a rectangle containing the dimensions of the scanning region that is contained
      *            within the flatbed image.
      */
+    @SuppressWarnings("nls")
     public ImageRegion(Rectangle2D.Double imageBounds, Rectangle2D.Double region) {
         this.imageBounds = imageBounds;
         if (!this.imageBounds.contains(region)) {

@@ -142,7 +142,6 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
     public void initialize() {
     }
 
-    @SuppressWarnings("nls")
     public static ScanLibResult.Result scanImage(BoundingBox region, String filename, ScannerDpi dpi) {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
@@ -156,7 +155,6 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         return res.getResultCode();
     }
 
-    @SuppressWarnings("nls")
     public static ScanLibResult.Result scanPlate(ScanPlate scanPlate, String filename,
         ScannerDpi dpi) {
 

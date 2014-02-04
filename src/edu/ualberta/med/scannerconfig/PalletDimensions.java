@@ -15,6 +15,7 @@ import org.xnap.commons.i18n.I18nFactory;
  * @author loyola
  * 
  */
+@SuppressWarnings("nls")
 public enum PalletDimensions {
 
     DIM_ROWS_8_COLS_12(

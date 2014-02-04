@@ -72,6 +72,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         RESCAN;
     }
 
+    @SuppressWarnings("nls")
     private static final String SCANNING_DIALOG_SETTINGS =
         DecodeImageDialog.class.getSimpleName() + "_SETTINGS";
 
@@ -80,6 +81,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
     @SuppressWarnings("nls")
     private static final String TITLE = i18n.tr("Decode pallet");
 
+    @SuppressWarnings("nls")
     private static final String TITLE_AREA_MESSAGE_SELECT_PLATE =
         i18n.tr("Select the options to match the image you are decoding");
 
@@ -91,9 +93,11 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
     private static final String TITLE_AREA_MESSAGE_DECODING_COMPLETED =
         i18n.tr("Decoding completed.");
 
+    @SuppressWarnings("nls")
     private static final String PROGRESS_MESSAGE_SCANNING =
         i18n.tr("Retrieving image from the flatbed scanner...");
 
+    @SuppressWarnings("nls")
     private static final String PROGRESS_MESSAGE_DECODING =
         i18n.tr("Decoding barcodes in image...");
 
@@ -188,6 +192,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         decodeButton.setEnabled(false);
     }
 
+    @SuppressWarnings("nls")
     private Button createDecodeButton(Composite parent) {
         Button button = new Button(parent, SWT.PUSH);
         button.setText(i18n.tr("Decode"));
@@ -210,6 +215,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         plateGridWidget = new PalletGridWidget(parent);
     }
 
+    @SuppressWarnings("nls")
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
         createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
@@ -225,6 +231,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
      * edu.ualberta.med.biobank.gui.common.events.SelectionListener#widgetSelected(edu.ualberta.
      * med.biobank.gui.common.widgets.Event)
      */
+    @SuppressWarnings("nls")
     @Override
     public void widgetSelected(Event e) {
         ImageSourceAction imageSourceAction = ImageSourceAction.getFromId(e.detail);
@@ -279,6 +286,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         }
     }
 
+    @SuppressWarnings("nls")
     private void scanPlate(Event e) {
         final ImageSource imageSource = (ImageSource) e.data;
         final ScanPlate plateToScan = imageSource.getScanPlate();
@@ -323,6 +331,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         }
     }
 
+    @SuppressWarnings("nls")
     private void loadFile(String filename, ImageSource imageSource) {
         setMessage(TITLE_AREA_MESSAGE_ADJUST_GRID, IMessageProvider.NONE);
         imageToDecode = new BarcodeImage(filename, imageSource);
@@ -359,6 +368,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         plateGridWidget.removeDecodeInfo();
     }
 
+    @SuppressWarnings("nls")
     private void decode() {
         IPreferenceStore prefs = ScannerConfigPlugin.getDefault().getPreferenceStore();
         final double minEdgeFactor = prefs.getDouble(PreferenceConstants.LIBDMTX_MIN_EDGE_FACTOR);
@@ -426,6 +436,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         }
     }
 
+    @SuppressWarnings("nls")
     private void saveGridRectangle() {
         if (imageToDecode != null) {
             Rectangle2D.Double gridRegion = plateGridWidget.getUserRegionInInches();
@@ -436,6 +447,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         }
     }
 
+    @SuppressWarnings("nls")
     @Override
     protected void okPressed() {
         if (imageToDecode != null) {

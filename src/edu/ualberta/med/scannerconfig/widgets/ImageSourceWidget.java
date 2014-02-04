@@ -52,8 +52,10 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
     @SuppressWarnings("unused")
     private static Logger log = LoggerFactory.getLogger(ImageSourceWidget.class.getName());
 
+    @SuppressWarnings("nls")
     private static final String SCANNED_FILE_FILE_NAME_FORMAT = "plate_scan__%d.bmp";
 
+    @SuppressWarnings("nls")
     private static final String FAKE_SCANNED_IMAGE_FILE_NAME = "fakeScannedImage.bmp";
 
     private final Map<ImageSource, String> imageSourceSelections;
@@ -101,6 +103,7 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
      * @param cameraPositionInitVal The initial value for the camera position. See
      *            {@link BarcodePosition} for possible values.
      */
+    @SuppressWarnings("nls")
     public ImageSourceWidget(
         Composite parent,
         int minWidth,
@@ -204,6 +207,7 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         return widget;
     }
 
+    @SuppressWarnings("nls")
     private ComboViewer createPlateDimensionsWidget(
         Composite parent,
         PalletDimensions defaultSelection) {
@@ -315,6 +319,7 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         return widget;
     }
 
+    @SuppressWarnings("nls")
     private Composite createScanningButtons() {
         Composite composite = new Composite(this, SWT.NONE);
         composite.setLayout(new GridLayout(2, false));
@@ -376,6 +381,7 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         return map;
     }
 
+    @SuppressWarnings("nls")
     @Override
     public void widgetSelected(SelectionEvent e) {
         // tell parent

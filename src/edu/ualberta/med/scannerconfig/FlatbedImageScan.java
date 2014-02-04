@@ -31,7 +31,6 @@ public class FlatbedImageScan {
     // used for debugging in Linux
     private final boolean haveFakeFlatbedImage;
 
-    @SuppressWarnings("nls")
     public FlatbedImageScan() {
         // When debug is on, use a fake image if the file exits
         if (ScannerConfigPlugin.getDefault().isDebugging()) {

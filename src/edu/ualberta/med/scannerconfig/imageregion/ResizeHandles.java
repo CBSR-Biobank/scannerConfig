@@ -81,6 +81,7 @@ class ResizeHandles {
         return PointToRegion.OUTSIDE_REGION;
     }
 
+    @SuppressWarnings("nls")
     Rectangle2D.Double getResizeHandleRect(ResizeHandle handle) {
         AffineTransform transform = handleTransforms.get(handle);
         if (transform == null) {

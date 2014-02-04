@@ -14,6 +14,7 @@ import org.xnap.commons.i18n.I18nFactory;
  * @author loyola
  * 
  */
+@SuppressWarnings("nls")
 public enum ScanPlate {
     PLATE_1(1, Constants.i18n.tr("Plate 1")),
     PLATE_2(2, Constants.i18n.tr("Plate 2")),

@@ -260,6 +260,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         }
     }
 
+    @SuppressWarnings("nls")
     private void internalUpdate(Rectangle2D.Double region) {
         log.trace("internalUpdate: plate: {}", region);
 
@@ -303,6 +304,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         return super.performOk();
     }
 
+    @SuppressWarnings("nls")
     @Override
     public void imageAvailable(BarcodeImage image) {
         if (image == null) {

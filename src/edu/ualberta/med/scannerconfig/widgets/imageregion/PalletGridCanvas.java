@@ -96,6 +96,7 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
         a1BackgroundColor.dispose();
     }
 
+    @SuppressWarnings("nls")
     @Override
     protected void paint(GC gc) {
         if (barcodeImage == null) {
@@ -202,6 +203,7 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
         udpateCellRectangles();
     }
 
+    @SuppressWarnings("nls")
     private void mouseHover(MouseEvent e) {
         Point2D.Double mousePointInInches = canvasPointToRegion(e.x, e.y);
         CellRectangle cell = getObjectAtCoordinates(mousePointInInches.x,

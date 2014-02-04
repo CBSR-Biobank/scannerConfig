@@ -34,6 +34,7 @@ public class BarcodePositionWidget extends GroupedRadioSelectionWidget<BarcodePo
         SELECTIONS_MAP = Collections.unmodifiableMap(map);
     }
 
+    @SuppressWarnings("nls")
     public BarcodePositionWidget(Composite parent, BarcodePosition initialValue) {
         super(parent, i18n.tr("Barcode position"), SELECTIONS_MAP, initialValue);
     }

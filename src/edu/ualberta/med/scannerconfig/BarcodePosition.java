@@ -16,6 +16,7 @@ import org.xnap.commons.i18n.I18nFactory;
  * @author loyola
  * 
  */
+@SuppressWarnings("nls")
 public enum BarcodePosition {
     TOP("BARCODE_POSITION_ABOVE", Constants.i18n.tr("Tube tops")),
     BOTTOM("BARCODE_POSITION_BELOW", Constants.i18n.tr("Tube bottoms"));

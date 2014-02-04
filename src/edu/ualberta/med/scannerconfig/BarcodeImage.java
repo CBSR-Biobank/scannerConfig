@@ -43,6 +43,7 @@ public class BarcodeImage {
      *            scanning region then this value can be null.
      * @throws FileNotFoundException
      */
+    @SuppressWarnings("nls")
     public BarcodeImage(String filename, ImageSource imageSource) {
         this.filename = filename;
         image = new Image(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay(),
@@ -88,6 +89,7 @@ public class BarcodeImage {
      * 
      * @return a Pair, the left contains the width and the right the height in inches.
      */
+    @SuppressWarnings("nls")
     private Pair<Double, Double> getDimensionsInInches() {
         if (dpi == 0) {
             throw new IllegalStateException("invalid dpi");
