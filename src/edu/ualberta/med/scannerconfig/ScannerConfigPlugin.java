@@ -175,13 +175,12 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
         IPreferenceStore prefs = getDefault().getPreferenceStore();
 
         Rectangle2D.Double region = new Rectangle2D.Double(
-            prefs.getFloat(prefsArr[0]),
             prefs.getFloat(prefsArr[1]),
             prefs.getFloat(prefsArr[2]),
-            prefs.getFloat(prefsArr[3]));
+            prefs.getFloat(prefsArr[3]),
+            prefs.getFloat(prefsArr[4]));
 
         region = regionModifyIfScannerWia(region);
-
         return scanImage(region, filename, dpi);
     }
 

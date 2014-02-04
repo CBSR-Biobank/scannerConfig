@@ -154,9 +154,12 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
      * @param barcodePosition the location of the barcode on a tube
      * @param imageSource
      */
-    public void updateImage(BarcodeImage image,
-        Rectangle2D.Double gridRectangle, PalletOrientation orientation,
-        PalletDimensions dimensions, BarcodePosition barcodePosition) {
+    public void updateImage(
+        BarcodeImage image,
+        Rectangle2D.Double gridRectangle,
+        PalletOrientation orientation,
+        PalletDimensions dimensions,
+        BarcodePosition barcodePosition) {
 
         setOrientation(orientation);
         setDimensions(dimensions);

@@ -57,6 +57,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     @SuppressWarnings("nls")
     private enum Settings {
+        NAME(i18n.tr("Name")),
         LEFT(i18n.tr("Left")),
         TOP(i18n.tr("Top")),
         RIGHT(i18n.tr("Right")),
@@ -208,24 +209,29 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
         int count = 0;
         for (Settings setting : Settings.values()) {
-            fe = new DoubleFieldEditor(prefsArr[count], setting + ":", parent);
-            ((DoubleFieldEditor) fe).setValidRange(0, 20);
+            if (setting == Settings.NAME) {
+                fe = new StringFieldEditor(prefsArr[count], setting + ":", parent);
+            } else {
+                fe = new DoubleFieldEditor(prefsArr[count], setting + ":", parent);
+                ((DoubleFieldEditor) fe).setValidRange(0, 20);
+            }
             addField(fe);
             Text text = fe.getTextControl(parent);
             plateTextControls.put(setting, text);
             plateFieldEditors.put(setting, fe);
 
-            text.addModifyListener(new ModifyListener() {
-                @Override
-                public void modifyText(ModifyEvent e) {
-                    if (flatbedImage != null) {
-                        if (!internalUpdate) {
-                            scanRegionDimensionsUpdated();
+            if (setting != Settings.NAME) {
+                text.addModifyListener(new ModifyListener() {
+                    @Override
+                    public void modifyText(ModifyEvent e) {
+                        if (flatbedImage != null) {
+                            if (!internalUpdate) {
+                                scanRegionDimensionsUpdated();
+                            }
                         }
                     }
-                }
-
-            });
+                });
+            }
             ++count;
         }
     }
@@ -262,7 +268,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     @SuppressWarnings("nls")
     private void internalUpdate(Rectangle2D.Double region) {
-        log.trace("internalUpdate: plate: {}", region);
+        log.debug("internalUpdate: plate: {}", region);
 
         internalUpdate = true;
         plateTextControls.get(Settings.LEFT).setText(String.valueOf(region.x));
@@ -346,10 +352,14 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         statusLabel.setText(SCAN_REQ_STATUS_MSG);
     }
 
+    @SuppressWarnings("nls")
     @Override
     public void scanRegionChanged(Rectangle2D.Double region) {
         statusLabel.setText(ALIGN_STATUS_MSG);
-        internalUpdate(rectangleToInches(FlatbedImageScan.PLATE_IMAGE_DPI, region));
+        Rectangle2D.Double regionInInches = rectangleToInches(FlatbedImageScan.PLATE_IMAGE_DPI, region);
+        log.debug("scanRegionChanged: region in pixels: {}", region);
+        log.debug("scanRegionChanged: region in inches: {}", regionInInches);
+        internalUpdate(regionInInches);
     }
 
     private void scanRegionDimensionsUpdated() {
@@ -370,8 +380,8 @@ public class PlateSettings extends FieldEditorPreferencePage implements
 
     private Rectangle2D.Double rectangleToInches(final int dpi, final Rectangle2D.Double rectangle) {
         AffineTransform scaleTransform = AffineTransform.getScaleInstance(dpi, dpi);
-        Rectangle2D.Double rectangleInInches = Swt2DUtil.inverseTransformRect(
-            scaleTransform, rectangle);
+        Rectangle2D.Double rectangleInInches =
+            Swt2DUtil.inverseTransformRect(scaleTransform, rectangle);
         return rectangleInInches;
     }
 

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -35,6 +36,7 @@ import edu.ualberta.med.scannerconfig.ScanPlate;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
 import edu.ualberta.med.scannerconfig.dialogs.ImageSourceDialogSettings;
 import edu.ualberta.med.scannerconfig.dialogs.ImageSourceSettings;
+import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
 import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
 
 /**
@@ -365,13 +367,28 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         return barcodePositionWidget.getSelection();
     }
 
+    @SuppressWarnings("nls")
     private Map<ImageSource, String> getImageSources() {
         Map<ImageSource, String> map = new LinkedHashMap<ImageSource, String>();
 
+        IPreferenceStore prefs = ScannerConfigPlugin.getDefault().getPreferenceStore();
+
         for (ImageSource source : ImageSource.values()) {
             if (source != ImageSource.FILE) {
-                if (ScannerConfigPlugin.getDefault().getPlateEnabled(source.getScanPlate())) {
-                    map.put(source, source.getDisplayLabel());
+                ScanPlate scanPlate = source.getScanPlate();
+                if (ScannerConfigPlugin.getDefault().getPlateEnabled(scanPlate)) {
+
+                    String[] prefsArr =
+                        PreferenceConstants.SCANNER_PALLET_CONFIG[scanPlate.getId() - 1];
+                    String plateName = prefs.getString(prefsArr[0]);
+
+                    StringBuffer buf = new StringBuffer();
+                    buf.append(source.getDisplayLabel());
+                    if (!plateName.isEmpty()) {
+                        buf.append(": ");
+                        buf.append(plateName);
+                    }
+                    map.put(source, buf.toString());
                 }
             }
         }

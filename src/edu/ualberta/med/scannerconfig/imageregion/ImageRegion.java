@@ -39,7 +39,7 @@ public class ImageRegion {
      * 
      * @param imageBounds a rectangle cotanining the dimensions of the flatbed in pixels.
      * @param region a rectangle containing the dimensions of the scanning region that is contained
-     *            within the flatbed image.
+     *            within the flatbed image (in pixels).
      */
     @SuppressWarnings("nls")
     public ImageRegion(Rectangle2D.Double imageBounds, Rectangle2D.Double region) {
@@ -143,8 +143,12 @@ public class ImageRegion {
      * Used to adjust the right or bottom edges of the user region. Adjusts the distance to change
      * by according to the current translation, size and maximum size of the region.
      */
-    private double resizeEdge(double distance, double translation, double currentSize,
+    private double resizeEdge(
+        double distance,
+        double translation,
+        double currentSize,
         double maxSize) {
+
         double possibleEdge = translation + currentSize + distance;
 
         if (possibleEdge > maxSize) {

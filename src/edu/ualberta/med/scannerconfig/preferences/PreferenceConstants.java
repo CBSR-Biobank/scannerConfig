@@ -37,26 +37,41 @@ public class PreferenceConstants {
         "scanner.plate.coords.enabled.5" };
 
     public static final String[][] SCANNER_PALLET_CONFIG = {
-        { "scanner.plate.coords.left.1", "scanner.plate.coords.top.1",
-            "scanner.plate.coords.right.1", "scanner.plate.coords.bottom.1",
-            "scanner.plate.coords.gapx.1", "scanner.plate.coords.gapy.1" },
-
-        { "scanner.plate.coords.left.2", "scanner.plate.coords.top.2",
-            "scanner.plate.coords.right.2", "scanner.plate.coords.bottom.2",
-            "scanner.plate.coords.gapx.2", "scanner.plate.coords.gapy.2" },
-
-        { "scanner.plate.coords.left.3", "scanner.plate.coords.top.3",
-            "scanner.plate.coords.right.3", "scanner.plate.coords.bottom.3",
-            "scanner.plate.coords.gapx.3", "scanner.plate.coords.gapy.3" },
-
-        { "scanner.plate.coords.left.4", "scanner.plate.coords.top.4",
-            "scanner.plate.coords.right.4", "scanner.plate.coords.bottom.4",
-            "scanner.plate.coords.gapx.4", "scanner.plate.coords.gapy.4" },
-
-        { "scanner.plate.coords.left.5", "scanner.plate.coords.top.5",
-            "scanner.plate.coords.right.5", "scanner.plate.coords.bottom.5",
-            "scanner.plate.coords.gapx.5", "scanner.plate.coords.gapy.5" } };
-
-    public static final String SCANNER_PLATE_SHOW_BARCODE_PREF = "scanner.plate.show.barcode.pref";
+        {
+            "scanner.plate.coords.name.1",
+            "scanner.plate.coords.left.1",
+            "scanner.plate.coords.top.1",
+            "scanner.plate.coords.right.1",
+            "scanner.plate.coords.bottom.1"
+    },
+        {
+            "scanner.plate.coords.name.2",
+            "scanner.plate.coords.left.2",
+            "scanner.plate.coords.top.2",
+            "scanner.plate.coords.right.2",
+            "scanner.plate.coords.bottom.2"
+    },
+        {
+            "scanner.plate.coords.name.3",
+            "scanner.plate.coords.left.3",
+            "scanner.plate.coords.top.3",
+            "scanner.plate.coords.right.3",
+            "scanner.plate.coords.bottom.3"
+    },
+        {
+            "scanner.plate.coords.name.4",
+            "scanner.plate.coords.left.4",
+            "scanner.plate.coords.top.4",
+            "scanner.plate.coords.right.4",
+            "scanner.plate.coords.bottom.4"
+    },
+        {
+            "scanner.plate.coords.name.5",
+            "scanner.plate.coords.left.5",
+            "scanner.plate.coords.top.5",
+            "scanner.plate.coords.right.5",
+            "scanner.plate.coords.bottom.5"
+    },
+    };
 
 }

@@ -233,7 +233,9 @@ public class ImageWithRegionCanvas extends ImageCanvas {
         double dx = mouseInRegion.x - lastMousePosInRegion.x;
         double dy = mouseInRegion.y - lastMousePosInRegion.y;
 
-        log.trace("mousemove: dragMode: {}", dragRegion);
+        // log.debug("mousemove: mouse pos: x: {}, y: {}", e.x, e.y);
+        // log.debug("mousemove: mouseInRegion: {}", mouseInRegion);
+        // log.debug("mousemove: dragMode: {}", dragRegion);
 
         switch (dragRegion) {
         case OUTSIDE_REGION:
