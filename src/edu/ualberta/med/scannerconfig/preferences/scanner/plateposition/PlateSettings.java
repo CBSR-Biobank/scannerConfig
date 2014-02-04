@@ -312,9 +312,9 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         }
 
         this.flatbedImage = image;
-        final int dpi = image.getDpi().getValue();
         Rectangle2D.Double imageRectangle = image.getRectangle();
-        Rectangle2D.Double imageRectangleInches = rectangleToInches(dpi, imageRectangle);
+        Rectangle2D.Double imageRectangleInches =
+            rectangleToInches(FlatbedImageScan.PLATE_IMAGE_DPI, imageRectangle);
 
         statusLabel.setText(ALIGN_STATUS_MSG);
 
@@ -323,7 +323,8 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.RIGHT)).setValidRange(0, imageRectangleInches.width);
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.BOTTOM)).setValidRange(0, imageRectangleInches.height);
 
-        Rectangle2D.Double plateRegionPixels = rectangleToPixels(dpi, getPlateRegionInches());
+        Rectangle2D.Double plateRegionPixels =
+            rectangleToPixels(FlatbedImageScan.PLATE_IMAGE_DPI, getPlateRegionInches());
 
         canvas.updateImage(image, plateRegionPixels);
 
@@ -348,7 +349,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     @Override
     public void scanRegionChanged(Rectangle2D.Double region) {
         statusLabel.setText(ALIGN_STATUS_MSG);
-        internalUpdate(rectangleToInches(flatbedImage.getDpi().getValue(), region));
+        internalUpdate(rectangleToInches(FlatbedImageScan.PLATE_IMAGE_DPI, region));
     }
 
     private void scanRegionDimensionsUpdated() {

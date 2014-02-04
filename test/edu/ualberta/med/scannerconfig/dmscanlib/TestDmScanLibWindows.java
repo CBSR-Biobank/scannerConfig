@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.ualberta.med.scannerconfig.BarcodePosition;
-import edu.ualberta.med.scannerconfig.ImageInfo;
 import edu.ualberta.med.scannerconfig.PalletDimensions;
 import edu.ualberta.med.scannerconfig.PalletOrientation;
 import edu.ualberta.med.scannerconfig.ScannerConfigPlugin;
@@ -38,10 +37,13 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
         ScanLibResult r = scanLib.isTwainAvailable();
         Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
+        r = scanLib.selectSourceAsDefault();
+        Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
+
         Rectangle2D.Double region = new Rectangle2D.Double(0, 0, 4, 4);
 
         final int dpi = 300;
-        String filename = "tempscan.bmp";
+        String filename = "tempscan.png";
         File file = new File(filename);
         file.delete(); // dont care if file doesn't exist
 
@@ -57,14 +59,9 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
         Assert.assertNotNull(r);
         Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
-        File imageFile = new File(filename);
-        Assert.assertTrue(Math.abs(dpi - ImageInfo.getImageDpi(imageFile)) <= 1);
-
-        BufferedImage image = ImageIO.read(imageFile);
-        Assert.assertEquals(new Double(region.getWidth() * dpi).intValue(),
-            image.getWidth());
-        Assert.assertEquals(new Double(region.getHeight() * dpi).intValue(),
-            image.getHeight());
+        BufferedImage image = ImageIO.read(new File(filename));
+        Assert.assertEquals(new Double(region.getWidth() * dpi).intValue(), image.getWidth());
+        Assert.assertEquals(new Double(region.getHeight() * dpi).intValue(), image.getHeight());
     }
 
     @Test
@@ -76,9 +73,6 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
         Rectangle2D.Double scanBox = new Rectangle2D.Double(0, 0, 4, 4);
 
         r = scanLib.scanImage(0, 300, 0, 0, scanBox.x, scanBox.y, scanBox.width, scanBox.height, null);
-        Assert.assertEquals(ScanLibResult.Result.FAIL, r.getResultCode());
-
-        r = scanLib.scanImage(0, 300, 0, 0, 0, 0, 0, 0, "tempscan.bmp");
         Assert.assertEquals(ScanLibResult.Result.FAIL, r.getResultCode());
 
         r = scanLib.scanImage(0, 0, 0, 0, scanBox.x, scanBox.y, scanBox.width, scanBox.height, "tempscan.bmp");
@@ -100,9 +94,6 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
 
         Assert.assertNotNull(r);
         Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
-
-        File imageFile = new File(filename);
-        Assert.assertTrue(Math.abs(dpi - ImageInfo.getImageDpi(imageFile)) <= 1);
     }
 
     @Test

@@ -5,13 +5,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.ui.PlatformUI;
-
-import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
 
 /**
  * This class is used for an image that may contain one or more DataMatrix 2D barcodes.
@@ -31,8 +27,6 @@ public class BarcodeImage {
 
     private final Image image;
 
-    private final int dpi;
-
     private final ImageSource imageSource;
 
     /**
@@ -43,7 +37,6 @@ public class BarcodeImage {
      *            scanning region then this value can be null.
      * @throws FileNotFoundException
      */
-    @SuppressWarnings("nls")
     public BarcodeImage(String filename, ImageSource imageSource) {
         this.filename = filename;
         image = new Image(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay(),
@@ -53,12 +46,6 @@ public class BarcodeImage {
         this.basename = file.getName();
         this.dateLastModified = new Date(file.lastModified());
         this.imageSource = imageSource;
-        try {
-            this.dpi = ImageInfo.getImageDpi(file);
-        } catch (FileNotFoundException e) {
-            // creating an image and a file should fail first
-            throw new IllegalStateException("this should never happen");
-        }
 
         Rectangle bounds = image.getBounds();
         rectangle = new Rectangle2D.Double(bounds.x, bounds.y, bounds.width, bounds.height);
@@ -76,50 +63,8 @@ public class BarcodeImage {
         return image;
     }
 
-    public ScannerDpi getDpi() {
-        return ScannerDpi.getFromId(dpi);
-    }
-
     public Rectangle getBounds() {
         return image.getBounds();
-    }
-
-    /**
-     * Returns the dimensions of the image in inches.
-     * 
-     * @return a Pair, the left contains the width and the right the height in inches.
-     */
-    @SuppressWarnings("nls")
-    private Pair<Double, Double> getDimensionsInInches() {
-        if (dpi == 0) {
-            throw new IllegalStateException("invalid dpi");
-        }
-        Rectangle imgBounds = image.getBounds();
-        double width = (double) imgBounds.width / dpi;
-        double height = (double) imgBounds.height / dpi;
-        return new ImmutablePair<Double, Double>(width, height);
-    }
-
-    /**
-     * Returns the dimensions of the image in inches in a rectangle. The rectangle will always have
-     * x and y values of 0, and the width and height of the image.
-     * 
-     * @return a rectangle specifying the image's bounds in inches.
-     */
-    public Rectangle2D.Double getRectangleInInches() {
-        Pair<Double, Double> dimensionInInches = getDimensionsInInches();
-        Rectangle2D.Double rect = new Rectangle2D.Double(0, 0,
-            dimensionInInches.getLeft(), dimensionInInches.getRight());
-        return rect;
-    }
-
-    /**
-     * The scale factor to transform units of inches to image dimensions
-     * 
-     * @return
-     */
-    public double getScaleFactor() {
-        return dpi;
     }
 
     public void dispose() {

@@ -102,9 +102,6 @@ public class PalletGridWidget extends Composite {
             infoTextLabel.setToolTipText(null);
         }
         buf.append(DateFormatter.formatAsDateTime(image.getDateLastModified()));
-        buf.append(i18n.tr(", DPI: "));
-        buf.append(image.getDpi().getDisplayLabel());
-
         int size = decodedWells.size();
         if (size > 0) {
             buf.append(", tubes decoded: ").append(size);
