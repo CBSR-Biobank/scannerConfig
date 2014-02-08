@@ -25,8 +25,7 @@ import edu.ualberta.med.scannerconfig.widgets.AdvancedRadioGroupFieldEditor;
 public class Scanner extends FieldEditorPreferencePage implements
     IWorkbenchPreferencePage, SelectionListener {
 
-    private final Map<String, IntegerFieldEditor> intFieldMap =
-        new HashMap<String, IntegerFieldEditor>();
+    private final Map<String, IntegerFieldEditor> intFieldMap = new HashMap<String, IntegerFieldEditor>();
 
     private static final I18n i18n = I18nFactory.getI18n(Scanner.class);
 
@@ -57,7 +56,9 @@ public class Scanner extends FieldEditorPreferencePage implements
         selectScannerBtn.addSelectionListener(this);
 
         driverTypeRadio = new AdvancedRadioGroupFieldEditor(
-            PreferenceConstants.SCANNER_DRV_TYPE, i18n.tr("Driver Type"), 2,
+            PreferenceConstants.SCANNER_DRV_TYPE,
+            i18n.tr("Driver Type"),
+            2,
             new String[][] {
                 { "WIA", PreferenceConstants.SCANNER_DRV_TYPE_WIA },
                 { "TWAIN", PreferenceConstants.SCANNER_DRV_TYPE_TWAIN } },
@@ -91,14 +92,15 @@ public class Scanner extends FieldEditorPreferencePage implements
     @SuppressWarnings("nls")
     @Override
     public void widgetSelected(SelectionEvent e) {
-        if (e.getSource() != selectScannerBtn)
+        if (e.getSource() != selectScannerBtn) return;
+
+        ScanLibResult scanlibResult = ScanLib.getInstance().selectSourceAsDefault();
+
+        if (scanlibResult.getResultCode() != ScanLibResult.Result.SUCCESS) {
             return;
+        }
 
-        ScanLibResult scanlibResult = ScanLib.getInstance()
-            .selectSourceAsDefault();
-        ScanLibResult scannerCapResult = ScanLib.getInstance()
-            .getScannerCapability();
-
+        ScanLibResult scannerCapResult = ScanLib.getInstance().getScannerCapability();
         int scannerCap = scannerCapResult.getValue();
 
         if (scanlibResult.getResultCode() != ScanLibResult.Result.SUCCESS) {
@@ -107,13 +109,11 @@ public class Scanner extends FieldEditorPreferencePage implements
                 return;
             }
             setEnableAllWidgets(false);
-            BgcPlugin.openError(i18n.tr("Scanning Source Error"),
-                scanlibResult.getMessage());
+            BgcPlugin.openError(i18n.tr("Scanning Source Error"), scanlibResult.getMessage());
             return;
         }
 
-        IPreferenceStore prefs = ScannerConfigPlugin.getDefault()
-            .getPreferenceStore();
+        IPreferenceStore prefs = ScannerConfigPlugin.getDefault().getPreferenceStore();
 
         String drvSetting = null;
         boolean[] drvRadioSettings = new boolean[] { false, false };
