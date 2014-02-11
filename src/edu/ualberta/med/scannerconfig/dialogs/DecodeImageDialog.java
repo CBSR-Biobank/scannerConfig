@@ -285,7 +285,8 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
             break;
 
         case DPI_CHANGED:
-            // do nothing
+            saveGridRectangle();
+            removeImage();
             break;
 
         default:
@@ -293,7 +294,6 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         }
     }
 
-    @SuppressWarnings("nls")
     private void scanPlate(Event e) {
         final ImageSource imageSource = (ImageSource) e.data;
         final ScanPlate plateToScan = imageSource.getScanPlate();

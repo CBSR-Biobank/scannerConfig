@@ -24,6 +24,7 @@ public enum ScannerDpi {
     private final String displayLabel;
 
     private static final Map<Integer, ScannerDpi> VALUES_MAP;
+    private static final ScannerDpi[] validDpis;
 
     static {
         Map<Integer, ScannerDpi> map = new LinkedHashMap<Integer, ScannerDpi>();
@@ -39,6 +40,9 @@ public enum ScannerDpi {
         }
 
         VALUES_MAP = Collections.unmodifiableMap(map);
+
+        // NOTE! update this array if new DPIs are added
+        validDpis = new ScannerDpi[] { DPI_300, DPI_400, DPI_600 };
     }
 
     private ScannerDpi(int value, String displayString) {
@@ -52,6 +56,10 @@ public enum ScannerDpi {
 
     public String getDisplayLabel() {
         return displayLabel;
+    }
+
+    public static ScannerDpi[] getValidDpis() {
+        return validDpis;
     }
 
     public static Map<Integer, ScannerDpi> valuesMap() {

@@ -66,7 +66,7 @@ public enum PalletOrientation {
     public static PalletOrientation getFromIdString(String id) {
         PalletOrientation result = valuesMap().get(id);
         if (result == null) {
-            throw new IllegalStateException("invalid palelt orientation: " + id);
+            throw new IllegalStateException("invalid pallet orientation: " + id);
         }
         return result;
     }

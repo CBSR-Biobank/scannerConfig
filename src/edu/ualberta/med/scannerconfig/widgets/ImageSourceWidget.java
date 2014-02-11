@@ -51,7 +51,6 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
 
     private static final I18n i18n = I18nFactory.getI18n(ImageSourceWidget.class);
 
-    @SuppressWarnings("unused")
     private static Logger log = LoggerFactory.getLogger(ImageSourceWidget.class.getName());
 
     @SuppressWarnings("nls")
@@ -352,7 +351,7 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
     public Rectangle2D.Double getGridRectangle() {
         ImageSource imageSource = imageSourceSelectionWidget.getSelection();
         ImageSourceSettings pastImageSourceSettings = dialogSettings.getImageSourceSettings(imageSource);
-        return pastImageSourceSettings.getGridRectangle();
+        return pastImageSourceSettings.getGridRectangle(getDpi());
     }
 
     public PalletOrientation getPlateOrientation() {
@@ -469,8 +468,17 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         getImageSourceSettings().setScannerDpi(dpi);
     }
 
+    @SuppressWarnings("nls")
     public void setGridRectangle(Rectangle2D.Double gridRectangle) {
-        getImageSourceSettings().setGridRectangle(gridRectangle);
+        ImageSource selection = imageSourceSelectionWidget.getSelection();
+
+        if (selection == ImageSource.FILE) {
+            getImageSourceSettings().setGridRectangle(ScannerDpi.DPI_UNKNOWN, gridRectangle);
+        } else {
+            ScannerDpi dpi = getDpi();
+            getImageSourceSettings().setGridRectangle(dpi, gridRectangle);
+            log.debug("setGridRectangle: dpi: {}, rect: {}", dpi, gridRectangle);
+        }
     }
 
     /**
@@ -480,7 +488,11 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         setPlateOrientation(plateOrientationWidget.getSelection());
         setPlateDimensions(selectedPlateDimensions);
         setBarcodePosition(barcodePositionWidget.getSelection());
-        setScannerDpi(scannerDpiWidget.getSelection());
+
+        ImageSource selection = imageSourceSelectionWidget.getSelection();
+        if (selection != ImageSource.FILE) {
+            setScannerDpi(scannerDpiWidget.getSelection());
+        }
         dialogSettings.save();
     }
 

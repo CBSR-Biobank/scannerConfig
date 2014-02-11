@@ -2,6 +2,7 @@ package edu.ualberta.med.scannerconfig.dialogs;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.slf4j.Logger;
@@ -20,10 +21,10 @@ public class ImageSourceDialogSettings {
     private static Logger log = LoggerFactory.getLogger(ImageSourceDialogSettings.class);
 
     @SuppressWarnings("nls")
-    private static final String LAST_USED_IMAGE_SOURCE_KEY = "DecodePlateDialogSettings.last.image.source.";
+    private static final String LAST_USED_IMAGE_SOURCE_KEY = "DecodePlateDialogSettings.last.image.source";
 
     @SuppressWarnings("nls")
-    private static final String DECODE_PLATE_SETTINGS_KEY = "DecodePlateDialogSettings.plate.settings.";
+    private static final String DECODE_PLATE_SETTINGS_SECTION = "DecodePlateDialogSettings.plate.settings";
 
     private final IDialogSettings dialogSettings;
 
@@ -51,17 +52,15 @@ public class ImageSourceDialogSettings {
     public void restore() {
         imageSource = restoreImageSource();
 
-        String[] values;
         for (ImageSource source : ImageSource.values()) {
             ImageSourceSettings settings = null;
-            values = dialogSettings.getArray(DECODE_PLATE_SETTINGS_KEY + source.getId());
-            if (values != null) {
-                settings = ImageSourceSettings.getFromSettingsStringArray(source, values);
+            IDialogSettings section = dialogSettings.getSection(DECODE_PLATE_SETTINGS_SECTION);
+            if (section != null) {
+                settings = ImageSourceSettings.getSettingsFromSection(source, section);
             } else {
                 settings = ImageSourceSettings.defaultSettings(source);
                 log.trace("restore: default value applied");
             }
-            log.trace("restore: source: {}, settings: {}", source, settings.toSettingsStringArray());
             imageSourceSettings.put(source.getId(), settings);
         }
     }
@@ -72,11 +71,24 @@ public class ImageSourceDialogSettings {
     @SuppressWarnings("nls")
     public void save() {
         saveImageSource(getImageSource());
-        for (ImageSourceSettings settings : imageSourceSettings.values()) {
+        IDialogSettings section = dialogSettings.getSection(DECODE_PLATE_SETTINGS_SECTION);
+
+        if (section == null) {
+            section = dialogSettings.addNewSection(DECODE_PLATE_SETTINGS_SECTION);
+        }
+
+        for (Entry<String, ImageSourceSettings> entry : imageSourceSettings.entrySet()) {
+            String key = entry.getKey();
+            ImageSourceSettings settings = entry.getValue();
+
+            IDialogSettings imageSourceSection = section.getSection(key);
+            if (imageSourceSection == null) {
+                imageSourceSection = section.addNewSection(key);
+            }
+
             if (settings != null) {
-                String key = DECODE_PLATE_SETTINGS_KEY + settings.getImageSource().getId();
-                dialogSettings.put(key, settings.toSettingsStringArray());
-                log.trace("save: source: {}, settings: {}", settings.getImageSource(), settings.toSettingsStringArray());
+                settings.putSettingsInSection(imageSourceSection);
+                log.trace("save: source: {}", settings.getImageSource());
             }
         }
     }

@@ -1,6 +1,11 @@
 package edu.ualberta.med.scannerconfig.dialogs;
 
 import java.awt.geom.Rectangle2D;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.eclipse.jface.dialogs.IDialogSettings;
 
 import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.ImageSource;
@@ -16,14 +21,40 @@ import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
  */
 public class ImageSourceSettings {
 
-    private static final int STRING_ARRAY_NUM_ITEMS = 8;
+    @SuppressWarnings("nls")
+    private static final String PALLET_ORIENTATION_KEY = "palletOrientation";
+
+    @SuppressWarnings("nls")
+    private static final String PALLET_DIMENSIONS_KEY = "palletDimensions";
+
+    @SuppressWarnings("nls")
+    private static final String BARCODE_POSITION_KEY = "barcodePosition";
+
+    @SuppressWarnings("nls")
+    private static final String SCANNER_DPI_KEY = "scannerDpi";
+
+    @SuppressWarnings("nls")
+    private static final String REGION_SECTION_KEY_PREFIX = "region";
+
+    @SuppressWarnings("nls")
+    private static final String REGION_LEFT_KEY = "regionLeft";
+
+    @SuppressWarnings("nls")
+    private static final String REGION_TOP_KEY = "regionTop";
+
+    @SuppressWarnings("nls")
+    private static final String REGION_WIDTH_KEY = "regionWidth";
+
+    @SuppressWarnings("nls")
+    private static final String REGION_HEIGHT_KEY = "regionHeight" +
+        "";
 
     private ImageSource imageSource;
     private PalletOrientation orientation;
     private PalletDimensions dimensions;
     private BarcodePosition barcodePosition;
     private ScannerDpi scannerDpi;
-    private Rectangle2D.Double gridRectangle;
+    Map<ScannerDpi, Rectangle2D.Double> gridRectangles;
 
     /**
      * The settings associated with an image source.
@@ -40,13 +71,13 @@ public class ImageSourceSettings {
         PalletDimensions dimensions,
         BarcodePosition barcodePosition,
         ScannerDpi scannerDpi,
-        Rectangle2D.Double gridRectangle) {
+        Map<ScannerDpi, Rectangle2D.Double> gridRectangles) {
         this.setImageSource(imageSource);
         this.setOrientation(orientation);
         this.dimensions = dimensions;
         this.barcodePosition = barcodePosition;
         this.scannerDpi = scannerDpi;
-        setGridRectangle(gridRectangle);
+        this.gridRectangles = gridRectangles;
     }
 
     public ImageSource getImageSource() {
@@ -89,56 +120,164 @@ public class ImageSourceSettings {
         this.scannerDpi = scannerDpi;
     }
 
-    public Rectangle2D.Double getGridRectangle() {
-        return gridRectangle;
-    }
-
-    public void setGridRectangle(Rectangle2D.Double gridRectangle) {
-        this.gridRectangle = new Rectangle2D.Double();
-        this.gridRectangle.x = gridRectangle.x;
-        this.gridRectangle.y = gridRectangle.y;
-        this.gridRectangle.width = gridRectangle.width;
-        this.gridRectangle.height = gridRectangle.height;
-    }
-
-    public String[] toSettingsStringArray() {
-        String[] result = new String[STRING_ARRAY_NUM_ITEMS];
-        result[0] = getOrientation().getId();
-        result[1] = dimensions.getId();
-        result[2] = barcodePosition.getId();
-        result[3] = String.valueOf(scannerDpi.getValue());
-        result[4] = String.valueOf(gridRectangle.x);
-        result[5] = String.valueOf(gridRectangle.y);
-        result[6] = String.valueOf(gridRectangle.width);
-        result[7] = String.valueOf(gridRectangle.height);
-        return result;
-    }
-
     @SuppressWarnings("nls")
-    public static ImageSourceSettings getFromSettingsStringArray(ImageSource source, String[] values) {
-        if ((values == null) || (values.length != STRING_ARRAY_NUM_ITEMS)) {
-            throw new IllegalStateException("invalid length for grid rectangle settings");
+    public Rectangle2D.Double getGridRectangle(ScannerDpi dpi) {
+        Rectangle2D.Double rect = gridRectangles.get(dpi);
+        if (rect == null) {
+            throw new IllegalStateException("grid rectangle is null: " + dpi.getDisplayLabel());
         }
-        PalletOrientation orientation = PalletOrientation.getFromIdString(values[0]);
-        PalletDimensions dimensions = PalletDimensions.getFromIdString(values[1]);
-        BarcodePosition barcodePosition = BarcodePosition.getFromIdString(values[2]);
-        ScannerDpi scannerDpi = ScannerDpi.getFromId(Integer.parseInt(values[3]));
-        double left = Double.parseDouble(values[4]);
-        double top = Double.parseDouble(values[5]);
-        double width = Double.parseDouble(values[6]);
-        double height = Double.parseDouble(values[7]);
-        Rectangle2D.Double rectangle = new Rectangle2D.Double(left, top, width, height);
+        return rect;
+    }
+
+    public void setGridRectangle(ScannerDpi dpi, Rectangle2D.Double gridRectangle) {
+        gridRectangles.put(dpi, gridRectangle);
+    }
+
+    public void putSettingsInSection(IDialogSettings section) {
+        section.put(PALLET_ORIENTATION_KEY, orientation.getId());
+
+        section.put(PALLET_DIMENSIONS_KEY, dimensions.getId());
+        section.put(BARCODE_POSITION_KEY, barcodePosition.getId());
+
+        if (imageSource != ImageSource.FILE) {
+            section.put(SCANNER_DPI_KEY, scannerDpi.getValue());
+        }
+
+        putGridRectanglesInSection(section);
+    }
+
+    private void putGridRectanglesInSection(IDialogSettings section) {
+
+        for (Entry<ScannerDpi, Rectangle2D.Double> entry : gridRectangles.entrySet()) {
+            String sectionName = getGridRectangleSettingsKey(entry.getKey());
+            IDialogSettings regionSection = section.getSection(sectionName);
+            if (regionSection == null) {
+                regionSection = section.addNewSection(sectionName);
+            }
+
+            Rectangle2D.Double gridRectangle = entry.getValue();
+            regionSection.put(REGION_LEFT_KEY, gridRectangle.x);
+            regionSection.put(REGION_TOP_KEY, gridRectangle.y);
+            regionSection.put(REGION_WIDTH_KEY, gridRectangle.width);
+            regionSection.put(REGION_HEIGHT_KEY, gridRectangle.height);
+        }
+
+    }
+
+    public static ImageSourceSettings getSettingsFromSection(
+        ImageSource source,
+        IDialogSettings section) {
+
+        IDialogSettings imageSourceSection = section.getSection(source.getId());
+        if (imageSourceSection == null) {
+            return defaultSettings(source);
+        }
+
+        PalletOrientation orientation;
+        PalletDimensions dimensions;
+        BarcodePosition barcodePosition;
+        ScannerDpi scannerDpi = ScannerDpi.DPI_300;
+
+        String orientationStr = imageSourceSection.get(PALLET_ORIENTATION_KEY);
+        if (orientationStr != null) {
+            orientation = PalletOrientation.getFromIdString(orientationStr);
+        } else {
+            orientation = PalletOrientation.LANDSCAPE;
+        }
+
+        String dimensionsStr = imageSourceSection.get(PALLET_DIMENSIONS_KEY);
+        if (dimensionsStr != null) {
+            dimensions = PalletDimensions.getFromIdString(dimensionsStr);
+        } else {
+            dimensions = PalletDimensions.DIM_ROWS_8_COLS_12;
+        }
+
+        String barcodePositionStr = imageSourceSection.get(BARCODE_POSITION_KEY);
+        if (barcodePositionStr != null) {
+            barcodePosition = BarcodePosition.getFromIdString(barcodePositionStr);
+        } else {
+            barcodePosition = BarcodePosition.BOTTOM;
+        }
+
+        Map<ScannerDpi, Rectangle2D.Double> regions = new HashMap<ScannerDpi, Rectangle2D.Double>();
+
+        if (source != ImageSource.FILE) {
+            try {
+                int dpi = imageSourceSection.getInt(SCANNER_DPI_KEY);
+                scannerDpi = ScannerDpi.getFromId(dpi);
+            } catch (NumberFormatException e) {
+                // do nothing
+            }
+
+            for (ScannerDpi dpi : ScannerDpi.getValidDpis()) {
+                regions.put(dpi, getRegionSettingsFromSection(dpi, imageSourceSection));
+            }
+        } else {
+            regions.put(ScannerDpi.DPI_UNKNOWN,
+                getRegionSettingsFromSection(ScannerDpi.DPI_UNKNOWN, section));
+        }
+
         return new ImageSourceSettings(
-            source, orientation, dimensions, barcodePosition, scannerDpi, rectangle);
+            source, orientation, dimensions, barcodePosition, scannerDpi, regions);
+    }
+
+    private static Rectangle2D.Double getRegionSettingsFromSection(
+        ScannerDpi dpi,
+        IDialogSettings section) {
+        double x = -1;
+        double y = -1;
+        double width = -1;
+        double height = -1;
+
+        try {
+            IDialogSettings regionSection = section.getSection(getGridRectangleSettingsKey(dpi));
+
+            if (regionSection != null) {
+                x = regionSection.getDouble(REGION_LEFT_KEY);
+                y = regionSection.getDouble(REGION_TOP_KEY);
+                width = regionSection.getDouble(REGION_WIDTH_KEY);
+                height = regionSection.getDouble(REGION_HEIGHT_KEY);
+            }
+        } catch (NumberFormatException e) {
+            // do nothing
+        }
+
+        return new Rectangle2D.Double(x, y, width, height);
+    }
+
+    private static String getGridRectangleSettingsKey(ScannerDpi dpi) {
+        StringBuffer buf = new StringBuffer();
+        buf.append(REGION_SECTION_KEY_PREFIX);
+        buf.append(dpi.getValue());
+        return buf.toString();
     }
 
     public static ImageSourceSettings defaultSettings(ImageSource source) {
+        Map<ScannerDpi, Rectangle2D.Double> regions =
+            new HashMap<ScannerDpi, Rectangle2D.Double>();
+
+        if (source == ImageSource.FILE) {
+            regions.put(ScannerDpi.DPI_UNKNOWN, new Rectangle2D.Double(-1, -1, -1, -1));
+
+            return new ImageSourceSettings(
+                source,
+                PalletOrientation.LANDSCAPE,
+                PalletDimensions.DIM_ROWS_8_COLS_12,
+                BarcodePosition.BOTTOM,
+                ScannerDpi.DPI_UNKNOWN,
+                regions);
+        }
+
+        for (ScannerDpi dpi : ScannerDpi.getValidDpis()) {
+            regions.put(dpi, new Rectangle2D.Double(-1, -1, -1, -1));
+        }
+
         return new ImageSourceSettings(
             source,
             PalletOrientation.LANDSCAPE,
             PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.BOTTOM,
-            ScannerDpi.DPI_600,
-            new Rectangle2D.Double(-1, -1, -1, -1));
+            ScannerDpi.DPI_UNKNOWN,
+            regions);
     }
 }
