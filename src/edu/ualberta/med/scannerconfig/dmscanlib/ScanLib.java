@@ -63,13 +63,6 @@ public class ScanLib {
     }
 
     /**
-     * Queries the availability of the TWAIN driver.
-     * 
-     * @return SC_SUCCESS if available, and SC_INVALID_VALUE if unavailable.
-     */
-    public native ScanLibResult isTwainAvailable();
-
-    /**
      * Creates a dialog box to allow the user to select the scanner to use by default.
      * 
      * @return SC_SUCCESS when selected by the user, and SC_INVALID_VALUE if the user cancelled the
@@ -80,8 +73,19 @@ public class ScanLib {
     /**
      * Queries the selected scanner for the driver type and supported dpi.
      * 
-     * @return Bit 1: Is set if driver type is WIA. Bits 2,3,4 are set if driver supports
-     *         300,400,600 dpi. Bit 5 is set if a proper scanner source is selected.
+     * @return The bits in ScanLibResult.getValue() correspond to:
+     *         <dl>
+     *         <dt>Bit 1 (LSB)</dt>
+     *         <dd>If set, driver type is WIA.</dd>
+     *         <dt>Bit 2</dt>
+     *         <dd>If set, driver supports 300 dpi.</dd>
+     *         <dt>Bit 3</dt>
+     *         <dd>If set, driver supports 400 dpi.</dd>
+     *         <dt>Bit 4</dt>
+     *         <dd>If set, driver supports 600 dpi.</dd>
+     *         <dt>Bit 5</dt>
+     *         <dd>if set, scanner source has been selected.</dd>
+     *         </dl>
      */
     public native ScanLibResult getScannerCapability();
 

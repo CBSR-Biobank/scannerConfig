@@ -34,10 +34,7 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
     @Test
     public void scanImage() throws Exception {
         ScanLib scanLib = ScanLib.getInstance();
-        ScanLibResult r = scanLib.isTwainAvailable();
-        Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
-
-        r = scanLib.selectSourceAsDefault();
+        ScanLibResult r = scanLib.selectSourceAsDefault();
         Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
         Rectangle2D.Double scanRegion = new Rectangle2D.Double(1, 1, 2, 3);
@@ -70,30 +67,27 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
     @Test
     public void scanImageBadParams() throws Exception {
         ScanLib scanLib = ScanLib.getInstance();
-        ScanLibResult r = scanLib.isTwainAvailable();
-        Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
-
         Rectangle2D.Double scanBox = new Rectangle2D.Double(0, 0, 4, 4);
 
-        r = scanLib.scanImage(0, 300, 0, 0, scanBox.x, scanBox.y, scanBox.width, scanBox.height, null);
+        ScanLibResult r = scanLib.scanImage(
+            0, 300, 0, 0, scanBox.x, scanBox.y, scanBox.width, scanBox.height, null);
         Assert.assertEquals(ScanLibResult.Result.FAIL, r.getResultCode());
 
-        r = scanLib.scanImage(0, 0, 0, 0, scanBox.x, scanBox.y, scanBox.width, scanBox.height, "tempscan.bmp");
-        Assert.assertEquals(ScanLibResult.Result.FAIL, r.getResultCode());
+        r = scanLib.scanImage(
+            0, 175, 0, 0, scanBox.x, scanBox.y, scanBox.width, scanBox.height, "tempscan.bmp");
+        Assert.assertEquals(ScanLibResult.Result.INVALID_DPI, r.getResultCode());
     }
 
     @Test
     public void scanFlatbed() throws Exception {
         ScanLib scanLib = ScanLib.getInstance();
-        ScanLibResult r = scanLib.isTwainAvailable();
-        Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
         final int dpi = 300;
         String filename = "flatbed.bmp";
         File file = new File(filename);
         file.delete(); // dont care if file doesn't exist
 
-        r = scanLib.scanFlatbed(0, dpi, 0, 0, filename);
+        ScanLibResult r = scanLib.scanFlatbed(0, dpi, 0, 0, filename);
 
         Assert.assertNotNull(r);
         Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
@@ -102,10 +96,8 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
     @Test
     public void scanFlatbedBadParams() throws Exception {
         ScanLib scanLib = ScanLib.getInstance();
-        ScanLibResult r = scanLib.isTwainAvailable();
-        Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
-        r = scanLib.scanFlatbed(0, 300, 0, 0, null);
+        ScanLibResult r = scanLib.scanFlatbed(0, 300, 0, 0, null);
         Assert.assertEquals(ScanLibResult.Result.FAIL, r.getResultCode());
 
         r = scanLib.scanFlatbed(0, 0, 0, 0, "tempscan.bmp");
@@ -115,8 +107,6 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
     @Test
     public void scanAndDecode() throws Exception {
         ScanLib scanLib = ScanLib.getInstance();
-        ScanLibResult r = scanLib.isTwainAvailable();
-        Assert.assertEquals(ScanLibResult.Result.SUCCESS, r.getResultCode());
 
         double x = 0.400;
         double y = 0.265;

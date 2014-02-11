@@ -19,11 +19,7 @@ public class TestDmScanLibLinux extends RequiresJniLibraryTest {
     @Test
     public void linuxEmptyImplementationJNI() throws Exception {
         ScanLib scanLib = ScanLib.getInstance();
-        ScanLibResult r = scanLib.isTwainAvailable();
-        Assert.assertEquals(ScanLibResult.Result.FAIL, r.getResultCode());
-        Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
-
-        r = scanLib.getScannerCapability();
+        ScanLibResult r = scanLib.getScannerCapability();
         Assert.assertEquals(ScanLibResult.Result.FAIL, r.getResultCode());
         Assert.assertEquals(ScanLib.SC_FAIL, r.getValue());
 

@@ -101,6 +101,13 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
     private static final String PROGRESS_MESSAGE_DECODING =
         i18n.tr("Decoding barcodes in image...");
 
+    @SuppressWarnings("nls")
+    private static final String SCAN_PLATE_ERROR =
+        i18n.tr("Could not scan the plate region");
+    @SuppressWarnings("nls")
+    private static final String SCAN_PLATE_INVALID_DPI =
+        i18n.tr("Invalid DPI for this scanner. Please select another.");
+
     private ImageSourceWidget imageSourceWidget;
 
     private PalletGridWidget plateGridWidget;
@@ -312,10 +319,18 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
                         }
                     });
                 } else {
+                    final String message;
+                    if (result == ScanLibResult.Result.INVALID_DPI) {
+                        message = SCAN_PLATE_INVALID_DPI;
+                    } else {
+                        message = SCAN_PLATE_ERROR;
+                    }
                     display.asyncExec(new Runnable() {
                         @Override
                         public void run() {
-                            setMessage(i18n.tr("Could not scan the plate region"), IMessageProvider.ERROR);
+                            setMessage(
+                                message,
+                                IMessageProvider.ERROR);
                         }
                     });
                 }
