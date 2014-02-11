@@ -300,9 +300,9 @@ public class ImageWithRegionCanvas extends ImageCanvas {
         }
 
         setCursor(new Cursor(getDisplay(), SWT.CURSOR_ARROW));
-        Point2D.Double mousePointInInches = canvasPointToRegion(e.x, e.y);
+        Point2D.Double mousePointInRegion = canvasPointToRegion(e.x, e.y);
 
-        dragRegion = userRegionInPixels.pointToRegion(mousePointInInches);
+        dragRegion = userRegionInPixels.pointToRegion(mousePointInRegion);
         switch (dragRegion) {
         case OUTSIDE_REGION:
             break;
@@ -409,7 +409,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
      * @return Returns true if the region lies within the image.
      */
     @SuppressWarnings("nls")
-    public boolean setUserRegionInInches(Rectangle2D.Double region) {
+    public boolean setUserRegionInPixels(Rectangle2D.Double region) {
         if (barcodeImage == null) {
             throw new IllegalStateException("barcodeImage is null");
         }

@@ -454,7 +454,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
     @SuppressWarnings("nls")
     private void saveGridRectangle() {
         if (imageToDecode != null) {
-            Rectangle2D.Double gridRegion = plateGridWidget.getUserRegionInInches();
+            Rectangle2D.Double gridRegion = plateGridWidget.getUserRegionInPixels();
             if (gridRegion == null) {
                 throw new IllegalStateException("grid region is null");
             }

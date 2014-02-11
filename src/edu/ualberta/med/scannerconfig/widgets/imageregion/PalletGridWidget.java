@@ -228,7 +228,7 @@ public class PalletGridWidget extends Composite {
         return canvas.getCellsInPixels();
     }
 
-    public Double getUserRegionInInches() {
+    public Double getUserRegionInPixels() {
         return canvas.getUserRegionInPixels();
     }
 }

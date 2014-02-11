@@ -74,7 +74,7 @@ public class ScanRegionCanvas extends ImageWithRegionCanvas {
      * @param scanRegionInInches
      */
     public void scanRegionDimensionsUpdated(Rectangle2D.Double scanRegionInInches) {
-        setUserRegionInInches(scanRegionInInches);
+        setUserRegionInPixels(scanRegionInInches);
         redraw();
         update();
     }
