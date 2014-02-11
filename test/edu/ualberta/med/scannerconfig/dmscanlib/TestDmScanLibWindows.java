@@ -49,7 +49,8 @@ public class TestDmScanLibWindows extends RequiresJniLibraryTest {
         file.delete(); // dont care if file doesn't exist
 
         r = scanLib.scanImage(
-            3, dpi,
+            2,
+            dpi,
             0,
             0,
             scanBbox.x,
