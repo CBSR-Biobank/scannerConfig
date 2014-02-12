@@ -79,7 +79,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
     private static final int CONTROLS_MIN_WIDTH = 160;
 
     @SuppressWarnings("nls")
-    private static final String TITLE = i18n.tr("Decode pallet");
+    private static final String TITLE = i18n.tr("Decode image");
 
     @SuppressWarnings("nls")
     private static final String TITLE_AREA_MESSAGE_SELECT_PLATE =
