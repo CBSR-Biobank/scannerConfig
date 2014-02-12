@@ -150,6 +150,7 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
                 plateDimensionsWidget.setSelection(
                     new StructuredSelection(imageSourceSettings.getDimensions()));
                 barcodePositionWidget.setSelection(imageSourceSettings.getBarcodePosition());
+                scannerDpiWidget.setSelection(imageSourceSettings.getScannerDpi());
 
                 Event newEvent = new Event();
                 newEvent.widget = ImageSourceWidget.this;

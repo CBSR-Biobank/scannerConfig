@@ -254,6 +254,8 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         case IMAGE_SOURCE_CHANGED:
             setMessage(TITLE_AREA_MESSAGE_SELECT_PLATE);
             removeImage();
+            selectedImageSource = imageSourceWidget.getImageSource();
+            selectedDpi = imageSourceWidget.getDpi();
             break;
 
         case PLATE_ORIENTATION:

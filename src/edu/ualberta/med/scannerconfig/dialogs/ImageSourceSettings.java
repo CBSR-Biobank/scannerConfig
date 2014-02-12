@@ -280,7 +280,7 @@ public class ImageSourceSettings {
             PalletOrientation.LANDSCAPE,
             PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.BOTTOM,
-            ScannerDpi.DPI_UNKNOWN,
+            (source == ImageSource.FILE) ? ScannerDpi.DPI_UNKNOWN : ScannerDpi.DPI_600,
             new Rectangle2D.Double(-1, -1, -1, -1));
     }
 }
