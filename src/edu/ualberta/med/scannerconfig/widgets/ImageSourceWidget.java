@@ -449,6 +449,10 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
     }
 
     public ScannerDpi getDpi() {
+        ImageSource source = dialogSettings.getImageSource();
+        if (source == ImageSource.FILE) {
+            return ScannerDpi.DPI_UNKNOWN;
+        }
         return scannerDpiWidget.getSelection();
     }
 
@@ -469,13 +473,13 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
     }
 
     @SuppressWarnings("nls")
-    public void setGridRectangle(Rectangle2D.Double gridRectangle) {
-        ImageSource selection = imageSourceSelectionWidget.getSelection();
-
-        if (selection == ImageSource.FILE) {
+    public void setGridRectangle(
+        ImageSource source,
+        ScannerDpi dpi,
+        Rectangle2D.Double gridRectangle) {
+        if (source == ImageSource.FILE) {
             getImageSourceSettings().setGridRectangle(ScannerDpi.DPI_UNKNOWN, gridRectangle);
         } else {
-            ScannerDpi dpi = getDpi();
             getImageSourceSettings().setGridRectangle(dpi, gridRectangle);
             log.debug("setGridRectangle: dpi: {}, rect: {}", dpi, gridRectangle);
         }

@@ -122,6 +122,10 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
 
     private DecodeResult decodeResult;
 
+    private ImageSource selectedImageSource;
+
+    private ScannerDpi selectedDpi;
+
     /**
      * Use this constructor to limit the valid plate dimensions the user can choose from.
      * 
@@ -194,6 +198,9 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         imageSourceWidget = new ImageSourceWidget(parent, CONTROLS_MIN_WIDTH,
             widgetCreator, getDialogSettings(), validPlateDimensions);
         imageSourceWidget.addSelectionListener(this);
+
+        selectedImageSource = imageSourceWidget.getImageSource();
+        selectedDpi = imageSourceWidget.getDpi();
 
         decodeButton = createDecodeButton(imageSourceWidget);
         decodeButton.setEnabled(false);
@@ -286,6 +293,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
 
         case DPI_CHANGED:
             saveGridRectangle();
+            selectedDpi = (ScannerDpi) e.data;
             removeImage();
             break;
 
@@ -458,7 +466,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
             if (gridRegion == null) {
                 throw new IllegalStateException("grid region is null");
             }
-            imageSourceWidget.setGridRectangle(gridRegion);
+            imageSourceWidget.setGridRectangle(selectedImageSource, selectedDpi, gridRegion);
         }
     }
 
