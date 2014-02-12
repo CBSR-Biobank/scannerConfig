@@ -387,8 +387,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
      * to the size of the canvas the image is being displayed in.
      * 
      * @param barcodeImage The image the region is being defined in.
-     * @param region a rectangle containing the top, left, widht and height of the region in units
-     *            of inches.
+     * @param region a rectangle containing the top, left, width and height of the region in pixels.
      * @return Returns true if the region lies within the image.
      */
     public boolean setUserRegionInPixels(BarcodeImage barcodeImage, Rectangle2D.Double region) {
@@ -404,8 +403,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
     /**
      * Assign the region based on the previously loaded barcode image.
      * 
-     * @param region a rectangle containing the top, left, widht and height of the region in units
-     *            of inches.
+     * @param region a rectangle containing the top, left, widht and height of the region in pixels.
      * @return Returns true if the region lies within the image.
      */
     @SuppressWarnings("nls")

@@ -1,6 +1,5 @@
 package edu.ualberta.med.scannerconfig.preferences.scanner.plateposition;
 
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +30,6 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import edu.ualberta.med.biobank.gui.common.BgcPlugin;
-import edu.ualberta.med.biobank.gui.common.Swt2DUtil;
 import edu.ualberta.med.scannerconfig.BarcodeImage;
 import edu.ualberta.med.scannerconfig.FlatbedImageScan;
 import edu.ualberta.med.scannerconfig.IScanImageListener;
@@ -320,7 +318,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         this.flatbedImage = image;
         Rectangle2D.Double imageRectangle = image.getRectangle();
         Rectangle2D.Double imageRectangleInches =
-            rectangleToInches(FlatbedImageScan.PLATE_IMAGE_DPI, imageRectangle);
+            ScannerConfigPlugin.rectangleToInches(FlatbedImageScan.PLATE_IMAGE_DPI, imageRectangle);
 
         statusLabel.setText(ALIGN_STATUS_MSG);
 
@@ -330,7 +328,7 @@ public class PlateSettings extends FieldEditorPreferencePage implements
         ((DoubleFieldEditor) plateFieldEditors.get(Settings.BOTTOM)).setValidRange(0, imageRectangleInches.height);
 
         Rectangle2D.Double plateRegionPixels =
-            rectangleToPixels(FlatbedImageScan.PLATE_IMAGE_DPI, getPlateRegionInches());
+            ScannerConfigPlugin.rectangleToPixels(FlatbedImageScan.PLATE_IMAGE_DPI, getPlateRegionInches());
 
         canvas.updateImage(image, plateRegionPixels);
 
@@ -356,7 +354,8 @@ public class PlateSettings extends FieldEditorPreferencePage implements
     @Override
     public void scanRegionChanged(Rectangle2D.Double region) {
         statusLabel.setText(ALIGN_STATUS_MSG);
-        Rectangle2D.Double regionInInches = rectangleToInches(FlatbedImageScan.PLATE_IMAGE_DPI, region);
+        Rectangle2D.Double regionInInches =
+            ScannerConfigPlugin.rectangleToInches(FlatbedImageScan.PLATE_IMAGE_DPI, region);
         log.debug("scanRegionChanged: region in pixels: {}", region);
         log.debug("scanRegionChanged: region in inches: {}", regionInInches);
         internalUpdate(regionInInches);
@@ -376,18 +375,5 @@ public class PlateSettings extends FieldEditorPreferencePage implements
                 canvas.disableRegion();
             }
         }
-    }
-
-    private Rectangle2D.Double rectangleToInches(final int dpi, final Rectangle2D.Double rectangle) {
-        AffineTransform scaleTransform = AffineTransform.getScaleInstance(dpi, dpi);
-        Rectangle2D.Double rectangleInInches =
-            Swt2DUtil.inverseTransformRect(scaleTransform, rectangle);
-        return rectangleInInches;
-    }
-
-    private Rectangle2D.Double rectangleToPixels(final int dpi, final Rectangle2D.Double rectangle) {
-        AffineTransform scaleTransform = AffineTransform.getScaleInstance(dpi, dpi);
-        Rectangle2D.Double rectangleInPixels = Swt2DUtil.transformRect(scaleTransform, rectangle);
-        return rectangleInPixels;
     }
 }

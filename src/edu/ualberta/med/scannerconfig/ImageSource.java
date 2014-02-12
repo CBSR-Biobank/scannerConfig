@@ -7,6 +7,16 @@ import java.util.Map;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+/**
+ * The sources where an image can be acquired from. The image is usually of a pallet (box) that
+ * contains one or more tubes with a 2D data matrix barcode.
+ * <p>
+ * The sources can be regions on a flatbed scanner, identified by a "plate number" or a file on the
+ * file system.
+ * 
+ * @author loyola
+ * 
+ */
 @SuppressWarnings("nls")
 public enum ImageSource {
     FLATBED_SCANNER_PLATE_1(

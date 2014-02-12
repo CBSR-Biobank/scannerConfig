@@ -1,9 +1,6 @@
 package edu.ualberta.med.scannerconfig.dialogs;
 
 import java.awt.geom.Rectangle2D;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 
@@ -14,7 +11,17 @@ import edu.ualberta.med.scannerconfig.PalletOrientation;
 import edu.ualberta.med.scannerconfig.preferences.scanner.ScannerDpi;
 
 /**
- * Stores the settings associated with an image source.
+ * Stores the settings associated with an image source. These include:
+ * <ul>
+ * <li>The image source (see {@link ImageSrouce})</li>
+ * <li>The orientation of the pallet.</li>
+ * <li>The dimensions of the pallet.</li>
+ * <li>Where the 2D barcode is located on each tube in the pallet (see {@link BarcodePosition}).</li>
+ * <li>If the image source is a flatbed scanner, then DPI used to scan the image.</li>
+ * <li>The rectangle that contains the cells for each tube.</li>
+ * </ul>
+ * 
+ * Image source settings can be persisted using Eclipse's {@link IDialogSettings}.
  * 
  * @author loyola
  * 
@@ -34,27 +41,26 @@ public class ImageSourceSettings {
     private static final String SCANNER_DPI_KEY = "scannerDpi";
 
     @SuppressWarnings("nls")
-    private static final String REGION_SECTION_KEY_PREFIX = "region";
+    private static final String GRID_SECTION_KEY = "grid";
 
     @SuppressWarnings("nls")
-    private static final String REGION_X_KEY = "regionLeft";
+    private static final String GRID_X_KEY = "gridX";
 
     @SuppressWarnings("nls")
-    private static final String REGION_Y_KEY = "regionTop";
+    private static final String GRID_Y_KEY = "gridY";
 
     @SuppressWarnings("nls")
-    private static final String REGION_WIDTH_KEY = "regionWidth";
+    private static final String GRID_WIDTH_KEY = "gridWidth";
 
     @SuppressWarnings("nls")
-    private static final String REGION_HEIGHT_KEY = "regionHeight" +
-        "";
+    private static final String GRID_HEIGHT_KEY = "gridHeight";
 
     private ImageSource imageSource;
     private PalletOrientation orientation;
     private PalletDimensions dimensions;
     private BarcodePosition barcodePosition;
     private ScannerDpi scannerDpi;
-    Map<ScannerDpi, Rectangle2D.Double> gridRectangles;
+    Rectangle2D.Double gridRectangle;
 
     /**
      * The settings associated with an image source.
@@ -71,13 +77,13 @@ public class ImageSourceSettings {
         PalletDimensions dimensions,
         BarcodePosition barcodePosition,
         ScannerDpi scannerDpi,
-        Map<ScannerDpi, Rectangle2D.Double> gridRectangles) {
+        Rectangle2D.Double gridRectangle) {
         this.setImageSource(imageSource);
         this.setOrientation(orientation);
         this.dimensions = dimensions;
         this.barcodePosition = barcodePosition;
         this.scannerDpi = scannerDpi;
-        this.gridRectangles = gridRectangles;
+        this.gridRectangle = gridRectangle;
     }
 
     public ImageSource getImageSource() {
@@ -120,19 +126,26 @@ public class ImageSourceSettings {
         this.scannerDpi = scannerDpi;
     }
 
-    @SuppressWarnings("nls")
-    public Rectangle2D.Double getGridRectangle(ScannerDpi dpi) {
-        Rectangle2D.Double rect = gridRectangles.get(dpi);
-        if (rect == null) {
-            throw new IllegalStateException("grid rectangle is null: " + dpi.getDisplayLabel());
-        }
-        return rect;
+    /**
+     * For flatbed scanner image sources, the grid rectangle is stored in inches. For other types of
+     * image sources, the grid rectangle is stored in pixels.
+     * 
+     * @return The rectangle that contains the cells for each tube.
+     */
+    public Rectangle2D.Double getGridRectangle() {
+        return gridRectangle;
     }
 
-    public void setGridRectangle(ScannerDpi dpi, Rectangle2D.Double gridRectangle) {
-        gridRectangles.put(dpi, gridRectangle);
+    public void setGridRectangle(Rectangle2D.Double gridRectangle) {
+        this.gridRectangle = gridRectangle;
     }
 
+    /**
+     * Saves the settings used for this image source. These settings are stored in dialog settings
+     * (see {@link IDialogSettings}).
+     * 
+     * @param section The section key name in the dialog settings the data is stored in.
+     */
     public void putSettingsInSection(IDialogSettings section) {
         section.put(PALLET_ORIENTATION_KEY, orientation.getId());
 
@@ -143,27 +156,26 @@ public class ImageSourceSettings {
             section.put(SCANNER_DPI_KEY, scannerDpi.getValue());
         }
 
-        putGridRectanglesInSection(section);
-    }
-
-    private void putGridRectanglesInSection(IDialogSettings section) {
-
-        for (Entry<ScannerDpi, Rectangle2D.Double> entry : gridRectangles.entrySet()) {
-            String sectionName = getGridRectangleSettingsKey(entry.getKey());
-            IDialogSettings regionSection = section.getSection(sectionName);
-            if (regionSection == null) {
-                regionSection = section.addNewSection(sectionName);
-            }
-
-            Rectangle2D.Double gridRectangle = entry.getValue();
-            regionSection.put(REGION_X_KEY, gridRectangle.x);
-            regionSection.put(REGION_Y_KEY, gridRectangle.y);
-            regionSection.put(REGION_WIDTH_KEY, gridRectangle.width);
-            regionSection.put(REGION_HEIGHT_KEY, gridRectangle.height);
+        IDialogSettings gridSection = section.getSection(GRID_SECTION_KEY);
+        if (gridSection == null) {
+            gridSection = section.addNewSection(GRID_SECTION_KEY);
         }
 
+        gridSection.put(GRID_X_KEY, gridRectangle.x);
+        gridSection.put(GRID_Y_KEY, gridRectangle.y);
+        gridSection.put(GRID_WIDTH_KEY, gridRectangle.width);
+        gridSection.put(GRID_HEIGHT_KEY, gridRectangle.height);
+
     }
 
+    /**
+     * Returns the last settings used for this image source. These settings are retrieved from the
+     * dialog settings (see {@link IDialogSettings}).
+     * 
+     * @param source the image source to get the settings for (see {@link ImageSource}).
+     * @param section The dialog-settings section key name these settings are stored in.
+     * @return The settings used by the user the last time (see {@link ImageSourceSettings}).
+     */
     public static ImageSourceSettings getSettingsFromSection(
         ImageSource source,
         IDialogSettings section) {
@@ -196,39 +208,32 @@ public class ImageSourceSettings {
             BarcodePosition.BOTTOM.getId());
         barcodePosition = BarcodePosition.getFromIdString(barcodePositionStr);
 
-        Map<ScannerDpi, Rectangle2D.Double> regions = new HashMap<ScannerDpi, Rectangle2D.Double>();
-
         if (source != ImageSource.FILE) {
             int dpi = getSetting(imageSourceSection, SCANNER_DPI_KEY, ScannerDpi.DPI_300.getValue());
             scannerDpi = ScannerDpi.getFromId(dpi);
-
-            for (ScannerDpi dpi2 : ScannerDpi.getValidDpis()) {
-                regions.put(dpi2, getRegionSettingsFromSection(dpi2, imageSourceSection));
-            }
         } else {
-            regions.put(ScannerDpi.DPI_UNKNOWN,
-                getRegionSettingsFromSection(ScannerDpi.DPI_UNKNOWN, section));
+            scannerDpi = ScannerDpi.DPI_UNKNOWN;
         }
 
+        Rectangle2D.Double gridRectangle = getGridSettingsFromSection(imageSourceSection);
+
         return new ImageSourceSettings(
-            source, orientation, dimensions, barcodePosition, scannerDpi, regions);
+            source, orientation, dimensions, barcodePosition, scannerDpi, gridRectangle);
     }
 
-    private static Rectangle2D.Double getRegionSettingsFromSection(
-        ScannerDpi dpi,
-        IDialogSettings section) {
+    private static Rectangle2D.Double getGridSettingsFromSection(IDialogSettings section) {
         double x = -1;
         double y = -1;
         double width = -1;
         double height = -1;
 
-        IDialogSettings regionSection = section.getSection(getGridRectangleSettingsKey(dpi));
+        IDialogSettings regionSection = section.getSection(GRID_SECTION_KEY);
 
         if (regionSection != null) {
-            x = getSetting(regionSection, REGION_X_KEY, -1.0);
-            y = getSetting(regionSection, REGION_Y_KEY, -1.0);
-            width = getSetting(regionSection, REGION_WIDTH_KEY, -1.0);
-            height = getSetting(regionSection, REGION_HEIGHT_KEY, -1.0);
+            x = getSetting(regionSection, GRID_X_KEY, -1.0);
+            y = getSetting(regionSection, GRID_Y_KEY, -1.0);
+            width = getSetting(regionSection, GRID_WIDTH_KEY, -1.0);
+            height = getSetting(regionSection, GRID_HEIGHT_KEY, -1.0);
         }
 
         return new Rectangle2D.Double(x, y, width, height);
@@ -262,39 +267,20 @@ public class ImageSourceSettings {
         return result;
     }
 
-    private static String getGridRectangleSettingsKey(ScannerDpi dpi) {
-        StringBuffer buf = new StringBuffer();
-        buf.append(REGION_SECTION_KEY_PREFIX);
-        buf.append(dpi.getValue());
-        return buf.toString();
-    }
-
+    /**
+     * Returns the default values used for an image source.
+     * 
+     * @param source The image source the settings are for.
+     * 
+     * @return the default values used for an image source.
+     */
     public static ImageSourceSettings defaultSettings(ImageSource source) {
-        Map<ScannerDpi, Rectangle2D.Double> regions =
-            new HashMap<ScannerDpi, Rectangle2D.Double>();
-
-        if (source == ImageSource.FILE) {
-            regions.put(ScannerDpi.DPI_UNKNOWN, new Rectangle2D.Double(-1, -1, -1, -1));
-
-            return new ImageSourceSettings(
-                source,
-                PalletOrientation.LANDSCAPE,
-                PalletDimensions.DIM_ROWS_8_COLS_12,
-                BarcodePosition.BOTTOM,
-                ScannerDpi.DPI_UNKNOWN,
-                regions);
-        }
-
-        for (ScannerDpi dpi : ScannerDpi.getValidDpis()) {
-            regions.put(dpi, new Rectangle2D.Double(-1, -1, -1, -1));
-        }
-
         return new ImageSourceSettings(
             source,
             PalletOrientation.LANDSCAPE,
             PalletDimensions.DIM_ROWS_8_COLS_12,
             BarcodePosition.BOTTOM,
             ScannerDpi.DPI_UNKNOWN,
-            regions);
+            new Rectangle2D.Double(-1, -1, -1, -1));
     }
 }

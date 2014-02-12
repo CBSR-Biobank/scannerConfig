@@ -1,5 +1,6 @@
 package edu.ualberta.med.scannerconfig;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.net.URL;
 import java.util.LinkedHashSet;
@@ -22,6 +23,7 @@ import org.osgi.framework.BundleContext;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+import edu.ualberta.med.biobank.gui.common.Swt2DUtil;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLib;
 import edu.ualberta.med.scannerconfig.dmscanlib.ScanLibResult;
 import edu.ualberta.med.scannerconfig.preferences.PreferenceConstants;
@@ -271,5 +273,20 @@ public class ScannerConfigPlugin extends AbstractUIPlugin {
 
     public int getContrast() {
         return getPreferenceStore().getInt(PreferenceConstants.SCANNER_CONTRAST);
+    }
+
+    public static Rectangle2D.Double rectangleToInches(final int dpi,
+        final Rectangle2D.Double rectangle) {
+        AffineTransform scaleTransform = AffineTransform.getScaleInstance(dpi, dpi);
+        Rectangle2D.Double rectangleInInches =
+            Swt2DUtil.inverseTransformRect(scaleTransform, rectangle);
+        return rectangleInInches;
+    }
+
+    public static Rectangle2D.Double rectangleToPixels(final int dpi,
+        final Rectangle2D.Double rectangle) {
+        AffineTransform scaleTransform = AffineTransform.getScaleInstance(dpi, dpi);
+        Rectangle2D.Double rectangleInPixels = Swt2DUtil.transformRect(scaleTransform, rectangle);
+        return rectangleInPixels;
     }
 }

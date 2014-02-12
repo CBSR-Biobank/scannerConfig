@@ -37,7 +37,7 @@ public class ImageRegion {
     /**
      * The flatbed dimensions must be specified.
      * 
-     * @param imageBounds a rectangle cotanining the dimensions of the flatbed in pixels.
+     * @param imageBounds a rectangle containing the dimensions of the flatbed in pixels.
      * @param region a rectangle containing the dimensions of the scanning region that is contained
      *            within the flatbed image (in pixels).
      */

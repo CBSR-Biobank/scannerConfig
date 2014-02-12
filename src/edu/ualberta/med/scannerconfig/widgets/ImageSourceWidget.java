@@ -1,6 +1,7 @@
 package edu.ualberta.med.scannerconfig.widgets;
 
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D.Double;
 import java.io.File;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -348,10 +349,46 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         this.selectionListener = listener;
     }
 
+    @SuppressWarnings("nls")
     public Rectangle2D.Double getGridRectangle() {
         ImageSource imageSource = imageSourceSelectionWidget.getSelection();
         ImageSourceSettings pastImageSourceSettings = dialogSettings.getImageSourceSettings(imageSource);
-        return pastImageSourceSettings.getGridRectangle(getDpi());
+        Rectangle2D.Double gridRectangle = pastImageSourceSettings.getGridRectangle();
+
+        boolean girdNotInitialized = (gridRectangle.x < 0) || (gridRectangle.y < 0)
+            || (gridRectangle.width < 0) || (gridRectangle.height < 0);
+
+        if ((imageSource == ImageSource.FILE) || girdNotInitialized) {
+            return gridRectangle;
+        }
+
+        // convert from inches to pixels
+        int dpi = getDpi().getValue();
+        Double gridPixels = ScannerConfigPlugin.rectangleToPixels(dpi, gridRectangle);
+        log.debug("getGridRectangle: rect: {}", gridPixels);
+        return gridPixels;
+    }
+
+    @SuppressWarnings("nls")
+    public void setGridRectangle(
+        ImageSource imageSource,
+        ScannerDpi scannerDpi,
+        Rectangle2D.Double gridPixels) {
+
+        if ((imageSource != ImageSource.FILE) && (scannerDpi == ScannerDpi.DPI_UNKNOWN)) {
+            throw new IllegalArgumentException("invalid image source and dpi");
+        }
+
+        if (scannerDpi != ScannerDpi.DPI_UNKNOWN) {
+            int dpi = scannerDpi.getValue();
+            Rectangle2D.Double gridInches = ScannerConfigPlugin.rectangleToInches(dpi, gridPixels);
+            getImageSourceSettings().setGridRectangle(gridInches);
+            log.debug("setGridRectangle: dpi: {}, rect: {}", dpi, gridInches);
+        } else {
+            getImageSourceSettings().setGridRectangle(gridPixels);
+            log.debug("setGridRectangle: rect: {}", gridPixels);
+        }
+
     }
 
     public PalletOrientation getPlateOrientation() {
@@ -470,19 +507,6 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
 
     public void setScannerDpi(ScannerDpi dpi) {
         getImageSourceSettings().setScannerDpi(dpi);
-    }
-
-    @SuppressWarnings("nls")
-    public void setGridRectangle(
-        ImageSource source,
-        ScannerDpi dpi,
-        Rectangle2D.Double gridRectangle) {
-        if (source == ImageSource.FILE) {
-            getImageSourceSettings().setGridRectangle(ScannerDpi.DPI_UNKNOWN, gridRectangle);
-        } else {
-            getImageSourceSettings().setGridRectangle(dpi, gridRectangle);
-            log.debug("setGridRectangle: dpi: {}, rect: {}", dpi, gridRectangle);
-        }
     }
 
     /**
