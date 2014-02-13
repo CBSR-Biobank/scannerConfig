@@ -186,10 +186,8 @@ public class ImageWithRegionCanvas extends ImageCanvas {
     protected void mouseScrolled(MouseEvent e) {
         if ((e.stateMask & SWT.MODIFIER_MASK & SWT.CTRL) == SWT.CTRL) {
             if (e.count >= 0) {
-                // centreZoomIn(e.x, e.y);
                 zoomIn();
             } else {
-                // centreZoomOut(e.x, e.y);
                 zoomOut();
             }
         }
@@ -199,8 +197,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
     protected void mouseDown(MouseEvent e) {
         super.mouseDown(e);
 
-        if (getSourceImage() == null)
-            return;
+        if (getSourceImage() == null) return;
 
         lastMousePosInRegion = canvasPointToRegion(e.x, e.y);
     }
@@ -209,8 +206,7 @@ public class ImageWithRegionCanvas extends ImageCanvas {
     protected void mouseUp(MouseEvent e) {
         super.mouseUp(e);
 
-        if (getSourceImage() == null)
-            return;
+        if (getSourceImage() == null) return;
 
         dragRegion = PointToRegion.OUTSIDE_REGION;
 

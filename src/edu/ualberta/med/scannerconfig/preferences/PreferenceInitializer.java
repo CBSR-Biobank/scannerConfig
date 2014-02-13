@@ -19,8 +19,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         store.setDefault(PreferenceConstants.SCANNER_DRV_TYPE,
             PreferenceConstants.SCANNER_DRV_TYPE_NONE);
 
-        store.setDefault(PreferenceConstants.LIBDMTX_MIN_EDGE_FACTOR, 0.1);
-        store.setDefault(PreferenceConstants.LIBDMTX_MAX_EDGE_FACTOR, 0.3);
+        store.setDefault(PreferenceConstants.LIBDMTX_MIN_EDGE_FACTOR, 0.2);
+        store.setDefault(PreferenceConstants.LIBDMTX_MAX_EDGE_FACTOR, 0.4);
         store.setDefault(PreferenceConstants.LIBDMTX_SCAN_GAP_FACTOR, 0.15);
 
         store.setDefault(PreferenceConstants.LIBDMTX_EDGE_THRESH, 5);

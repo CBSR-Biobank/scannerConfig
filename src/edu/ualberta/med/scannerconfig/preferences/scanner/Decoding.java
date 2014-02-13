@@ -67,7 +67,7 @@ public class Decoding extends FieldEditorPreferencePage implements
 
         edgeMinDblInput = new DoubleFieldEditor(
             PreferenceConstants.LIBDMTX_MIN_EDGE_FACTOR,
-            i18n.tr("Edge Mininmum Factor:"),
+            i18n.tr("Edge Minimum Factor:"),
             getFieldEditorParent());
         edgeMinDblInput.setValidRange(0.0, 1.0);
         addField(edgeMinDblInput);
@@ -75,7 +75,7 @@ public class Decoding extends FieldEditorPreferencePage implements
 
         edgeMaxDblInput = new DoubleFieldEditor(
             PreferenceConstants.LIBDMTX_MAX_EDGE_FACTOR,
-            i18n.tr("Edge Mininmum Factor:"),
+            i18n.tr("Edge Maximum Factor:"),
             getFieldEditorParent());
         edgeMaxDblInput.setValidRange(0.0, 1.0);
         addField(edgeMaxDblInput);
