@@ -256,6 +256,7 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
             removeImage();
             selectedImageSource = imageSourceWidget.getImageSource();
             selectedDpi = imageSourceWidget.getDpi();
+            plateGridWidget.clearInfoText();
             break;
 
         case PLATE_ORIENTATION:
@@ -277,12 +278,14 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
             saveGridRectangle();
             removeDecodeInfo();
             scanMode = ScanMode.SCAN;
+            plateGridWidget.clearInfoText();
             scanPlate(e);
             break;
 
         case RESCAN:
             saveGridRectangle();
             scanMode = ScanMode.RESCAN;
+            plateGridWidget.clearInfoText();
             scanPlate(e);
             break;
 
@@ -290,12 +293,14 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
             removeImage();
             String filename = (String) e.data;
             scanMode = ScanMode.SCAN;
+            plateGridWidget.clearInfoText();
             loadFile(filename, ImageSource.FILE);
             break;
 
         case DPI_CHANGED:
             saveGridRectangle();
             selectedDpi = (ScannerDpi) e.data;
+            plateGridWidget.clearInfoText();
             removeImage();
             break;
 

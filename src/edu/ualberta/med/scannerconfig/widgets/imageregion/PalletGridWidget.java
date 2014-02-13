@@ -17,6 +17,7 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import edu.ualberta.med.biobank.common.formatters.DateFormatter;
+import edu.ualberta.med.biobank.common.util.StringUtil;
 import edu.ualberta.med.scannerconfig.BarcodeImage;
 import edu.ualberta.med.scannerconfig.BarcodePosition;
 import edu.ualberta.med.scannerconfig.ImageSource;
@@ -230,5 +231,9 @@ public class PalletGridWidget extends Composite {
 
     public Double getUserRegionInPixels() {
         return canvas.getUserRegionInPixels();
+    }
+
+    public void clearInfoText() {
+        infoTextLabel.setText(StringUtil.EMPTY_STRING);
     }
 }
