@@ -59,6 +59,8 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
 
     private final Color a1BackgroundColor;
 
+    private final Color decodedBackgroundColor;
+
     public PalletGridCanvas(Composite parent) {
         super(parent);
         cellRectangles = new HashMap<String, CellRectangle>();
@@ -69,6 +71,7 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
         Display display = getDisplay();
         foregroundColor = new Color(display, 0, 255, 0);
         a1BackgroundColor = new Color(display, 0, 255, 255);
+        decodedBackgroundColor = new Color(display, 0, 127, 0);
 
         addMouseTrackListener(new MouseTrackListener() {
 
@@ -128,6 +131,12 @@ public class PalletGridCanvas extends ImageWithRegionCanvas {
 
             DecodedWell decodedWell = decodedWells.get(cell.getLabel());
             if (decodedWell != null) {
+                newGC.setAlpha(64);
+                newGC.setBackground(decodedBackgroundColor);
+                newGC.fillRectangle((int) rectOnCanvas.x, (int) rectOnCanvas.y,
+                    (int) rectOnCanvas.width, (int) rectOnCanvas.height);
+                newGC.setAlpha(255);
+
                 newGC.drawImage(decodedIconImage, 0, 0,
                     decodedIconImageBounds.width,
                     decodedIconImageBounds.height, (int) rectOnCanvas.x,
