@@ -15,6 +15,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -148,6 +149,13 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
     }
 
     @Override
+    protected Point getInitialSize() {
+        final Point size = super.getInitialSize();
+        size.y += convertHeightInCharsToPixels(2);
+        return size;
+    }
+
+    @Override
     protected IDialogSettings getDialogSettings() {
         IDialogSettings settings = super.getDialogSettings();
         IDialogSettings section = settings.getSection(SCANNING_DIALOG_SETTINGS);
@@ -192,17 +200,32 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         contents.setLayoutData(gd);
         createControls(contents);
         createImageControl(contents);
+
+        Point size = parent.computeSize(450, 450);
+        getShell().setMinimumSize(size);
     }
 
     private void createControls(Composite parent) {
-        imageSourceWidget = new ImageSourceWidget(parent, CONTROLS_MIN_WIDTH,
+        final Composite contents = new Composite(parent, SWT.NONE);
+
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginHeight = 0;
+        layout.marginWidth = 0;
+        layout.verticalSpacing = 0;
+        layout.horizontalSpacing = 0;
+        contents.setLayout(layout);
+
+        GridData gd = new GridData(SWT.BEGINNING, SWT.FILL, false, true);
+        contents.setLayoutData(gd);
+
+        imageSourceWidget = new ImageSourceWidget(contents, CONTROLS_MIN_WIDTH,
             widgetCreator, getDialogSettings(), validPlateDimensions);
         imageSourceWidget.addSelectionListener(this);
 
         selectedImageSource = imageSourceWidget.getImageSource();
         selectedDpi = imageSourceWidget.getDpi();
 
-        decodeButton = createDecodeButton(imageSourceWidget);
+        decodeButton = createDecodeButton(contents);
         decodeButton.setEnabled(false);
     }
 
