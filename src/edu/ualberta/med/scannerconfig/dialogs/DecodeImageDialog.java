@@ -201,7 +201,8 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
         createControls(contents);
         createImageControl(contents);
 
-        Point size = parent.computeSize(450, 450);
+        parent.pack(true);
+        Point size = getShell().computeSize(SWT.DEFAULT, 400);
         getShell().setMinimumSize(size);
     }
 
