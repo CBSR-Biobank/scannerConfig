@@ -149,13 +149,6 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
     }
 
     @Override
-    protected Point getInitialSize() {
-        final Point size = super.getInitialSize();
-        size.y += convertHeightInCharsToPixels(2);
-        return size;
-    }
-
-    @Override
     protected IDialogSettings getDialogSettings() {
         IDialogSettings settings = super.getDialogSettings();
         IDialogSettings section = settings.getSection(SCANNING_DIALOG_SETTINGS);
