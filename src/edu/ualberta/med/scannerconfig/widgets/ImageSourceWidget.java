@@ -78,6 +78,8 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
 
     private Button scanButton;
 
+    private Button scanAndDecodeButton;
+
     private Button rescanButton;
 
     private final Set<PalletDimensions> validPlateDimensions;
@@ -336,6 +338,11 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
         rescanButton = new Button(composite, SWT.PUSH);
         rescanButton.setText(i18n.tr("Rescan"));
         rescanButton.addSelectionListener(this);
+
+        scanAndDecodeButton = new Button(composite, SWT.PUSH);
+        scanAndDecodeButton.setText(i18n.tr("Scan && Decode"));
+        scanAndDecodeButton.addSelectionListener(this);
+
         return composite;
     }
 
@@ -446,6 +453,9 @@ public class ImageSourceWidget extends Composite implements SelectionListener {
 
             if (e.getSource().equals(scanButton)) {
                 newEvent.detail = ImageSourceAction.SCAN.getId();
+                newEvent.data = imageSourceSelectionWidget.getSelection();
+            } else if (e.getSource().equals(scanAndDecodeButton)) {
+                newEvent.detail = ImageSourceAction.SCAN_AND_DECODE.getId();
                 newEvent.data = imageSourceSelectionWidget.getSelection();
             } else if (e.getSource().equals(rescanButton)) {
                 newEvent.detail = ImageSourceAction.RESCAN.getId();

@@ -299,6 +299,15 @@ public class DecodeImageDialog extends PersistedDialog implements SelectionListe
             scanPlate(e);
             break;
 
+        case SCAN_AND_DECODE:
+            saveGridRectangle();
+            removeDecodeInfo();
+            scanMode = ScanMode.SCAN;
+            plateGridWidget.clearInfoText();
+            scanPlate(e);
+            decode();
+            break;
+
         case RESCAN:
             saveGridRectangle();
             scanMode = ScanMode.RESCAN;

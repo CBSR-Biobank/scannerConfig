@@ -13,7 +13,8 @@ public enum ImageSourceAction {
     PLATE_DIMENSIONS(5),
     BARCODE_POSITION(6),
     IMAGE_SOURCE_CHANGED(7),
-    DPI_CHANGED(8);
+    DPI_CHANGED(8),
+    SCAN_AND_DECODE(9);
 
     private final int id;
 
