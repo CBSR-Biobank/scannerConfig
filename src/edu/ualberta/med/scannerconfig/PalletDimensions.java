@@ -36,7 +36,12 @@ public enum PalletDimensions {
     DIM_ROWS_12_COLS_12(
         "ROWS_12_COLS_12",
         new ImmutablePair<Integer, Integer>(12, 12),
-        Constants.i18n.tr("12x12"));
+        Constants.i18n.tr("12x12")),
+
+    DIM_ROWS_7_COLS_7(
+        "ROWS_7_COLS_7",
+        new ImmutablePair<Integer, Integer>(7, 7),
+        Constants.i18n.tr("7x7"));
 
     private static class Constants {
         private static final I18n i18n = I18nFactory.getI18n(PalletDimensions.class);
